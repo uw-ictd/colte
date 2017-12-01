@@ -1,0 +1,95 @@
+#!/bin/bash
+################################################################################
+# Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The OpenAirInterface Software Alliance licenses this file to You under 
+# the Apache License, Version 2.0  (the "License"); you may not use this file
+# except in compliance with the License.  
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#-------------------------------------------------------------------------------
+# For more information about the OpenAirInterface (OAI) Software Alliance:
+#      contact@openairinterface.org
+################################################################################
+
+# file hss_db_create
+# brief
+# author Lionel Gauthier
+# company Eurecom
+# email: lionel.gauthier@eurecom.fr
+################################
+# include helper functions
+################################
+THIS_SCRIPT_PATH=$(dirname $(readlink -f $0))
+. $THIS_SCRIPT_PATH/../build/tools/build_helper
+
+
+# arg 1 is mysql hostname  (ex: 127.0.0.1)
+# arg 2 is mysql admin     (ex: root)
+# arg 3 is mysql password  (ex: linux)
+# arg 4 is hss username    (ex: hssadmin)
+# arg 5 is hss password    (ex: admin)
+# arg 6 is database name   (ex: oai_db)
+function main(){
+  EXPECTED_ARGS=6
+  if [ $# -ne $EXPECTED_ARGS ]
+  then
+    echo_error "Usage: hss_db_create dbhostname dbadmin dbpass hssuser hsspass databasename"
+    return 1
+  fi
+  local mysql_hostname=$1
+  local mysql_admin=$2
+  local mysql_password=$3
+  local hss_username=$4
+  local hss_password=$5
+  local database_name=$6
+    
+  Q1="GRANT ALL PRIVILEGES ON *.* TO '$hss_username'@'localhost' IDENTIFIED BY '$hss_password' WITH GRANT OPTION;"
+  Q2="FLUSH PRIVILEGES;"
+  mysql -h $mysql_hostname -u $mysql_admin --password=$mysql_password -e "${Q1}${Q2}"
+  if [ $? -ne 0 ]; then
+    echo_error "HSS: $hss_username permissions creation failed"
+    echo_error "if you want to reset password: sudo dpkg-reconfigure mysql-server-5.5"
+    return 1
+  else
+    echo_success "HSS: $hss_username permissions creation succeeded"
+  fi
+
+  Q3="CREATE DATABASE IF NOT EXISTS $database_name;"
+  mysql -h $mysql_hostname -u $hss_username --password=$hss_password -e "${Q3}"
+  if [ $? -ne 0 ]; then
+    echo_error "HSS: $database_name creation failed"
+    return 1
+  else
+    echo_success "HSS: $database_name creation succeeded"
+  fi
+
+
+  # test if tables have been created
+  mysql -h $mysql_hostname -u $hss_username --password=$hss_password  -e "desc $database_name.users" > /dev/null 2>&1
+  if [ $? -eq 1 ]; then 
+    mysql -h $mysql_hostname -u $hss_username --password=$hss_password $database_name < $OPENAIRCN_DIR/src/oai_hss/db/$database_name.sql
+    if [ $? -ne 0 ]; then
+      echo_error "HSS: $database_name tables creation failed"
+      return 1
+    else
+      echo_success "HSS: $database_name tables creation succeeded"
+    fi
+  else
+      echo_success "HSS: $database_name tables already created, nothing done"
+  fi 
+  return 0
+}
+
+set_openair_env 
+
+main "$@" 
+

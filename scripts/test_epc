@@ -1,0 +1,538 @@
+#!/bin/bash
+################################################################################
+# Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The OpenAirInterface Software Alliance licenses this file to You under 
+# the Apache License, Version 2.0  (the "License"); you may not use this file
+# except in compliance with the License.  
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#-------------------------------------------------------------------------------
+# For more information about the OpenAirInterface (OAI) Software Alliance:
+#      contact@openairinterface.org
+################################################################################
+# file test_epc
+# brief
+# author Lionel Gauthier
+# company Eurecom
+# email: lionel.gauthier@eurecom.fr
+#
+
+SUDO=sudo
+
+###############################
+## echo and  family
+###############################
+black='\E[30m'
+red='\E[31m'
+green='\E[32m'
+yellow='\E[33m'
+blue='\E[1;34m'
+magenta='\E[35m'
+cyan='\E[36m'
+white='\E[37m'
+reset_color='\E[00m'
+COLORIZE=1
+
+cecho()  {  
+    # Color-echo
+    # arg1 = message
+    # arg2 = color
+    local default_msg="No Message."
+    message=${1:-$default_msg}
+    color=${2:-$green}
+    [ "$COLORIZE" = "1" ] && message="$color$message$reset_color"
+    echo -e "$message"
+    return
+}
+
+echo_error()   { cecho "$*" $red          ;}
+echo_fatal()   { cecho "$*" $red; exit -1 ;}
+echo_warning() { cecho "$*" $yellow       ;}
+echo_success() { cecho "$*" $green        ;}
+echo_info()    { cecho "$*" $blue         ;}
+
+
+cidr2mask(){
+  local i mask=""
+  local full_octets=$(($1/8))
+  local partial_octet=$(($1%8))
+
+  for ((i=0;i<4;i+=1)); do
+    if [ $i -lt $full_octets ]; then
+      mask+=255
+    elif [ $i -eq $full_octets ]; then
+      mask+=$((256 - 2**(8-$partial_octet)))
+    else
+      mask+=0
+    fi
+    test $i -lt 3 && mask+=.
+  done
+
+  echo $mask
+}
+
+# example: netcalc 192.168.12.100 255.255.255.0
+netcalc(){
+  local IFS='.' ip i
+  local -a oct msk
+    
+  read -ra oct <<<"$1"
+  read -ra msk <<<"$2"
+
+  for i in ${!oct[@]}; do
+    ip+=( "$(( oct[i] & msk[i] ))" )
+  done
+    
+  echo "${ip[*]}"
+}
+
+# example: 
+bcastcalc(){
+  local IFS='.' ip i
+  local -a oct msk
+    
+  read -ra oct <<<"$1"
+  read -ra msk <<<"$2"
+
+  for i in ${!oct[@]}; do
+    ip+=( "$(( oct[i] + ( 255 - ( oct[i] | msk[i] ) ) ))" )
+  done
+  echo "${ip[*]}"
+}
+
+
+is_real_interface(){
+  my_bool=1
+  for var in "$@"
+  do
+    if [ "a$var" == "a" ]; then
+      return 0
+    fi
+    if [ "a$var" == "anone" ]; then
+      return 0
+    fi
+    IF=`cat /etc/udev/rules.d/70-persistent-net.rules | grep $var | sed 's/^.*NAME=//' | tr -d '"'`
+    if [ "$IF" == "$var" ]; then
+      if [ "a${var:0:3}" != "aeth" ]; then
+        if [ "a${var:0:4}" != "awlan" ]; then
+          if [ "a${var:0:4}" != "awifi" ]; then
+            my_bool=0;
+          fi
+        fi
+      fi
+    fi
+  done
+  return $my_bool
+}
+
+is_virtual_interface(){
+  my_bool=1
+  for var in "$@"
+  do
+    if [ "a$var" == "a" ]; then
+      return 0
+    fi
+    if [ "a$var" == "anone" ]; then
+      return 0
+    fi
+    num=`expr index "$var" :`
+    
+    if [ $num -eq 0 ]; then
+      my_bool=0;
+    fi
+  done
+  return $my_bool
+}
+
+# arg1 = interface name
+# arg2 = ipv4 addr cidr
+set_interface_up(){
+  interface=$1
+  address=${2%/*} #part before '/'
+  cidr_netmask=${2#*/} # part after '/'
+
+  if [ "a${interface:0:4}" == "anone" ]; then
+    return;
+  fi
+  echo "ifconfig  $interface up"
+  $SUDO ifconfig  $interface up
+  sync
+  netmask=`cidr2mask $cidr_netmask`
+  broadcast=`bcastcalc $address $netmask`
+  echo "ip -4 addr add  $address/$cidr_netmask broadcast $broadcast dev $interface"
+  $SUDO ip -4 addr add  $address/$cidr_netmask broadcast $broadcast dev $interface
+  sync
+}
+
+# arg1 = interface name
+# arg2 = ipv4 addr cidr
+set_virtual_interface_up(){
+  interface=$1
+  address=${2%/*} #part before '/'
+  cidr_netmask=${2#*/} # part after '/'
+
+  if [ "a${interface:0:4}" == "anone" ]; then
+    return;
+  fi
+  #work with unbuntu 15.10, but not with 14.04:
+  # it removes all virtual interfaces belonging to the physical interface
+  #$SUDO ifconfig  $interface down > /dev/null 2>&1
+  sync
+  echo "ifconfig  $interface $address up"
+  $SUDO ifconfig  $interface $address up
+  sync
+}
+
+#arg1 is interface name
+#arg2 is IP address (CIDR)
+set_network_interface(){
+  local interface_name=$1
+  local ip_cidr=$2
+  
+  is_virtual_interface $interface_name
+  if [ $? -eq 1 ]; then
+    echo "$interface_name is virtual interface"
+    set_virtual_interface_up $interface_name $ip_cidr
+  else 
+    is_real_interface $interface_name
+    if [ $? -eq 1 ]; then
+      echo "$interface_name is real interface"
+      set_interface_up $interface_name $ip_cidr
+    else
+      echo_warning "$interface_name not handled, not configuring it"
+      return
+    fi
+  fi
+}
+
+
+# arg1 is a 'libconfig-like' config file
+set_enb_network_interfaces(){
+  value="`cat $1 | cut -d "#" -f1 | grep 'ADDRESS\|INTERFACE' | tr -d " " | grep "="`"
+  eval $value
+  
+  # check all var names are correct
+  list_var_name="\
+        ENB_INTERFACE_NAME_FOR_S1_MME         ENB_IPV4_ADDRESS_FOR_S1_MME \
+        ENB_INTERFACE_NAME_FOR_S1U            ENB_IPV4_ADDRESS_FOR_S1U "
+  for var_name in $list_var_name
+  do
+    if [ -n "$${var_name}" ]; then
+      echo_success "Found ${var_name} = ${!var_name}"
+    else
+      echo_fatal "${var_name} does does not exist in your config file $1"
+    fi
+  done
+
+  # configure interfaces
+  set_network_interface  $ENB_INTERFACE_NAME_FOR_S1_MME         $ENB_IPV4_ADDRESS_FOR_S1_MME 
+  set_network_interface  $ENB_INTERFACE_NAME_FOR_S1U            $ENB_IPV4_ADDRESS_FOR_S1U 
+}
+
+function help()
+{
+  echo_error "\033[1m \033[0m"
+  echo_error "Usage: test_epc [OPTION]..."
+  echo_error "Description:"
+  echo_error "Utility for building or/and running a EPC test case."
+  echo_error " "
+  echo_error "Options:"
+  echo_error "Mandatory arguments to long options are mandatory for short options too."
+  echo_error "  -b, --build-test                   Build XML scenario files (need -t|--test-dir option)."
+  echo_error "  -D, --delay-on-exit        seconds Sleep at the end of the scenario before exiting."
+  echo_error "                                       (Usefull for debugging with failure scenarios, it prevents shutdown of the "
+  echo_error "                                        SCTP association between simulated eNBs and MME)."
+  echo_error "  -e, --old-enb-config-file  file    Set eNB(s) old config file, the one used for generating the pcap file "
+  echo_error "                                       (relative path to test dir, see -t option, or absolute path)."
+  echo_error "  -E, --enb-config-file      file    Set eNB(s) config file, the new one, used for playing the scenario"
+  echo_error "                                       (relative path to test dir, see -t option, or absolute path)."
+  echo_error "  -f, --shift-packet         frame:[+-]sss.mmm"
+  echo_error "                                     Shit packet by seconds and milliseconds (need -r|--run option)"
+  echo_error "  -F, --shift-packets        frame:[+-]sss.mmm"
+  echo_error "                                     Shit packet and following packets by seconds and milliseconds (need -r|--run option)"
+  echo_error "  -g, --gdb                          Run with GDB."
+  echo_error "  -h, --help                         Print this help."
+  echo_error "  -H, --run-history          hist_num Replay test with hist_num'th command item in run history."
+  echo_error "  -i, --set-nw-interfaces            Force set network interfaces as described in eNB config file."
+  echo_error "  -m, --max-speed                    Play scenario without simulating inter-packets delays (incompatible with -f and -F options)."
+  echo_error "  -o, --run-options          file    Run options can be set in a text file (incompatible with -H option)."
+  echo_error "  -p, --pcap-file            file    Set pcap input file for building a scenario (need -b|--build-test option)."
+  echo_error "  -r, --run                          Run test with implicit scenario filename(-b|--build-test option) or explicit scenario filename (-s|--scenario-file)."
+  echo_error "  -s, --scenario-file        file    Set scenario input file for running a scenario (need -r|--run option, without -b|--build-test option)."
+  echo_error "  -S, --show-run-history             Display run history of the test(s) located in test dir."
+  echo_error "  -t, --test-dir             dir     Set test dir."
+  echo_error " "
+}
+
+function main()
+{
+  local    old_enb_config_file=""
+  local    enb_config_file=""
+  local    delay_args=""
+  local    pcap_file=""
+  local    run_options_file=""
+  local    scenario_file=""
+  local    test_dir="."
+  local    play_args=""
+  local    shift_args=""
+  local    run_extra_args=""
+  local -i set_network_interfaces=0
+  local -i run=0
+  local -i run_gdb=0
+  local -i max_speed=0
+  local -i build=0
+  local -i run_history=0
+  local -i show_run_history=0
+  local -i shift_packet_args=0
+  local -i delay_on_exit_args=0
+
+  until [ -z "$1" ]
+    do
+    case "$1" in
+      -b | --build-test)
+        build=1
+        shift;
+        ;;
+      -D | --delay-on-exit)
+        delay_on_exit_args=1
+        delay_args="$delay_args --delay-on-exit \"$2\""
+        shift 2;
+        ;;
+      -e | --old-enb-config-file)
+        old_enb_config_file=$2
+        shift 2;
+        ;;
+      -E | --enb-config-file)
+        enb_config_file=$2
+        shift 2;
+        if [ ! -f $enb_config_file ]; then 
+          echo_fatal "Please provide -e|--enb-config-file valid argument (\"$enb_config_file\" not a valid file)"
+        fi
+        ;;
+      -f | --shift-packet)
+        shift_packet_args=1
+        shift_args="$shift_args --shift-packet \"$2\""
+        shift 2;
+        ;;
+      -F | --shift-packets)
+        shift_packet_args=1
+        shift_args="$shift_args --shift-packets \"$2\""
+        shift 2;
+        ;;
+      -g | --gdb)
+        run_gdb=1
+        shift;
+        ;;
+      -h | --help)
+        help
+        shift;
+        exit 0
+        ;;
+      -H | --run-history)
+        run_history=${2}
+        shift 2;
+        ;;
+      -i | --set-nw-interfaces)
+        set_network_interfaces=1
+        shift;
+        ;;
+      -m | --max-speed)
+        play_args=$play_args" --max-speed"
+        shift;
+        ;;
+      -o | --run-options)
+        run_options_file=$2
+        shift 2;
+        ;;
+      -p | --pcap-file)
+        pcap_file=$2
+        shift 2;
+        ;;
+      -r | --run)
+        run=1
+        shift;
+        ;;
+      -s | --scenario-file)
+        scenario_file=$2
+        shift 2;
+        ;;
+      -S | --show-run-history)
+        show_run_history=1
+        shift;
+        ;;
+      -t | --test-dir)
+        test_dir=$2
+        shift 2;
+        if [ -d $test_dir ]; then
+          cd $test_dir
+        else
+          echo_fatal "Please provide -t|--test-dir valid argument (\"$test_dir\" not a directory)"
+        fi
+        ;;
+      *)   
+        echo "Unknown option $1"
+        help
+        exit 1
+        ;;
+    esac
+  done
+  
+  if [ $build -eq 1 ]; then
+    if [ "a$old_enb_config_file" == "a" ]; then 
+      echo_fatal "Please provide -e|--old-enb-config-file argument"
+    fi
+    if [ "a$pcap_file" == "a" ]; then 
+      echo_fatal "Please provide -p|--pcap-file argument"
+    fi
+  fi
+  if [ $run -eq 1 ]; then
+    if [ $build -eq 0 ]; then
+      if [ "a$scenario_file" == "a" ]; then 
+        echo_fatal "Please provide -s|--scenario-file argument"
+      fi
+    fi
+    if [ "a$enb_config_file" == "a" ]; then 
+      echo_fatal "Please provide -E|--enb-config-file argument"
+    fi
+    play_args=$play_args" "$shift_args" "$delay_args
+  fi
+  
+  ########
+      
+  if [ "a$old_enb_config_file" != "a" ]; then 
+    if [ ! -f $old_enb_config_file ]; then 
+      echo_fatal "Please provide -e|--old-enb-config-file valid argument (\"$old_enb_config_file\" not a valid file)"
+    fi
+  fi
+  if [ "a$enb_config_file" != "a" ]; then 
+    if [ ! -f $enb_config_file ]; then 
+      echo_fatal "Please provide -E|--enb-config-file valid argument (\"$enb_config_file\" not a valid file)"
+    fi
+  fi
+  if [ "a$pcap_file" != "a" ]; then 
+    if [ ! -f $pcap_file ]; then 
+      echo_fatal "Please provide -p|--pcap-file valid argument (\"$pcap_file\" not a valid file)"
+    fi
+  fi
+  if [ "a$run_options_file" != "a" ]; then 
+    if [ ! -f $run_options_file ]; then 
+      echo_fatal "Please provide -o|--run-options valid argument (\"$run_options_file\" not a valid file)"
+    else
+      run_extra_args=$(<$run_options_file)
+    fi
+  fi
+  if [ "a$scenario_file" != "a" ]; then 
+    if [ ! -f $scenario_file ]; then 
+      echo_fatal "Please provide -s|--scenario-file valid argument (\"$scenario_file\" not a valid file)"
+    fi
+  fi
+  
+  
+  
+  if [ $build -ne 0 ]; then
+    pcap_file_name_abs_path=`readlink -f $pcap_file`
+    mme_test_s1_pcap2pdml --pcap_file $pcap_file_name_abs_path
+    file_no_extension=`echo $pcap_file | rev | cut -d. -f2- | rev`
+    pcap_file_abs_path_no_extension=`echo $pcap_file_name_abs_path | rev | cut -d. -f2- | rev`
+    if [ ! -f $pcap_file_abs_path_no_extension.pdml ]; then 
+      echo_fatal "Generation of $pcap_file_abs_path_no_extension.pdml failed"
+    fi
+    scenario_file=$file_no_extension.xml
+    # needed for test_epc_generate_scenario
+
+    echo "test_epc_generate_scenario --enb-conf-file $old_enb_config_file --test-dir $test_dir --pdml $file_no_extension.pdml" >> $test_dir/test_epc_generate_scenario.history
+    if [ $run_gdb -eq 0 ]; then 
+      test_epc_generate_scenario --enb-conf-file $old_enb_config_file --test-dir $test_dir --pdml $file_no_extension.pdml
+    else
+      $SUDO touch      ~/.gdb_test_epc_generate_scenario
+      $SUDO chmod 777  ~/.gdb_test_epc_generate_scenario
+      $SUDO echo "file test_epc_generate_scenario"                                                                      > ~/.gdb_test_epc_generate_scenario
+      $SUDO echo "set args --enb-conf-file $old_enb_config_file --test-dir $test_dir --pdml $file_no_extension.pdml "  >> ~/.gdb_test_epc_generate_scenario
+      $SUDO echo "run"                                                                                                 >> ~/.gdb_test_epc_generate_scenario
+      $SUDO echo "\033[1m~/.gdb_test_epc_generate_scenario content:\033[0m"
+      $SUDO cat ~/.gdb_test_epc_generate_scenario
+      $SUDO echo "EOF"
+      $SUDO gdb -n -x ~/.gdb_test_epc_generate_scenario
+    fi
+    if [ ! -f $pcap_file_abs_path_no_extension.xml ]; then 
+      echo_fatal "Generation of scenario file $pcap_file_abs_path_no_extension.xml failed"
+    fi
+  fi
+  
+  
+  if [ $show_run_history -eq 1 ]; then
+    echo "Run history:"
+    if [ -f $test_dir/test_epc_play_scenario.history ]; then
+      nl $test_dir/test_epc_play_scenario.history
+    fi
+    echo "End of run history"
+    exit 0
+  fi
+  
+  if [ $run_history -gt 0 ]; then
+    if [ -f $test_dir/test_epc_play_scenario.history ]; then
+      hist_size=$(cat $test_dir/test_epc_play_scenario.history | sed '/^\s*$/d' | wc -l)
+      echo "hist_size=$hist_size"
+      echo "run_history=$run_history"
+      if [ $run_history -le $hist_size ]; then
+        if [ $set_network_interfaces -eq 1 ]; then
+          command_line=`sed -n "${run_history}p" $test_dir/test_epc_play_scenario.history`
+          next_word_is_enb_config_file=0
+          for word in $command_line; do
+            if [ $next_word_is_enb_config_file -eq 1 ]; then
+              set_enb_network_interfaces $word
+              next_word_is_enb_config_file=0
+            else 
+              if [ $word = "--enb-conf-file" ]; then
+                next_word_is_enb_config_file=1
+              elif [ $word = "-c" ]; then
+                next_word_is_enb_config_file=1
+              fi
+            fi
+          done
+        fi
+        if [ "a$run_options_file" != "a" ]; then
+          echo_warning "Omitting $run_options_file option files since running history command"
+        fi
+        $(sed -n "${run_history}p" $test_dir/test_epc_play_scenario.history)
+      else
+        echo_fatal "History item out of bounds, hist size is $hist_size"
+      fi
+    else
+      echo_fatal "No run history available (missing file $test_dir/test_epc_play_scenario.history)"
+    fi
+  else
+    if [ $set_network_interfaces -eq 1 ]; then
+      set_enb_network_interfaces $enb_config_file
+    fi
+    if [ $run -eq 1 ]; then
+      echo "test_epc_play_scenario --test-dir $test_dir --enb-conf-file $enb_config_file --scenario $scenario_file $play_args $run_extra_args" >> $test_dir/test_epc_play_scenario.history
+      if [ $run_gdb -eq 0 ]; then 
+        test_epc_play_scenario --test-dir $test_dir --enb-conf-file $enb_config_file --scenario $scenario_file $play_args $run_extra_args
+      else
+        $SUDO touch      ~/.gdb_test_epc_play_scenario
+        $SUDO chmod 777  ~/.gdb_test_epc_play_scenario
+        $SUDO echo "file test_epc_play_scenario"                                                                          > ~/.gdb_test_epc_play_scenario
+        $SUDO echo "set args --test-dir $test_dir --enb-conf-file $enb_config_file --scenario $scenario_file $play_args" >> ~/.gdb_test_epc_play_scenario
+        $SUDO echo "run"                                                                                                 >> ~/.gdb_test_epc_play_scenario
+        $SUDO echo "\033[1m~/.gdb_test_epc_play_scenario content:\033[0m"
+        $SUDO cat ~/.gdb_test_epc_play_scenario
+        $SUDO echo "EOF"
+        $SUDO gdb -n -x ~/.gdb_test_epc_play_scenario
+      fi
+    fi
+  fi
+}
+
+
+main "$@"
+
