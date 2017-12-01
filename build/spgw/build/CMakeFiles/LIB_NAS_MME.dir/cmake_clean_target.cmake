@@ -1,0 +1,3 @@
+file(REMOVE_RECURSE
+  "libLIB_NAS_MME.a"
+)

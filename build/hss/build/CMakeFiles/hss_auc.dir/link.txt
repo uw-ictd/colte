@@ -1,0 +1,2 @@
+/usr/bin/ar qc libhss_auc.a  CMakeFiles/hss_auc.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/auc/fx.c.o CMakeFiles/hss_auc.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/auc/kdf.c.o CMakeFiles/hss_auc.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/auc/random.c.o CMakeFiles/hss_auc.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/auc/rijndael.c.o CMakeFiles/hss_auc.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/auc/sequence_number.c.o
+/usr/bin/ranlib libhss_auc.a

@@ -1,0 +1,8 @@
+/home/spencer/Desktop/epc-dolte/build/hss/build/CMakeFiles/oai_hss.dir
+/home/spencer/Desktop/epc-dolte/build/hss/build/CMakeFiles/hss_utils.dir
+/home/spencer/Desktop/epc-dolte/build/hss/build/CMakeFiles/rebuild_cache.dir
+/home/spencer/Desktop/epc-dolte/build/hss/build/CMakeFiles/hss_access_restriction.dir
+/home/spencer/Desktop/epc-dolte/build/hss/build/CMakeFiles/hss_auc.dir
+/home/spencer/Desktop/epc-dolte/build/hss/build/CMakeFiles/edit_cache.dir
+/home/spencer/Desktop/epc-dolte/build/hss/build/CMakeFiles/hss_db.dir
+/home/spencer/Desktop/epc-dolte/build/hss/build/CMakeFiles/hss_s6a.dir
