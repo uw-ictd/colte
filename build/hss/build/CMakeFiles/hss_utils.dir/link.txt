@@ -1,0 +1,2 @@
+/usr/bin/ar qc libhss_utils.a  CMakeFiles/hss_utils.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/utils/conversion.c.o CMakeFiles/hss_utils.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/utils/hss_config.c.o CMakeFiles/hss_utils.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/utils/pid_file.c.o
+/usr/bin/ranlib libhss_utils.a

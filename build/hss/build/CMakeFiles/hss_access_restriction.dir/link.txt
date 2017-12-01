@@ -1,0 +1,2 @@
+/usr/bin/ar qc libhss_access_restriction.a  CMakeFiles/hss_access_restriction.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/access_restriction/access_restriction.c.o
+/usr/bin/ranlib libhss_access_restriction.a
