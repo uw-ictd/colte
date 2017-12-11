@@ -1,2 +1,0 @@
-/usr/bin/ar qc libUDP_SERVER.a  CMakeFiles/UDP_SERVER.dir/home/spencer/Desktop/epc-dolte/src/udp/udp_primitives_server.c.o
-/usr/bin/ranlib libUDP_SERVER.a

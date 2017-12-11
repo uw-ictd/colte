@@ -1,2 +1,0 @@
-/usr/bin/ar qc libMSC.a  CMakeFiles/MSC.dir/home/spencer/Desktop/epc-dolte/src/utils/msc/msc.c.o
-/usr/bin/ranlib libMSC.a
