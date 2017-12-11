@@ -1,3 +1,0 @@
-file(REMOVE_RECURSE
-  "libUDP_SERVER.a"
-)

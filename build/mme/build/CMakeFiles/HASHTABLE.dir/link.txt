@@ -1,2 +1,0 @@
-/usr/bin/ar qc libHASHTABLE.a  CMakeFiles/HASHTABLE.dir/home/spencer/Desktop/epc-dolte/src/utils/hashtable/hashtable.c.o CMakeFiles/HASHTABLE.dir/home/spencer/Desktop/epc-dolte/src/utils/hashtable/obj_hashtable.c.o
-/usr/bin/ranlib libHASHTABLE.a

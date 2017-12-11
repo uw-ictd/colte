@@ -1,2 +1,0 @@
-/usr/bin/ar qc libhss_db.a  CMakeFiles/hss_db.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/db/db_connector.c.o CMakeFiles/hss_db.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/db/db_epc_equipment.c.o CMakeFiles/hss_db.dir/home/spencer/Desktop/epc-dolte/src/oai_hss/db/db_subscription_data.c.o
-/usr/bin/ranlib libhss_db.a
