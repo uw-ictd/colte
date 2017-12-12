@@ -146,6 +146,10 @@ main (
   CHECK_INIT_RETURN (mme_app_init (&mme_config));
   CHECK_INIT_RETURN (s6a_init (&mme_config));
 
+#if ENBRAINS
+  printf("Starting ENBRAINS module...\n");
+#endif
+
   OAILOG_DEBUG(LOG_MME_APP, "MME app initialization complete\n");
   /*
    * Handle signals here

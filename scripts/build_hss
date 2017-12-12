@@ -44,6 +44,7 @@ function help()
   echo_error "  -c, --clean                               Clean the build generated files: config, object, executable files (build from scratch)"
   echo_error "  -d, --debug                               Compile with debug informations."
   echo_error "  -D, --daemon                              Build HSS as a daemon."
+  echo_error "  -e, --enbrains                            Compile with ENBRAINS support."
   echo_error "  -F, --force                               No interactive script for installation of software packages."
   echo_error "  -h, --help                                Print this help."
   echo_error "  -i, --check-installed-software            Check installed software packages necessary to build and run HSS (support $SUPPORTED_DISTRO)."
@@ -78,6 +79,11 @@ function main()
       -d | --debug)
         cmake_args="$cmake_args -DDEBUG=1"
         echo "Compile with debug informations"
+        shift;
+        ;;
+      -e | --enbrains)
+        cmake_args="$cmake_args -DENBRAINS=1"
+        echo "Compile with ENBRAINS support"
         shift;
         ;;
       -D | --daemon)
