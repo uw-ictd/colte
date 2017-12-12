@@ -106,6 +106,7 @@ typedef enum {
   LOG_CONFIG,
   LOG_MSC,
   LOG_ITTI,
+  LOG_ENBRAINS,
   MAX_LOG_PROTOS,
 } log_proto_t;
 

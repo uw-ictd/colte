@@ -391,6 +391,9 @@ include_directories("${OPENAIRCN_DIR}/src/mme_app")
 include_directories("${OPENAIRCN_DIR}/src/s6a")
 include_directories("${OPENAIRCN_DIR}/SRC")
 
+if (ENBRAINS)
+include_directories("${OPENAIRCN_DIR}/src/enbrains")
+endif (ENBRAINS)
 
 ###############################################################################
 # Utilities Library
@@ -870,6 +873,25 @@ endif()
 # Hack on a test of asn1c version (already dirty)
 add_definitions(-DASN1_MINIMUM_VERSION=924)
 
+##################################################################
+# ENBRAINS LIBRARY
+##################################################################
+if( ENBRAINS )
+
+set(ENBRAINS_SRC
+    ${OPENAIRCN_DIR}/src/enbrains/enbrains.c
+)
+set(ENBRAINS_HDR
+    ${OPENAIRCN_DIR}/src/enbrains/enbrains.h
+)
+add_library(enbrains ${ENBRAINS_SRC} ${ENBRAINS_HDR})
+set(enbrains_lib enbrains)
+
+endif( ENBRAINS )
+##################################################################
+
+
+
 #################################
 # add executables for operation
 #################################
@@ -887,13 +909,13 @@ add_executable(mme
 if( ITTI_ANALYZER )
   add_executable(mme ${OPENAIRCN_BIN_DIR}/messages_xml.h )
 endif( ITTI_ANALYZER )
+
 target_link_libraries (mme
   -Wl,--start-group
-   LIB_NAS_MME S1AP_LIB S1AP_EPC S11_MME GTPV2C SCTP_SERVER UDP_SERVER SECU_CN  S6A MME_APP LFDS ${MSC_LIB} ${ITTI_LIB} CN_UTILS HASHTABLE BSTR
+   LIB_NAS_MME S1AP_LIB S1AP_EPC S11_MME GTPV2C SCTP_SERVER UDP_SERVER SECU_CN  S6A MME_APP LFDS ${MSC_LIB} ${ITTI_LIB} CN_UTILS HASHTABLE BSTR ${enbrains_lib}
   -Wl,--end-group
   pthread m sctp  rt crypt ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} gnutls fdproto fdcore
   )
-
 
 # spgw is S+P-GW  node implementation
 ################################
@@ -904,9 +926,10 @@ add_executable(spgw
 if( ITTI_ANALYZER )
   add_executable(spgw ${OPENAIRCN_BIN_DIR}/messages_xml.h )
 endif( ITTI_ANALYZER )
+
 target_link_libraries (spgw
   -Wl,--start-group
-  GTPV1U SGW S11_SGW GTPV2C UDP_SERVER LFDS ${MSC_LIB} ${ITTI_LIB} CN_UTILS HASHTABLE BSTR
+  GTPV1U SGW S11_SGW GTPV2C UDP_SERVER LFDS ${MSC_LIB} ${ITTI_LIB} CN_UTILS HASHTABLE BSTR ${enbrains_lib}
   -Wl,--end-group
   pthread m rt gtpnl ${CONFIG_LIBRARIES}  
   )

@@ -41,3 +41,7 @@
 #include "sgw_messages_def.h"
 #include "udp_messages_def.h"
 #include "mme_app_messages_def.h"
+
+#if ENBRAINS
+#include "enbrains_messages_def.h"
+#endif

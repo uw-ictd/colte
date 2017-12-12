@@ -58,6 +58,10 @@
 #include "oai_mme.h"
 #include "pid_file.h"
 
+#if ENBRAINS
+#   include "enbrains.h"
+#endif
+
 int
 main (
   int argc,
@@ -148,6 +152,7 @@ main (
 
 #if ENBRAINS
   printf("Starting ENBRAINS module...\n");
+  CHECK_INIT_RETURN (enbrains_test_init());
 #endif
 
   OAILOG_DEBUG(LOG_MME_APP, "MME app initialization complete\n");
