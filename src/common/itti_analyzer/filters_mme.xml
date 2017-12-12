@@ -114,6 +114,7 @@
     <TASK_SCTP enabled="1"/>
     <TASK_SPGW_APP enabled="1"/>
     <TASK_UDP enabled="1"/>
+    <TASK_ENBRAINS enabled="1"/>
   </origin_tasks>
   <destination_tasks>
     <TASK_UNKNOWN enabled="1"/>
@@ -127,5 +128,6 @@
     <TASK_SCTP enabled="1"/>
     <TASK_SPGW_APP enabled="1"/>
     <TASK_UDP enabled="1"/>
+    <TASK_ENBRAINS enabled="1"/>
   </destination_tasks>
 </filters>
