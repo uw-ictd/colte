@@ -133,6 +133,11 @@ main (
   CHECK_INIT_RETURN (s11_sgw_init (&spgw_config.sgw_config));
   //CHECK_INIT_RETURN (gtpv1u_init (&spgw_config));
   CHECK_INIT_RETURN (sgw_init (&spgw_config));
+
+#if ENBRAINS
+  printf("Starting ENBRAINS module...\n");
+#endif
+  
   /*
    * Handle signals here
    */
