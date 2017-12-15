@@ -391,10 +391,6 @@ include_directories("${OPENAIRCN_DIR}/src/mme_app")
 include_directories("${OPENAIRCN_DIR}/src/s6a")
 include_directories("${OPENAIRCN_DIR}/SRC")
 
-if (ENBRAINS)
-include_directories("${OPENAIRCN_DIR}/src/enbrains")
-endif (ENBRAINS)
-
 ###############################################################################
 # Utilities Library
 ###############################################################################
@@ -877,6 +873,7 @@ add_definitions(-DASN1_MINIMUM_VERSION=924)
 # ENBRAINS LIBRARY
 ##################################################################
 if( ENBRAINS )
+include_directories("${OPENAIRCN_DIR}/src/enbrains")
 
 set(ENBRAINS_SRC
     ${OPENAIRCN_DIR}/src/enbrains/enbrains.c
