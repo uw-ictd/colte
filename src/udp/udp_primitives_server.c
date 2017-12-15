@@ -298,6 +298,7 @@ udp_intertask_interface (
           udp_sock_p = udp_server_get_socket_desc (ITTI_MSG_ORIGIN_ID (received_message_p));
 
           if (udp_sock_p == NULL) {
+            printf("ERROR\n");
             OAILOG_ERROR (LOG_UDP, "Failed to retrieve the udp socket descriptor " "associated with task %d\n", ITTI_MSG_ORIGIN_ID (received_message_p));
             pthread_mutex_unlock (&udp_socket_list_mutex);
             // no free udp_data_req_p->buffer, statically allocated
@@ -307,11 +308,13 @@ udp_intertask_interface (
           udp_sd = udp_sock_p->sd;
           pthread_mutex_unlock (&udp_socket_list_mutex);
           OAILOG_DEBUG (LOG_UDP, "[%d] Sending message of size %u to " IPV4_ADDR " and port %u\n", udp_sd, udp_data_req_p->buffer_length, IPV4_ADDR_FORMAT (udp_data_req_p->peer_address), udp_data_req_p->peer_port);
+          printf("[%d] Sending message of size %u to " IPV4_ADDR " and port %u\n", udp_sd, udp_data_req_p->buffer_length, IPV4_ADDR_FORMAT (udp_data_req_p->peer_address), udp_data_req_p->peer_port);
           bytes_written = sendto (udp_sd, &udp_data_req_p->buffer[udp_data_req_p->buffer_offset], udp_data_req_p->buffer_length, 0, (struct sockaddr *)&peer_addr, sizeof (struct sockaddr_in));
           // no free udp_data_req_p->buffer, statically allocated
 
           if (bytes_written != udp_data_req_p->buffer_length) {
             OAILOG_ERROR (LOG_UDP, "There was an error while writing to socket " "(%d:%s)\n", errno, strerror (errno));
+            printf("There was an error while writing to socket " "(%d:%s)\n", errno, strerror (errno));
           }
         }
         break;
