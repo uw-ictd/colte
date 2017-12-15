@@ -391,9 +391,9 @@ include_directories("${OPENAIRCN_DIR}/src/mme_app")
 include_directories("${OPENAIRCN_DIR}/src/s6a")
 include_directories("${OPENAIRCN_DIR}/SRC")
 
-if (ENBRAINS)
-include_directories("${OPENAIRCN_DIR}/src/enbrains")
-endif (ENBRAINS)
+#if (ENBRAINS)
+#include_directories("${OPENAIRCN_DIR}/src/enbrains")
+#endif (ENBRAINS)
 
 ###############################################################################
 # Utilities Library
@@ -877,6 +877,7 @@ add_definitions(-DASN1_MINIMUM_VERSION=924)
 # ENBRAINS LIBRARY
 ##################################################################
 if( ENBRAINS )
+include_directories("${OPENAIRCN_DIR}/src/enbrains")
 
 set(ENBRAINS_SRC
     ${OPENAIRCN_DIR}/src/enbrains/enbrains.c
@@ -886,6 +887,16 @@ set(ENBRAINS_HDR
 )
 add_library(enbrains ${ENBRAINS_SRC} ${ENBRAINS_HDR})
 set(enbrains_lib enbrains)
+
+add_executable(enbrains_main ${OPENAIRCN_DIR}/src/enbrains/enbrains_main.c)
+
+#target_link_libraries(enbrains_main ${enbrains_lib} UDP_SERVER ${MSC_LIB} ${ITTI_LIB} CN_UTILS)
+target_link_libraries (enbrains_main
+  -Wl,--start-group
+   LIB_NAS_MME S1AP_LIB S1AP_EPC S11_MME GTPV2C SCTP_SERVER UDP_SERVER SECU_CN  S6A MME_APP LFDS ${MSC_LIB} ${ITTI_LIB} CN_UTILS HASHTABLE BSTR ${enbrains_lib}
+  -Wl,--end-group
+  pthread m sctp  rt crypt ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} gnutls fdproto fdcore
+  )
 
 endif( ENBRAINS )
 ##################################################################

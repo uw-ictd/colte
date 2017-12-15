@@ -41,7 +41,6 @@ function help()
   echo_error "Mandatory arguments to long options are mandatory for short options too."
   echo_error "  -c, --clean                               Clean the build generated files: config, object, executable files (build from scratch)"
   echo_error "  -D, --daemon                              Build MME as a daemon."
-  echo_error "  -e, --enbrains                            Compile with ENBRAINS support."
   echo_error "  -f, --force                               No interactive script for installation of software packages."
   echo_error "  -h, --help                                Print this help."
   echo_error "  -i, --check-installed-software            Check installed software packages necessary to build and run MME (support $SUPPORTED_DISTRO)."
@@ -51,7 +50,7 @@ function help()
 }
 
 
-NAME=mmed
+NAME=enbrains
 DAEMON=/usr/sbin/$NAME
 DAEMON_ARGS=""
 PIDFILE=/var/run/$NAME.pid
@@ -131,17 +130,6 @@ function main()
   fi
   
   set_openair_env 
-  $SUDO cp -uv  $OPENAIRCN_DIR/scripts/mme_test_s1_pcap2pdml /usr/local/bin
-  $SUDO chmod 755 /usr/local/bin/mme_test_s1_pcap2pdml
-   
-  $SUDO cp -uv  $OPENAIRCN_DIR/scripts/test_epc              /usr/local/bin
-  $SUDO chmod 755 /usr/local/bin/test_epc 
-  
-  $SUDO mkdir -p -m 755 /usr/share/oai/xsl
-  $SUDO cp -upv  $OPENAIRCN_DIR/src/test/scenarios/play_scenario.xsl    /usr/share/oai/xsl
-  $SUDO cp -upv  $OPENAIRCN_DIR/src/test/scenarios/generic_scenario.xsl /usr/share/oai/xsl
-  
-
 
   if [[ $verbose -eq 1 ]]; then
     cecho "OPENAIRCN_DIR    = $OPENAIRCN_DIR" $green
@@ -159,12 +147,12 @@ function main()
   ##############################################################################
   # Clean
   ##############################################################################
-  cd $OPENAIRCN_DIR/build/mme
+  cd $OPENAIRCN_DIR/build/enbrains
   if [ $clean -ne 0 ]; then
     if [[ $verbose -eq 1 ]]; then
       echo "Cleaning MME: generated configuration files, obj files, mme executable"
     fi
-    rm -Rf $OPENAIRCN_DIR/build/mme/build  2>&1
+    rm -Rf $OPENAIRCN_DIR/build/enbrains/build  2>&1
     mkdir -m 777 -p -v build
   fi
 
@@ -172,38 +160,31 @@ function main()
   ##############################################################################
   # Compile MME
   ##############################################################################
-  cd $OPENAIRCN_DIR/build/mme
+  cd $OPENAIRCN_DIR/build/enbrains
   if [ ! -d ./build ]; then
     mkdir -m 777 -p -v build
   fi
   cmake_file=./CMakeLists.txt
-  cp $OPENAIRCN_DIR/build/mme/CMakeLists.template $cmake_file
+  cp $OPENAIRCN_DIR/build/enbrains/CMakeLists.template $cmake_file
   echo 'include(${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists.txt)' >> $cmake_file
   
   cd ./build
   $CMAKE $cmake_args .. > /dev/null 
   
-  compilations mme mme mme
+  compilations enbrains enbrains enbrains
 
-  if [ $unit_tests -ne 0 ]; then
-    make_test mme mme mme $verbose
-  fi 
+  # if [ $unit_tests -ne 0 ]; then
+  #   make_test mme mme mme $verbose
+  # fi 
 
-  if [ $daemon -ne 0 ]; then
+  # if [ $daemon -ne 0 ]; then
     # TODO /usr/sbin ?
-    do_stop_daemon
-    $SUDO cp -upv $OPENAIRCN_DIR/build/mme/build/mme /usr/sbin/mmed && echo_success "mmed installed"
-  else
-    $SUDO killall -q mme
-    $SUDO cp -upv $OPENAIRCN_DIR/build/mme/build/mme /usr/local/bin && echo_success "mme installed" 
-  fi 
-  
-  compilations mme auth_request auth_request 
-  $SUDO cp -upv $OPENAIRCN_DIR/build/mme/build/auth_request /usr/local/bin/ && echo_success "auth_request installed"
-
-# (SMS: TAKE THIS OUT EVENTUALLY)
-  compilations mme enbrains_main enbrains_main
-
+    # do_stop_daemon
+    # $SUDO cp -upv $OPENAIRCN_DIR/build/mme/build/mme /usr/sbin/mmed && echo_success "mmed installed"
+  # else
+    $SUDO killall -q enbrains
+    $SUDO cp -upv $OPENAIRCN_DIR/build/enbrains/build/enbrains /usr/local/bin && echo_success "enbrains installed" 
+  # fi   
 }
 
 
