@@ -55,6 +55,9 @@
 #include "pid_file.h"
 #include "timer.h"
 
+#if ENBRAINS
+#   include "enbrains.h"
+#endif
 
 int
 main (
@@ -135,7 +138,7 @@ main (
   CHECK_INIT_RETURN (sgw_init (&spgw_config));
 
 #if ENBRAINS
-  printf("Starting ENBRAINS module...\n");
+  CHECK_INIT_RETURN (enbrains_spgw_init());
 #endif
   
   /*

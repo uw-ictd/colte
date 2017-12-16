@@ -877,6 +877,8 @@ include_directories("${OPENAIRCN_DIR}/src/enbrains")
 
 set(ENBRAINS_SRC
     ${OPENAIRCN_DIR}/src/enbrains/enbrains.c
+    ${OPENAIRCN_DIR}/src/enbrains/enbrains_mme.c
+    ${OPENAIRCN_DIR}/src/enbrains/enbrains_spgw.c
 )
 set(ENBRAINS_HDR
     ${OPENAIRCN_DIR}/src/enbrains/enbrains.h
