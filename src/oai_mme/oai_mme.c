@@ -151,7 +151,7 @@ main (
   CHECK_INIT_RETURN (s6a_init (&mme_config));
 
 #if ENBRAINS
-  CHECK_INIT_RETURN (enbrains_init());
+  CHECK_INIT_RETURN (enbrains_mme_init());
 #endif
 
   OAILOG_DEBUG(LOG_MME_APP, "MME app initialization complete\n");
