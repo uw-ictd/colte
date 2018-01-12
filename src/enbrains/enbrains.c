@@ -22,7 +22,6 @@ int enbrains_send_udp_msg (uint8_t * buffer, uint32_t buffer_len)
   // Create and alloc new message
   MessageDef                             *message_p;
   udp_data_req_t                         *udp_data_req_p;
-  int                                     ret = 0;
 
   message_p = itti_alloc_new_message (TASK_ENBRAINS, UDP_DATA_REQ);
   udp_data_req_p = &message_p->ittiMsg.udp_data_req;

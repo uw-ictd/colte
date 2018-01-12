@@ -14,7 +14,27 @@
 
 static int enbrains_mme_connected = 0;
 
-// SMS NOTE: USE udp_intertask_interface as an example/model here!!!
+static int enbrains_mme_event_processor(eb_msg_t *ebm) {
+
+  switch(ebm->code) {
+    case EB_CODE_HELLO: {
+      OAILOG_DEBUG(LOG_ENBRAINS, "Received HELLO message from Enbrains module, connected.\n");
+      enbrains_mme_connected = 1;
+      break;
+    }
+
+    case EB_CODE_GOODBYE: {
+      OAILOG_DEBUG(LOG_ENBRAINS, "Received GOODBYE message from Enbrains module, disconnected.\n");
+      enbrains_mme_connected = 0;
+      break;
+    }
+  }
+
+  return 0;
+}
+
+
+// SMS NOTE: used udp_intertask_interface as an example/model here!!!
 static void * enbrains_mme_intertask_interface (
   void *args_p)
 {
@@ -34,48 +54,33 @@ static void * enbrains_mme_intertask_interface (
     itti_receive_msg (TASK_ENBRAINS, &received_message_p);
 
     if (received_message_p != NULL) {
-      OAILOG_DEBUG (LOG_ENBRAINS, "SMS: ENBRAINS RECEIVED MESSAGE!!!\n");
 
       switch (ITTI_MSG_ID (received_message_p)) {
-      
-      case UDP_DATA_IND:{
+      case UDP_DATA_IND: {
+        udp_data_ind_t *udp_data_ind;
+        udp_data_ind = &received_message_p->ittiMsg.udp_data_ind;
 
-          uint8_t  *buffer;
-  uint32_t  buffer_length;
-  uint32_t  peer_address;
-  uint32_t  peer_port;
-
-            /*
-             * We received new data to handle from the UDP layer
-             */
-            // NwRcT                                   rc;
-            udp_data_ind_t *udp_data_ind;
-            udp_data_ind = &received_message_p->ittiMsg.udp_data_ind;
-            eb_msg_t *ebm = (eb_msg_t *) udp_data_ind;
-
-          OAILOG_DEBUG (LOG_ENBRAINS, "SMS ENBRAINS: received buffer of length %d from port %d\n", udp_data_ind->buffer_length, udp_data_ind->peer_port);
-          OAILOG_DEBUG (LOG_ENBRAINS, "SMS ENBRAINS: code is %d\n", ebm->code);
-
-            // rc = nwGtpv2cProcessUdpReq (s11_mme_stack_handle, udp_data_ind->buffer, udp_data_ind->buffer_length, udp_data_ind->peer_port, udp_data_ind->peer_address);
-            // DevAssert (rc == NW_OK);
-          }
+        // (validation)
+        if (udp_data_ind->peer_port != ENBRAINS_PORT) {
+          OAILOG_DEBUG(LOG_ENBRAINS, "SMS ENBRAINS: Received a message from the wrong port! %d\n", udp_data_ind->peer_port);
           break;
+        }
 
-      // case ENBRAINS_INIT:{
-      //     // udp_init_t                             *udp_init_p = &received_message_p->ittiMsg.udp_init;
-      //     // rc = udp_server_create_socket (udp_init_p->port, udp_init_p->address, ITTI_MSG_ORIGIN_ID (received_message_p));
-      //     OAILOG_DEBUG (LOG_ENBRAINS, "SMS: ENBRAINS_INIT CASE!!!\n");
-      //   }
-      //   break;
+        // call the event/signal processor
+        eb_msg_t *ebm = (eb_msg_t *) udp_data_ind;
+        enbrains_mme_event_processor(ebm);
 
-      case TERMINATE_MESSAGE:{
-          // enbrains_exit();
-          itti_exit_task ();
+        break;
+      }
+
+      case TERMINATE_MESSAGE: {
+        // enbrains_exit();
+        itti_exit_task ();
         }
         break;
 
-      default:{
-          OAILOG_DEBUG (LOG_ENBRAINS, "Unknown message ID %d:%s\n", ITTI_MSG_ID (received_message_p), ITTI_MSG_NAME (received_message_p));
+      default: {
+        OAILOG_DEBUG (LOG_ENBRAINS, "Unknown message ID %d:%s\n", ITTI_MSG_ID (received_message_p), ITTI_MSG_NAME (received_message_p));
         }
         break;
       }
@@ -85,17 +90,7 @@ static void * enbrains_mme_intertask_interface (
       AssertFatal (rc == EXIT_SUCCESS, "Failed to free memory (%d)!\n", rc);
       received_message_p = NULL;
     }
-
-    // SMS NOTE: MAYBE HAVE TO UNCOMMENT THE LINES BELOW? I THINK THEY'RE FOR MULTI-SOCKETS...
-    // nb_events = itti_get_events (TASK_ENBRAINS, &events);
-    // if ((nb_events > 0) && (events != NULL)) {
-      /*
-       * Now handle notifications for other sockets
-       */
-    //   udp_server_flush_sockets (events, nb_events);
-    // }
   }
-
   return NULL;
 }
 
