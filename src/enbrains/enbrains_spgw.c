@@ -108,7 +108,7 @@ int enbrains_spgw_init (void)
   // localhost_str = inet_ntoa(0x7F000001);
   // OAILOG_DEBUG (LOG_ENBRAINS, "SMS: ADDRESS STRING = %s\n", localhost_str);
   DevAssert (localhost_str);
-  enbrains_send_init_udp (localhost_str, ENBRAINS_MME_PORT);
+  enbrains_send_init_udp (localhost_str, ENBRAINS_SPGW_PORT);
 
   OAILOG_DEBUG (LOG_ENBRAINS, "Initializing ENBRAINS task interface: DONE\n");
   return 0;
