@@ -1,0 +1,50 @@
+---
+- hosts: localhost
+  vars:
+    username: enbrain
+
+############################################################################
+################################## HSS #####################################
+############################################################################
+
+  tasks:
+    - name: apt-get update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    - name: first round of HSS apt install
+      apt:
+        name: "{{ item }}"
+      with_items:
+      - autoconf
+      - automake
+      - bison
+      - build-essential
+      - cmake
+      - cmake-curses-gui
+      - doxygen
+      - doxygen-gui
+      - flex
+      - gdb
+      - pkg-config
+      - git
+      - subversion
+      - libconfig8-dev
+      - libgcrypt11-dev
+      - libidn2-0-dev
+      - libidn11-dev
+      - default-libmysqlclient-dev
+      - libpthread-stubs0-dev
+      - libsctp1
+      - libsctp-dev
+      - libssl-dev
+      - libtool
+      - mysql-client
+      - mysql-server
+      - openssl
+      - nettle-dev
+      - nettle-bin
+      - python-mysqldb
+      become: yes
