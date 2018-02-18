@@ -33,7 +33,7 @@
 # do I have to restart apache2 here to enable the modules???
 # if so, command would be "sudo service apache2 restart"
 
-include_tasks: rocketchat.yml
+    - import_tasks: rocketchat.yml
 
 # include_tasks: maps.yml
 

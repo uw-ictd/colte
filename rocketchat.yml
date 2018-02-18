@@ -16,6 +16,7 @@
       with_items:
       - mongo:3.0
       - rocket.chat
+      become: yes
 
     - name: start mongodb docker image
       docker_container:
@@ -23,23 +24,27 @@
         image: mongo:3.0
         command: --smallfiles
         # detach: true
+      become: yes
 
     - name: start rocketchat docker image
       docker_container:
         name: rocketchat
         image: rocket.chat
         ports: 8081:3000
-        command: --env ROOT_URL=http://localhost --link db
+        links: db
+        env: ROOT_URL=http://localhost
         # detach: true
+      become: yes
 
 # now i need to connect apache file!
     - name: copy rocketchat.conf over to apache
       copy: 
         src: /home/{{ username }}/webservices/rocketchat.conf
         dest: /etc/apache2/sites-available/rocketchat.conf
-        owner: enbrain
-        group: enbrain
+        owner: "{{ username }}"
+        group: "{{ username }}"
         mode: 644
+      become: yes
 
     - name: Enable site and reload Apache
       shell: a2ensite rocketchat.conf
