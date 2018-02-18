@@ -42,10 +42,9 @@
         mode: 644
 
     - name: Enable site and reload Apache
-      shell: |
-        a2ensite rocketchat.conf
-        service apache2 reload
+      shell: a2ensite rocketchat.conf
       become: yes
+      notify: reload apache
 
 # docker run --name db -d mongo:3.0 --smallfiles
 # docker run --name rocketchat -p 8081:3000 --env ROOT_URL=http://localhost --link db -d rocket.chat
