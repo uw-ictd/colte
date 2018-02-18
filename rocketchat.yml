@@ -1,0 +1,52 @@
+# Rocketchat is a free/opensource/docker-ized version of slack
+
+# declare vars for ports?!?!
+
+    - name: apt-get install docker
+      apt:
+        name: "{{ item }}"
+      with_items:
+      - docker
+      - docker.io
+      become: yes
+
+    - name: fetch docker images
+      docker_image:
+        name: "{{ item }}"
+      with_items:
+      - mongo:3.0
+      - rocket.chat
+
+    - name: start mongodb docker image
+      docker_container:
+        name: db
+        image: mongo:3.0
+        command: --smallfiles
+        # detach: true
+
+    - name: start rocketchat docker image
+      docker_container:
+        name: rocketchat
+        image: rocket.chat
+        ports: 8081:3000
+        command: --env ROOT_URL=http://localhost --link db
+        # detach: true
+
+# now i need to connect apache file!
+    - name: copy rocketchat.conf over to apache
+      copy: 
+        src: /home/{{ username }}/webservices/rocketchat.conf
+        dest: /etc/apache2/sites-available/rocketchat.conf
+        owner: enbrain
+        group: enbrain
+        mode: 644
+
+    - name: Enable site and reload Apache
+      shell: |
+        a2ensite rocketchat.conf
+        service apache2 reload
+      become: yes
+
+# docker run --name db -d mongo:3.0 --smallfiles
+# docker run --name rocketchat -p 8081:3000 --env ROOT_URL=http://localhost --link db -d rocket.chat
+

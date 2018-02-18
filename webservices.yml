@@ -1,11 +1,11 @@
+# This script is to be run on the actual host machine (i.e. no Vagrant BS here.)
+# It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
+# If you don't want a specific service just comment out the appropriate include_tasks.yml file
+
 ---
 - hosts: localhost
   vars:
     username: enbrain
-
-############################################################################
-################################## HSS #####################################
-############################################################################
 
   tasks:
     - name: apt-get update
@@ -14,37 +14,24 @@
         cache_valid_time: 3600
       become: yes
 
-    - name: first round of HSS apt install
+    - name: apt-get install apache2 and docker
       apt:
         name: "{{ item }}"
       with_items:
-      - autoconf
-      - automake
-      - bison
-      - build-essential
-      - cmake
-      - cmake-curses-gui
-      - doxygen
-      - doxygen-gui
-      - flex
-      - gdb
-      - pkg-config
-      - git
-      - subversion
-      - libconfig8-dev
-      - libgcrypt11-dev
-      - libidn2-0-dev
-      - libidn11-dev
-      - default-libmysqlclient-dev
-      - libpthread-stubs0-dev
-      - libsctp1
-      - libsctp-dev
-      - libssl-dev
-      - libtool
-      - mysql-client
-      - mysql-server
-      - openssl
-      - nettle-dev
-      - nettle-bin
-      - python-mysqldb
+      - apache2
       become: yes
+
+    - name: a2enmod install apache modules
+      apache2_module:
+        state: present
+        name: "{{ item }}"
+      with_items:
+      - proxy
+      - proxy_http
+      become: yes
+# do I have to restart apache2 here to enable the modules???
+# if so, command would be "sudo service apache2 restart"
+
+include_tasks: rocketchat.yml
+
+# include_tasks: maps.yml
