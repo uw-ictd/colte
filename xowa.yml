@@ -1,4 +1,4 @@
-# Rocketchat is a free/opensource/docker-ized version of slack
+# Xowa is an offline pre-packaged wikipedia. We're just including "simple" here for size constraints
 
 # declare vars for ports?!?!
 
@@ -17,6 +17,59 @@
       with_items:
       - quantumobject/docker-xowa
       become: yes
+
+    - name: download simple wikipedia (html/text)
+      get_url:
+        url: http://archive.org/download/Xowa_simplewiki_latest/{{ item }}
+        dest: /home/{{ username }}/xowa_storage/temp
+      with_items:
+      - Xowa_simplewiki_2017-05_core.zip
+      - Xowa_simplewiki_2017-05_xtn.search.core.zip
+      - Xowa_simplewiki_2017-05_xtn.search.link_title_ns.000_db.001.zip
+      - Xowa_simplewiki_2017-05_xtn.search.link_title_ns.999_db.001.zip
+      - Xowa_simplewiki_2017-05_html_ns.000.zip
+      - Xowa_simplewiki_2017-05_html_ns.004.zip
+      - Xowa_simplewiki_2017-05_html_ns.014.zip
+      - Xowa_simplewiki_2017-05_html_ns.008.zip
+      - Xowa_simplewiki_2017-05_xtn.category.core.zip
+      - Xowa_simplewiki_2017-05_xtn.category.link_db.001.zip
+      - Xowa_simplewiki_2017-05_xtn.fulltext_search.001.zip
+
+    - name: download simple wikipedia (images)
+      get_url:
+        url: http://archive.org/download/Xowa_simplewiki_latest/{{ item }}
+        dest: /home/{{ username }}/xowa_storage/temp
+      with_items:
+      - Xowa_simplewiki_2017-05_file_core.zip
+      - Xowa_simplewiki_2017-05_file_ns.000_db.001.zip
+      - Xowa_simplewiki_2017-05_file_ns.000_db.002.zip
+      - Xowa_simplewiki_2017-05_file_ns.004_db.001.zip
+      - Xowa_simplewiki_2017-05_file_ns.014_db.001.zip
+
+    - name: unzip and load simple wikipedia
+      unarchive:
+        src: /home/{{ username }}/xowa_storage/temp/{{ item }}
+        dest: /home/{{ username  }}/xowa_storage/simple.wikipedia.org/
+      with_items:
+      - Xowa_simplewiki_2017-05_core.zip
+      - Xowa_simplewiki_2017-05_xtn.search.core.zip
+      - Xowa_simplewiki_2017-05_xtn.search.link_title_ns.000_db.001.zip
+      - Xowa_simplewiki_2017-05_xtn.search.link_title_ns.999_db.001.zip
+      - Xowa_simplewiki_2017-05_html_ns.000.zip
+      - Xowa_simplewiki_2017-05_html_ns.004.zip
+      - Xowa_simplewiki_2017-05_html_ns.014.zip
+      - Xowa_simplewiki_2017-05_html_ns.008.zip
+      - Xowa_simplewiki_2017-05_xtn.category.core.zip
+      - Xowa_simplewiki_2017-05_xtn.category.link_db.001.zip
+      - Xowa_simplewiki_2017-05_xtn.fulltext_search.001.zip
+      - Xowa_simplewiki_2017-05_file_core.zip
+      - Xowa_simplewiki_2017-05_file_ns.000_db.001.zip
+      - Xowa_simplewiki_2017-05_file_ns.000_db.002.zip
+      - Xowa_simplewiki_2017-05_file_ns.004_db.001.zip
+      - Xowa_simplewiki_2017-05_file_ns.014_db.001.zip
+
+#    - name: cleanup temp folder
+#      file: path='/home/{{ username }}/xowa_storage/temp' state=absent
 
     - name: start xowa docker image
       docker_container:
