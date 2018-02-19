@@ -18,6 +18,15 @@
       - quantumobject/docker-xowa
       become: yes
 
+    - name: make xowa_storage directory
+      file:
+        path: /home/{{ username }}/xowa_storage/{{ item }}
+        state: directory
+        recurse: yes
+      with_items:
+      - temp
+      - simple.wikipedia.org
+
     - name: download simple wikipedia (html/text)
       get_url:
         url: http://archive.org/download/Xowa_simplewiki_latest/{{ item }}
@@ -90,6 +99,7 @@
         owner: root
         group: root
         mode: 0644
+      become: yes
 
     - name: add to /etc/hosts
       lineinfile:
@@ -99,6 +109,7 @@
         owner: root
         group: root
         mode: 0644
+      become: yes
 
     - name: copy xowa.conf over to apache
       copy: 

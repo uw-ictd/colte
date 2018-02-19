@@ -45,6 +45,7 @@
         owner: root
         group: root
         mode: 0644
+      become: yes
 
     - name: copy rocketchat.conf over to apache
       copy: 
