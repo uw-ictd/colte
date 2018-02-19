@@ -37,7 +37,15 @@
         # detach: true
       become: yes
 
-# now i need to connect apache file!
+    - name: add to /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: 'chat\.localhost'
+        line: '127.0.0.1 chat.localhost'
+        owner: root
+        group: root
+        mode: 0644
+
     - name: copy rocketchat.conf over to apache
       copy: 
         src: /home/{{ username }}/webservices/rocketchat.conf

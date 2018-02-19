@@ -29,7 +29,24 @@
 # command: -v yours/storage:/opt/xowa/wiki
 # note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
 
-# now i need to connect apache file!
+    - name: add to /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: 'wiki\.localhost'
+        line: '127.0.0.1 wiki.localhost'
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: add to /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: 'wiki\.localhost'
+        line: '127.0.0.1 xowa.localhost'
+        owner: root
+        group: root
+        mode: 0644
+
     - name: copy xowa.conf over to apache
       copy: 
         src: /home/{{ username }}/webservices/xowa.conf
