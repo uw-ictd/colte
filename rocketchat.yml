@@ -8,6 +8,7 @@
       with_items:
       - docker
       - docker.io
+      - docker-compose
       become: yes
 
     - name: fetch docker images

@@ -1,0 +1,46 @@
+# Rocketchat is a free/opensource/docker-ized version of slack
+
+# declare vars for ports?!?!
+
+    - name: apt-get install docker
+      apt:
+        name: "{{ item }}"
+      with_items:
+      - docker
+      - docker.io
+      - docker-compose
+      become: yes
+
+    - name: fetch docker images
+      docker_image:
+        name: "{{ item }}"
+      with_items:
+      - quantumobject/docker-xowa
+      become: yes
+
+    - name: start xowa docker image
+      docker_container:
+        name: xowa
+        image: quantumobject/docker-xowa
+        ports: 8082:8080
+        # detach: true
+      become: yes
+# command: -v yours/storage:/opt/xowa/wiki
+# note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
+
+# now i need to connect apache file!
+    - name: copy xowa.conf over to apache
+      copy: 
+        src: /home/{{ username }}/webservices/xowa.conf
+        dest: /etc/apache2/sites-available/xowa.conf
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 644
+      become: yes
+
+    - name: Enable site and reload Apache
+      shell: a2ensite xowa.conf
+      become: yes
+      notify: reload apache
+
+# docker run -d -v yours/storage:/opt/xowa/wiki -p 8082 quantumobject/docker-xowa
