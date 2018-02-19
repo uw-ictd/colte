@@ -34,7 +34,7 @@
 # if so, command would be "sudo service apache2 restart"
 
     - import_tasks: rocketchat.yml
-
+    - import_tasks: xowa.yml
 # include_tasks: maps.yml
 
   handlers:
