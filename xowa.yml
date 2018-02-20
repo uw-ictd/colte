@@ -2,14 +2,7 @@
 
 # declare vars for ports?!?!
 
-    - name: apt-get install docker
-      apt:
-        name: "{{ item }}"
-      with_items:
-      - docker
-      - docker.io
-      - docker-compose
-      become: yes
+# NOTE: you need to already have docker installed somehow (varies per system apparently, goddamn it)
 
     - name: fetch docker images
       docker_image:
