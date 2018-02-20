@@ -1,4 +1,0 @@
-1) we had to MANUALLY download/install Docker
-url is https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
-subsequent command is sudo dpkg -i PACKAGE.DEB
-2) I set the sudo timeout much longer to avoid inevitable issues when downloading large files
