@@ -1,0 +1,51 @@
+# SMS TODO: CHECK FOR INSTALLATION AND ABORT IF WE ALREADY HAVE THIS INSTALLED
+
+# ---
+# - hosts: all
+
+#   sudo: yes
+#   tasks:
+    - name: libgtpnl - apt-get update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    - name: libgtpnl - apt-get necessary packages
+      apt:
+        name: "{{ item }}"            
+      with_items:
+      - autoconf
+      - automake
+      - build-essential
+      - libmnl-dev
+      become: yes
+
+    - name: libgtpnl - clone from my github copy
+      git:
+        repo: git://git.osmocom.org/libgtpnl
+        dest: /home/{{ username }}/packages/libgtpnl
+
+    - name: libgtpnl - configure
+      shell: |
+        sudo autoreconf -fi
+        ./configure
+      args:
+        chdir: /home/{{ username }}/packages/libgtpnl
+
+    - name: libgtpnl - build
+      make:
+        chdir: /home/{{ username }}/packages/libgtpnl
+
+    - name: libgtpnl - install
+      make:
+        chdir: /home/{{ username }}/packages/libgtpnl
+        target: install
+      become: yes
+
+    - name: libgtpnl - doing something?!?
+      shell: |
+        ldconfig
+      args:
+        chdir: /home/{{ username }}/packages/libgtpnl
+      become: yes

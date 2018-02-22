@@ -1,0 +1,47 @@
+# SMS TODO: CHECK FOR INSTALLATION AND ABORT IF WE ALREADY HAVE THIS INSTALLED
+
+# ---
+# - hosts: all
+
+  # sudo: yes
+  # tasks:
+    - name: asn1c - apt-get update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    - name: asn1c - apt-get necessary packages
+      apt:
+        name: "{{ item }}"            
+      with_items:
+      - autoconf
+      - automake
+      - bison
+      - build-essential
+      - flex
+      - gcc
+      - libtool
+      become: yes
+
+    - name: asn1c - fetch rev 1516 patched from my github copy
+      git:
+        repo: https://github.com/spencersevilla/asn1c.git
+        dest: /home/{{ username }}/packages/asn1c
+        force: yes
+
+    - name: asn1c - configure
+      shell: |
+        ./configure
+      args:
+        chdir: /home/{{ username }}/packages/asn1c
+
+    - name: asn1c - build
+      make:
+        chdir: /home/{{ username }}/packages/asn1c
+
+    - name: asn1c - install
+      make:
+        chdir: /home/{{ username }}/packages/asn1c
+        target: install
+      become: yes

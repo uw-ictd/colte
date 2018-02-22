@@ -1,0 +1,21 @@
+This directory has somewhat-battle-tested release configurations for the EPC. Currently, we assume the following:
+1) The EPC is all-in-one, and exists on a physical device (i.e. a Zotac box), NOT a VM
+2) The eNB is a completely separate physical/logical component that connects to the EPC via ethernet.
+3) Right now we have only tested a 1-1 relationship between eNB and EPC.
+
+Given these assumptions, choose an OS and follow the instructions given in {OS}/preconfig. Don't worry about {OS}/ansible, those scripts will be copied/installed automatically for you.
+
+Generally speaking, these scripts setup the following configuration:
+- username: enbrain
+- password: password <==== CHANGE THIS!!!
+- mysql user: enbrain
+- mysql password: correcthorsebatterystaple
+- After installation/reboot, run "/home/enbrain/setup_enbrain.sh" to complete the installation.
+
+
+DEBIAN INSTRUCTIONS:
+- Recommended: take the iso and burn it directly to a bootable USB
+- Not recommended (Long Way):
+1) Get a copy of debian from the release website and burn it to a bootable USB
+2) Take the entire contents of the version folder and put it on the bootable USB's drive under /preseed
+3) Edit the bootloader to load the file "/preseed/ccm.seed". This typically is in /boot/grub/grub.cfg but could be anywhere (syslinux, isolinux, etc).
