@@ -27,21 +27,21 @@
     - name: asn1c - fetch rev 1516 patched from my github copy
       git:
         repo: https://github.com/spencersevilla/asn1c.git
-        dest: /home/{{ username }}/packages/asn1c
+        dest: {{ packages_dir }}/asn1c
         force: yes
 
     - name: asn1c - configure
       shell: |
         ./configure
       args:
-        chdir: /home/{{ username }}/packages/asn1c
+        chdir: {{ packages_dir }}/asn1c
 
     - name: asn1c - build
       make:
-        chdir: /home/{{ username }}/packages/asn1c
+        chdir: {{ packages_dir }}/asn1c
 
     - name: asn1c - install
       make:
-        chdir: /home/{{ username }}/packages/asn1c
+        chdir: {{ packages_dir }}/asn1c
         target: install
       become: yes
