@@ -42,7 +42,7 @@
 
     - name: copy rocketchat.conf over to apache
       copy: 
-        src: /home/{{ username }}/webservices/rocketchat.conf
+        src: {{ emergency_webservices_dir }}/rocketchat.conf
         dest: /etc/apache2/sites-available/rocketchat.conf
         owner: "{{ username }}"
         group: "{{ username }}"
