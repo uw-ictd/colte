@@ -134,7 +134,7 @@
         ./scripts/build_mme -e
         ./scripts/build_spgw -e
       args:
-        chdir: {{ epc_dir }}
+        chdir: "{{ epc_dir }}"
 
     - name: post-install config
       shell: |
@@ -146,18 +146,4 @@
         {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/oai/freeDiameter mme.OpenAir5G.Alliance
         {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ mysql_user }} {{ mysql_password }} oai_db {{ epc_dir }}/spencer_configs/sample_db.sql
       become: yes
-
-############################################################################
-############################# ENBRAINS #####################################
-############################################################################
-
-    - name: enbrains - apt-get dependencies
-      apt:
-        name: "libevent-dev"
-      become: yes
-
-    - name: enbrains - build
-      make:
-        chdir: {{ enbrains_dir }}
-
 

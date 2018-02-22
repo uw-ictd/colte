@@ -49,15 +49,7 @@
       become: yes
 
 # To add a webservice/website, create a new .yml file and add to this list!
-    - import_tasks: {{ emergency_webservices_dir }}/rocketchat.yml
-    - import_tasks: {{ emergency_webservices_dir }}/xowa.yml
-#    - import_tasks: {{ emergency_webservices_dir }}/maps.yml
+    - import_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
+    - import_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
+#    - import_tasks: "{{ emergency_webservices_dir }}/maps.yml"
 
-  handlers:
-    - name: restart apache
-      service: name=apache2 state=restarted
-      become: yes
-
-    - name: reload apache
-      service: name=apache2 state=reloaded
-      become: yes
