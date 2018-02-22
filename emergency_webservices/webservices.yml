@@ -1,0 +1,73 @@
+# This script is to be run on the actual host machine (i.e. no Vagrant BS here.)
+# It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
+# If you don't want a specific service just comment out the appropriate include_tasks.yml file
+
+---
+- hosts: localhost
+  vars:
+    username: enbrain
+
+  tasks:
+    - name: apt-get update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    - name: must increase sudo timeout for this script to run successfully
+      lineinfile:
+        path: /etc/sudoers
+        regexp: 'env_reset'
+        line: 'Defaults env_reset, timestamp_timeout=60'
+        owner: root
+        group: root
+        mode: 440
+      become: yes
+
+
+    - name: apt-get install apache2
+      apt:
+        name: "{{ item }}"
+      with_items:
+      - apache2
+      become: yes
+
+    - name: a2enmod install apache modules
+      apache2_module:
+        state: present
+        name: "{{ item }}"
+      with_items:
+      - proxy
+      - proxy_http
+      become: yes
+      notify: restart apache
+
+# INSTALLING DOCKER:
+# For most systems you can just use the following apt-get command
+    # - name: apt-get install apache2
+    #   apt:
+    #     name: "{{ item }}"
+    #   with_items:
+    #   - docker
+    #   - docker.io
+    #   - docker-configure
+    #   become: yes
+
+# For stretch, apt-get docker doesn't work anymore (LOL) so just use this instead:
+    - name: manually download/install docker deb
+      apt: 
+        deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
+      become: yes
+
+    - import_tasks: rocketchat.yml
+    - import_tasks: xowa.yml
+# include_tasks: maps.yml
+
+  handlers:
+    - name: restart apache
+      service: name=apache2 state=restarted
+      become: yes
+
+    - name: reload apache
+      service: name=apache2 state=reloaded
+      become: yes
