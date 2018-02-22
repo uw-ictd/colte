@@ -19,6 +19,6 @@
 
     - name: enbrains - build
       make:
-        chdir: {{ enbrains_dir }}
+        chdir: "{{ enbrains_dir }}"
 
 
