@@ -1,0 +1,255 @@
+#!/bin/bash
+################################################################################
+# Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The OpenAirInterface Software Alliance licenses this file to You under 
+# the Apache License, Version 2.0  (the "License"); you may not use this file
+# except in compliance with the License.  
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#-------------------------------------------------------------------------------
+# For more information about the OpenAirInterface (OAI) Software Alliance:
+#      contact@openairinterface.org
+################################################################################
+
+# file run_hss
+# brief run script for HSS (!EXPERIMENTAL!).
+# author  Lionel GAUTHIER
+# company Eurecom
+# email:  lionel.gauthier@eurecom.fr 
+
+
+################################
+# include helper functions
+################################
+THIS_SCRIPT_PATH=$(dirname $(readlink -f $0))
+source $THIS_SCRIPT_PATH/../build/tools/build_helper
+
+declare    g_hss_default_config_file="/usr/local/etc/oai/hss.conf"
+declare    g_hss_default_fqdn="hss.openair4G.eur"
+
+function help()
+{
+  set_openair_env
+  echo_error " "
+  echo_error "Usage: run_hss [OPTION]..."
+  echo_error "Run the HSS executable (experimental)."
+  echo_error " "
+  echo_error "Options:"
+  echo_error "Mandatory arguments to long options are mandatory for short options too."
+  echo_error "  -c, --config-file  filename     Config file to be used by HSS if you don't want to use the default one: $g_hss_default_config_file"
+  echo_error "  -e, --export-db    filename     Export current database to a SQL file, file prefix is $OPENAIRCN_DIR/src/OAI_hss/db. (useful for replaying test scenarios)"
+  echo_error "  -D, --daemon                    Run the daemon."
+  echo_error "  -i, --import-db    filename     Import SQL file to current database, file prefix is $OPENAIRCN_DIR/src/OAI_hss/db. (useful for replaying test scenarios or restoring original database content)"
+  echo_error "  -I, --install-hss-files         Install HSS config files (NOT RECOMMENDED. See gitlab tutorial, https://gitlab.eurecom.fr/oai/openairinterface5g/wikis/OpenAirUsage or docs/EPC_User_Guide.pdf )"
+  echo_error "  -g, --gdb                       Run with GDB."
+  echo_error "  -h, --help                      Print this help."
+  echo_error "  -k, --kill                      Kill the running local HSS."
+}
+
+NAME=oai_hssd
+DAEMON=/usr/sbin/$NAME
+DAEMON_ARGS=""
+PIDFILE=/var/run/$NAME.pid
+
+
+function main() 
+{
+  local -i run_gdb=0
+  local -i run_daemon=0
+  local -i export_db=0
+  local -i import_db=0
+  local -i var_check_install_hss_files=0
+  local    hss_config_file=$g_hss_default_config_file
+  local    exe_arguments=" "
+
+  until [ -z "$1" ]
+    do
+    case "$1" in
+      -c | --config-file)
+        hss_config_file=$2
+        echo "setting config file to: $hss_config_file"
+        shift 2;
+        ;;
+      -e | --export-db)
+        export_db=1
+        echo "setting export DB flag to: $export_db"
+        dump_file=$2
+        shift 2;
+        ;;
+      -D | --daemon)
+        run_daemon=1
+        echo "Run HSS as a daemon"
+        shift;
+        ;;
+      -i | --import-db)
+        import_db=1
+        echo "setting import DB flag to: $import_db"
+        dump_file=$2
+        shift 2;
+        ;;
+      -I | --install-hss-files)
+        echo "Install HSS files: .conf files."
+        var_check_install_hss_files=1
+        shift;
+        ;;
+      -g | --gdb)
+        run_gdb=1
+        echo "setting GDB flag to: $GDB"
+        shift;
+        ;;
+      -h | --help)
+        help
+        exit 0
+        ;;
+      -k | --kill)
+        $SUDO killall -q oai_hss
+        do_stop_daemon
+        shift 1;
+        exit 0
+        ;;
+      *)   
+        echo "Unknown option $1"
+        help
+        exit 0
+        ;;
+    esac
+  done
+
+  set_openair_env 
+  cecho "OPENAIRCN_DIR   = $OPENAIRCN_DIR" $green
+
+  #####################################
+  # Install config files
+  #####################################
+  if [ ! -f $hss_config_file ]; then 
+    if [ $g_hss_default_config_file != $hss_config_file ]; then
+      echo_fatal "Please provide -c|--config-file valid argument (\"$hss_config_file\" not a valid file)"
+    fi
+  fi
+  
+  if [ $var_check_install_hss_files -gt 0 ];then
+    $SUDO mkdir -p /usr/local/etc/oai/freeDiameter > /dev/null
+  
+    if [ ! -f /usr/local/etc/oai/hss.conf ]; then
+      $SUDO cp -upv $THIS_SCRIPT_PATH/../etc/hss.conf    /usr/local/etc/oai
+      echo_fatal "Please customize /usr/local/etc/oai/hss.conf (login/password/OP key), after, please re-run run_hss -I"
+    else
+      if [  $THIS_SCRIPT_PATH/../etc/hss.conf -nt  /usr/local/etc/oai/hss.conf ]; then
+        read -p "Do you want to update /usr/local/etc/oai/hss.conf with $OPENAIRCN_DIR/etc/hss.conf ? <y/N> " prompt
+        if [[ $prompt =~ [yY](es)* ]]; then
+          $SUDO cp -upv $THIS_SCRIPT_PATH/../etc/hss.conf    /usr/local/etc/oai
+          echo_fatal "Please customize /usr/local/etc/oai/hss.conf, after, please re-run run_hss -I"
+        fi
+      fi
+    fi 
+  
+    $SUDO cp -upv $THIS_SCRIPT_PATH/../etc/acl.conf    /usr/local/etc/oai/freeDiameter
+    echo_warning "Be carefull /usr/local/etc/oai/freeDiameter/acl.conf has realm hardcoded, please check it and change it upon your needs"
+    $SUDO cp -upv $THIS_SCRIPT_PATH/../etc/hss_fd.conf /usr/local/etc/oai/freeDiameter
+    echo_warning "Be carefull /usr/local/etc/oai/freeDiameter/hss_fd.conf has realm and freeDiameter identity hardcoded, please check them and change them upon your needs"
+  
+    # hardcoded HSS diameter ID 
+    IP_ADDRESS=`getent hosts $g_hss_default_fqdn | cut -d ' ' -f1`
+    if [ "a$IP_ADDRESS" == "a" ]; then
+      echo "127.0.1.1        $g_hss_default_fqdn hss" | $SUDO tee -a  /etc/hosts
+      echo_warning "Set HSS FQDN "$g_hss_default_fqdn" in /etc/hosts, please check it and change it upon your needs"
+    else
+      if [ "127.0.1.1"  != "$IP_ADDRESS" ]; then
+        echo_warning "FQDN $g_hss_default_fqdn resolution is the following: $IP_ADDRESS (better to use 127.0.1.1)"
+      fi
+    fi
+
+    # generate certificates if necessary
+    echo_warning "Generating HSS certificates using HSS FQDN $g_hss_default_fqdn, if you want to use an other"
+    echo_warning "FQDN, please modify acl.conf, hss_fd.conf, /etc/hosts consistently and then "
+    echo_warning "re-run $OPENAIRCN_DIR/scripts/check_hss_s6a_certificate /usr/local/etc/oai/freeDiameter YOUR_HSS_FQDN"
+    $SUDO $OPENAIRCN_DIR/scripts/check_hss_s6a_certificate /usr/local/etc/oai/freeDiameter $g_hss_default_fqdn
+  fi
+  
+  exe_arguments=$exe_arguments" -c $hss_config_file"
+  DAEMON_ARGS=$exe_arguments
+  if [ $export_db -eq 1 -a $import_db -eq 1 ]; then 
+    echo_error "Options -e and -i cannot be set together"
+  fi
+  
+  #####################################
+  # Export database
+  #####################################
+  if [ $export_db -eq 1 ]; then
+    [[ $dump_file != *"/"* ]] && dump_file=$OPENAIRCN_DIR/src/OAI_hss/db/$dump_file
+    if [ -e $dump_file ]; then 
+      read -p "Do you want to overwrite $dump_file ? <y/N> " prompt
+      if [[ $prompt =~ [yY](es)* ]]; then
+        rm $dump_file
+      else
+        echo_fatal "$dump_file exist, exiting"
+      fi
+    fi
+    value="`cat $hss_config_file | tr -d " " | grep "="`"
+    eval $value
+    $OPENAIRCN_DIR/scripts/hss_db_export $MYSQL_server $MYSQL_user $MYSQL_pass $MYSQL_db $dump_file
+  fi
+  
+  #####################################
+  # Import database
+  #####################################
+  if [ $import_db -eq 1 ]; then
+    [[ $dump_file != *"/"* ]] && dump_file=$OPENAIRCN_DIR/src/OAI_hss/db/$dump_file
+    if [ -e $dump_file ]; then 
+      value="`cat $hss_config_file | tr -d " " | grep "="`"
+      eval "$value"
+      $OPENAIRCN_DIR/scripts/hss_db_import $MYSQL_server $MYSQL_user $MYSQL_pass $MYSQL_db $dump_file
+    else
+      echo_fatal "$dump_file does not exist, exiting"
+    fi
+  fi
+  
+  
+  #####################################
+  # Running daemon?
+  #####################################
+  if [ "$run_daemon" -eq 1 ]; then
+    # TODO options
+    $SUDO killall -q oai_hss
+    do_stop_daemon
+    case "$?" in
+      0) echo_success "HSS daemon was running -> stopped";;
+      1) ;;
+      2) echo_fatal "FAILURE: HSS daemon was running -> could not stop it";;
+    esac
+    do_start_daemon
+    case "$?" in
+      0) echo_success "HSS daemon started";;
+      1) echo_fatal "FAILURE: HSS daemon was already running";;
+      2) echo_fatal "FAILURE: Cannot start HSS daemon";;
+    esac
+    exit 0
+  fi
+  
+  #####################################
+  # Running executable
+  #####################################
+  if [ $run_gdb -eq 0 ]; then 
+    $SUDO oai_hss  `echo $exe_arguments` 2>&1 
+  else
+    $SUDO touch      ~/.gdb_hss
+    $SUDO chmod 777  ~/.gdb_hss
+    $SUDO echo "file oai_hss" > ~/.gdb_hss
+    $SUDO echo "set args $exe_arguments   " >> ~/.gdb_hss
+    $SUDO echo "run"                        >> ~/.gdb_hss
+    $SUDO cat ~/.gdb_hss
+    $SUDO gdb -n -x ~/.gdb_hss 2>&1
+  fi
+}
+
+
+main "$@"

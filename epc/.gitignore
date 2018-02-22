@@ -1,0 +1,13 @@
+build/mme/build/
+build/mme/CMakeLists.txt
+build/spgw/build/
+build/spgw/CMakeLists.txt
+build/hss/build/
+build/log/
+scripts/abort
+scripts/core
+openair-cn.config
+openair-cn.creator
+openair-cn.creator.user
+openair-cn.files
+openair-cn.includes

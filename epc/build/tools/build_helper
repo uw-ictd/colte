@@ -1,0 +1,1414 @@
+################################################################################
+# Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The OpenAirInterface Software Alliance licenses this file to You under
+# the Apache License, Version 2.0  (the "License"); you may not use this file
+# except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#-------------------------------------------------------------------------------
+# For more information about the OpenAirInterface (OAI) Software Alliance:
+#      contact@openairinterface.org
+################################################################################
+
+# file build_helper
+# brief
+# author Laurent Thomas, Lionel GAUTHIER
+#
+#######################################
+SUPPORTED_DISTRO="Ubuntu 14.04/16.04, CentOS 7, RHEL 7"
+if [ ! -f /etc/os-release ]; then
+  echo_fatal "No /etc/os-release file found. You're likely on an unsupported distro."
+fi
+OS_DISTRO=$(grep "^ID=" /etc/os-release | sed "s/ID=//" | sed "s/\"//g")
+OS_RELEASE=$(grep "^VERSION_ID=" /etc/os-release | sed "s/VERSION_ID=//" | sed "s/\"//g")
+case "$OS_DISTRO" in
+  fedora) OS_BASEDISTRO="fedora"; INSTALLER="dnf"; CMAKE="cmake" ;;
+  rhel)   OS_BASEDISTRO="fedora"; INSTALLER="yum"; CMAKE="cmake3" ;;
+  centos) OS_BASEDISTRO="fedora"; INSTALLER="yum"; CMAKE="cmake3" ;;
+  debian) OS_BASEDISTRO="debian"; INSTALLER="apt-get"; CMAKE="cmake" ;;
+  ubuntu) OS_BASEDISTRO="debian"; INSTALLER="apt-get"; CMAKE="cmake" ;;
+esac
+KERNEL_VERSION=$(uname -r | cut -d '.' -f1)
+KERNEL_MAJOR=$(uname -r | cut -d '.' -f2)
+
+SUDO='sudo -S -E'
+
+###############################
+## echo and  family
+###############################
+black='\E[30m'
+red='\E[31m'
+green='\E[32m'
+yellow='\E[33m'
+blue='\E[1;34m'
+magenta='\E[35m'
+cyan='\E[36m'
+white='\E[37m'
+reset_color='\E[00m'
+COLORIZE=1
+
+#-------------------------------------------------------------------------------
+cecho()  {
+    # Color-echo
+    # arg1 = message
+    # arg2 = color
+    local default_msg="No Message."
+    message=${1:-$default_msg}
+    color=${2:-$green}
+    [ "$COLORIZE" = "1" ] && message="$color$message$reset_color"
+    echo -e "$message"
+    return
+}
+
+echo_error()   { cecho "$*" $red          ;}
+echo_fatal()   { cecho "$*" $red; exit -1 ;}
+echo_warning() { cecho "$*" $yellow       ;}
+echo_success() { cecho "$*" $green        ;}
+echo_info()    { cecho "$*" $blue         ;}
+
+
+########################
+# distribution helpers #
+########################
+
+#-------------------------------------------------------------------------------
+# This function return a string to identify the distribution we are running
+# If we can't check the distribution, it returns "Unknown"
+# This function return always true as exit code by design
+# Examples:
+#   ubuntu16.04
+#   debian8.5
+get_distribution_release() {
+    if [[ ! -z "$OS_DISTRO$OS_RELEASE" ]]; then
+        echo "$OS_DISTRO$OS_RELEASE"
+    else
+        echo Unknown
+    fi
+}
+
+check_supported_distribution() {
+    local distribution=$(get_distribution_release)
+    case "$distribution" in
+        "ubuntu16.04") return 0 ;;
+	"ubuntu17.04") return 0 ;;
+        "ubuntu14.04") return 0 ;;
+        "rhel7")       return 0 ;;
+        "centos7")     return 0 ;;
+    esac
+    return 1
+}
+
+
+###########################
+# Cleaners
+###########################
+
+#-------------------------------------------------------------------------------
+clean_kernel() {
+    $SUDO modprobe ip_tables
+    $SUDO modprobe x_tables
+    $SUDO iptables -P INPUT ACCEPT
+    $SUDO iptables -F INPUT
+    $SUDO iptables -P OUTPUT ACCEPT
+    $SUDO iptables -F OUTPUT
+    $SUDO iptables -P FORWARD ACCEPT
+    $SUDO iptables -F FORWARD
+    $SUDO iptables -t nat -F
+    $SUDO iptables -t mangle -F
+    $SUDO iptables -t filter -F
+    $SUDO iptables -t raw -F
+    echo_info "Flushed iptables"
+}
+
+#-------------------------------------------------------------------------------
+clean_all_files() {
+ set_openair_env
+ dir=$OPENAIRCN_DIR/build
+ rm -rf $dir/log $OPENAIR_DIR/targets/bin/*
+ rm -rf $dir/epc/build $dir/epc/CMakeLists.txt
+ rm -rf $dir/mme/build $dir/mme/CMakeLists.txt
+ rm -rf $dir/hss/build
+ rm -rf $dir/autotests/BIN $dir/autotests/log $dir/autotests/*/build
+}
+
+#-------------------------------------------------------------------------------
+###################################
+# Compilers
+###################################
+# arg 1 Build directory OPENAIR_DIR/build/?/build
+# arg 2 Executable target name
+# arg 3 Executable name (no path)
+# arg 4 Verbose         (1 or 0)
+compilations() {
+  cd $OPENAIRCN_DIR/build/$1/build
+  if [ "a$4" == "a1" ]; then
+    {
+      rm -f $3
+      make $make_args
+    } | tee $dlog/$2.txt
+  else
+    {
+      rm -f $3
+      make $make_args
+    } > $dlog/$2.txt 2>&1
+  fi
+  if [ -s $3 ] ; then
+     echo_success "$2 compiled"
+  else
+     echo_error "$2 compilation failed"
+  fi
+}
+
+###################################
+# make test
+###################################
+
+# arg 1 Build directory OPENAIR_DIR/build/?/build
+# arg 2 Executable target name
+# arg 3 Executable name (no path)
+# arg 4 Verbose         (1 or 0)
+make_test() {
+  echo_success "unit tests start"
+  cd $OPENAIRCN_DIR/build/$1/build
+  if [ "a$4" == "a1" ]; then
+    {
+      make test ARGS="-V"
+    } | tee $dlog/$2_test.txt
+  else
+    {
+      make test
+    } > $dlog/$2_test.txt 2>&1
+  fi
+  echo_success "unit tests end"
+}
+
+##########################################
+# X.509 certificates
+##########################################
+
+#-------------------------------------------------------------------------------
+make_one_cert() {
+  fqdn=$1
+  name=$2
+  $SUDO openssl genrsa -out $name.key.pem 1024
+  $SUDO openssl req -new -batch -out $name.csr.pem -key $name.key.pem -subj /CN=$name.$fqdn/C=FR/ST=PACA/L=Aix/O=Eurecom/OU=CM
+  $SUDO openssl ca -cert cacert.pem -keyfile cakey.pem -in $name.csr.pem -out $name.cert.pem -outdir . -batch
+}
+
+#-------------------------------------------------------------------------------
+make_certs(){
+
+  fqdn=$1
+  certs_dir=$FREEDIAMETER_PREFIX/freeDiameter
+  # certificates are stored in diameter config directory
+  if [ ! -d $certs_dir ];  then
+    echo "Creating non existing directory: $certs_dir"
+    $SUDO mkdir -p $certs_dir || echo_error "can't create: $certs_dir"
+  fi
+
+  cd $certs_dir
+  echo "creating the CA certificate"
+  echo_warning "erase all existing certificates as long as the CA is regenerated"
+  $SUDO rm -f $certs_dir/*.pem
+  $SUDO mkdir -p  $certs_dir/demoCA/
+  $SUDO touch $certs_dir/demoCA/index.txt
+  $SUDO sh -c "echo 01 > $certs_dir/demoCA/serial"
+
+  # CA self certificate
+  $SUDO openssl req  -new -batch -x509 -days 3650 -nodes -newkey rsa:1024 -out cacert.pem -keyout cakey.pem -subj /CN=$fqdn/C=FR/ST=PACA/L=Aix/O=Eurecom/OU=CM
+
+  # generate hss certificate and sign it
+  make_one_cert eur hss
+  make_one_cert eur mme
+
+  # legacy config is using a certificate named 'user'
+  make_one_cert eur user
+}
+
+
+
+############################################
+# External packages installers
+############################################
+
+#-------------------------------------------------------------------------------
+# This function is for internal use of EURECOM developers (no support)
+# arg1 is force (no interactive script)
+install_netmap() {
+  if [ $1 -gt 0 ]; then
+    OPTION="-y"
+  else
+    OPTION=""
+  fi
+
+  # Compilers, generators, ...
+  $SUDO apt-get install $OPTION \
+    autoconf  \
+    automake  \
+    build-essential \
+    linux-source \
+    qt4-dev-tools
+
+  $SUDO  apt-get build-dep linux-image-$(uname -r)
+  if [ $1 -eq 0 ]; then
+    read -p "Do you want to install netmap ? <y/N> " prompt
+  else
+    prompt='y'
+  fi
+  if [[ $prompt =~ [yY](es)* ]]
+  then
+    # TODO: check operations
+    current_kernel_release=`uname -r | cut -d '-' -f1`
+    if [ ! -f /usr/src/linux-source-"$current_kernel_release"/"$current_kernel_release"/.config ]; then
+      if [ ! -f /usr/src/linux-source-"$current_kernel_release"/"$current_kernel_release" ]; then
+        echo "Untar kernel source code"
+        cd /usr/src/linux-source-"$current_kernel_release"
+        $SUDO tar xjf *.tar.bz2
+      fi
+      cd linux-source-"$current_kernel_release"
+      $SUDO make oldconfig
+      $SUDO make
+      $SUDO make modules_install
+      $SUDO make install
+      echo_warning "check CONFIG_VIRTIO_NET=m for full performance"
+      echo_fatal "Please reboot your computer on the new installed kernel (do your own stuff in grub.cfg): $current_kernel_release"
+    fi
+
+    echo "Downloading netmap"
+    cd $OPENAIRCN_DIR/..
+    git clone https://github.com/luigirizzo/netmap.git
+    cd netmap
+    ./configure --kernel-sources=/usr/src/linux-source-"$current_kernel_release"/"$current_kernel_release"
+  fi
+}
+#-------------------------------------------------------------------------------
+install_libgtpnl_from_source() {
+  if [ $1 -gt 0 ]; then
+    OPTION="-y"
+  else
+    OPTION=""
+  fi
+
+  # Compilers, generators, ...
+  if [[ "$OS_DISTRO" == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      build-essential \
+      libmnl-dev"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      patch \
+      flex \
+      gcc \
+      libmnl-devel"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  if [ $1 -eq 0 ]; then
+    read -p "Do you want to install libgtpnl ? <y/N> " prompt
+  else
+    prompt='y'
+  fi
+  if [[ $prompt =~ [yY](es)* ]]
+  then
+    cd /tmp
+    echo "Downloading libgtpnl archive"
+    $SUDO rm -rf /tmp/libgtpnl*
+    git clone git://git.osmocom.org/libgtpnl
+    cd libgtpnl
+    autoreconf -fi
+    ./configure
+    echo "Compiling nettle"
+    make -j`nproc`
+    $SUDO make install
+    $SUDO ldconfig
+    cd /tmp
+    $SUDO rm -rf /tmp/libgtpnl*
+  fi
+}
+
+#-------------------------------------------------------------------------------
+# arg1 is force (no interactive script)
+install_1.1.5_freediameter_from_source() {
+  if [ $1 -eq 0 ]; then
+    read -p "Do you want to install freeDiameter 1.1.5 ? <y/N> " prompt
+    OPTION=""
+  else
+    prompt='y'
+    OPTION="-y"
+  fi
+
+  # libpq-dev 'may' be not needed
+  $SUDO apt-get install $OPTION \
+    autoconf  \
+    automake  \
+    bison     \
+    build-essential \
+    cmake \
+    cmake-curses-gui  \
+    debhelper \
+    flex  \
+    g++ \
+    gcc \
+    gdb \
+    libgcrypt-dev \
+    libidn11-dev \
+    libmysqlclient-dev \
+    libpq-dev \
+    libsctp1 \
+    libsctp-dev \
+    libxml2-dev \
+    mercurial \
+    python-dev \
+    ssl-cert \
+    swig
+
+  if [[ $prompt =~ [yY](es)* ]]
+  then
+    cd /tmp
+    echo "Downloading 1.1.5 freeDiameter archive"
+    $SUDO rm -rf /tmp/1.1.5.tar.gz /tmp/freeDiameter-1.1.5 /tmp/freediameter
+    GIT_SSL_NO_VERIFY=true git clone https://gitlab.eurecom.fr/oai/freediameter.git -b eurecom-1.1.5
+    cd /tmp/freediameter
+    #patch -p1 < $OPENAIRCN_DIR/src/s6a/freediameter/freediameter-1.1.5.patch
+    mkdir build
+    cd build
+    cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ../
+    echo "Compiling freeDiameter"
+    make -j`nproc`
+    #make test
+    $SUDO make install
+    cd /tmp
+    rm -rf /tmp/1.1.5.tar.gz /tmp/freeDiameter-1.1.5 /tmp/freediameter
+  fi
+}
+
+#-------------------------------------------------------------------------------
+# arg1 is force (no interactive script)
+install_freediameter_from_source() {
+  if [ $1 -eq 0 ]; then
+    read -p "Do you want to install freeDiameter 1.2.0 ? <y/N> " prompt
+    OPTION=""
+  else
+    prompt='y'
+    OPTION="-y"
+  fi
+  if [[ "$OS_DISTRO" == "ubuntu" ]]; then
+    # libpq-dev 'may' be not needed
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+    build-essential \
+    cmake \
+    cmake-curses-gui  \
+    debhelper \
+    flex  \
+    g++ \
+    gcc \
+    gdb \
+    libgcrypt-dev \
+    libgnutls28-dev \
+    libidn11-dev \
+    libmysqlclient-dev \
+    libpq-dev \
+    libsctp1 \
+    libsctp-dev \
+    libxml2-dev \
+    mercurial \
+    python-dev \
+    ssl-cert \
+      swig"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      $CMAKE \
+      flex \
+      gcc-c++ \
+      gcc \
+      gdb \
+      libgcrypt-devel \
+      libidn-devel \
+      lksctp-tools \
+      lksctp-tools-devel \
+      libxml2-devel \
+      mercurial \
+      swig"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+
+
+  if [[ $prompt =~ [yY](es)* ]]
+  then
+    cd /tmp
+    echo "Downloading 1.2.0 freeDiameter archive"
+    $SUDO rm -rf /tmp/1.2.0.tar.gz* /tmp/freeDiameter-1.2.0 /tmp/freediameter
+    GIT_SSL_NO_VERIFY=true git clone https://gitlab.eurecom.fr/oai/freediameter.git -b eurecom-1.2.0
+    #wget http://www.freediameter.net/hg/freeDiameter/archive/1.2.0.tar.gz
+    #tar xzf 1.2.0.tar.gz
+    cd freediameter
+    #patch -p1 < $OPENAIRCN_DIR/src/s6a/freediameter/freediameter-1.2.0.patch
+    mkdir build
+    cd build
+    $CMAKE -DCMAKE_INSTALL_PREFIX:PATH=/usr/local ../
+    echo "Compiling freeDiameter"
+    make -j`nproc`
+    #make test
+    $SUDO make install
+    cd /tmp
+    rm -rf /tmp/1.2.0.tar.gz /tmp/freeDiameter-1.2.0 /tmp/freediameter
+  fi
+}
+
+#-------------------------------------------------------------------------------
+# arg1 is force (no interactive script)
+install_latest_freediameter_from_source() {
+  if [ $1 -eq 0 ]; then
+    read -p "Do you want to install latest freeDiameter ? <y/N> " prompt
+    OPTION=""
+  else
+    prompt='y'
+    OPTION="-y"
+  fi
+
+  # libpq-dev 'may' be not needed
+  $SUDO apt-get install $OPTION \
+    autoconf  \
+    automake  \
+    bison     \
+    build-essential \
+    cmake \
+    cmake-curses-gui  \
+    debhelper \
+    flex  \
+    g++ \
+    gcc \
+    gdb \
+    libgcrypt-dev \
+    libidn11-dev \
+    libmysqlclient-dev \
+    libpq-dev \
+    libsctp1 \
+    libsctp-dev \
+    libxml2-dev \
+    mercurial \
+    python-dev \
+    ssl-cert \
+    swig
+
+  if [[ $prompt =~ [yY](es)* ]]
+  then
+    cd /tmp
+    rm -rf /tmp/freeDiameter
+    echo "Downloading latest freeDiameter trunk (may be unstable)"
+    git clone https://github.com/Metaswitch/freeDiameter.git
+    cd freeDiameter
+    patch -p1 < $OPENAIRCN_DIR/src/s6a/freediameter/freediameter-1.2.0.patch
+    mkdir build
+    cd build
+    cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ../
+    echo "Compiling freeDiameter"
+    make -j`nproc`
+    #make test
+    $SUDO make install
+    cd /tmp
+    rm -rf /tmp/freediameter
+  fi
+}
+
+#-------------------------------------------------------------------------------
+# arg1 is package name
+test_install_package() {
+  # usage: test_install_package package_name
+ if [ $# -eq 1 ]; then
+   dpkg -s "$1" > /dev/null 2>&1 && {
+          echo "$1 is installed."
+      } || {
+      echo "$1 is not installed."
+      $SUDO apt-get install --force-yes $1
+    }
+  fi
+}
+
+
+#-------------------------------------------------------------------------------
+update_package_db() {
+  if [ ! -f /tmp/no_more_update_package_db ]; then
+    $SUDO $INSTALLER update
+    touch /tmp/no_more_update_package_db
+  else
+    let elapsed_time=$(expr `date +%s` - `stat -c %Y /tmp/no_more_update_package_db`)
+    if [ $elapsed_time -gt 3600 ]; then
+      $SUDO $INSTALLER update
+      touch /tmp/no_more_update_package_db
+    fi
+  fi
+}
+
+#-------------------------------------------------------------------------------
+check_enable_epel_repos() {
+  # on Enterprise Linuxes, ensure EPEL repos are installed
+  # (provides: libidn2-devel, vconfig, iperf, phpMyAdmin, dkms, ...)
+  if [[ "$OS_DISTRO" == "rhel" ]] || [[ "$OS_DISTRO" == "centos" ]]; then
+    if rpm -q epel-release > /dev/null; then
+      echo "EPEL repos already present. Good."
+    else
+      echo "EPEL repos not present. Installing them."
+      $SUDO $INSTALLER install $OPTION https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    fi
+  fi
+}
+
+#-------------------------------------------------------------------------------
+#arg1 is force (no interactive script)
+check_install_hss_software() {
+  if ! check_supported_distribution; then
+    echo_error "Your distribution $(get_distribution_release) is not supported by openair-cn"
+    exit 1
+  fi
+  if [ $1 -gt 0 ]; then 
+    OPTION="-y"
+  else
+    OPTION=""
+  fi
+
+  check_enable_epel_repos
+
+  # Compilers, generators, ...
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      build-essential \
+      cmake \
+      cmake-curses-gui \
+      doxygen \
+      doxygen-gui \
+      flex \
+      gdb \
+      pkg-config \
+      git \
+      subversion"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      autoconf  \
+      automake  \
+      bison     \
+      $CMAKE \
+      doxygen \
+      flex  \
+      gdb  \
+      pkgconfig \
+      git \
+      subversion"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+
+  # Libraries
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      libconfig8-dev \
+      libgcrypt11-dev \
+      libidn2-0-dev \
+      libidn11-dev \
+      libmysqlclient-dev \
+      libpthread-stubs0-dev \
+      libsctp1 \
+      libsctp-dev \
+      libssl-dev \
+      libtool \
+      mysql-client \
+      mysql-server \
+      openssl"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      libconfig-devel \
+      libgcrypt-devel \
+      libidn2-devel \
+      libidn-devel \
+      lksctp-tools \
+      lksctp-tools-devel \
+      openssl-devel \
+      libtool \
+      mariadb \
+      mariadb-devel \
+      mariadb-server \
+      openssl \
+      nettle-devel \
+      gnutls-devel"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+
+  if [[ $OS_BASEDISTRO == 'fedora' ]]; then
+    $SUDO systemctl enable mariadb
+    $SUDO systemctl start mariadb
+  fi
+
+  if [[ $OS_DISTRO == 'ubuntu' ]]; then
+    #Remove old gnutls/nettle installation that was done from sources
+    remove_nettle_from_source
+    $SUDO $INSTALLER install -y nettle-dev nettle-bin
+  fi
+
+  install_freediameter_from_source $1
+    
+  case "$(get_distribution_release)" in
+    "ubuntu14.04")
+      PACKAGE_LIST="\
+        php5 \
+        phpmyadmin \
+        python-pexpect \
+        libapache2-mod-php*"
+      ;;
+    "ubuntu16.04")
+          PACKAGE_LIST="\
+        php \
+        phpmyadmin \
+        python-pexpect \
+        libapache2-mod-php*"
+      ;;
+
+    "ubuntu17.04")
+      PACKAGE_LIST="\
+        php \
+        phpmyadmin \
+        python-pexpect \
+        libapache2-mod-php*"
+      ;;
+    "rhel7" | "centos7")
+      PACKAGE_LIST="\
+        phpmyadmin \
+        pexpect"
+      ;;
+    "fedora")
+      PACKAGE_LIST="\
+        phpmyadmin \
+        python2-pexpect"
+      ;;
+    *)
+      echo_fatal "$OS_DISTRO is not a supported distribution."
+      ;;
+  esac
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST 
+}
+
+#-------------------------------------------------------------------------------
+#arg1 is force (no interactive script)
+check_install_mme_software() {
+  if ! check_supported_distribution; then
+    echo_error "Your distribution $(get_distribution_release) is not supported by openair-cn"
+    exit 1
+  fi
+  if [ $1 -gt 0 ]; then 
+    OPTION="-y"
+  else
+    OPTION=""
+  fi
+
+  check_enable_epel_repos
+
+  # Compilers, generators, ...
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      build-essential \
+      cmake \
+      cmake-curses-gui \
+      doxygen \
+      doxygen-gui \
+      flex \
+    castxml \
+      gdb \
+      git \
+      pkg-config \
+      subversion"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      $CMAKE \
+      doxygen \
+      flex \
+      gdb \
+      git \
+      pkgconfig \
+      subversion"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  if [ $? -ne 0 ]; then
+    echo_fatal "Failed to install package list $PACKAGE_LIST"
+  fi
+
+  # Libraries
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      guile-2.0-dev \
+      libconfig8-dev \
+      libgcrypt11-dev \
+      libgmp-dev \
+      libhogweed? \
+      libgtk-3-dev \
+      libidn2-0-dev \
+      libidn11-dev \
+      libpthread-stubs0-dev \
+      libsctp1 \
+      libsctp-dev \
+      libssl-dev \
+      libtool \
+      libxml2 \
+      libxml2-dev \
+      mscgen \
+      openssl \
+      check \
+      python"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      guile-devel \
+      libconfig-devel \
+      libgcrypt-devel \
+      gmp-devel \
+      gtk3-devel \
+      libidn2-devel \
+      libidn-devel \
+      lksctp-tools \
+      lksctp-tools-devel \
+      openssl-devel \
+      libtool \
+      libxml2 \
+      libxml2-devel \
+      mscgen \
+      openssl \
+      check \
+      check-devel \
+      python \
+      nettle-devel \
+      gnutls-devel"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  if [ $? -ne 0 ]; then
+    echo_fatal "Failed to install package list $PACKAGE_LIST"
+  fi
+
+  if [[ $OS_DISTRO == 'ubuntu' ]]; then
+    $SUDO apt-get install -y nettle-dev nettle-bin
+  $SUDO apt-get install -y libgnutls28-dev
+  fi
+  
+  install_freediameter_from_source $1
+  install_asn1c_from_source $1
+
+  install_libgtpnl_from_source $1
+
+  # Networking
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      ethtool \
+      iproute \
+      vlan \
+      tshark"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      ethtool \
+      iproute \
+      vconfig \
+      wireshark"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  if [ $? -ne 0 ]; then
+    echo_fatal "Failed to install package list $PACKAGE_LIST"
+  fi
+
+  if [[ "$OS_DISTRO" == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      check \
+      phpmyadmin \
+      python-dev \
+      python-pexpect \
+      unzip"
+  elif [[ "$OS_DISTRO" == "rhel" ]] || [[ "$OS_DISTRO" == "centos" ]]; then
+    PACKAGE_LIST="\
+      check \
+      check-devel \
+      phpmyadmin \
+      python-devel \
+      pexpect \
+      psmisc \
+      unzip"
+  elif [[ "$OS_DISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      check \
+      check-devel \
+      phpmyadmin \
+      python-devel \
+      python2-pexpect \
+      unzip"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  if [ $? -ne 0 ]; then
+    echo_fatal "Failed to install package list $PACKAGE_LIST"
+  fi
+}
+
+#-------------------------------------------------------------------------------
+#arg1 is force (no interactive script)
+check_install_spgw_software() {
+  if ! check_supported_distribution; then
+    echo_error "Your distribution $(get_distribution_release) is not supported by openair-cn"
+    exit 1
+  fi
+  if [ $1 -gt 0 ]; then 
+    OPTION="-y"
+  else
+    OPTION=""
+  fi
+
+  check_enable_epel_repos
+
+  # Compilers, generators, ...
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      build-essential \
+      cmake \
+      cmake-curses-gui \
+      doxygen \
+      doxygen-gui \
+      flex \
+      castxml \
+      gdb \
+      git \
+      pkg-config \
+      subversion"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      $CMAKE \
+      doxygen \
+      flex \
+      gccxml \
+      gdb \
+      git \
+      pkgconfig \
+      subversion"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  if [ $? -ne 0 ]; then
+    echo_fatal "Failed to install package list $PACKAGE_LIST"
+  fi
+
+  # Libraries
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      guile-2.0-dev \
+      libconfig8-dev \
+      libgcrypt11-dev \
+      libgmp-dev \
+      libhogweed? \
+      libgtk-3-dev \
+      libidn2-0-dev \
+      libidn11-dev \
+      libpthread-stubs0-dev \
+      libtool \
+      libxml2 \
+      libxml2-dev \
+      mscgen \
+      openssl \
+      python"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      guile-devel \
+      libconfig-devel \
+      libgcrypt-devel \
+      gmp-devel \
+      gtk3-devel \
+      libidn2-devel \
+      libidn-devel \
+      lksctp-tools \
+      lksctp-tools-devel \
+      openssl-devel \
+      libtool \
+      libxml2 \
+      libxml2-devel \
+      mscgen \
+      openssl \
+      check \
+      python"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  if [ $? -ne 0 ]; then
+    echo_fatal "Failed to install package list $PACKAGE_LIST"
+  fi
+
+  # Networking
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      ethtool \
+      iperf \
+      iproute \
+      vlan \
+      tshark"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      ethtool \
+      iperf \
+      iproute \
+      vconfig \
+      wireshark"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  if [ $? -ne 0 ]; then
+    echo_fatal "Failed to install package list $PACKAGE_LIST"
+  fi
+
+  if [[ "$OS_DISTRO" == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      check \
+      python-dev \
+      python-pexpect \
+      unzip"
+  elif [[ "$OS_DISTRO" == "rhel" ]] || [[ "$OS_DISTRO" == "centos" ]]; then
+    PACKAGE_LIST="\
+      check \
+      python-devel \
+      pexpect \
+      unzip"
+  elif [[ "$OS_DISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      check \
+      python-devel \
+      python2-pexpect \
+      unzip"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  if [ $? -ne 0 ]; then
+    echo_fatal "Failed to install package list $PACKAGE_LIST"
+  fi
+
+  install_libgtpnl_from_source $1
+}
+
+
+#-------------------------------------------------------------------------------
+install_asn1c_from_source(){
+  if [ $1 -eq 0 ]; then
+    OPTION=""
+    read -p "Do you want to install asn1c rev 1516 patched? <y/N> " prompt
+  else
+    prompt='y'
+    OPTION="-y"
+  fi
+
+  if [[ "$OS_DISTRO" == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      build-essential \
+      flex \
+      gcc \
+      libtool"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      patch \
+      flex \
+      gcc \
+      libtool"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+
+  if [[ $prompt =~ [yY](es)* ]]
+  then
+    $SUDO rm -rf /tmp/asn1c
+    mkdir -p /tmp/asn1c
+    git clone https://gitlab.eurecom.fr/oai/asn1c.git /tmp/asn1c
+    cd /tmp/asn1c
+    ./configure
+    make > /tmp/log_compile_asn1c 2>&1
+    $SUDO make install
+  fi
+}
+
+#-------------------------------------------------------------------------------
+cidr2mask(){
+  local i mask=""
+  local full_octets=$(($1/8))
+  local partial_octet=$(($1%8))
+
+  for ((i=0;i<4;i+=1)); do
+    if [ $i -lt $full_octets ]; then
+      mask+=255
+    elif [ $i -eq $full_octets ]; then
+      mask+=$((256 - 2**(8-$partial_octet)))
+    else
+      mask+=0
+    fi
+    test $i -lt 3 && mask+=.
+  done
+
+  echo $mask
+}
+
+#-------------------------------------------------------------------------------
+# example: netcalc 192.168.12.100 255.255.255.0
+netcalc(){
+  local IFS='.' ip i
+  local -a oct msk
+
+  read -ra oct <<<"$1"
+  read -ra msk <<<"$2"
+
+  for i in ${!oct[@]}; do
+    ip+=( "$(( oct[i] & msk[i] ))" )
+  done
+
+  echo "${ip[*]}"
+}
+
+#-------------------------------------------------------------------------------
+# example:
+bcastcalc(){
+  local IFS='.' ip i
+  local -a oct msk
+
+  read -ra oct <<<"$1"
+  read -ra msk <<<"$2"
+
+  for i in ${!oct[@]}; do
+    ip+=( "$(( oct[i] + ( 255 - ( oct[i] | msk[i] ) ) ))" )
+  done
+  echo "${ip[*]}"
+}
+
+
+#-------------------------------------------------------------------------------
+is_real_interface(){
+  my_bool=1
+  for var in "$@"
+  do
+    if [ "a$var" == "a" ]; then
+      return 0
+    fi
+    if [ "a$var" == "anone" ]; then
+      return 0
+    fi
+    IF=`cat /etc/udev/rules.d/70-persistent-net.rules | grep $var | sed 's/^.*NAME=//' | tr -d '"'`
+    if [ "$IF" == "$var" ]; then
+      if [ "a${var:0:3}" != "aeth" ]; then
+        if [ "a${var:0:4}" != "awlan" ]; then
+          if [ "a${var:0:4}" != "awifi" ]; then
+            my_bool=0;
+          fi
+        fi
+      fi
+    fi
+  done
+  return $my_bool
+}
+
+#-------------------------------------------------------------------------------
+is_virtual_interface(){
+  my_bool=1
+  for var in "$@"
+  do
+    if [ "a$var" == "a" ]; then
+      return 0
+    fi
+    if [ "a$var" == "anone" ]; then
+      return 0
+    fi
+    num=`expr index "$var" :`
+
+    if [ $num -eq 0 ]; then
+      my_bool=0;
+    fi
+  done
+  return $my_bool
+}
+
+#-------------------------------------------------------------------------------
+# arg1 = interface name
+# arg2 = ipv4 addr cidr
+set_interface_up(){
+  interface=$1
+  address=${2%/*} #part before '/'
+  cidr_netmask=${2#*/} # part after '/'
+
+  if [ "a${interface:0:4}" == "anone" ]; then
+    return;
+  fi
+  echo "ifconfig  $interface up"
+  $SUDO ifconfig  $interface up
+  sync
+  netmask=`cidr2mask $cidr_netmask`
+  broadcast=`bcastcalc $address $netmask`
+  echo "ip -4 addr add  $address/$cidr_netmask broadcast $broadcast dev $interface"
+  $SUDO ip -4 addr add  $address/$cidr_netmask broadcast $broadcast dev $interface
+  sync
+}
+
+#-------------------------------------------------------------------------------
+# arg1 = interface name
+# arg2 = ipv4 addr cidr
+set_virtual_interface_up(){
+  interface=$1
+  address=${2%/*} #part before '/'
+  cidr_netmask=${2#*/} # part after '/'
+
+  if [ "a${interface:0:4}" == "anone" ]; then
+    return;
+  fi
+  echo "ifconfig  $interface $address up"
+  $SUDO ifconfig  $interface $address up
+  sync
+}
+
+#-------------------------------------------------------------------------------
+#arg1 is interface name
+#arg2 is IP address (CIDR)
+set_network_interface(){
+  local interface_name=$1
+  local ip_cidr=$2
+
+  is_virtual_interface $interface_name
+  if [ $? -eq 1 ]; then
+    echo "$interface_name is virtual interface"
+    set_virtual_interface_up $interface_name $ip_cidr
+  else
+    is_real_interface $interface_name
+    if [ $? -eq 1 ]; then
+      echo "$interface_name is real interface"
+      set_interface_up $interface_name $ip_cidr
+    else
+      echo_warning "$interface_name not handled, not configuring it"
+      return
+    fi
+  fi
+}
+
+#-------------------------------------------------------------------------------
+# arg1 is MME or EPC config file
+set_mme_network_interfaces(){
+  value="`cat $1 | cut -d "#" -f1 | grep 'ADDRESS\|INTERFACE' | tr -d " " | grep "="`"
+  eval $value
+
+  # check all var names are correct
+  list_var_name="\
+        MME_INTERFACE_NAME_FOR_S1_MME         MME_IPV4_ADDRESS_FOR_S1_MME \
+        MME_INTERFACE_NAME_FOR_S11_MME        MME_IPV4_ADDRESS_FOR_S11_MME"
+  for var_name in $list_var_name
+  do
+    if [ -n "$${var_name}" ]; then
+      echo_success "Found ${var_name} = ${!var_name}"
+    else
+      echo_fatal "${var_name} does does not exist in your config file $1"
+    fi
+  done
+
+  # configure interfaces
+  set_network_interface  $MME_INTERFACE_NAME_FOR_S1_MME         $MME_IPV4_ADDRESS_FOR_S1_MME
+  set_network_interface  $MME_INTERFACE_NAME_FOR_S11_MME        $MME_IPV4_ADDRESS_FOR_S11_MME
+}
+
+#-------------------------------------------------------------------------------
+# arg1 is S/P-GW or EPC config file
+set_spgw_network_interfaces(){
+  value="`cat $1 | cut -d "#" -f1 | grep 'ADDRESS\|INTERFACE' | tr -d " " | grep "="`"
+  eval $value
+
+  # check all var names are correct
+  list_var_name="\
+        SGW_INTERFACE_NAME_FOR_S11            SGW_IPV4_ADDRESS_FOR_S11 \
+        SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP  SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP \
+        SGW_INTERFACE_NAME_FOR_S5_S8_UP       SGW_IPV4_ADDRESS_FOR_S5_S8_UP \
+        PGW_INTERFACE_NAME_FOR_S5_S8          PGW_IPV4_ADDRESS_FOR_S5_S8 \
+        PGW_INTERFACE_NAME_FOR_SGI            PGW_IPV4_ADDRESS_FOR_SGI"
+  for var_name in $list_var_name
+  do
+    if [ -n "$${var_name}" ]; then
+      echo_success "Found ${var_name} = ${!var_name}"
+    else
+      echo_fatal "${var_name} does does not exist in your config file $1"
+    fi
+  done
+
+  # configure interfaces
+  set_network_interface  $SGW_INTERFACE_NAME_FOR_S11            $SGW_IPV4_ADDRESS_FOR_S11
+  set_network_interface  $SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP  $SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP
+  set_network_interface  $SGW_INTERFACE_NAME_FOR_S5_S8_UP       $SGW_IPV4_ADDRESS_FOR_S5_S8_UP
+  set_network_interface  $PGW_INTERFACE_NAME_FOR_S5_S8          $PGW_IPV4_ADDRESS_FOR_S5_S8
+  set_network_interface  $PGW_INTERFACE_NAME_FOR_SGI            $PGW_IPV4_ADDRESS_FOR_SGI
+}
+
+#-------------------------------------------------------------------------------
+# arg1 is a 'libconfig-like' config file
+set_enb_network_interfaces(){
+  value="`cat $1 | cut -d "#" -f1 | grep 'ADDRESS\|INTERFACE' | tr -d " " | grep "="`"
+  eval $value
+
+  # check all var names are correct
+  list_var_name="\
+        ENB_INTERFACE_NAME_FOR_S1_MME         ENB_IPV4_ADDRESS_FOR_S1_MME \
+        ENB_INTERFACE_NAME_FOR_S1U            ENB_IPV4_ADDRESS_FOR_S1U "
+  for var_name in $list_var_name
+  do
+    if [ -n "$${var_name}" ]; then
+      echo_success "Found ${var_name} = ${!var_name}"
+    else
+      echo_fatal "${var_name} does does not exist in your config file $1"
+    fi
+  done
+
+  # configure interfaces
+  set_network_interface  $ENB_INTERFACE_NAME_FOR_S1_MME         $ENB_IPV4_ADDRESS_FOR_S1_MME
+  set_network_interface  $ENB_INTERFACE_NAME_FOR_S1U            $ENB_IPV4_ADDRESS_FOR_S1U
+}
+
+################################
+# set_openair_env
+###############################
+#-------------------------------------------------------------------------------
+set_openair_env(){
+    fullpath=`readlink -f $BASH_SOURCE`
+    [ -f "/.$fullpath" ] || fullpath=`readlink -f $PWD/$fullpath`
+    openair_path=${fullpath%/build/*}
+    openair_path=${openair_path%/scripts/*}
+    openair_path=${openair_path%/src/nas/*}
+    openair_path=${openair_path%/src/s6a/*}
+    export OPENAIRCN_DIR=$openair_path
+}
+
+
+################################
+# send ctrl-c and finally force terminate the program and all its child processes
+###############################
+
+#-------------------------------------------------------------------------------
+function handle_ctrl_c(){
+CURPID=$$
+ppid=$$
+arraycounter=1
+echo_info "** Trapped CTRL-C. Killing all subprocesses now..."
+sync
+while true
+do
+        FORLOOP=FALSE
+        # Get all the child process id
+        for i in `ps -ef| awk '$3 == '$ppid' { print $2 }'`
+        do
+                if [ $i -ne $CURPID ] ; then
+                        procid[$arraycounter]=$i
+                        arraycounter=`expr $arraycounter + 1`
+                        ppid=$i
+                        FORLOOP=TRUE
+                fi
+        done
+        if [ "$FORLOOP" = "FALSE" ] ; then
+           arraycounter=`expr $arraycounter - 1`
+           ## We want to kill child process id first and then parent id's
+           while [ $arraycounter -ne 0 ]
+           do
+             echo "first we send ctrl-c to program"
+             $SUDO kill -INT "${procid[$arraycounter]}"
+             sleep 5
+             echo "Now we force kill if that didn't work"
+             $SUDO kill -9 "${procid[$arraycounter]}"
+             arraycounter=`expr $arraycounter - 1`
+           done
+         exit
+        fi
+done
+}
+
+
+###################################
+# Daemon start stop
+###################################
+function do_start_daemon()
+{
+  # Return
+  #   0 if daemon has been started
+  #   1 if daemon was already running
+  #   2 if daemon could not be started
+  $SUDO start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --test > /dev/null \
+    || return 1
+  $SUDO start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- \
+    $DAEMON_ARGS \
+    || return 2
+  # Add code here, if necessary, that waits for the process to be ready
+  # to handle requests from services started subsequently which depend
+  # on this one.  As a last resort, sleep for some time.
+}
+
+function do_stop_daemon()
+{
+  # Return
+  #   0 if daemon has been stopped
+  #   1 if daemon was already stopped
+  #   2 if daemon could not be stopped
+  #   other if a failure occurred
+  $SUDO start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name $NAME
+  RETVAL="$?"
+  [ "$RETVAL" = 2 ] && return 2
+  # Wait for children to finish too if this is a daemon that forks
+  # and if the daemon is only ever run from this initscript.
+  # If the above conditions are not satisfied then add some other code
+  # that waits for the process to drop all resources that could be
+  # needed by services started subsequently.  A last resort is to
+  # sleep for some time.
+  $SUDO start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $DAEMON
+  [ "$?" = 2 ] && return 2
+  # Many daemons don't delete their pidfiles when they exit.
+  $SUDO rm -f $PIDFILE
+  return "$RETVAL"
+}
