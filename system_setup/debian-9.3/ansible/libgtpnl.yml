@@ -24,22 +24,22 @@
     - name: libgtpnl - clone from my github copy
       git:
         repo: git://git.osmocom.org/libgtpnl
-        dest: {{ packages_dir }}/libgtpnl
+        dest: "{{ packages_dir }}/libgtpnl"
 
     - name: libgtpnl - configure
       shell: |
         sudo autoreconf -fi
         ./configure
       args:
-        chdir: {{ packages_dir }}/libgtpnl
+        chdir: "{{ packages_dir }}/libgtpnl"
 
     - name: libgtpnl - build
       make:
-        chdir: {{ packages_dir }}/libgtpnl
+        chdir: "{{ packages_dir }}/libgtpnl"
 
     - name: libgtpnl - install
       make:
-        chdir: {{ packages_dir }}/libgtpnl
+        chdir: "{{ packages_dir }}/libgtpnl"
         target: install
       become: yes
 
@@ -47,5 +47,5 @@
       shell: |
         ldconfig
       args:
-        chdir: {{ packages_dir }}/libgtpnl
+        chdir: "{{ packages_dir }}/libgtpnl"
       become: yes
