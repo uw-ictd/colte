@@ -77,7 +77,7 @@ d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
 d-i grub-installer/bootdev string /dev/sda
 
-d-i preseed/late_command string "cp -r /cdrom/preseed /target/home/enbrain/preseed"
+d-i preseed/late_command string cp -r /cdrom/preseed /target/home/enbrain/
 
 ###############################################################################
 ###############################################################################
