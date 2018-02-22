@@ -1,0 +1,235 @@
+#!/bin/bash
+################################################################################
+# Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The OpenAirInterface Software Alliance licenses this file to You under 
+# the Apache License, Version 2.0  (the "License"); you may not use this file
+# except in compliance with the License.  
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#-------------------------------------------------------------------------------
+# For more information about the OpenAirInterface (OAI) Software Alliance:
+#      contact@openairinterface.org
+################################################################################
+
+# file run_spgw
+# brief run script for S/P-GW (S-GW + P-GW).
+# author  Lionel GAUTHIER
+# company Eurecom
+# email:  lionel.gauthier@eurecom.fr 
+
+
+################################
+# include helper functions
+################################
+THIS_SCRIPT_PATH=$(dirname $(readlink -f $0))
+source $THIS_SCRIPT_PATH/../build/tools/build_helper
+declare -i g_run_msc_gen=0
+declare    g_msc_dir="/tmp"
+declare    g_spgw_default_config_file="/usr/local/etc/oai/spgw.conf"
+
+set_openair_env 
+
+
+function help()
+{
+  echo_error " "
+  echo_error "Usage: run_spgw [OPTION]..."
+  echo_error "Run the S/G-GW executable (S-GW + P-GW)."
+  echo_error " "
+  echo_error "Options:"
+  echo_error "Mandatory arguments to long options are mandatory for short options too."
+  echo_error "  -c, --config-file     file_abs_path Config file to be used by spgw if you don't want to use the default one: $g_spgw_default_config_file"
+  echo_error "  -d, --daemon                        Run the daemon."
+  echo_error "  -g, --gdb                           Run with GDB."
+  echo_error "  -G, --gdb-cmd         cmd cmd_arg   Append this GDB cmd to GDB command file (ex1: break Attach.c:272, ex2: watch 0xffee0002)."
+  echo_error "                                      All repetitions of this argument are valid."
+  echo_error "  -h, --help                          Print this help."
+  echo_error "  -k, --kill                          Kill all running SPGW instances, exit script then."
+  echo_error "  -m, --mscgen          directory     Generate mscgen output files in a directory"
+  echo_error "  -v, --verbosity-level               Verbosity level (0,1,2)."
+  echo_error "                                        0 -> ASN1 XER printf off"
+  echo_error "                                        1 -> ASN1 XER printf on and ASN1 debug off"
+  echo_error "                                        2 -> ASN1 XER printf on and ASN1 debug on"
+}
+
+function do_msc_gen()
+{
+  cd $g_msc_dir
+  $THIS_SCRIPT_PATH/msc_gen
+}
+
+function control_c()
+# run if user hits control-c
+{
+  echo_warning "\nExiting by ctrl+c\n"
+  if [ $g_run_msc_gen -eq 1 ]; then 
+    do_msc_gen
+  fi
+  exit $?
+}
+
+NAME=spgwd
+DAEMON=/usr/sbin/$NAME
+DAEMON_ARGS=""
+PIDFILE=/var/run/$NAME.pid
+function main()
+{
+  local -i run_gdb=0
+  local -i run_daemon=0
+  local -i set_network_interfaces=0
+  local    exe_arguments=" "
+  local    spgw_config_file=$g_spgw_default_config_file
+  local    breakpoint_location=""
+  local -a gdb_args
+  local -i gdb_index=0
+
+  until [ -z "$1" ]
+    do
+    case "$1" in
+      -c | --config-file)
+        spgw_config_file=$2
+        echo "setting config file to: $spgw_config_file"
+        shift 2;
+        ;;
+      -g | --gdb)
+        run_gdb=1
+        echo "setting GDB flag to: $run_gdb"
+        shift;
+        ;;
+      -D | --daemon)
+        run_daemon=1
+        echo "Run SPGW as a daemon"
+        shift;
+        ;;
+      -G | --gdb-arg)
+        run_gdb=1
+        gdb_args[$gdb_index]="$2 $3"
+        echo "Appending gdb args: ${gdb_args[$gdb_index]}"
+        gdb_index=$((gdb_index + 1))
+        shift 3;
+        ;;
+      -h | --help)
+        help
+        exit 0
+        ;;
+      -i | --set-nw-interfaces)
+        set_network_interfaces=1
+        echo "setting network interfaces: $set_network_interfaces"
+        shift;
+        ;;
+      -k | --kill)
+        $SUDO killall -q spgw
+        $SUDO rm /var/run/spgw.pid
+        do_stop_daemon
+        exit 0
+        shift;
+        ;;
+      -m | --mscgen)
+        g_msc_dir=$2
+        if [ -d  "$g_msc_dir" ]; then
+          echo "setting mscgen log files to dir: $g_msc_dir"
+          g_run_msc_gen=1
+          shift 2;
+        else
+          echo_error "Mscgen log dir does not exist"
+          exit -1
+        fi
+        ;;      
+      -v | --verbosity-level)
+        local verbosity_level=$2
+        echo "setting verbosity level to: $verbosity_level"
+        exe_arguments="-v $verbosity_level $exe_arguments"
+        shift 2;
+        ;;
+      *)   
+        echo "Unknown option $1"
+        help
+        exit 0
+        ;;
+    esac
+  done
+
+  set_openair_env 
+  cecho "OPENAIR_DIR    = $OPENAIR_DIR" $green
+  
+
+  if [ ! -f $spgw_config_file ]; then 
+    echo_fatal "Please provide -c|--config-file valid argument (\"$spgw_config_file\" not a valid file)"
+  fi
+
+
+  if [ "$run_daemon" -eq 1 ]; then
+    if [ ! -e /usr/sbin/spgwd ]; then
+      echo_fatal "Cannot find /usr/sbin/spgwd executable, have a look at the output of build_spgw  -D ... executable"
+    fi
+  else
+    if [ ! -e /usr/local/bin/spgw ]; then
+    echo_fatal "Cannot find /usr/local/bin/mme executable, have a look at the output of build_spgw executable"
+    fi
+  fi
+
+
+  if [ $g_run_msc_gen -eq 1 ]; then 
+    rm -f /tmp/openair.msc.*
+  fi
+
+  if [ $set_network_interfaces -eq 1 ]; then
+    set_spgw_network_interfaces $spgw_config_file
+  fi
+    
+  DAEMON_ARGS=$DAEMON_ARGS" -c $spgw_config_file"
+  if [ "$run_daemon" -eq 1 ]; then
+    # TODO options
+    $SUDO killall -q spgw
+    do_stop_daemon
+    case "$?" in
+      0) echo_success "SPGW daemon was running -> stopped";;
+      1) ;;
+      2) echo_fatal "FAILURE: SPGW daemon was running -> could not stop it";;
+    esac
+    do_start_daemon
+    case "$?" in
+      0) echo_success "SPGW daemon started";;
+      1) echo_fatal "FAILURE: SPGW daemon was already running";;
+      2) echo_fatal "FAILURE: Cannot start SPGW daemon";;
+    esac
+    exit 0
+  fi
+
+
+  exe_arguments="-c $spgw_config_file $exe_arguments"
+
+  if [ $run_gdb -eq 0 ]; then 
+    # trap keyboard interrupt (control-c)
+    trap control_c SIGINT
+    $SUDO spgw  `echo $exe_arguments` 2>&1 
+  else
+    # trap keyboard interrupt (control-c) is done by gdb
+    $SUDO touch      ~/.gdb_spgw
+    $SUDO chmod 777  ~/.gdb_spgw
+    $SUDO echo "file spgw" > ~/.gdb_spgw
+    $SUDO echo "set args $exe_arguments "        >> ~/.gdb_spgw
+    for i in ${gdb_args[@]}; do
+      $SUDO echo "$i"                            >> ~/.gdb_mme
+    done
+    $SUDO echo "run"                             >> ~/.gdb_spgw
+    $SUDO cat ~/.gdb_spgw
+    $SUDO gdb -n -x ~/.gdb_spgw
+    if [ $g_run_msc_gen -eq 1 ]; then 
+      #$SUDO do_msc_gen
+      cd $g_msc_dir
+      $SUDO $THIS_SCRIPT_PATH/msc_gen --profile EPC --dir $g_msc_dir --type png
+    fi
+  fi
+}
+
+main "$@"
