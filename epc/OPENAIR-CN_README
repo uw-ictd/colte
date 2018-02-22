@@ -1,0 +1,86 @@
+#------------------------------------------------------------------------------
+
+                             OPENAIR-CN
+    An implementation of the Evolved Packet Core network.
+    
+#------------------------------------------------------------------------------
+    
+  Openair-cn is an implementation of the 3GPP specifications concerning the 
+  Evolved Packet Core Networks, that means it contains the implementation of the
+  following network elements: MME, HSS, S-GW, P-GW.
+  
+#---------------------
+Licence info  
+#---------------------
+  The source code is mainly written under the FreeBSD License. For more details,
+  please read the NOTICE file in the same directory.
+   
+#---------------------
+Linux
+#---------------------
+  The Openair-cn code actually is written, executed, and tested on UBUNTU 
+  desktop 14.04 64 bits.
+  Actually the S-GW network element requires a linux kernel version 3.19.
+  
+#---------------------
+Collaborative work
+#---------------------
+  This source code is managed through a GITLAB, a collaborative development 
+  platform, URL: https://gitlab.eurecom.fr/oai/openair-cn
+  
+   
+#---------------------
+Contributions request
+#---------------------
+  In a general way, anybody who is willing can contribute on any part of the 
+  code in any network component. Contributions can be simple bugfixes, advices
+  and remarks on the design, architecture, coding/implementation, are can can 
+  size up to a project collaboration.
+  
+  There are large areas where help is needed, and some more specifics:
+  
+    # By order of decreasing priority level:
+  
+      - Development of test tools: eNB(s) emulator on S1 interface.
+      
+      - Enhance the implementation of the HSS, many things are missing there.
+      
+      - Re-implement a GTPv1-U framework in S-GW using a 'zero-copy' framework.
+      
+      - Enhance the NAS layer with compliant TAU and SR procedures, implement 
+        the handling of dedicated bearers in NAS and S/P-GW.
+
+      - Propagate the use of ITTI inside the NAS for exchanges between EMM and 
+        ESM.
+
+      - Improve the design and implementation of the InTer-Task-Interface 
+        middleware, a message passing software.
+      
+      - Enhance the S1AP MME application with the handling of new messages.
+
+      - Help documenting, cleaning and harmonizing the source code.
+
+
+#---------------------
+How to contribute
+#---------------------
+    Here are the important steps for reporting a bug/contributing to the 
+    Openair-cn software:
+
+    Read the OpenAirInterfaceTM (OAI) Licensing Model and sign the Individual 
+    Contributor License Agreement(s) (iCLA).  Please make sure you are 
+    authorized to work on OAI from your current employer. You still need to sign
+    the iCLA even if your employer is a member corporation of the alliance. The 
+    above two licenses must be signed before your commits are included in the 
+    main repository.
+    Create account on Gitlab and send an email to openair_tech (at) eurecom 
+    (dot) fr to be added to the repository.
+    If you wish to contribute to the OAI documentation on Gilab wiki, then 
+    please email to openair_tech (at) eurecom (dot) fr to sign the licence 
+    agreement and request for account access on Gilab wiki.
+    Follow the coding/Gitlab branching guidelines here.
+    Work closely with the OAI community to ensure periodic review takes place 
+    with them so you code can be merged to the main repository.
+    Use Gitlab for collaborative development, bug fixing, feature requests, etc.
+
+
