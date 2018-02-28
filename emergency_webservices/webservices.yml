@@ -2,6 +2,8 @@
 # It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
 # If you don't want a specific service just comment out the appropriate include_tasks.yml file
 
+# WARNING: THIS SCRIPT IS INCORRECT/NOT USED.
+
 ---
 - hosts: localhost
   vars:

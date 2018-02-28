@@ -1,8 +1,8 @@
 ---
 - hosts: localhost
   vars:
-    mysql_user: enbrain
-    username: enbrain
+    mysql_user: {{ ansible_user_id }}
+    username: {{ ansible_user_id }}
     mysql_password: correcthorsebatterystaple
   # vars_prompt:
   #     - name: mysql_password_unused
