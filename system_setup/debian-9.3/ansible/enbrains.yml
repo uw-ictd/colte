@@ -1,8 +1,8 @@
 #---
 #- hosts: localhost
 #  vars:
-#    mysql_user: enbrain
-#    username: enbrain
+#    mysql_user: colte
+#    username: colte
 #    mysql_password: correcthorsebatterystaple
 
 #    colte_dir: /home/{{ username }}/colte
