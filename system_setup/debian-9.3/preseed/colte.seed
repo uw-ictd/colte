@@ -15,8 +15,8 @@ d-i keyboard-configuration/xkb-keymap select us
 
 ### Network configuration
 d-i netcfg/choose_interface select auto
-d-i netcfg/get_hostname string enbrain
-d-i netcfg/get_domain string enbrain
+d-i netcfg/get_hostname string colte
+d-i netcfg/get_domain string colte
 d-i netcfg/dhcp_timeout string 10
 
 # Disable that annoying WEP key dialog.
@@ -46,7 +46,7 @@ d-i passwd/root-login boolean false
 
 # To create a normal user account.
 d-i passwd/user-fullname string UW Community Cellular Lab
-d-i passwd/username string enbrain
+d-i passwd/username string colte
 # Normal user's password, either in clear text
 d-i passwd/user-password password password
 d-i passwd/user-password-again password password
@@ -77,7 +77,7 @@ d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
 d-i grub-installer/bootdev string /dev/sda
 
-d-i preseed/late_command string cp -r /cdrom/preseed/base_setup.sh /target/home/enbrain/setup.sh
+d-i preseed/late_command string cp -r /cdrom/preseed/base_setup.sh /target/home/colte/setup.sh
 
 ###############################################################################
 ###############################################################################
