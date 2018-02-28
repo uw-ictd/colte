@@ -1,2 +1,2 @@
 # enbrains
-The "Brains" of a distributed/standalone EPC solution.
+This code is seriously under construction. The idea (from December 2017) was to make clever distributed/routing-esque solutions to allow different "standalone EPCs" to talk to each other in an optimized way, and just hook that information into the HSS/MySQL database. The CRDT stuff could/should go here instead? You tell me :-)
