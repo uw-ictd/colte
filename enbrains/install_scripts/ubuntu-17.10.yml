@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  vars:
+    colte_dir: "{{ playbook_dir }}/../.."
+    enbrains_dir: "{{ colte_dir }}/enbrains"
+
+  tasks:
+    - name: enbrains - apt-get dependencies
+      apt:
+        name: "libevent-dev"
+      become: yes
+
+    - name: enbrains - build
+      make:
+        chdir: "{{ enbrains_dir }}"
+
+
