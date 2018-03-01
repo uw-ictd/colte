@@ -12,6 +12,6 @@
     packages_dir: "{{ colte_dir }}/packages"
 
 # If you want to add new packages to default install, just add them to this list!
-- import_playbook: "{{epc_dir}}/install_scripts/debian-9.3.yml"
-- import_playbook: "{{enbrains_dir}}/install_scripts/debian-9.3.yml"
-- import_playbook: "{{emergency_webservices_dir}}/install_scripts/debian-9.3.yml"
+- import_playbook: "{{ playbook_dir }}/../../../epc/install_scripts/debian-9.3.yml"
+- import_playbook: "{{ playbook_dir }}/../../../enbrains/install_scripts/debian-9.3.yml"
+- import_playbook: "{{ playbook_dir }}/../../../emergency_webservices/install_scripts/debian-9.3.yml"
