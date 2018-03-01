@@ -23,7 +23,7 @@ Step 4: Use the bootable media to install onto your target machine. This will au
 Step 5: Reboot into the system and sudo run ~/setup.sh.
 
 ## Install Onto A Virtual Machine Using Vagrant:
-If you want to install colte on a virtual machine with Vagrant, you can do so using /system_setup/$OS/Vagrantfile. This uses the same scripts/processes as above, except that the preseed configuration is represented by the Vagrantfile (which also instructs it to run setup.sh).
+If you want to install colte on a virtual machine with Vagrant, you can do so by cd'ing to /system_setup/$OS and running "vagrant up epc". This uses the same scripts/processes as above, except that the preseed configuration is represented by the Vagrantfile. Once complete, use "vagrant ssh epc" to get into the VM and run /colte/system_setup/$OS/setup-$OS.sh
 
 ## Install on an Existing System:
 Installation on an existing system should work fine by running /system_setup/$OS/setup-$OS.sh.
