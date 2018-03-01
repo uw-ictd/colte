@@ -1,17 +1,10 @@
-#---
-#- hosts: localhost
-#  vars:
-#    mysql_user: colte
-#    username: colte
-#    mysql_password: correcthorsebatterystaple
+---
+- hosts: localhost
+  vars:
+    colte_dir: "{{ playbook_dir }}/../.."
+    enbrains_dir: "{{ colte_dir }}/enbrains"
 
-#    colte_dir: /home/{{ username }}/colte
-#    colte_dir: {{ playbook_dir }}/../../..
-#    epc_dir: {{ colte_dir }}/epc
-#    enbrains_dir: {{ colte_dir }}/enbrains
-#    packages_dir: {{ colte_dir }}/packages
-
-#  tasks:
+  tasks:
     - name: enbrains - apt-get dependencies
       apt:
         name: "libevent-dev"

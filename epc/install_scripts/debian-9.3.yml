@@ -1,17 +1,14 @@
-#---
-#- hosts: localhost
-#  vars:
-#    mysql_user: colte
-#    username: colte
-#    mysql_password: correcthorsebatterystaple
+---
+- hosts: localhost
+  vars:
+    username: "{{ ansible_user_id }}"
+    mysql_password: correcthorsebatterystaple
 
-#    colte_dir: /home/{{ username }}/colte
-#    colte_dir: {{ playbook_dir }}/../../..
-#    epc_dir: {{ colte_dir }}/epc
-#    enbrains_dir: {{ colte_dir }}/enbrains
-#    packages_dir: {{ colte_dir }}/packages
+    colte_dir: "{{ playbook_dir }}/../.."
+    epc_dir: "{{ colte_dir }}/epc"
+    packages_dir: "{{ colte_dir }}/packages"
 
-#  tasks:
+  tasks:
     - name: apt-get update
       apt:
         update_cache: yes
@@ -69,7 +66,7 @@
 
     - name: MySQL Configs
       mysql_user:
-        name: "{{ mysql_user }}"
+        name: "{{ username }}"
         password: "{{ mysql_password }}"
         host: localhost
         priv: '*.*:ALL'
@@ -144,6 +141,6 @@
         cp -rp {{ epc_dir }}/spencer_configs/freeDiameter /usr/local/etc/oai/
         {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/oai/freeDiameter hss.OpenAir5G.Alliance
         {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/oai/freeDiameter mme.OpenAir5G.Alliance
-        {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ mysql_user }} {{ mysql_password }} oai_db {{ epc_dir }}/spencer_configs/sample_db.sql
+        {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} oai_db {{ epc_dir }}/spencer_configs/sample_db.sql
       become: yes
 

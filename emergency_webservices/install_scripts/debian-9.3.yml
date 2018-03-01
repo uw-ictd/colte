@@ -1,13 +1,15 @@
 # This script is to be run on the actual host machine (i.e. no Vagrant BS here.)
 # It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
-# If you don't want a specific service just comment out the appropriate include_tasks.yml file
+# If you don't want a specific webservice just comment out the appropriate include_tasks.yml file
 
-#---
-#- hosts: localhost
-#  vars:
-#    username: colte
+---
+- hosts: localhost
+  vars:
+    username: "{{ ansible_user_id }}"
+    colte_dir: "{{ playbook_dir }}/../.."
+    emergency_webservices_dir: "{{ colte_dir }}/emergency_webservices"
 
-#  tasks:
+  tasks:
     - name: apt-get update
       apt:
         update_cache: yes
@@ -58,3 +60,11 @@
     - import_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
 #    - import_tasks: "{{ emergency_webservices_dir }}/maps.yml"
 
+  handlers:
+    - name: restart apache
+      service: name=apache2 state=restarted
+      become: yes
+
+    - name: reload apache
+      service: name=apache2 state=reloaded
+      become: yes
