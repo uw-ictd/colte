@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-COLTE_DIR = "$SCRIPTDIR/../.."
+COLTE_DIR= "$SCRIPTDIR/../.."
 
 
 
