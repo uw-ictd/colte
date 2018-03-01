@@ -13,9 +13,9 @@
 
 # If you want to add new packages, just add them to this list!)
   tasks:
-    - import_tasks: epc.yml
-    - import_tasks: enbrains.yml
-    - import_tasks: emergency_webservices.yml
+    - import_tasks: "{{epc_dir}}/install_scripts/debian-9.3.yml"
+    - import_tasks: "{{enbrains_dir}}/install_scripts/debian-9.3.yml"
+    - import_tasks: "{{emergency_webservices_dir}}/install_scripts/debian-9.3.yml"
 
   handlers:
-    - import_tasks: emergency_webservices_handlers.yml
+    - import_tasks: "{{emergency_webservices_dir}}/install_scripts/debian-9.3_handlers.yml"
