@@ -1,0 +1,2 @@
+# Webservices
+This folder is for essential webserivces. Same basic architecture as emergency_webservices (i.e. microservice docker containers) but different in that it will contain things pertaining to network billing, management, topping up, etc. If you want to deploy a commercial/production network, use this. Otherwise (home router? local testing?) you can leave it out.
