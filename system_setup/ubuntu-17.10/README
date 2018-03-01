@@ -1,12 +1,1 @@
 WARNING: I haven't actually made this work yet. Go use Debian instead!!!
-
-
-THIS system architecture assumes that we're provisioning an all-in-one EPC on a host machine running 17.10 (or, eventually soon, 18.04). The eNB is actually a separate host and connects to the EPC over a ethernet interface. The EPC connects to the Internet over a different interface.
-
-System Configuration:
-- Fill out ALL fields in the "configuration" file with your site-specific values. This is important because these are all the things we need to know but can't automatically assume.
-- All in one script (once configuration is complete) can be done with setup.sh. This script downloads/installs Ansible and Python, and then provisions the EPC.
-
-NOTES ON VAGRANT:
-- the Vagrantfile just lets me test ansible and other operations.
-- all it says is that we're running an Ubuntu machine with a network interface.
