@@ -11,11 +11,7 @@
     emergency_webservices_dir: "{{ colte_dir }}/emergency_webservices"
     packages_dir: "{{ colte_dir }}/packages"
 
-# If you want to add new packages, just add them to this list!)
-  tasks:
-    - import_tasks: epc.yml
-    - import_tasks: enbrains.yml
-    - import_tasks: emergency_webservices.yml
-
-  handlers:
-    - import_tasks: emergency_webservices_handlers.yml
+# If you want to add new packages to default install, just add them to this list!
+- import_playbook: "{{ playbook_dir }}/../../../epc/install_scripts/debian-9.3.yml"
+- import_playbook: "{{ playbook_dir }}/../../../enbrains/install_scripts/debian-9.3.yml"
+- import_playbook: "{{ playbook_dir }}/../../../emergency_webservices/install_scripts/debian-9.3.yml"
