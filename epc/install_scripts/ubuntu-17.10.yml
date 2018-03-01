@@ -1,17 +1,12 @@
 ---
 - hosts: localhost
   vars:
-    mysql_user: {{ ansible_user_id }}
-    username: {{ ansible_user_id }}
+    username: "{{ ansible_user_id }}"
     mysql_password: correcthorsebatterystaple
-  # vars_prompt:
-  #     - name: mysql_password_unused
-  #       prompt: "please enter a mysql db password"
-  become_user: enbrain
 
-############################################################################
-################################## HSS #####################################
-############################################################################
+    colte_dir: "{{ playbook_dir }}/../.."
+    epc_dir: "{{ colte_dir }}/epc"
+    packages_dir: "{{ colte_dir }}/packages"
 
   tasks:
     - name: apt-get update
@@ -71,7 +66,7 @@
 
     - name: MySQL Configs
       mysql_user:
-        name: "{{ mysql_user }}"
+        name: "{{ username }}"
         password: "{{ mysql_password }}"
         host: localhost
         priv: '*.*:ALL'
@@ -129,21 +124,6 @@
       - iperf
       become: yes
 
-############################################################################
-################################## SPGW ####################################
-############################################################################
-
-# (NOTHING left at this point! Just iperf!)
-
-############################################################################
-################################## EPC #####################################
-############################################################################
-
-    - name: fetch epc from github
-      git:
-        repo: https://github.com/spencersevilla/enbrains-epc.git
-        dest: /home/"{{ username }}"/epc
-
     - name: build epc with enbrains
       shell: |
         source oaienv
@@ -151,35 +131,16 @@
         ./scripts/build_mme -e
         ./scripts/build_spgw -e
       args:
-        chdir: /home/"{{ username }}"/epc        
+        chdir: "{{ epc_dir }}"
 
     - name: post-install config
       shell: |
-        source /home/"{{ username }}"/epc/oaienv
+        source {{ epc_dir }}/oaienv
         mkdir -p /usr/local/etc/oai
-        cp -rp /home/"{{ username }}"/epc/spencer_configs/*.conf /usr/local/etc/oai/
-        cp -rp /home/"{{ username }}"/epc/spencer_configs/freeDiameter /usr/local/etc/oai/
-        /home/"{{ username }}"/epc/scripts/check_hss_s6a_certificate /usr/local/etc/oai/freeDiameter hss.OpenAir5G.Alliance
-        /home/"{{ username }}"/epc/scripts/check_mme_s6a_certificate /usr/local/etc/oai/freeDiameter mme.OpenAir5G.Alliance
-        /home/"{{ username }}"/epc/scripts/hss_db_import 127.0.0.1 "{{ mysql_user }}" "{{ mysql_password }}" oai_db /home/"{{ username }}"/epc/spencer_configs/sample_db.sql
+        cp -rp {{ epc_dir }}/spencer_configs/*.conf /usr/local/etc/oai/
+        cp -rp {{ epc_dir }}/spencer_configs/freeDiameter /usr/local/etc/oai/
+        {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/oai/freeDiameter hss.OpenAir5G.Alliance
+        {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/oai/freeDiameter mme.OpenAir5G.Alliance
+        {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} oai_db {{ epc_dir }}/spencer_configs/sample_db.sql
       become: yes
-
-############################################################################
-############################# ENBRAINS #####################################
-############################################################################
-
-    - name: enbrains - apt-get dependencies
-      apt:
-        name: "libevent-dev"
-      become: yes
-
-    - name: enbrains - fetch from github
-      git:
-        repo: https://github.com/spencersevilla/enbrains.git
-        dest: /home/"{{ username }}"/enbrains
-
-    - name: enbrains - build
-      make:
-      chdir: /home/"{{ username }}"/enbrains
-
 

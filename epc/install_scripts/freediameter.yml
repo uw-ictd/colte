@@ -28,7 +28,11 @@
       - libgcrypt-dev
       - libgnutls28-dev
       - libidn11-dev
-      - default-libmysqlclient-dev
+# I commented out these two lines to get compilation for both debian (default-) and ubuntu.
+# The correct lib should have already been installed by the epc playbook.
+# On the off-chance that you're compiling freediameter on its own, put the correct line back in. 
+#      - default-libmysqlclient-dev
+#      - libmysqlclient-dev
       - libpq-dev
       - libsctp1
       - libsctp-dev
