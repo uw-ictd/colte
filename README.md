@@ -26,9 +26,11 @@ Step 5: Reboot into the system and sudo run ~/setup.sh.
 If you want to install colte on a virtual machine with Vagrant, you can do so using /system_setup/$OS/Vagrantfile. This uses the same scripts/processes as above, except that the preseed configuration is represented by the Vagrantfile (which also instructs it to run setup.sh).
 
 ## Install on an Existing System:
-If you want to install colte on an already existing/configured system, you must first install python-2.7 and ansible-2.4 or greater. Please note that installing Ansible >= 2.4 can be as straightforward as specifying the version to apt-get, or a major pain if you're on a LTS version that doesn't want to support it (a lot of releases currently only go to ansible-2.2).
+Installation on an existing system should work fine by running /system_setup/$OS/setup-$OS.sh.
 
-With debian-9.3, for example, this can be accomplished by adding "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" to /etc/sources.list and then sudo running "apt-get install -y --allow-unauthenticated ansible". This might eventually (will inevitably?) change, version control is frustrating, YMMV.
+<!-- If you want to install colte on an already existing/configured system, you must first install python-2.7 and ansible-2.4 or greater. Please note that installing Ansible >= 2.4 can be as straightforward as specifying the version to apt-get, or a major pain if you're on a LTS version that doesn't want to support it (a lot of releases currently only go to ansible-2.2). -->
+
+<!-- With debian-9.3, for example, this can be accomplished by adding "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" to /etc/sources.list and then sudo running "apt-get install -y --allow-unauthenticated ansible". This might eventually (will inevitably?) change, version control is frustrating, YMMV. -->
 
 <!-- Once ansible-2.4 or greater is installed, look at $COLTE_DIR/system_setup/$OS/ansible/main_playbook.yml to edit the username and mysql_user variables to be whatever user you want to install the system for. You can also change the mysql_password variable here as well (HIGHLY RECOMMENDED) but note that if you do, you'll also need to change it in /configs/hss.conf. -->
 
