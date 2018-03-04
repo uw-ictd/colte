@@ -1,0 +1,103 @@
+
+<!-- Header taken from PRODUCT -->
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="https://getbootstrap.com/favicon.ico">
+
+    <title>The Emergency NetBox</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/specs.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+<!-- NAVBAR FROM "PRODUCT" TEMPLATE -->
+    <nav class="site-header sticky-top py-1">
+      <div class="container d-flex flex-column flex-md-row justify-content-end">
+        <a class="py-2 d-none d-md-inline-block" href="index.html">Home</a>
+        <a class="py-2 d-none d-md-inline-block" href="specs.html">Tech Specs</a>
+        <a class="py-2 d-none d-md-inline-block" href="video.html">Video</a>
+        <a class="py-2 d-none d-md-inline-block" href="https://github.com/uw-ictd/colte">GitHub</a>
+      </div>
+    </nav>
+
+            <!-- Sidebar Holder -->
+    <nav id="sidebar" class="active">
+        <div class="sidebar-header">
+            <h3>Tech Specs</h3>
+        </div>
+
+        <ul class="list-unstyled components">
+            <li><a class="nav-link js-scroll-trigger" href="#lte">Autonomous LTE</a></li>
+            <li><a class="nav-link js-scroll-trigger" href="#eam">Emergency Attach</a></li>
+            <li><a class="nav-link js-scroll-trigger" href="#web">Local Webservices</a></li>
+            <li><a class="nav-link js-scroll-trigger" href="#spectrum">Spectrum and Range</a></li>
+            <li><a class="nav-link js-scroll-trigger" href="#power">Power Consumption</a></li>
+        </ul>
+    </nav>
+
+    <!-- Page Content Holder -->
+    <div id="content">
+        <section id="lte"></section>
+        <div class="linetop"></div>
+
+            <h2>Autonomous LTE Networking</h2>
+            <p>An LTE network today consists of three main components: <b>handsets</b> (i.e. phones) wirelessly connect to <b>towers</b> (called eNodeBs in LTE parlance) which are managed by the carrier's core network, which is called the <b>EPC</b>. Each carrier has one logical EPC, which handles everything from network authentication and billing to routing and forwarding. Note that all communication, both within the carrier's network (known as a PLMN, for Public Land Mobile Network) as well as out to the Internet, is routed through the EPC.</p>
+
+            <p>An unfortunate side-effect of this design is that if the tower can't reach the EPC, all service is lost. To solve this problem, the NetBox comes packaged and integrated with an onboard EPC (branched from the OpenAirInterface project <a href="https://gitlab.eurecom.fr/oai/openair-cn">here</a>). This means that each NetBox can be considered an all-in-one independent LTE network, consisting of one tower and one EPC. While this means that multiple NetBoxes in an area will not be able to talk to each other, it also means that each NetBox is resilient and reliable, even without any outside Internet connection. </p>
+        <section id="eam"></section>
+
+        <div class="line"></div>
+
+            <h2>Emergency Attach Mode</h2>
+            <p>The LTE attach procedure is bidirectionally authenticated. This means that for a handset to connect to a network, the network must authenticate the handset, <i>and</i> the handset must authenticate the network. This is important for security, but has the unfortunate side effect of requiring users to obtain a new SIM card to get on a new network. However, in an immediate disaster-response scenario, requiring emergency responders to distribute SIMs is an unrealistic expectation.</p>
+            <p>To get around this problem, we utilize LTE's Emergency Attach Mode (EAM). Emergency Attach Mode allows handsets to connect to any network they encounter, without authentication, but is only triggered in the event that the handset cannot contact any of its home network. Once attached in Emergency Mode, the handset will continue to listen for its home network, and will leave the emergency network and return home as soon as possible.</p>
+            <p>EAM provides three key benefits for our use-case. First, it dramatically simplifies network operation and extends network support. Instead of wasting valuable response time passing out SIM cards, or only supporting users who are safe and capable enough to travel and obtain a SIM, the NetBox automatically supports all phones within range. Second, EAM allows the NetBox to coexist with existing infrastructure. Users who still have carrier service will remain attached to their carrier's tower, leaving the NetBox to focus on users without coverage. Third, EAM allows for gradual and seamless restoration of service. As carriers restore coverage after the disaster, users will automatically leave the NetBox and return to their home networks, allowing for a natural and gradual wind-down of the emergency network.</p>
+        <section id="web"></section>
+
+        <div class="line"></div>
+
+            <h2>Local Webservices</h2>
+            <p>Multiple studies have found that during crises, modern users place a high priority on using their phones to communicate with loved ones, inform others that they are safe, and obtain up-to-date information about resources such as food and shelter. We support each of these goals, and more, by way of several custom-made web applications hosted on the NetBox. When users' handsets complete the emergency attach procedure, the NetBox automatically texts them to navigate to "emergency.netbox", where they can obtain access to the following webapps.
+            (LIST OF APPS HERE). By packaging these apps directly on the NetBox, we ensure that users get full functionality and support even without an active Internet connection.</p>
+
+        <section id="spectrum"></section>
+        <div class="line"></div>
+
+            <h2>Spectrum and Range</h2>
+            <p>There currently exist over 40 LTE bands; these bands have varying levels of range, attenuation, and handset-support. BLAH about our decision to use Band 3/5/8/???</p>
+            <p>One of the most common questions we get </p>
+
+        <section id="power"></section>
+        <div class="line"></div>
+
+            <h2>Power Consumption</h2>
+            <p>Electrical infrastructure is often damaged, disabled, or overtaxed during emergencies; it logically follows that any equipment for disaster response needs to be as power-efficient as possible. However, this approach does not consider that power access is fundamentally tied to geographic location: even during emergencies, certain locations (e.g. hospitals) maintain power by various means, such as backup generators. This means that it wasn't enough to simply design a power efficient box, we also had to consider a disparity in access to power. Specifically, the system should conserve power in remote devices that are unable to recharge, even at the cost of increased power consumption at powered sites.</p>
+
+            <p>This realization heavily influenced our decision to build a centralized LTE network managed by the NetBox, as opposed to a wireless mesh or other such design. While the NetBox comes with a battery backup STATS, we assume that the NetBox will be located near a reliable power source, likely a command center or emergency headquarters. This assumption goes hand in hand with our deployment model, and is made possible by the long range of LTE macrocells described above. STATS</p>
+    </div>
+
+      <!-- FOOTER -->
+<!--     <footer class="container">
+      <p>© Company 2017-2018</p>
+    </footer>
+ -->
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery-3.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="js/popper.js"></script>
+    <script src="js/bootstrap.js"></script>
+  
+
+</body></html>
