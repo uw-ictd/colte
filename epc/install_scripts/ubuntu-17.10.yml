@@ -62,38 +62,12 @@
       - nettle-dev
       - nettle-bin
       - python-mysqldb
-      become: yes
-
-    - name: MySQL Configs
-      mysql_user:
-        name: "{{ username }}"
-        password: "{{ mysql_password }}"
-        host: localhost
-        priv: '*.*:ALL'
-      become: yes
-
-# INSTALL FD
-    - import_tasks: freediameter.yml
-
-# INSTALL DATABASE AND PHPMYADMIN
-    - name: second round of HSS apt install
-      apt:
-        name: "{{ item }}"
-      with_items:
+# (install database and phpmyadmin)
       - php
       - phpmyadmin
       - python-pexpect
       - libapache2-mod-php*
-      become: yes
-
-############################################################################
-################################## MME #####################################
-############################################################################
-
-    - name: first round of MME apt install
-      apt:
-        name: "{{ item }}"
-      with_items:
+# (first round of MME)
       - castxml
       - guile-2.0-dev
       - libgmp-dev
@@ -105,16 +79,7 @@
       - check
       - python
       - libgnutls28-dev
-      become: yes
-
-    - import_tasks: asn1c.yml
-
-    - import_tasks: libgtpnl.yml
-
-    - name: second round of MME apt install
-      apt:
-        name: "{{ item }}"
-      with_items:
+# (second round of MME)
       - ethtool
       - iproute
       - vlan
@@ -123,6 +88,61 @@
       - unzip
       - iperf
       become: yes
+
+    - name: MySQL Configs
+      mysql_user:
+        name: "{{ username }}"
+        password: "{{ mysql_password }}"
+        host: localhost
+        priv: '*.*:ALL'
+      become: yes
+
+# INSTALL FD
+    - import_tasks: tasks/freediameter.yml
+
+    # - name: second round of HSS apt install
+    #   apt:
+    #     name: "{{ item }}"
+    #   with_items:
+    #   - php
+    #   - phpmyadmin
+    #   - python-pexpect
+    #   - libapache2-mod-php*
+    #   become: yes
+
+    # - name: first round of MME apt install
+    #   apt:
+    #     name: "{{ item }}"
+    #   with_items:
+    #   - castxml
+    #   - guile-2.0-dev
+    #   - libgmp-dev
+    #   - libhogweed?
+    #   - libgtk-3-dev
+    #   - libxml2
+    #   - libxml2-dev
+    #   - mscgen
+    #   - check
+    #   - python
+    #   - libgnutls28-dev
+    #   become: yes
+
+    - import_tasks: tasks/asn1c.yml
+
+    - import_tasks: tasks/libgtpnl.yml
+
+    # - name: second round of MME apt install
+    #   apt:
+    #     name: "{{ item }}"
+    #   with_items:
+    #   - ethtool
+    #   - iproute
+    #   - vlan
+    #   - tshark
+    #   - python-dev
+    #   - unzip
+    #   - iperf
+    #   become: yes
 
     - name: build epc with enbrains
       shell: |
