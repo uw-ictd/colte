@@ -1,0 +1,51 @@
+# This script is to be run on the actual host machine (i.e. no Vagrant BS here.)
+# It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
+# If you don't want a specific webservice just comment out the appropriate include_tasks.yml file
+
+---
+- hosts: localhost
+  vars:
+    username: "{{ ansible_user_id }}"
+    colte_dir: "{{ playbook_dir }}/../.."
+    webservices_dir: "{{ colte_dir }}/webservices"
+
+  tasks:
+    # - name: must increase sudo timeout for this script to run successfully
+    #   lineinfile:
+    #     path: /etc/sudoers
+    #     regexp: 'env_reset'
+    #     line: 'Defaults env_reset, timestamp_timeout=60'
+    #     owner: root
+    #     group: root
+    #     mode: 440
+    #   become: yes
+
+    - name: npm install dependencies
+      npm:
+        path: "{{ webservices_dir }}"
+
+    - name: "Install forever (to run Node.js app)."
+      npm: name=forever state=present
+
+    - name: copy .env file
+      copy: 
+        src: "{{ webservices_dir }}/production.env"
+        dest: "{{ webservices_dir }}/.env"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 644
+      become: yes    
+
+    # - name: npm start webserver
+    #   shell: npm start
+    #   args:
+    #     chdir: "{{ webservices_dir }}"
+
+    # - name: "Check list of Node.js apps running."
+    #   command: forever list
+    #   register: forever_list
+    #   changed_when: false
+
+    # - name: "Start example Node.js app."
+    #   command: forever start -c "npm start" "{{ webservices_dir }}"
+    #   when: "forever_list.stdout.find('/path/to/app.js') == -1"
