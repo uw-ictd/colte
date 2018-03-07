@@ -1,0 +1,32 @@
+<main role="main" class="container">
+  <div class="card mb-3">
+    <div class="card-header">
+      Add Phone Number
+    </div>
+    <div class="card-body">
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+      </div>
+
+      <button type="button" class="btn btn-dark">Submit</button>
+    </div>
+  </div>
+  <div class="card mb-3">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>IMSI</th>
+          <th>IMEI</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each user_list}}
+          <tr>
+            <td>{{this.imsi}}</td>
+            <td>{{this.imei}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</main>
