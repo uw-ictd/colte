@@ -146,20 +146,33 @@
     - name: build epc with enbrains
       shell: |
         source oaienv
-        ./scripts/build_hss -e
-        ./scripts/build_mme -e
-        ./scripts/build_spgw -e
+        ./scripts/build_hss -e -D
+        ./scripts/build_mme -e -D
+        ./scripts/build_spgw -e -D
       args:
         chdir: "{{ epc_dir }}"
+
+    - name: create log directory
+      file:
+        path: /var/log/colte
+        state: directory
+        mode: 0777
+      become: yes
+
+    - name: create config directory
+      file:
+        path: /usr/local/etc/colte
+        state: directory
+        mode: 0755
+      become: yes
 
     - name: post-install config
       shell: |
         source {{ epc_dir }}/oaienv
-        mkdir -p /usr/local/etc/oai
-        cp -rp {{ epc_dir }}/spencer_configs/*.conf /usr/local/etc/oai/
-        cp -rp {{ epc_dir }}/spencer_configs/freeDiameter /usr/local/etc/oai/
-        {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/oai/freeDiameter hss.OpenAir5G.Alliance
-        {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/oai/freeDiameter mme.OpenAir5G.Alliance
+        cp -rp {{ epc_dir }}/spencer_configs/*.conf /usr/local/etc/colte/
+        cp -rp {{ epc_dir }}/spencer_configs/freeDiameter /usr/local/etc/colte/
+        {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/colte/freeDiameter hss.OpenAir5G.Alliance
+        {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/colte/freeDiameter mme.OpenAir5G.Alliance
 #        {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} oai_db {{ epc_dir }}/spencer_configs/sample_db.sql
       become: yes
 
