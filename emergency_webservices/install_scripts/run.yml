@@ -1,0 +1,11 @@
+# This script is to be run on the actual host machine (i.e. no Vagrant BS here.)
+# It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
+# If you don't want a specific webservice just comment out the appropriate include_tasks.yml file
+
+---
+- hosts: localhost
+
+  tasks:
+    - name: start apache
+      service: name=apache2 state=started
+      become: yes
