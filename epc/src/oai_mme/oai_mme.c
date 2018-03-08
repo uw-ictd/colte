@@ -70,19 +70,21 @@ main (
   char *pid_dir;
   char *pid_file_name;
 
-  CHECK_INIT_RETURN (OAILOG_INIT (LOG_SPGW_ENV, OAILOG_LEVEL_DEBUG, MAX_LOG_PROTOS));
+//  CHECK_INIT_RETURN (OAILOG_INIT (LOG_SPGW_ENV, OAILOG_LEVEL_DEBUG, MAX_LOG_PROTOS));
   /*
    * Parse the command line for options and set the mme_config accordingly.
    */
-  CHECK_INIT_RETURN (mme_config_parse_opt_line (argc, argv, &mme_config));
+//  CHECK_INIT_RETURN (mme_config_parse_opt_line (argc, argv, &mme_config));
 
-  pid_dir = bstr2cstr(mme_config.pid_dir, 1);
-  if (pid_dir == NULL) {
-      pid_file_name = get_exe_absolute_path("/var/run");
-  } else {
-      pid_file_name = get_exe_absolute_path(pid_dir);
-      bcstrfree(pid_dir);
-  }
+//  pid_dir = bstr2cstr(mme_config.pid_dir, 1);
+//  if (pid_dir == NULL) {
+//      pid_file_name = get_exe_absolute_path("/var/run");
+//  } else {
+//      pid_file_name = get_exe_absolute_path(pid_dir);
+//      bcstrfree(pid_dir);
+//  }
+
+  pid_file_name = get_exe_absolute_path("/var/run");
 
 #if DAEMONIZE
   pid_t pid, sid; // Our process ID and Session ID
@@ -133,6 +135,9 @@ main (
   /*
    * Calling each layer init function
    */
+  CHECK_INIT_RETURN (OAILOG_INIT (LOG_SPGW_ENV, OAILOG_LEVEL_DEBUG, MAX_LOG_PROTOS));
+  CHECK_INIT_RETURN (mme_config_parse_opt_line (argc, argv, &mme_config));
+
   //CHECK_INIT_RETURN (log_init (&mme_config, oai_mme_log_specific));
   CHECK_INIT_RETURN (itti_init (TASK_MAX, THREAD_MAX, MESSAGES_ID_MAX, tasks_info, messages_info,
 #if ENABLE_ITTI_ANALYZER
