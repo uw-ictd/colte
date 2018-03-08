@@ -1,0 +1,25 @@
+# This script is to be run on the actual host machine (i.e. no Vagrant BS here.)
+# It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
+# If you don't want a specific webservice just comment out the appropriate include_tasks.yml file
+
+---
+- hosts: localhost
+  vars:
+    username: "{{ ansible_user_id }}"
+    colte_dir: "{{ playbook_dir }}/../.."
+    webservices_dir: "{{ colte_dir }}/webservices"
+
+  tasks:
+    # - name: npm start webserver
+    #   shell: npm start
+    #   args:
+    #     chdir: "{{ webservices_dir }}"
+
+    # - name: "Check list of Node.js apps running."
+    #   command: forever list
+    #   register: forever_list
+    #   changed_when: false
+
+    - name: "Start example Node.js app."
+      command: forever start -c "npm start" "{{ webservices_dir }}"
+      # when: "forever_list.stdout.find('/path/to/app.js') == -1"

@@ -41,7 +41,7 @@
       - proxy
       - proxy_http
       become: yes
-      notify: restart apache
+      # notify: restart apache
 
 # INSTALLING DOCKER:
 # (since stretch, apt-get docker doesn't work anymore so we have to manual install)
@@ -59,6 +59,10 @@
     - import_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
     - import_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
 #    - import_tasks: "{{ emergency_webservices_dir }}/maps.yml"
+
+    - name: turn everything off
+      service: name=apache2 state=stopped
+      become: yes
 
   handlers:
     - name: restart apache
