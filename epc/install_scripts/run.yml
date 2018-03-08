@@ -1,0 +1,31 @@
+---
+- hosts: localhost
+  vars:
+    username: "{{ ansible_user_id }}"
+    mysql_password: correcthorsebatterystaple
+
+    colte_dir: "{{ playbook_dir }}/../.."
+    epc_dir: "{{ colte_dir }}/epc"
+    packages_dir: "{{ colte_dir }}/packages"
+
+  tasks:
+    - name: start hss
+      shell: |
+        source oaienv
+        ./scripts/run_hss -D
+      args:
+        chdir: "{{ epc_dir }}"
+
+    - name: start mme
+      shell: |
+        source oaienv
+        ./scripts/run_mme -D
+      args:
+        chdir: "{{ epc_dir }}"
+
+    - name: start spgw
+      shell: |
+        source oaienv
+        ./scripts/run_spgw -D
+      args:
+        chdir: "{{ epc_dir }}"
