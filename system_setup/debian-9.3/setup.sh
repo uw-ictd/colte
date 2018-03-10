@@ -16,7 +16,7 @@ sudo apt-get install -y --allow-unauthenticated ansible python2.7
 sudo cp $COLTE_DIR/system_setup/debian-9.3/sources/sources.list /etc/apt/sources.list
 sudo apt-get update
 
-sudo apt-get -y install vim
+sudo apt-get -y install vim curl
 ansible-playbook -v -i "localhost," -c local $COLTE_DIR/system_setup/debian-9.3/main_playbook.yml 
 
 # Step 3: Any final-final configs?!? Setting IP addresses in config files, etc?!?
