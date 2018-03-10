@@ -20,12 +20,30 @@
     #     mode: 440
     #   become: yes
 
+    - name: apt-get update
+      apt:
+        update-cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    - name: use curl script to fetch/install node and npm
+      shell: curl -sL https://deb.nodesource.com/setup_6.x | bash -
+      become: yes
+
+    - name: install node and npm
+      apt:
+        name: "{{ item }}"
+      with_items:
+      - nodejs
+      become: yes
+
     - name: npm install dependencies
       npm:
         path: "{{ webservices_dir }}"
 
     - name: "Install forever (to run Node.js app)."
-      npm: name=forever state=present
+      npm: name=forever state=present global=yes
+      become: yes
 
     - name: copy .env file
       copy: 
@@ -34,7 +52,6 @@
         owner: "{{ username }}"
         group: "{{ username }}"
         mode: 644
-      become: yes    
 
     # - name: npm start webserver
     #   shell: npm start

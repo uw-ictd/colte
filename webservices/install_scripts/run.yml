@@ -10,16 +10,13 @@
     webservices_dir: "{{ colte_dir }}/webservices"
 
   tasks:
-    # - name: npm start webserver
-    #   shell: npm start
-    #   args:
-    #     chdir: "{{ webservices_dir }}"
-
     # - name: "Check list of Node.js apps running."
     #   command: forever list
     #   register: forever_list
     #   changed_when: false
 
     - name: "Start example Node.js app."
-      command: forever start -c "npm start" "{{ webservices_dir }}"
+      shell: forever start -c "npm start" --uid "webservice" -l /var/log/colte/web.log -a .
+      args:
+        chdir: "{{ webservices_dir }}"
       # when: "forever_list.stdout.find('/path/to/app.js') == -1"
