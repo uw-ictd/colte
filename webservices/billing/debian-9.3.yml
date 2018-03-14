@@ -24,10 +24,12 @@
     #     name: ntopng
     #   become: yes
 
-    # - name: add my lua script to ntopng
-    #   apt:
-    #     name: ntopng
-    #   become: yes 
+    - name: copy my lua script to ntopng
+      copy: 
+        src: "{{ webservices_dir }}/billing/colte_log_bandwidth.lua"
+        dest: /usr/share/ntopng/scripts/lua/colte_log_bandwidth.lua
+        mode: 644
+      become: yes
 
 # step 2: setup/install mysql db
     - name: install billing_db into mysql
