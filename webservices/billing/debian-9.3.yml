@@ -1,0 +1,58 @@
+---
+- hosts: localhost
+  vars:
+    username: "{{ ansible_user_id }}"
+    mysql_password: correcthorsebatterystaple
+    colte_dir: "{{ playbook_dir }}/../.."
+    webservices_dir: "{{ colte_dir }}/webservices"
+
+# step 1: setup/configure/run netopng (DON'T FORGET MY LUA SCRIPT AND TO DO SUBNET CASTING)
+  tasks:
+    - name: apt-get update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes    
+
+    - name: apt-get install ntopng
+      apt:
+        name: ntopng
+      become: yes 
+
+    # - name: configure ntopng
+    #   file:
+    #     name: ntopng
+    #   become: yes
+
+    # - name: add my lua script to ntopng
+    #   apt:
+    #     name: ntopng
+    #   become: yes 
+
+# step 2: setup/install mysql db
+    - name: install billing_db into mysql
+      mysql_db:
+        login_user: "{{ username }}"
+        login_password: "{{ mysql_password }}"
+        name: billing
+        state: import
+        target: "{{ webservices_dir }}/billing/customer_db.sql"
+
+# step 3: schedule chron job for "import_to_db.py"
+    - name: Install job on crontab
+      cron:
+        name: "Import bandwidth numbers from ntopng to billing db"
+        minute: "*/5"
+        job: "{{ webservices_dir }}/billing/import_to_db.sh"
+        # job: "{{ webservices_dir }}/billing/cronscript.sh > {{ colte_dir }}/logs/import_to_db.log 2>&1"
+        #user: "admin"
+        #disabled: "no"
+
+# job must:
+# 1: run the lua script to dump out all the new values to a specific file (i can do this with curl) (can i do this with python?)
+# 1.5 file management???
+# 2: run the python script to read these vals and import into the db
+
+# OTHER CONSIDERATIONS:
+# - if we get a weird result from .py, or if netopng crashes, we need to shut off the entire network (lest people use it for free)
+# can we somehow monitor this?
