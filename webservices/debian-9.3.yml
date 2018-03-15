@@ -1,0 +1,98 @@
+# This script is to be run on the actual host machine (i.e. no Vagrant BS here.)
+# It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
+# If you don't want a specific webservice just comment out the appropriate include_tasks.yml file
+
+---
+- hosts: localhost
+  vars:
+    username: "{{ ansible_user_id }}"
+    colte_dir: "{{ playbook_dir }}/../.."
+    webservices_dir: "{{ colte_dir }}/webservices"
+
+  tasks:
+    - name: apt-get update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    # - name: must increase sudo timeout for this script to run successfully
+    #   lineinfile:
+    #     path: /etc/sudoers
+    #     regexp: 'env_reset'
+    #     line: 'Defaults env_reset, timestamp_timeout=60'
+    #     owner: root
+    #     group: root
+    #     mode: 440
+    #   become: yes
+
+    - name: apt-get install apache2
+      apt:
+        name: "{{ item }}"
+      with_items:
+      - apache2
+      become: yes
+
+    - name: a2enmod install apache modules
+      apache2_module:
+        state: present
+        name: "{{ item }}"
+      with_items:
+      - proxy
+      - proxy_http
+      become: yes
+      notify: restart apache
+
+# INSTALLING DOCKER:
+# (since stretch, apt-get docker doesn't work anymore so we have to manual install)
+    # - name: apt-get docker-compose
+    #   apt:
+    #     name: docker-compose
+    #   become: yes
+  
+    # - name: manually download/install docker deb
+    #   apt: 
+    #     deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
+    #   become: yes
+
+# To add a webservice/website, create a new .yml file and add to this list!
+    # - import_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
+    # - import_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
+#    - import_tasks: "{{ emergency_webservices_dir }}/maps.yml"
+
+    # - name: turn everything off
+    #   service: name=apache2 state=started
+    #   become: yes
+
+    # - name: add to /etc/hosts
+    #   lineinfile:
+    #     path: /etc/hosts
+    #     regexp: 'chat\.localhost'
+    #     line: '127.0.0.1 chat.localhost'
+    #     owner: root
+    #     group: root
+    #     mode: 0644
+    #   become: yes
+
+    - name: copy enb.conf over to apache
+      copy: 
+        src: "{{ webservices_dir }}/enb.conf"
+        dest: /etc/apache2/sites-available/enb.conf
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 644
+      become: yes
+
+    - name: Enable site
+      shell: a2ensite enb.conf
+      become: yes
+      notify: reload apache
+
+  handlers:
+    - name: restart apache
+      service: name=apache2 state=restarted
+      become: yes
+
+    - name: reload apache
+      service: name=apache2 state=reloaded
+      become: yes
