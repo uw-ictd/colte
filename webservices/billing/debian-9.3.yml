@@ -14,10 +14,25 @@
         cache_valid_time: 3600
       become: yes    
 
-    - name: apt-get install ntopng
+    - name: apt-get install ntopng and mysql
       apt:
-        name: ntopng
+        name: "{{ item }}"
       become: yes 
+      with_items:
+      - ntopng
+      - python-mysqldb
+      - mysql-client
+      - mysql-server
+#      - libmysql-client-dev
+
+    - name: mysql configs
+      mysql_user:
+        name: "{{ username }}"
+        password: "{{ mysql_password }}"
+        host: localhost
+        priv: '*.*:ALL'
+        login_password: research
+      become: yes
 
     # - name: configure ntopng
     #   file:
@@ -28,7 +43,7 @@
       copy: 
         src: "{{ webservices_dir }}/billing/colte_log_bandwidth.lua"
         dest: /usr/share/ntopng/scripts/lua/colte_log_bandwidth.lua
-        mode: 644
+        mode: 0644
       become: yes
 
 # step 2: setup/install mysql db
@@ -41,11 +56,11 @@
         target: "{{ webservices_dir }}/billing/customer_db.sql"
 
 # step 3: schedule chron job for "import_to_db.py"
-    - name: Install job on crontab
-      cron:
-        name: "Import bandwidth numbers from ntopng to billing db"
-        minute: "*/5"
-        job: "{{ webservices_dir }}/billing/import_to_db.sh"
+#    - name: Install job on crontab
+#      cron:
+#        name: "Import bandwidth numbers from ntopng to billing db"
+#        minute: "*/5"
+#        job: "{{ webservices_dir }}/billing/import_to_db.sh"
         # job: "{{ webservices_dir }}/billing/cronscript.sh > {{ colte_dir }}/logs/import_to_db.log 2>&1"
         #user: "admin"
         #disabled: "no"

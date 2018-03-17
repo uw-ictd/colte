@@ -16,16 +16,17 @@ interface.select(ifname)
 local host = interface.getHostInfo(host_ip)
 local value = 0
 
+local t = os.time()
+print('time ' .. t .. '\n')
+
 if(host ~= nil) then
    value = host["packets.sent"]+host["packets.rcvd"]
    v1 = host["bytes.sent"]
    v2 = host["bytes.rcvd"]
+   print(host_ip .. ' ' .. v1 .. ' ' .. v2 .. '\n')
 end
 
-local t = os.time()
 
-print('time ' .. t .. '\n')
-print(host_ip .. ' ' .. v1 .. ' ' .. v2 .. '\n')
 -- print('TEST\n')
 -- print(' { "value": ' .. value .. ' } ')
 -- print(' { "v1": ' .. v1 .. ' } ')
@@ -34,7 +35,7 @@ print(host_ip .. ' ' .. v1 .. ' ' .. v2 .. '\n')
 -- 	print(' {KEY: ' .. k .. ' } ')
 -- end
 
--- file = io.open("/home/spencer/Desktop/TESTLUA.lua", "a")
--- io.output(file)
--- io.write("HELLO")
--- io.close(file)
+file = io.open("/home/spencer/Desktop/TESTLUA.lua", "a")
+io.output(file)
+io.write("HELLO")
+io.close(file)
