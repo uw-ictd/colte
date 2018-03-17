@@ -8,7 +8,7 @@ CREATE TABLE `customers` (
   `balance` int(10) unsigned DEFAULT '0' COMMENT 'in cents USD for now',
   `imsi` varchar(16) DEFAULT 'NotUsed',
   `msisdn` varchar(16) DEFAULT 'NotUsed',
-  PRIMARY KEY (`ip`)
+  PRIMARY KEY (`idcustomers`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-INSERT INTO `customers` VALUES (1,'42.0.0.42', 0, 0, 500);
+INSERT INTO `customers` VALUES (1,'42.0.0.42', 0, 0, 500, 'NotUsed', 'NotUsed');
