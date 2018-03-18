@@ -3,7 +3,7 @@
   vars:
     username: "{{ ansible_user_id }}"
     mysql_password: correcthorsebatterystaple
-    colte_dir: "{{ playbook_dir }}/../.."
+    colte_dir: "{{ playbook_dir }}/../../.."
     webservices_dir: "{{ colte_dir }}/webservices"
 
 # step 1: setup/configure/run netopng (DON'T FORGET MY LUA SCRIPT AND TO DO SUBNET CASTING)
@@ -31,7 +31,7 @@
         password: "{{ mysql_password }}"
         host: localhost
         priv: '*.*:ALL'
-        login_password: research
+        #login_password: research
       become: yes
 
     # - name: configure ntopng
