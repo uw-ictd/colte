@@ -6,7 +6,6 @@ Vagrant.configure("2") do |config|
   config.vm.define "epc" do |epc|
     epc.vm.box = "bento/debian-9.3"
 
-
 # IDEALLY, this is the only line we need to write. In practice, the combo of
 # Vagrant + Ubuntu > 15.10 has unresolved net config issues, unclear why.
 #    epc.vm.network "private_network", ip: "10.0.101.3", auto_config: false

@@ -15,27 +15,28 @@ print timestr
 for line in file:
 	vals = line.split()
 	query = ("SELECT * FROM customers WHERE ip EQUALS " + str(vals[0]))
-	cursor.execute(query)
+	numrows = cursor.execute(query)
 
-	count = 0
-	i = "1.2.3.4"
-	rd = 0
-	ru = 0
-	b = 0
-	for (ip, raw_down, raw_up, balance) in cursor:
-		count = count +1
-		i = ip
-		rd = raw_down
-		ru = raw_up
-		b = balance
+	if numrows == 0:
+		print "MAKE NEW ENTRY"
 
-	if count == 0:
-		print "SHIT!"
-		# WHAT?!?
-		# CREATE A NEW BILLING ENTRY?!?!?
-		# (PROBABLY SHOULD FILE AN ALERT AND CUTOFF SERVICE)
-	if count > 1:
-		print "SHIT!"
+	if numrows > 1:
+		print "SHIT?!?"
+
+	answer_tuple = cursor.fetchone()
+	print answer_tuple
+
+	i = answer_tuple[0]
+	rd = answer_tuple[1]
+	ru = answer_tuple[2]
+	b = answer_tuple[3]
+	
+	# for (ip, raw_down, raw_up, balance) in cursor:
+	# 	count = count +1
+	# 	i = ip
+	# 	rd = raw_down
+	# 	ru = raw_up
+	# 	b = balance
 
 	# now we're guaranteed to have an object to work with
 
@@ -59,8 +60,7 @@ for line in file:
 	# check for certain thresholds and potentially send warnings or take other action?
 
 	if new_balance <= 0
-		print "CUT OFF USER"
-		#cut_off_user(obj)
+		cut_off_user(1234)
 
 	# END: store the record locally and onto the next user
 	new_record = [vals[0], vals[1], vals[2], new_balance]
@@ -76,10 +76,18 @@ cursor.executemany(commit_str, record_list)
 # db.commit()
 # db.close()
 
-calculate_cost:
+# example cost: 5 dollars per gb
+cost_per_gb = 5.00
+cost_per_mb = cost_per_gb / 1024.0
+cost_per_byte = cost_per_mb / 1024.0
+def calculate_cost(bytes_down, bytes_up):
 	# NAIVE APPROACH SO FAR: cost per byte * bytes
+	total_bytes = bytes_down + bytes_up
+	total_cost = total_bytes * cost_per_byte
+	return total_cost
 
-#cut_off_user:
+def cut_off_user(imsi):
+	print "CUTTING OFF USER " + str(imsi)
 	# 1: send text!
 	# 2: CUT USER OFF
 	# 3: still preserve the record so that we can settle-up or re-activate sim without drama
