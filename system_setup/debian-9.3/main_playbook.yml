@@ -15,5 +15,6 @@
 # If you want to add new packages to default install, just add them to this list!
 - import_playbook: "{{ playbook_dir }}/../../epc/install_scripts/debian-9.3.yml"
 - import_playbook: "{{ playbook_dir }}/../../enbrains/install_scripts/debian-9.3.yml"
-- import_playbook: "{{ playbook_dir }}/../../emergency_webservices/install_scripts/debian-9.3.yml"
-- import_playbook: "{{ playbook_dir }}/../../webservices/install_scripts/debian-9.3.yml"
+#- import_playbook: "{{ playbook_dir }}/../../emergency_webservices/install_scripts/debian-9.3.yml"
+- import_playbook: "{{ playbook_dir }}/../../webservices/node/install_scripts/debian-9.3.yml"
+- import_playbook: "{{ playbook_dir }}/../../webservices/billing/install_scripts/debian-9.3.yml"
