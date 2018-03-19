@@ -29,11 +29,11 @@
 # NOTE: if this causes build failure, comment out become and just add sudo
     - name: libgtpnl - configure
       shell: |
-        autoreconf -fi
+        sudo autoreconf -fi
         ./configure
       args:
         chdir: "{{ packages_dir }}/libgtpnl"
-      become: yes
+      # become: yes
 
     - name: libgtpnl - build
       make:
