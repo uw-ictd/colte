@@ -35,7 +35,7 @@ end
 -- 	print(' {KEY: ' .. k .. ' } ')
 -- end
 
-file = io.open("/home/spencer/Desktop/TESTLUA.lua", "a")
-io.output(file)
-io.write("HELLO")
-io.close(file)
+-- file = io.open("/home/spencer/Desktop/TESTLUA.lua", "a")
+-- io.output(file)
+-- io.write("HELLO")
+-- io.close(file)
