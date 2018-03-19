@@ -26,7 +26,7 @@ record_list = []
 db = MySQLdb.connect(host="localhost",
                      user=os.environ.get('COLTE_USER'),
                      passwd=os.environ.get('COLTE_DBPASS'),
-		     db="billing")
+		     db="colte_db")
 cursor = db.cursor()
 #file = open('$COLTE_DIR/webservices/billing/tmp_dump.txt', 'r')
 file = open('tmp_dump.txt', 'r')
