@@ -7,7 +7,7 @@
   vars:
     username: "{{ ansible_user_id }}"
     colte_dir: "{{ playbook_dir }}/../.."
-    webservices_dir: "{{ colte_dir }}/webservices"
+    node_dir: "{{ colte_dir }}/webservices/node"
 
   tasks:
     # - name: must increase sudo timeout for this script to run successfully
@@ -39,7 +39,7 @@
 
     - name: npm install dependencies
       npm:
-        path: "{{ webservices_dir }}"
+        path: "{{ node_dir }}"
 
     - name: "Install forever (to run Node.js app)."
       npm: name=forever state=present global=yes
@@ -47,11 +47,11 @@
 
     - name: copy .env file
       copy: 
-        src: "{{ webservices_dir }}/production.env"
-        dest: "{{ webservices_dir }}/.env"
+        src: "{{ node_dir }}/production.env"
+        dest: "{{ node_dir }}/.env"
         owner: "{{ username }}"
         group: "{{ username }}"
-        mode: 644
+        mode: 0644
 
     # - name: npm start webserver
     #   shell: npm start

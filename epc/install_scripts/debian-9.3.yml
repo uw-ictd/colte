@@ -171,16 +171,7 @@
         mode: 0755
       become: yes
 
-    - name: post-install config
-      shell: |
-        source {{ epc_dir }}/oaienv
-        cp -rp {{ epc_dir }}/spencer_configs/*.conf /usr/local/etc/colte/
-        cp -rp {{ epc_dir }}/spencer_configs/freeDiameter /usr/local/etc/colte/
-        {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/colte/freeDiameter hss.OpenAir5G.Alliance
-        {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/colte/freeDiameter mme.OpenAir5G.Alliance
-#        {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} colte_db {{ epc_dir }}/spencer_configs/sample_db.sql
-      become: yes
-
+# {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} colte_db {{ epc_dir }}/spencer_configs/sample_db.sql
     - name: install sample_db into mysql
       mysql_db:
         login_user: "{{ username }}"
@@ -188,3 +179,34 @@
         name: colte_db
         state: import
         target: "{{ epc_dir }}/spencer_configs/sample_db.sql"
+
+    - name: write DB information to hss.conf
+      lineinfile:
+        path: "{{ epc_dir }}/spencer_configs/hss.conf"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0644
+      with_items:
+      - {field: 'MYSQL_pass', line: 'MYSQL_pass   = \"{{ mysql_password }}\"'}
+      - {field: 'MYSQL_user', line: 'MYSQL_user   = \"{{ username }}\"'}
+
+    - name: copy config files to /usr/local/etc/colte
+      copy: 
+        src: "{{ item.src }}"
+        dest: "{{ item.dst }}"
+        # owner: "{{ username }}"
+        # group: "{{ username }}"
+        mode: 0644
+      become: yes
+      with_items:
+      - {src: "{{ epc_dir }}/spencer_configs/*.conf", dst: "/usr/local/etc/colte/"}
+      - {src: "{{ epc_dir }}/spencer_configs/freeDiameter", dst: "/usr/local/etc/colte/"}
+
+    - name: generate s6a certificates
+      shell: |
+        source {{ epc_dir }}/oaienv
+        {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/colte/freeDiameter hss.OpenAir5G.Alliance
+        {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/colte/freeDiameter mme.OpenAir5G.Alliance
+      become: yes

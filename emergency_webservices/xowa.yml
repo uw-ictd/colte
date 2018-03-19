@@ -110,7 +110,7 @@
         dest: /etc/apache2/sites-available/xowa.conf
         owner: "{{ username }}"
         group: "{{ username }}"
-        mode: 644
+        mode: 0644
       become: yes
 
     - name: Enable site
