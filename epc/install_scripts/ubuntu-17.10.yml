@@ -8,6 +8,12 @@
     epc_dir: "{{ colte_dir }}/epc"
     packages_dir: "{{ colte_dir }}/packages"
 
+    # username: {{ ansible_env.COLTE_USER }}
+    # mysql_password: {{ ansible_env.COLTE_DBPASS }}
+    # colte_dir: {{ ansible_env.COLTE_DIR }}
+    # epc_dir: "{{ colte_dir }}/epc"
+    # packages_dir: "{{ colte_dir }}/packages"
+    
   tasks:
     - name: apt-get update
       apt:
