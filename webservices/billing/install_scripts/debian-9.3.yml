@@ -70,6 +70,13 @@
         #user: "admin"
         #disabled: "no"
 
+    # - name: copy coltenv to $HOME (needed for cron scripts)
+    #   copy: 
+    #     src: "{{ colte_dir }}/coltenv"
+    #     dest: /usr/local/etc/colte/coltenv
+    #     mode: 0644
+    #   become: yes
+
 # job must:
 # 1: run the lua script to dump out all the new values to a specific file (i can do this with curl) (can i do this with python?)
 # 1.5 file management???
