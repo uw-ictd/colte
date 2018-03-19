@@ -1,19 +1,22 @@
 #!/bin/bash
 
-# scripts check for this first line to know that vars were loaded
+# scripts check for this first line to know that all vars are loaded
 export COLTENV=1
 
-# base directory for the whole project
+# Base directory for the whole project source
 export COLTE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # the user (NOT ROOT) who's installing all this stuff. should have accss to their
 # home directory and be able to sudo. default value is (the current user).
+# Once installed, I don't think this value is changeable.
 export COLTE_USER=$USER
 
-# default password for everything database related (mysql, phpmyadmin, etc.)
+# Default password for everything database-related (mysql, phpmyadmin, etc.)
+# IMPORTANT: If you change this value AFTER installation, you also need to change it in hss.conf!!!
 export COLTE_DBPASS="correcthorsebatterystaple"
 
 # THE FOLLOWING ARE COMPILATION OPTIONS. They pertain to compiling in specific modules or not.
+# (They also don't work right now.)
 export COLTE_EPC=1
 export COLTE_ENBRAINS=1
 export COLTE_EMERGENCY_WEBSERVICES=0
