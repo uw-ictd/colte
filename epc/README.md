@@ -46,4 +46,4 @@ Configuration:
 4) IMPORTANT: This configuration script copies the files into /usr/local/etc/oai where they're read by the programs. It will create the directory ./spencer_configs/config_files which are pointers to these files. All subsequent configuration edits must be done to these pointers!
 
 5) Load the sample database for the HSS:
-./scripts/hss_db_import 127.0.0.1 root <PASSWORD> colte ./spencer_configs/sample_db.sql
+./scripts/hss_db_import 127.0.0.1 root <PASSWORD> colte_db ./spencer_configs/sample_db.sql
