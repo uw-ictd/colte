@@ -1,16 +1,17 @@
 ---
 - hosts: localhost
   vars:
-    username: {{ ansible_env.COLTE_USER }}
-    mysql_password: {{ ansible_env.COLTE_DBPASS }}
-    colte_dir: {{ ansible_env.COLTE_DIR }}
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
     webservices_dir: "{{ colte_dir }}/webservices"
 
 # step 1: setup/configure/run netopng (DON'T FORGET MY LUA SCRIPT AND TO DO SUBNET CASTING)
   tasks:
     - name: check for environment vars
-      fail: msg="Killing ansible script, environment variables not set!"
-      when: COLTENV is not defined
+      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
 
     - name: apt-get update
       apt:
