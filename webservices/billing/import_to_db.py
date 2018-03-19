@@ -8,6 +8,7 @@ def calculate_cost(bytes_down, bytes_up):
 	# NAIVE APPROACH SO FAR: cost per byte * bytes
 	total_bytes = bytes_down + bytes_up
 	total_cost = total_bytes * cost_per_byte
+	print "new bytes: " + str(total_bytes) + "\ncost per byte: " + str(cost_per_byte) + "\ntotal cost: " + str(total_cost)
 	return total_cost
 
 def cut_off_user(imsi):
@@ -17,18 +18,14 @@ def cut_off_user(imsi):
 	# 3: still preserve the record so that we can settle-up or re-activate sim without drama
 
 def make_new_user(vals):
-        print "MAKE NEW USER?!? (NO!)"
-
-
-
-
+        print "Make new user? No, don't! How'd they even get on the network?"
 
 record_list = []
 db = MySQLdb.connect(host="localhost",
 #			user="vagrant",
                         user="colte"
                         passwd="correcthorsebatterystaple",
-			db="billing")
+						db="billing")
 cursor = db.cursor()
 #file = open('$COLTE_DIR/webservices/billing/tmp_dump.txt', 'r')
 file = open('tmp_dump.txt', 'r')
@@ -39,47 +36,46 @@ print timestr
 
 for line in file:
 	vals = line.split()
-	query = ("SELECT * FROM customers WHERE ip = '" + str(vals[0]) + "'")
+	ip_addr = vals[0]
+	new_bytes_down = vals[1]
+	new_bytes_up = vals[2]
+
+	query = ("SELECT * FROM customers WHERE ip = '" + str(ip_addr) + "'")
 	numrows = cursor.execute(query)
 
 	if numrows == 0:
 		make_new_entry(vals)
 
 	if numrows > 1:
-		print "SHIT?!?"
+		print "More than one entry for same IP? What happened???"
 
 	answer_tuple = cursor.fetchone()
-	#print answer_tuple
-
-	i = answer_tuple[1]
-	rd = answer_tuple[2]
-	ru = answer_tuple[3]
-	b = answer_tuple[4]
+	table_id = answer_tuple[0]
+	previous_bytes_down = answer_tuple[2]
+	previous_bytes_up = answer_tuple[3]
+	previous_balance = answer_tuple[4]
 	
 	# data is only incremented (cumulatively, duh) so the only way these values will ever be less than previous val
 	# is if the counter reset. hopefully this never happens but edge-cases are important
-        if (vals[1] < rd) or (vals[2] < ru):
+    if (new_bytes_down < previous_bytes_down) or (new_bytes_up < previous_bytes_up):
 		# LOG SOMETHING!!!
-		new_bytes_down = vals[1]
-		new_bytes_up = vals[2]
-        else:
-		new_bytes_down = int(vals[1]) - int(rd)
-		new_bytes_up = int(vals[2]) - int(ru)
+		bytes_down_in_period = new_bytes_down
+		bytes_up_in_period = new_bytes_up
+    else:
+		bytes_down_in_period = int(new_bytes_down) - int(previous_bytes_down)
+		bytes_up_in_period = int(new_bytes_up) - int(previous_bytes_up)
 
-	# obj.raw_down = vals[1]
-	# obj.raw_up = vals[2]
-
-	# BILLING MATH HERE!
-	cost_in_period = calculate_cost(new_bytes_down, new_bytes_up)
-	new_balance = b - cost_in_period
+	# billing math here
+	cost_in_period = calculate_cost(bytes_down_in_period, bytes_up_in_period)
+	new_balance = previous_balance - cost_in_period
 
 	# check for certain thresholds and potentially send warnings or take other action?
 
-        if new_balance <= 0:
+	if new_balance <= 0:
 		cut_off_user(1234)
 
 	# END: store the record locally and onto the next user
-	new_record = (vals[1], vals[2], str(new_balance), answer_tuple[0])
+	new_record = (new_bytes_down, new_bytes_up, str(new_balance), table_id)
 	record_list.append(new_record)
 	
 # (commit all updates at once to save DB operations)
