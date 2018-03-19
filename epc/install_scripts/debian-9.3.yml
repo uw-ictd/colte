@@ -8,7 +8,17 @@
     epc_dir: "{{ colte_dir }}/epc"
     packages_dir: "{{ colte_dir }}/packages"
 
+    # username: {{ ansible_env.COLTE_USER }}
+    # mysql_password: {{ ansible_env.COLTE_DBPASS }}
+    # colte_dir: {{ ansible_env.COLTE_DIR }}
+    # epc_dir: "{{ colte_dir }}/epc"
+    # packages_dir: "{{ colte_dir }}/packages"
+
   tasks:
+    - name: check for environment vars
+      fail: msg="Killing ansible script, environment variables not set!"
+      when: COLTENV is not defined
+
     - name: apt-get update
       apt:
         update_cache: yes
