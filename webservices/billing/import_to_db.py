@@ -1,4 +1,5 @@
 import MySQLdb
+import os
 
 # example cost: 5 dollars per gb
 cost_per_gb = 5.00
@@ -21,13 +22,11 @@ def make_new_user(vals):
         print "Make new user? No, don't! How'd they even get on the network?"
 
 
-print os.environ.get('COLTE_USER')
 record_list = []
 db = MySQLdb.connect(host="localhost",
-#			user="vagrant",
-                        user="colte"
-                        passwd="correcthorsebatterystaple",
-						db="billing")
+                     user=os.environ.get('COLTE_USER'),
+                     passwd=os.environ.get('COLTE_DBPASS'),
+		     db="billing")
 cursor = db.cursor()
 #file = open('$COLTE_DIR/webservices/billing/tmp_dump.txt', 'r')
 file = open('tmp_dump.txt', 'r')
@@ -59,11 +58,11 @@ for line in file:
 	
 	# data is only incremented (cumulatively, duh) so the only way these values will ever be less than previous val
 	# is if the counter reset. hopefully this never happens but edge-cases are important
-    if (new_bytes_down < previous_bytes_down) or (new_bytes_up < previous_bytes_up):
+        if (new_bytes_down < previous_bytes_down) or (new_bytes_up < previous_bytes_up):
 		# LOG SOMETHING!!!
 		bytes_down_in_period = new_bytes_down
 		bytes_up_in_period = new_bytes_up
-    else:
+        else:
 		bytes_down_in_period = int(new_bytes_down) - int(previous_bytes_down)
 		bytes_up_in_period = int(new_bytes_up) - int(previous_bytes_up)
 
