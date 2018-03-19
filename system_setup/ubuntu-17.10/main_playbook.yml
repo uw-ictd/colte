@@ -1,17 +1,8 @@
+# NOT REALLY SUPPORTED RIGHT NOW!!!
 ---
 - hosts: localhost
-  vars:
-    username: "{{ ansible_user_id }}"
-    mysql_user: "{{ ansible_user_id }}"
-    mysql_password: correcthorsebatterystaple
-
-    colte_dir: "{{ playbook_dir }}/../../.."
-    epc_dir: "{{ colte_dir }}/epc"
-    enbrains_dir: "{{ colte_dir }}/enbrains"
-    emergency_webservices_dir: "{{ colte_dir }}/emergency_webservices"
-    packages_dir: "{{ colte_dir }}/packages"
 
 # If you want to add new packages to default install, just add them to this list!
 - import_playbook: "{{ playbook_dir }}/../../epc/install_scripts/ubuntu-17.10.yml"
 - import_playbook: "{{ playbook_dir }}/../../enbrains/install_scripts/ubuntu-17.10.yml"
-- import_playbook: "{{ playbook_dir }}/../../emergency_webservices/install_scripts/ubuntu-17.10.yml"
+# - import_playbook: "{{ playbook_dir }}/../../emergency_webservices/install_scripts/ubuntu-17.10.yml"
