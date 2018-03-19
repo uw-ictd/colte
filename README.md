@@ -36,7 +36,7 @@ Installation on an existing system should work fine by running /system_setup/$OS
 
 sudo run the following command:
 
-ansible-playbook -v -i "localhost," -c local $COLTE_DIR/system_setup/$OS/ansible/main_playbook.yml
+ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/system_setup/$OS/ansible/main_playbook.yml
 
 # Understanding What's Installed, Where It Is, And What It Does:
 colte can be thought of as several different and independent components packaged together under one roof. Each one of these components can be run independently of the rest of the system, or can be extracted from the system without (much) difficulty. To start, have a look at /system_setup/$OS/ansible/main_playbook.yml. After defining various global variables used throughout the installation, main_playbook.yml simply calls a list of other Ansible scripts that also reside in /system_setup/$OS/ansible/.

@@ -11,7 +11,7 @@ sudo apt-get update
 sudo apt-get install -y ansible python2.7
 
 # Step 2: Run Ansible script to do the rest
-ansible-playbook -v -i "localhost," -c local $COLTE_DIR/system_setup/ubuntu-17.10/main_playbook.yml
+ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/system_setup/ubuntu-17.10/main_playbook.yml
 
 # Step 3: Any final-final configs?!? Setting IP addresses in config files, etc?!?
 
