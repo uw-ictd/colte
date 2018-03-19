@@ -5,11 +5,17 @@
 ---
 - hosts: localhost
   vars:
-    username: "{{ ansible_user_id }}"
-    colte_dir: "{{ playbook_dir }}/../.."
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    # mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
     emergency_webservices_dir: "{{ colte_dir }}/emergency_webservices"
 
   tasks:
+    - name: check for environment vars
+      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
+
     - name: apt-get update
       apt:
         update_cache: yes
