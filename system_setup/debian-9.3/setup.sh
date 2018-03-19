@@ -1,7 +1,9 @@
 #!/bin/bash
 
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-COLTE_DIR="$SCRIPTDIR/../.."
+if [ -z "$COLTENV" ]; then
+    echo "ERROR: You must configure and run $COLTE_DIR/coltenv first!"
+    exit 1
+fi
 
 # Step 1: Install prereqs (ansible and python)
 sudo cp $COLTE_DIR/system_setup/debian-9.3/sources/ansible_sources.list /etc/apt/sources.list

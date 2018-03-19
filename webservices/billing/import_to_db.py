@@ -20,6 +20,8 @@ def cut_off_user(imsi):
 def make_new_user(vals):
         print "Make new user? No, don't! How'd they even get on the network?"
 
+
+print os.environ.get('COLTE_USER')
 record_list = []
 db = MySQLdb.connect(host="localhost",
 #			user="vagrant",
