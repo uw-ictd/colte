@@ -52,11 +52,11 @@
       become: yes
 
 # step 2: setup/install mysql db
-    - name: install billing_db into mysql
+    - name: install billing table into mysql
       mysql_db:
         login_user: "{{ username }}"
         login_password: "{{ mysql_password }}"
-        name: billing
+        name: colte
         state: import
         target: "{{ webservices_dir }}/billing/customer_db.sql"
 

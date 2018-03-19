@@ -166,6 +166,6 @@
         cp -rp {{ epc_dir }}/spencer_configs/freeDiameter /usr/local/etc/oai/
         {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/oai/freeDiameter hss.OpenAir5G.Alliance
         {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/oai/freeDiameter mme.OpenAir5G.Alliance
-        {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} oai_db {{ epc_dir }}/spencer_configs/sample_db.sql
+        {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} colte {{ epc_dir }}/spencer_configs/sample_db.sql
       become: yes
 
