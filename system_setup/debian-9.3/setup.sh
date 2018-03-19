@@ -1,8 +1,9 @@
 #!/bin/bash
 
 if [ -z "$COLTENV" ]; then
-    echo "ERROR: You must configure and run $COLTE_DIR/coltenv first!"
-    exit 1
+    echo "WARNING: Using default values from $COLTE_DIR/coltenv. Make sure you check them out!"
+    SOURCEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    source $SOURCEDIR/../../coltenv
 fi
 
 # Step 1: Install prereqs (ansible and python)
