@@ -1,10 +1,16 @@
 ---
 - hosts: localhost
   vars:
-    colte_dir: "{{ playbook_dir }}/../.."
+    coltenv: "{{ ansible_env.COLTENV }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+
     enbrains_dir: "{{ colte_dir }}/enbrains"
 
   tasks:
+    - name: check for environment vars
+      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
+
     - name: enbrains - apt-get dependencies
       apt:
         name: "libevent-dev"
