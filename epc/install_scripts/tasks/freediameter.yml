@@ -52,7 +52,7 @@
       file:
         path: "{{ packages_dir }}/freediameter/build"
         state: directory
-        mode: 0644
+        mode: 0755
 
     - name: freeDiameter - cmake prep
       shell: |
