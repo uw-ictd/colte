@@ -28,8 +28,9 @@ db = MySQLdb.connect(host="localhost",
                      passwd=os.environ.get('COLTE_DBPASS'),
 		     db="colte_db")
 cursor = db.cursor()
-#file = open('$COLTE_DIR/webservices/billing/tmp_dump.txt', 'r')
-file = open('tmp_dump.txt', 'r')
+#filename = os.environ.get('COLTE_DIR') + "/webservices/billing/tmp_dump.txt"
+filename = "/home/vagrant/colte/webservices/billing/tmp_dump.txt"
+file = open(filename, 'r')
 
 # PROCESS FIRST ROW IS JUST TIME OF LAST ENTRY
 timestr = file.readline().split()
