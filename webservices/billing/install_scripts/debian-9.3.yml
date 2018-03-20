@@ -5,7 +5,7 @@
     username: "{{ ansible_env.COLTE_USER }}"
     mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
-    webservices_dir: "{{ colte_dir }}/webservices"
+    billing_dir: "{{ colte_dir }}/webservices/billing"
 
 # step 1: setup/configure/run netopng (DON'T FORGET MY LUA SCRIPT AND TO DO SUBNET CASTING)
   tasks:
@@ -30,6 +30,19 @@
       - mysql-server
 #      - libmysql-client-dev
 
+    # - name: configure ntopng
+    #   file:
+    #     name: ntopng
+    #   become: yes
+
+    - name: copy my lua script to ntopng
+      copy: 
+        src: "{{ billing_dir }}/colte_log_bandwidth.lua"
+        dest: /usr/share/ntopng/scripts/lua/colte_log_bandwidth.lua
+        mode: 0644
+      become: yes
+
+# step 2: setup/install mysql db
     - name: mysql configs
       mysql_user:
         name: "{{ username }}"
@@ -39,48 +52,37 @@
         #login_password: research
       become: yes
 
-    # - name: configure ntopng
-    #   file:
-    #     name: ntopng
-    #   become: yes
-
-    - name: copy my lua script to ntopng
-      copy: 
-        src: "{{ webservices_dir }}/billing/colte_log_bandwidth.lua"
-        dest: /usr/share/ntopng/scripts/lua/colte_log_bandwidth.lua
-        mode: 0644
-      become: yes
-
-# step 2: setup/install mysql db
     - name: install billing table into mysql
       mysql_db:
         login_user: "{{ username }}"
         login_password: "{{ mysql_password }}"
         name: colte_db
         state: import
-        target: "{{ webservices_dir }}/billing/customer_db.sql"
+        target: "{{ billing_dir }}/customer_db.sql"
+
+    - name: ensure config directory exists
+      file:
+        path: /usr/local/etc/colte
+        state: directory
+        mode: 0755
+      become: yes
+
+    - name: copy coltenv to config directory
+      copy: 
+        src: "{{ colte_dir }}/coltenv"
+        dest: /usr/local/etc/colte/
+        mode: 0755
+      become: yes
 
 # step 3: schedule chron job for "import_to_db.py"
-#    - name: Install job on crontab
-#      cron:
-#        name: "Import bandwidth numbers from ntopng to billing db"
-#        minute: "*/5"
-#        job: "{{ webservices_dir }}/billing/import_to_db.sh"
-        # job: "{{ webservices_dir }}/billing/cronscript.sh > {{ colte_dir }}/logs/import_to_db.log 2>&1"
-        #user: "admin"
-        #disabled: "no"
-
-    # - name: copy coltenv to $HOME (needed for cron scripts)
-    #   copy: 
-    #     src: "{{ colte_dir }}/coltenv"
-    #     dest: /usr/local/etc/colte/coltenv
-    #     mode: 0644
-    #   become: yes
-
-# job must:
-# 1: run the lua script to dump out all the new values to a specific file (i can do this with curl) (can i do this with python?)
-# 1.5 file management???
-# 2: run the python script to read these vals and import into the db
+    - name: Install job on crontab
+      cron:
+        name: "Import bandwidth numbers from ntopng to billing db"
+        minute: "*/5"
+        job: "{{ billing_dir }}/import_to_db.sh"
+        # job: "{{ billing_dir }}/import_to_db.sh > {{ colte_dir }}/logs/import_to_db.log 2>&1"
+        user: "vagrant"
+        disabled: "no"
 
 # OTHER CONSIDERATIONS:
 # - if we get a weird result from .py, or if netopng crashes, we need to shut off the entire network (lest people use it for free)
