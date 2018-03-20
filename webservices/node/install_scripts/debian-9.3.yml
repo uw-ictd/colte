@@ -61,7 +61,7 @@
         mode: 0755
       with_items:
       - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
-      - {field: 'DB_USER', line: 'DB_USER=={{ username }}'}
+      - {field: 'DB_USER', line: 'DB_USER={{ username }}'}
 
     - name: copy production.env file to .env
       copy: 
