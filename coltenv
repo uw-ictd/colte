@@ -15,6 +15,11 @@ export COLTE_USER=$USER
 # IMPORTANT: If you change this value AFTER installation, you also need to change it in hss.conf!!!
 export COLTE_DBPASS="correcthorsebatterystaple"
 
+# The following are default values for Phpmyadmin
+export COLTE_PMA_USERNAME="admin"
+export COLTE_PMA_PASS="password"
+
+
 # THE FOLLOWING ARE COMPILATION OPTIONS. They pertain to compiling in specific modules or not.
 # (They also don't work right now.)
 export COLTE_EPC=1
