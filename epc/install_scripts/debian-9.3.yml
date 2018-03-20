@@ -189,8 +189,8 @@
         group: "{{ username }}"
         mode: 0644
       with_items:
-      - {field: 'MYSQL_pass', line: 'MYSQL_pass   = "{{ mysql_password }}"'}
-      - {field: 'MYSQL_user', line: 'MYSQL_user   = "{{ username }}"'}
+      - {field: 'MYSQL_pass', line: 'MYSQL_pass   = "{{ mysql_password }}";'}
+      - {field: 'MYSQL_user', line: 'MYSQL_user   = "{{ username }}";'}
 
     - name: copy config files to /usr/local/etc/colte
       copy: 
