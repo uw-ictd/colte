@@ -5,8 +5,10 @@
 ---
 - hosts: localhost
   vars:
-    username: "{{ ansible_user_id }}"
-    colte_dir: "{{ playbook_dir }}/../.."
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
     node_dir: "{{ colte_dir }}/webservices/node"
 
   tasks:
@@ -19,6 +21,10 @@
     #     group: root
     #     mode: 440
     #   become: yes
+
+    - name: check for environment vars
+      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
 
     - name: apt-get update
       apt:
@@ -45,13 +51,25 @@
       npm: name=forever state=present global=yes
       become: yes
 
-    - name: copy .env file
+    - name: write coltenv information to production.env
+      lineinfile:
+        path: "{{ node_dir }}/production.env"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0755
+      with_items:
+      - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
+      - {field: 'DB_USER', line: 'DB_USER=={{ username }}'}
+
+    - name: copy production.env file to .env
       copy: 
         src: "{{ node_dir }}/production.env"
         dest: "{{ node_dir }}/.env"
         owner: "{{ username }}"
         group: "{{ username }}"
-        mode: 0644
+        mode: 0755
 
     # - name: npm start webserver
     #   shell: npm start
