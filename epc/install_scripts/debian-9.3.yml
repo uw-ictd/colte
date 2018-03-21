@@ -157,17 +157,21 @@
       args:
         chdir: "{{ epc_dir }}"
 
-    - name: create log directory
+    - name: ensure log directory exists
       file:
         path: /var/log/colte
         state: directory
-        mode: 0777
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0755
       become: yes
 
     - name: create config directory
       file:
         path: /usr/local/etc/colte
         state: directory
+        owner: "{{ username }}"
+        group: "{{ username }}"
         mode: 0755
       become: yes
 
