@@ -1,37 +1,37 @@
 #!/bin/bash
 
-sudo mkdir -p /usr/local/etc/colte
-#sudo chmod 775 /usr/local/etc/colte
-sudo rm -rf /usr/local/etc/colte/coltenv
+sudo mkdir -p -m 755 /usr/local/etc/colte
+sudo chown $USER:$USER /usr/local/etc/colte
+rm -rf /usr/local/etc/colte/coltenv
 
 # scripts check for this first line to know that all vars are loaded
-echo "#!/bin/bash" | sudo tee --append /usr/local/etc/colte/coltenv
-echo "export COLTENV=1" | sudo tee --append /usr/local/etc/colte/coltenv
+echo "#!/bin/bash" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTENV=1" | tee --append /usr/local/etc/colte/coltenv
 
 
 # Base directory for the whole project source
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-echo "export COLTE_DIR=$BASEDIR" | sudo tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_DIR=$BASEDIR" | tee --append /usr/local/etc/colte/coltenv
 
 # the user (NOT ROOT) who's installing all this stuff. should have accss to their
 # home directory and be able to sudo. default value is (the current user).
 # Once installed, I don't think this value is changeable.
 CURRENTUSER=$USER
-echo "export COLTE_USER=$CURRENTUSER" | sudo tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_USER=$CURRENTUSER" | tee --append /usr/local/etc/colte/coltenv
 
 # Default password for everything database-related (mysql, phpmyadmin, etc.)
 # IMPORTANT: If you change this value AFTER installation, you also need to change it in hss.conf!!!
-echo "export COLTE_DBPASS=\"correcthorsebatterystaple\"" | sudo tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_DBPASS=\"correcthorsebatterystaple\"" | tee --append /usr/local/etc/colte/coltenv
 
 # The following are default values for Phpmyadmin
-echo "export COLTE_PMA_USERNAME=\"admin\"" | sudo tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_PMA_PASS=\"password\"" | sudo tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_PMA_USERNAME=\"admin\"" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_PMA_PASS=\"password\"" | tee --append /usr/local/etc/colte/coltenv
 
 # THE FOLLOWING ARE COMPILATION OPTIONS. They pertain to compiling in specific modules or not.
 # (They also don't work right now.)
-echo "export COLTE_EPC=1" | sudo tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_ENBRAINS=1" | sudo tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_EMERGENCY_WEBSERVICES=0" | sudo tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_WEBSERVICES=1" | sudo tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_ENBRAINS=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_EMERGENCY_WEBSERVICES=0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_WEBSERVICES=1" | tee --append /usr/local/etc/colte/coltenv
 
 source /usr/local/etc/colte/coltenv
