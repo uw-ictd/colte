@@ -64,6 +64,8 @@
       file:
         path: /var/log/colte
         state: directory
+        owner: "{{ username }}"
+        group: "{{ username }}"
         mode: 0755
       become: yes
 
