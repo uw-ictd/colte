@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [ -z "$COLTENV" ]; then
-    echo "WARNING: Using default values from $COLTE_DIR/coltenv. Make sure you check them out!"
+    echo "WARNING: Using default values from $COLTE_DIR/generate_coltenv. Make sure you check them out!"
     SOURCEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    source $SOURCEDIR/../../coltenv
+    source $SOURCEDIR/../../generate_coltenv
 fi
 
 # Step 1: Install prereqs (ansible and python)

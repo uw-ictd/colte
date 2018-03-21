@@ -51,7 +51,7 @@
       npm: name=forever state=present global=yes
       become: yes
 
-    - name: write coltenv information to production.env
+    - name: write environment information to production.env
       lineinfile:
         path: "{{ node_dir }}/production.env"
         regexp: "{{ item.field }}"
