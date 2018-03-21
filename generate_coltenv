@@ -1,0 +1,36 @@
+#!/bin/bash
+
+sudo mkdir -p /usr/local/etc/colte
+sudo chmod 775 /usr/local/etc/colte
+sudo rm -rf /usr/local/etc/colte/coltenv
+
+# scripts check for this first line to know that all vars are loaded
+sudo echo "#!/bin/bash" >> /usr/local/etc/colte/coltenv
+sudo echo "export COLTENV=1" >> /usr/local/etc/colte/coltenv
+
+# Base directory for the whole project source
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+sudo echo "export COLTE_DIR=$BASEDIR" >> /usr/local/etc/colte/coltenv
+
+# the user (NOT ROOT) who's installing all this stuff. should have accss to their
+# home directory and be able to sudo. default value is (the current user).
+# Once installed, I don't think this value is changeable.
+CURRENTUSER=$USER
+sudo echo "export COLTE_USER=$CURRENTUSER" >> /usr/local/etc/colte/coltenv
+
+# Default password for everything database-related (mysql, phpmyadmin, etc.)
+# IMPORTANT: If you change this value AFTER installation, you also need to change it in hss.conf!!!
+sudo echo "export COLTE_DBPASS=\"correcthorsebatterystaple\"" >> /usr/local/etc/colte/coltenv
+
+# The following are default values for Phpmyadmin
+sudo echo "export COLTE_PMA_USERNAME=\"admin\"" >> /usr/local/etc/colte/coltenv
+sudo echo "export COLTE_PMA_PASS=\"password\"" >> /usr/local/etc/colte/coltenv
+
+# THE FOLLOWING ARE COMPILATION OPTIONS. They pertain to compiling in specific modules or not.
+# (They also don't work right now.)
+sudo echo "export COLTE_EPC=1" >> /usr/local/etc/colte/coltenv
+sudo echo "export COLTE_ENBRAINS=1" >> /usr/local/etc/colte/coltenv
+sudo echo "export COLTE_EMERGENCY_WEBSERVICES=0" >> /usr/local/etc/colte/coltenv
+sudo echo "export COLTE_WEBSERVICES=1" >> /usr/local/etc/colte/coltenv
+
+source /usr/local/etc/colte/coltenv
