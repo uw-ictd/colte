@@ -60,19 +60,19 @@
         state: import
         target: "{{ billing_dir }}/customer_db.sql"
 
-    - name: ensure config directory exists
-      file:
-        path: /usr/local/etc/colte
-        state: directory
-        mode: 0755
-      become: yes
+    # - name: ensure config directory exists
+    #   file:
+    #     path: /usr/local/etc/colte
+    #     state: directory
+    #     mode: 0755
+    #   become: yes
 
-    - name: copy coltenv to config directory
-      copy: 
-        src: "{{ colte_dir }}/coltenv"
-        dest: /usr/local/etc/colte/
-        mode: 0755
-      become: yes
+    # - name: copy coltenv to config directory
+    #   copy: 
+    #     src: "{{ colte_dir }}/coltenv"
+    #     dest: /usr/local/etc/colte/
+    #     mode: 0755
+    #   become: yes
 
 # step 3: schedule chron job for "import_to_db.py"
     - name: Install job on crontab
