@@ -7,6 +7,9 @@
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
     billing_dir: "{{ colte_dir }}/webservices/billing"
 
+    wan_iface: "{{ ansible_env.COLTE_WAN_IFACE }}"
+    lan_subnet: "{{ ansible_env.COLTE_LTE_SUBNET }}"
+
 # step 1: setup/configure/run netopng (DON'T FORGET MY LUA SCRIPT AND TO DO SUBNET CASTING)
   tasks:
     - name: check for environment vars
@@ -30,10 +33,19 @@
       - mysql-server
 #      - libmysql-client-dev
 
-    # - name: configure ntopng
-    #   file:
-    #     name: ntopng
-    #   become: yes
+    - name: configure ntopng
+      lineinfile:
+        path: /etc/ntopng/ntopng.conf
+        # regexp: 'chat\.localhost'
+        line: "{{ item }}"
+        owner: root
+        group: root
+        mode: 0644
+      become: yes
+      with_items:
+      - "-i={{ wan_iface }}"
+      - "-m={{ lan_subnet }}"
+      # MORE!??
 
     - name: copy my lua script to ntopng
       copy: 
@@ -68,20 +80,6 @@
         group: "{{ username }}"
         mode: 0755
       become: yes
-
-    # - name: ensure config directory exists
-    #   file:
-    #     path: /usr/local/etc/colte
-    #     state: directory
-    #     mode: 0755
-    #   become: yes
-
-    # - name: copy coltenv to config directory
-    #   copy: 
-    #     src: "{{ colte_dir }}/coltenv"
-    #     dest: /usr/local/etc/colte/
-    #     mode: 0755
-    #   become: yes
 
 # step 3: schedule chron job for "import_to_db.py"
     - name: Install job on crontab
