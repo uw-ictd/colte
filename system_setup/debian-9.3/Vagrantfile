@@ -23,6 +23,7 @@ Vagrant.configure("2") do |config|
 #   epc.vm.provision 'shell', inline: "ifconfig eth2 10.0.200.3", run: "always"
 
     epc.vm.network "forwarded_port", guest: 80, host: 8080
+    epc.vm.network "forwarded_port", guest: 3002, host: 8081
 
     epc.vm.provision "shell", inline: <<-SHELL
       apt-get install -y git
