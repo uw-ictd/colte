@@ -9,8 +9,9 @@
 
   tasks:
     - name: check for environment vars
-      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
-      when: coltenv is not defined or build_enbrains == 0
+      assert:
+        that: "build_enbrains == 1"
+        msg: "build_enbrains not set to 1"
 
     - name: enbrains - apt-get dependencies
       apt:
