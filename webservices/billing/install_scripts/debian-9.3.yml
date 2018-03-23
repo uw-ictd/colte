@@ -16,26 +16,32 @@
       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
       when: coltenv is not defined
 
+    - name: manually download ntopng.deb
+      apt: 
+        deb: http://apt-stable.ntop.org/stretch/all/apt-ntop-stable.deb
+      become: yes
+
     - name: apt-get update
       apt:
+        autoclean: yes
         update_cache: yes
-        cache_valid_time: 3600
-      become: yes    
+      become: yes   
 
-    - name: apt-get install ntopng and mysql
+    - name: install ntopng and friends
       apt:
         name: "{{ item }}"
       become: yes 
       with_items:
+      - pfring
+      - nprobe
       - ntopng
-      - python-mysqldb
-      - mysql-client
-      - mysql-server
-#      - libmysql-client-dev
+      - ntopng-data
+      - n2disk
+      - cento
 
     - name: dynamically write ntopng.conf
       lineinfile:
-        path: "{{ billing_dir }}/ntopng.conf"
+        path: "{{ billing_dir }}/ntopng/ntopng.conf"
         regexp: "{{ item.key }}"
         line: "{{ item.value }}"
       with_items:
@@ -58,6 +64,16 @@
       become: yes
 
 # step 2: setup/install mysql db
+    - name: apt-get install mysql
+      apt:
+        name: "{{ item }}"
+      become: yes 
+      with_items:
+      - python-mysqldb
+      - mysql-client
+      - mysql-server
+#      - libmysql-client-dev
+
     - name: mysql configs
       mysql_user:
         name: "{{ username }}"
@@ -90,7 +106,6 @@
         name: "Import bandwidth numbers from ntopng to billing db"
         minute: "*/5"
         job: "{{ billing_dir }}/import_to_db.sh >> /var/log/colte/cron.log 2>&1"
-        # job: "{{ billing_dir }}/import_to_db.sh > {{ colte_dir }}/logs/import_to_db.log 2>&1"
         user: "{{ username }}"
         disabled: "no"
 
