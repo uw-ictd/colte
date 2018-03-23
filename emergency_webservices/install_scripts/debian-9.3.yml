@@ -63,9 +63,9 @@
       become: yes
 
 # To add a webservice/website, create a new .yml file and add to this list!
-    - import_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
-    - import_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
-#    - import_tasks: "{{ emergency_webservices_dir }}/maps.yml"
+    - include_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
+    - include_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
+    - include_tasks: "{{ emergency_webservices_dir }}/maps.yml"
 
     - name: turn everything off
       service: name=apache2 state=stopped
