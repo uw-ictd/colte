@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$COLTENV" ]; then
-    echo "WARNING: Using default values from $COLTE_DIR/generate_coltenv. Make sure you check them out!"
+    echo "WARNING: Using default values from $COLTE_DIR/generate_coltenv. Make sure you look at them!"
     SOURCEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     source $SOURCEDIR/../../generate_coltenv
 fi
@@ -20,15 +20,24 @@ sudo cp $COLTE_DIR/system_setup/debian-9.3/sources/sources.list /etc/apt/sources
 sudo apt-get update
 
 sudo apt-get -y install vim curl
-ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/system_setup/debian-9.3/main_playbook.yml 
 
-# Step 3: Any final-final configs?!? Setting IP addresses in config files, etc?!?
+if [ $COLTE_EPC == 1 ]; then
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/epc/install_scripts/debian-9.3.yml
+fi
 
-# Note 1: Internet interface:
-# We want the Internet gateway to be XXXX
-# And we want it on interface XXXX
+if [ $COLTE_ENBRAINS == 1 ]; then
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/enbrains/install_scripts/debian-9.3.yml
+fi
 
-# Note 2: Local network interface:
-# We want the eNB to be on 10.0.101.2
-# The EPC will be 10.0.101.3
+if [ $COLTE_EMERGENCY_WEBSERVICES == 1 ]; then
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/emergency_webservices/install_scripts/debian-9.3.yml
+fi
+
+if [ $COLTE_NODE == 1 ]; then
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/webservices/node/install_scripts/debian-9.3.yml
+fi
+
+if [ $COLTE_BILLING == 1 ]; then
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/webservices/billing/install_scripts/debian-9.3.yml
+fi
 
