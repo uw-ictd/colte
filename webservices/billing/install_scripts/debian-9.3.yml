@@ -2,6 +2,7 @@
 - hosts: localhost
   vars:
     coltenv: "{{ ansible_env.COLTENV }}"
+    build_billing: "{{ ansible_env.COLTE_BILLING }}"
     username: "{{ ansible_env.COLTE_USER }}"
     mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
@@ -14,7 +15,7 @@
   tasks:
     - name: check for environment vars
       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
-      when: coltenv is not defined
+      when: coltenv is not defined or build_billing == 0
 
     - name: manually download ntopng.deb
       apt: 
