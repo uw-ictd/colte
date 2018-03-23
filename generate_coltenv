@@ -39,6 +39,7 @@ echo "export COLTE_WEBSERVICES=1" | tee --append /usr/local/etc/colte/coltenv
 # BEFORE YOU COMPILE/INSTALL EVERYTHING.
 echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_ENB_IFACE=enx00051ba417ce" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_ENB_IFACE_ADDR=192.168.150.1/24" | tee --append /usr/local/etc/colte/coltenv
 # add more ifconfig options here. Static IP defaults?!?
 # What about how we need to configure the eNB re: its addresses/routing?
 

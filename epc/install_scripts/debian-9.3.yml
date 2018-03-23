@@ -9,6 +9,13 @@
     epc_dir: "{{ colte_dir }}/epc"
     packages_dir: "{{ colte_dir }}/packages"
 
+    enb_iface: "{{ ansible_env.COLTE_ENB_IFACE }}"
+    enb_iface_addr: "{{ ansible_env.COLTE_ENB_IFACE_ADDR }}"
+    wan_iface: "{{ ansible_env.COLTE_WAN_IFACE }}"
+    lte_subnet: "{{ ansible_env.COLTE_LTE_SUBNET }}"
+
+
+
   tasks:
     - name: check for environment vars
       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
@@ -104,49 +111,9 @@
 
     - import_tasks: tasks/freediameter.yml
 
-    # - name: second round of HSS apt install
-    #   apt:
-    #     name: "{{ item }}"
-    #   with_items:
-    #   - php
-    #   - phpmyadmin
-    #   - python-pexpect
-    #   - libapache2-mod-php*
-    #   become: yes
-
-    # - name: first round of MME apt install
-    #   apt:
-    #     name: "{{ item }}"
-    #   with_items:
-    #   - castxml
-    #   - guile-2.0-dev
-    #   - libgmp-dev
-    #   - libhogweed?
-    #   - libgtk-3-dev
-    #   - libxml2
-    #   - libxml2-dev
-    #   - mscgen
-    #   - check
-    #   - python
-    #   - libgnutls28-dev
-    #   become: yes
-
     - import_tasks: tasks/asn1c.yml
 
     - import_tasks: tasks/libgtpnl.yml
-
-    # - name: second round of MME apt install
-    #   apt:
-    #     name: "{{ item }}"
-    #   with_items:
-    #   - ethtool
-    #   - iproute
-    #   - vlan
-    #   - tshark
-    #   - python-dev
-    #   - unzip
-    #   - iperf
-    #   become: yes
 
     - name: build epc with enbrains
       shell: |
@@ -184,7 +151,7 @@
         state: import
         target: "{{ epc_dir }}/spencer_configs/sample_db.sql"
 
-    - name: write DB information to hss.conf
+    - name: write information to hss.conf
       lineinfile:
         path: "{{ epc_dir }}/spencer_configs/hss.conf"
         regexp: "{{ item.field }}"
@@ -195,6 +162,27 @@
       with_items:
       - {field: 'MYSQL_pass', line: 'MYSQL_pass   = "{{ mysql_password }}";'}
       - {field: 'MYSQL_user', line: 'MYSQL_user   = "{{ username }}";'}
+
+    - name: write information to mme.conf
+      lineinfile:
+        path: "{{ epc_dir }}/spencer_configs/mme.conf"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+      with_items:
+      - {field: "MME_INTERFACE_NAME_FOR_S1_MME", line: "        MME_INTERFACE_NAME_FOR_S1_MME         = \"{{ enb_iface }}\";"}
+      - {field: "MME_IPV4_ADDRESS_FOR_S1_MME", line: "        MME_IPV4_ADDRESS_FOR_S1_MME         = \"{{ enb_iface_addr }}\";"}
+      # MORE ENTRIES: CAN DYNAMICALLY SET MMC/MNC?!?
+
+    - name: write information to spgw.conf
+      lineinfile:
+        path: "{{ epc_dir }}/spencer_configs/spgw.conf"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+      with_items:
+      - {field: "PGW_INTERFACE_NAME_FOR_SGI", line: "        PGW_INTERFACE_NAME_FOR_SGI            = \"{{ wan_iface }}\";"}
+      - {field: "IPV4_LIST", line: "        IPV4_LIST = (\"{{ lte_subnet }}\");"}
+
+
 
     - name: copy config files to /usr/local/etc/colte
       copy: 
