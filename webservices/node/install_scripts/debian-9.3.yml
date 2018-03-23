@@ -6,6 +6,7 @@
 - hosts: localhost
   vars:
     coltenv: "{{ ansible_env.COLTENV }}"
+    build_node: "{{ ansible_env.COLTE_NODE }}"
     username: "{{ ansible_env.COLTE_USER }}"
     mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
@@ -24,7 +25,7 @@
 
     - name: check for environment vars
       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
-      when: coltenv is not defined
+      when: coltenv is not defined or build_node == 0
 
     - name: apt-get update
       apt:
