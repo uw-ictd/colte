@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
     epc.vm.network "forwarded_port", guest: 3002, host: 8081
 
     epc.vm.provision "shell", inline: <<-SHELL
-      apt-get install -y git
+      apt-get install -y git vim
       git clone https://github.com/uw-ictd/colte.git /home/vagrant/colte
       chown -R vagrant:vagrant /home/vagrant/colte
     SHELL

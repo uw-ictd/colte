@@ -48,7 +48,7 @@
 
     - name: dynamically write ntopng.conf
       lineinfile:
-        path: "{{ billing_dir }}/ntopng/ntopng.conf"
+        path: "{{ billing_dir }}/ntopng.conf"
         regexp: "{{ item.key }}"
         line: "{{ item.value }}"
       with_items:
@@ -59,7 +59,7 @@
     - name: copy ntopng.conf to /etc/ntopng.conf
       copy: 
         src: "{{ billing_dir }}/ntopng.conf"
-        dest: /etc/ntopng.conf
+        dest: /etc/ntopng/ntopng.conf
         mode: 0644
       become: yes
 
