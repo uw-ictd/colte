@@ -135,7 +135,7 @@
         mode: 0755
       become: yes
 
-    - name: create config directory
+    - name: ensure config directory exists
       file:
         path: /usr/local/etc/colte
         state: directory
@@ -158,9 +158,9 @@
         path: "{{ epc_dir }}/spencer_configs/hss.conf"
         regexp: "{{ item.field }}"
         line: "{{ item.line }}"
-        owner: "{{ username }}"
-        group: "{{ username }}"
-        mode: 0644
+        # owner: "{{ username }}"
+        # group: "{{ username }}"
+        # mode: 0644
       with_items:
       - {field: 'MYSQL_pass', line: 'MYSQL_pass   = "{{ mysql_password }}";'}
       - {field: 'MYSQL_user', line: 'MYSQL_user   = "{{ username }}";'}
@@ -192,8 +192,8 @@
         dest: "{{ item.dst }}"
         # owner: "{{ username }}"
         # group: "{{ username }}"
-        mode: 0644
-      become: yes
+        # mode: 0644
+      # become: yes
       with_items:
       - {src: "{{ epc_dir }}/spencer_configs/hss.conf", dst: "/usr/local/etc/colte/"}
       - {src: "{{ epc_dir }}/spencer_configs/mme.conf", dst: "/usr/local/etc/colte/"}
@@ -206,4 +206,4 @@
         source {{ epc_dir }}/oaienv
         {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/colte/freeDiameter hss.OpenAir5G.Alliance
         {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/colte/freeDiameter mme.OpenAir5G.Alliance
-      become: yes
+      # become: yes
