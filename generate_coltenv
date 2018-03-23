@@ -34,9 +34,10 @@ echo "export COLTE_NT_PASS=\"password\"" | tee --append /usr/local/etc/colte/col
 # THE FOLLOWING ARE COMPILATION OPTIONS. They pertain to compiling in specific modules or not.
 # (They also don't work right now.)
 echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_ENBRAINS=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_ENBRAINS=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_EMERGENCY_WEBSERVICES=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_WEBSERVICES=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_NODE=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_BILLING=1" | tee --append /usr/local/etc/colte/coltenv
 
 # Default network config options.
 # NOTE: THESE ARE NOT LIKELY TO WORK FOR YOUR CONFIG, SO MAKE SURE YOU CHANGE THEM
