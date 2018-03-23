@@ -27,6 +27,10 @@ echo "export COLTE_DBPASS=\"correcthorsebatterystaple\"" | tee --append /usr/loc
 echo "export COLTE_PMA_USERNAME=\"admin\"" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_PMA_PASS=\"password\"" | tee --append /usr/local/etc/colte/coltenv
 
+# The following are default values for ntopng
+echo "export COLTE_NT_USERNAME=\"admin\"" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_NT_PASS=\"password\"" | tee --append /usr/local/etc/colte/coltenv
+
 # THE FOLLOWING ARE COMPILATION OPTIONS. They pertain to compiling in specific modules or not.
 # (They also don't work right now.)
 echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
