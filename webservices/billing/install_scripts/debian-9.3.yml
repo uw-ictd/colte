@@ -27,6 +27,13 @@
         update_cache: yes
       become: yes   
 
+    - name: install new linux headers (Debian needs this)
+      apt:
+        name: "{{ item }}"
+      become: yes 
+      with_items:
+      - linux-headers-4.9.0-5-amd64
+
     - name: install ntopng and friends
       apt:
         name: "{{ item }}"
