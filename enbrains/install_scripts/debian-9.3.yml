@@ -2,7 +2,6 @@
 - hosts: localhost
   vars:
     coltenv: "{{ ansible_env.COLTENV }}"
-    build_enbrains: "{{ ansible_env.COLTE_ENBRAINS }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
 
     enbrains_dir: "{{ colte_dir }}/enbrains"
@@ -10,8 +9,8 @@
   tasks:
     - name: check for environment vars
       assert:
-        that: "build_enbrains == 1"
-        msg: "build_enbrains not set to 1"
+        that: "coltenv == 1"
+        msg: "Killing ansible script, environment variables not set!"
 
     - name: enbrains - apt-get dependencies
       apt:

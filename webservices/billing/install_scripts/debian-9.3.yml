@@ -14,9 +14,10 @@
 # step 1: setup/configure/run netopng (DON'T FORGET MY LUA SCRIPT AND TO DO SUBNET CASTING)
   tasks:
     - name: check for environment vars
-      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
-      when: coltenv is not defined or build_billing == 0
-
+      assert:
+        that: "coltenv == 1"
+        msg: "Killing ansible script, environment variables not set!"
+        
     - name: manually download ntopng.deb
       apt: 
         deb: http://apt-stable.ntop.org/stretch/all/apt-ntop-stable.deb

@@ -24,9 +24,10 @@
     #   become: yes
 
     - name: check for environment vars
-      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
-      when: coltenv is not defined or build_node == 0
-
+      assert:
+        that: "coltenv == 1"
+        msg: "Killing ansible script, environment variables not set!"
+        
     - name: apt-get update
       apt:
         update-cache: yes
