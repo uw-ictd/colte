@@ -45,8 +45,8 @@
         regexp: "{{ item.key }}"
         line: "{{ item.value }}"
       with_items:
-      - {key: "-i", value: "-i={{ wan_iface }}"}
-      - {key: "-m", value: "-m={{ lan_subnet }}"}
+      - {key: "-i=", value: "-i={{ wan_iface }}"}
+      - {key: "-m=", value: "-m={{ lan_subnet }}"}
       # MORE ENTRIES?!?
 
     - name: copy ntopng.conf to /etc/ntopng.conf
