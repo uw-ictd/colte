@@ -36,7 +36,7 @@ echo "export COLTE_NT_PASS=\"password\"" | tee --append /usr/local/etc/colte/col
 echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_ENBRAINS=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_EMERGENCY_WEBSERVICES=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_NODE=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_NODE=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_BILLING=1" | tee --append /usr/local/etc/colte/coltenv
 
 # Default network config options.
