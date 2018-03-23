@@ -38,12 +38,12 @@ echo "export COLTE_WEBSERVICES=1" | tee --append /usr/local/etc/colte/coltenv
 # NOTE: THESE ARE NOT LIKELY TO WORK FOR YOUR CONFIG, SO MAKE SURE YOU CHANGE THEM
 # BEFORE YOU COMPILE/INSTALL EVERYTHING.
 echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_ENB_IFACE=enx00051ba417ce" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_ENB_IFACE=wlp2s0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_ENB_IFACE_ADDR=192.168.150.1/24" | tee --append /usr/local/etc/colte/coltenv
 # add more ifconfig options here. Static IP defaults?!?
 # What about how we need to configure the eNB re: its addresses/routing?
 
-echo "export COLTE_WAN_IFACE=enp3s0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_WAN_IFACE=enp4s0" | tee --append /usr/local/etc/colte/coltenv
 # add more ifconfig options here too. Default = DHCP, or we don't really care?!?
 # As long as this isface is named correctly and (somehow) comes up with an Internet
 # connection we should actually be fine. Not used except for spgw and NAT script.
