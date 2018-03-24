@@ -73,14 +73,14 @@
     - name: cleanup temp folder
       file: path='{{ emergency_webservices_dir }}/xowa_storage/temp' state=absent
 
-    - name: start xowa docker image
-      docker_container:
-        name: xowa
-        image: quantumobject/docker-xowa
-        ports: 8082:8080
-        volumes: "{{ emergency_webservices_dir }}/xowa_storage:/opt/xowa/wiki"
-        # detach: true
-      become: yes
+    # - name: start xowa docker image
+    #   docker_container:
+    #     name: xowa
+    #     image: quantumobject/docker-xowa
+    #     ports: 8082:8080
+    #     volumes: "{{ emergency_webservices_dir }}/xowa_storage:/opt/xowa/wiki"
+    #     # detach: true
+    #   become: yes
 # command: -v yours/storage:/opt/xowa/wiki
 # note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
 

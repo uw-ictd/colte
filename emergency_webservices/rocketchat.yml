@@ -12,23 +12,23 @@
       - rocket.chat
       become: yes
 
-    - name: start mongodb docker image
-      docker_container:
-        name: db
-        image: mongo:3.0
-        command: --smallfiles
-        # detach: true
-      become: yes
+    # - name: start mongodb docker image
+    #   docker_container:
+    #     name: db
+    #     image: mongo:3.0
+    #     command: --smallfiles
+    #     # detach: true
+    #   become: yes
 
-    - name: start rocketchat docker image
-      docker_container:
-        name: rocketchat
-        image: rocket.chat
-        ports: 8081:3000
-        links: db
-        env: ROOT_URL=http://localhost
-        # detach: true
-      become: yes
+    # - name: start rocketchat docker image
+    #   docker_container:
+    #     name: rocketchat
+    #     image: rocket.chat
+    #     ports: 8081:3000
+    #     links: db
+    #     env: ROOT_URL=http://localhost
+    #     # detach: true
+    #   become: yes
 
     - name: add to /etc/hosts
       lineinfile:
