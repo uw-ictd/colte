@@ -9,3 +9,34 @@
     - name: start apache
       service: name=apache2 state=started
       become: yes
+
+# XOWA
+    - name: start xowa docker image
+      docker_container:
+        name: xowa
+        image: quantumobject/docker-xowa
+        ports: 8082:8080
+        volumes: "{{ emergency_webservices_dir }}/xowa_storage:/opt/xowa/wiki"
+        # detach: true
+      become: yes
+# command: -v yours/storage:/opt/xowa/wiki
+# note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
+
+# ROCKETCHAT
+    - name: start mongodb docker image
+      docker_container:
+        name: db
+        image: mongo:3.0
+        command: --smallfiles
+        # detach: true
+      become: yes
+
+    - name: start rocketchat docker image
+      docker_container:
+        name: rocketchat
+        image: rocket.chat
+        ports: 8081:3000
+        links: db
+        env: ROOT_URL=http://localhost
+        # detach: true
+      become: yes

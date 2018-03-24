@@ -23,7 +23,7 @@ echo "export COLTE_USER=$CURRENTUSER" | tee --append /usr/local/etc/colte/colten
 # IMPORTANT: If you change this value AFTER installation, you also need to change it in hss.conf!!!
 echo "export COLTE_DBPASS=\"correcthorsebatterystaple\"" | tee --append /usr/local/etc/colte/coltenv
 
-# The following are default values for PhpMyAdmin
+# The following are default values for phpMyAdmin
 echo "export COLTE_PMA_USERNAME=\"admin\"" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_PMA_PASS=\"password\"" | tee --append /usr/local/etc/colte/coltenv
 
@@ -31,26 +31,28 @@ echo "export COLTE_PMA_PASS=\"password\"" | tee --append /usr/local/etc/colte/co
 echo "export COLTE_NT_USERNAME=\"admin\"" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_NT_PASS=\"password\"" | tee --append /usr/local/etc/colte/coltenv
 
-# THE FOLLOWING ARE COMPILATION OPTIONS. They pertain to compiling in specific modules or not.
-# (They also don't work right now.)
+#############################################################
+############### NETWORK CONFIGURATION OPTIONS ###############
+#############################################################
+
+# NOTE: THESE ARE NOT LIKELY TO WORK FOR YOUR CONFIG, SO MAKE SURE YOU CHANGE THEM
+# BEFORE YOU COMPILE/INSTALL EVERYTHING.
+echo "export COLTE_WAN_IFACE=enp4s0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_ENB_IFACE=wlp2s0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_ENB_IFACE_ADDR=192.168.150.1/24" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/colte/coltenv
+
+# add more ifconfig options here. Static IP defaults? DHCP, or don't care?
+# What about how we need to configure the eNB re: its addresses/routing?
+
+#############################################################
+#################### COMPILATION OPTIONS ####################
+#############################################################
+
 echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_ENBRAINS=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_EMERGENCY_WEBSERVICES=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_NODE=0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_NODE=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_BILLING=1" | tee --append /usr/local/etc/colte/coltenv
-
-# Default network config options.
-# NOTE: THESE ARE NOT LIKELY TO WORK FOR YOUR CONFIG, SO MAKE SURE YOU CHANGE THEM
-# BEFORE YOU COMPILE/INSTALL EVERYTHING.
-echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_ENB_IFACE=wlp2s0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_ENB_IFACE_ADDR=192.168.150.1/24" | tee --append /usr/local/etc/colte/coltenv
-# add more ifconfig options here. Static IP defaults?!?
-# What about how we need to configure the eNB re: its addresses/routing?
-
-echo "export COLTE_WAN_IFACE=enp4s0" | tee --append /usr/local/etc/colte/coltenv
-# add more ifconfig options here too. Default = DHCP, or we don't really care?!?
-# As long as this isface is named correctly and (somehow) comes up with an Internet
-# connection we should actually be fine. Not used except for spgw and NAT script.
 
 source /usr/local/etc/colte/coltenv
