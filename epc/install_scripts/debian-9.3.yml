@@ -206,6 +206,26 @@
         {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/colte/freeDiameter mme.OpenAir5G.Alliance
       # become: yes
 
+    - name: update iptables script with wan_iface
+      lineinfile:
+        path: "{{ epc_dir }}/spencer_configs/iptables.sh"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+      with_items:
+      - {field: "-C POSTROUTING -o enp3s0", line: "iptables -t nat -C POSTROUTING -o {{ wan_iface }} -j MASQUERADE"}
+      - {field: "-A POSTROUTING -o enp3s0", line: "iptables -t nat -A POSTROUTING -o {{ wan_iface }} -j MASQUERADE"}
+      - {field: "-C FORWARD -i gtp0 -o enp3s0", line: "iptables -C FORWARD -i gtp0 -o {{ wan_iface }} -j ACCEPT"}
+      - {field: "-A FORWARD -i gtp0 -o enp3s0", line: "iptables -A FORWARD -i gtp0 -o {{ wan_iface }} -j ACCEPT"}
+      - {field: "-C FORWARD -i enp3s0 ", line: "iptables -C FORWARD -i {{ wan_iface }} -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT"}
+      - {field: "-A FORWARD -i enp3s0 ", line: "iptables -A FORWARD -i {{ wan_iface }} -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT"}
+
+    - name: configure iptables script to run on reboot
+      cron:
+        name: "configure iptables on reboot"
+        special_time: reboot
+        job: "{{ epc_dir }}/spencer_configs/iptables.sh >> /var/log/colte/cron.log 2>&1"
+        become: yes
+
     - name: run iptables commands
       shell: "{{ epc_dir }}"/iptables.sh
       become: yes
