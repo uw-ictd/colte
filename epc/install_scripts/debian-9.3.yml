@@ -184,8 +184,6 @@
       - {field: "PGW_INTERFACE_NAME_FOR_SGI", line: "        PGW_INTERFACE_NAME_FOR_SGI            = \"{{ wan_iface }}\";"}
       - {field: "IPV4_LIST", line: "        IPV4_LIST = (\"{{ lte_subnet }}\");"}
 
-
-
     - name: copy config files to /usr/local/etc/colte
       copy: 
         src: "{{ item.src }}"
@@ -207,3 +205,7 @@
         {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/colte/freeDiameter hss.OpenAir5G.Alliance
         {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/colte/freeDiameter mme.OpenAir5G.Alliance
       # become: yes
+
+    - name: run iptables commands
+      shell: "{{ epc_dir }}"/iptables.sh
+      become: yes
