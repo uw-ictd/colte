@@ -1,0 +1,48 @@
+---
+- hosts: localhost
+  vars:
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+    ims_dir: "{{ colte_dir }}/ims"
+
+  tasks:
+    - name: check for environment vars
+      fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
+
+    - name: apt-get docker-compose
+      apt:
+        name: docker-compose
+      become: yes
+  
+	# (since stretch, apt-get docker doesn't work anymore so we have to manual install)
+    - name: manually download/install docker deb
+      apt: 
+        deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
+      become: yes
+
+    - name: git clone clearwater-docker
+      git:
+        repo: https://github.com/Metaswitch/clearwater-docker.git
+        dest: "{{ ims_dir }}/clearwater-docker"
+
+    # - name: build clearwater ims docker images
+    #   shell: |
+    #     sudo docker build -t clearwater/base base
+    #     sudo docker-compose -f minimal-distributed.yaml up -d
+    #   args:
+    #     chdir: "{{ ims_dir }}/clearwater-docker"
+    #   become: yes
+
+    - name: docker build clearwater ims
+      docker_image:
+        name: base
+        tag: clearwater/base
+      become: yes
+
+    - name: docker compose clearwater ims (start group of services)
+      docker_service:
+        project_src: {{ ims_dir }}/clearwater-docker
+        files: minimal-distributed.yaml
+      become: yes
