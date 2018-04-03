@@ -5,7 +5,7 @@ var customer = require('../models/customer');
 router.get('/', function(req, res, next) {
   var ip = '10.0.0.42';//req.ip;
   customer.find(ip).then((data) => {
-    console.log(data);
+    // console.log(data);
     res.render('user', {
       title: 'Home',
       raw_up: data[0].raw_up,
@@ -15,4 +15,14 @@ router.get('/', function(req, res, next) {
   });
 });
   
+router.post('/transfer', function(req,res) {
+  // validate phone number
+  // validate amount 
+
+  // queries - subtract, add 
+
+  // return status
+  console.log(req.body);
+  res.redirect('/user');
+});
 module.exports = router;
