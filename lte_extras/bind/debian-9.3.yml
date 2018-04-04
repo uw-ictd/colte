@@ -1,0 +1,42 @@
+---
+- hosts: localhost
+  vars:
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+    bind_dir: "{{ colte_dir }}/lte_extras/bind"
+
+  tasks:
+    - name: check for environment vars
+      fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
+
+    - name: apt-get bind
+      apt:
+        name: {{ item }}
+      become: yes
+      with_items:
+      - bind9
+      - bind9utils
+      - bind9-doc
+
+    - name: dynamically write subnet to bind configuration file
+      copy: 
+        src: "{{ bind_dir }}/CONF"
+        dest: DEST
+        # owner: "{{ username }}"
+        # group: "{{ username }}"
+        mode: 0644
+      become: yes
+
+    - name: copy bind configuration file
+      copy: 
+        src: "{{ bind_dir }}/CONF"
+        dest: DEST
+        # owner: "{{ username }}"
+        # group: "{{ username }}"
+        mode: 0644
+      become: yes    
+
+# followed these instructions exactly:
+# https://www.digitalocean.com/community/tutorials/how-to-configure-bind-as-a-caching-or-forwarding-dns-server-on-ubuntu-14-04
