@@ -16,16 +16,16 @@
         name: docker-compose
       become: yes
   
-	# (since stretch, apt-get docker doesn't work anymore so we have to manual install)
+    # (since stretch, apt-get docker doesn't work anymore so we have to manual install)
     - name: manually download/install docker deb
       apt: 
         deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
       become: yes
 
-    - name: git clone clearwater-docker
-      git:
-        repo: https://github.com/Metaswitch/clearwater-docker.git
-        dest: "{{ ims_dir }}/clearwater-docker"
+#    - name: git clone clearwater-docker
+#      git:
+#        repo: https://github.com/Metaswitch/clearwater-docker.git
+#        dest: "{{ ims_dir }}/clearwater-docker"
 
     # - name: build clearwater ims docker images
     #   shell: |
@@ -35,16 +35,15 @@
     #     chdir: "{{ ims_dir }}/clearwater-docker"
     #   become: yes
 
-    # sudo docker build -t clearwater/base base
-    - name: docker build clearwater ims
-      docker_image:
-        name: base
-        tag: clearwater/base
-      become: yes
+#    - name: docker build clearwater ims
+#      docker_image:
+#        path: "{{ ims_dir }}/clearwater-docker/base"
+#        name: clearwater/base
+#      become: yes
 
     #     sudo docker-compose -f minimal-distributed.yaml up -d
     - name: docker compose clearwater ims (start group of services)
       docker_service:
-        project_src: {{ ims_dir }}/clearwater-docker
+        project_src: "{{ ims_dir }}/clearwater-docker"
         files: minimal-distributed.yaml
       become: yes

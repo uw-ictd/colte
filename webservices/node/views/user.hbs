@@ -1,12 +1,13 @@
 <main role="main" class="container">
-
-    <div class="card">
+    <div class="card mb-3">
       <div class="card-header">
-        Billing
+        Usage
       </div>
       <div class="card-body">
-
-        <div class="progress">
+        <p>Download: {{raw_down}} MB</p>
+        <p>Upload: {{raw_up}} MB</p>
+        <p>Balance: ${{balance}}</p>
+        {{!-- <div class="progress">
           <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
         <p>Call</p>
@@ -19,7 +20,18 @@
         <div class="progress">
           <div class="progress-bar" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
-        <p>Data</p>
+        <p>Data</p> --}}
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header">
+        Transfer
+      </div>
+      <div class="card-body">
+        <p>To: </p>
+        <p>Amount: </p>
+        
       </div>
     </div>
 </main>
