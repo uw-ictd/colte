@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // include routes (controller)
 // to do: get ip address and redirect to users or admin   
 const redirectTo = (req, res, next) => {
-  res.redirect('/users');
+  res.redirect('/user');
 }
 
 fs.readdirSync('./routes').forEach(function(file) {
