@@ -1,7 +1,7 @@
 <main role="main" class="container">
   <div class="card mb-3">
     <div class="card-header">
-      Add Phone Number
+      Add New Phone
     </div>
     <div class="card-body">
       <div class="input-group mb-3">
@@ -16,14 +16,22 @@
       <thead>
         <tr>
           <th>IMSI</th>
-          <th>IMEI</th>
+          <th>MSISDN</th>
+          <th>IP Address</th>
+          <th>Upload</th>
+          <th>Download</th>
+          <th>Balance</th>
         </tr>
       </thead>
       <tbody>
-        {{#each user_list}}
+        {{#each customers_list}}
           <tr>
             <td>{{this.imsi}}</td>
-            <td>{{this.imei}}</td>
+            <td>{{this.msisdn}}</td>
+            <td>{{this.ip}}</td>
+            <td>{{this.raw_up}}</td>
+            <td>{{this.raw_down}}</td>
+            <td>{{this.balance}}</td>
           </tr>
         {{/each}}
       </tbody>
