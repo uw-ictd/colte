@@ -16,13 +16,17 @@ router.get('/', function(req, res, next) {
 });
   
 router.post('/transfer', function(req,res) {
+  var amount = req.body.amount;
+  var msisdn = req.body.msisdn;
+  
   // validate phone number
+  
   // validate amount 
 
   // queries - subtract, add 
 
   // return status
-  console.log(req.body);
+  console.log(amount + " to " + msisdn);
   res.redirect('/user');
 });
 module.exports = router;
