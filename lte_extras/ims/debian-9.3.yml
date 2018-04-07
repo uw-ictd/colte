@@ -4,7 +4,7 @@
     coltenv: "{{ ansible_env.COLTENV }}"
     username: "{{ ansible_env.COLTE_USER }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
-    ims_dir: "{{ colte_dir }}/ims"
+    ims_dir: "{{ colte_dir }}/lte_extras/ims"
 
   tasks:
     - name: check for environment vars
@@ -41,6 +41,7 @@
 #        name: clearwater/base
 #      become: yes
 
+    #     sudo docker-compose -f minimal-distributed.yaml up -d
     - name: docker compose clearwater ims (start group of services)
       docker_service:
         project_src: "{{ ims_dir }}/clearwater-docker"
