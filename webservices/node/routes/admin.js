@@ -11,4 +11,12 @@ router.get('/', function(req, res, next) {
   });
 });
 
+router.post('/', function(req, res) {
+  var newBalance = req.body.newBalance;
+
+  // call the Model and update the balance
+
+  res.redirect('/');
+})
+
 module.exports = router;

@@ -1,5 +1,5 @@
 <main role="main" class="container">
-  <div class="card mb-3">
+  {{!-- <div class="card mb-3">
     <div class="card-header">
       Add New Phone
     </div>
@@ -10,7 +10,7 @@
 
       <button type="button" class="btn btn-dark">Submit</button>
     </div>
-  </div>
+  </div> --}}
   <div class="card mb-3">
     <table class="table">
       <thead>
@@ -25,16 +25,25 @@
       </thead>
       <tbody>
         {{#each customers_list}}
-          <tr>
+          <tr id="{{this.imsi}}">
             <td>{{this.imsi}}</td>
             <td>{{this.msisdn}}</td>
             <td>{{this.ip}}</td>
             <td>{{this.raw_up}}</td>
             <td>{{this.raw_down}}</td>
-            <td>{{this.balance}}</td>
+            <td>
+              <div class="input-group">
+                <input type="text" class="balance form-control" value="{{this.balance}}"></input>
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary" type="button">Confirm</button>
+                </div>
+              </div>
+            </td>
           </tr>
         {{/each}}
       </tbody>
     </table>
   </div>
 </main>
+<script src="/javascripts/jquery-3.3.1.min.js"></script>
+<script src="/javascripts/admin.js"></script>
