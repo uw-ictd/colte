@@ -933,6 +933,17 @@ sgw_release_all_enb_related_information (
 
   OAILOG_FUNC_IN(LOG_SPGW_APP);
   if ( eps_bearer_entry_p) {
+    // SMS: Following 4 lines fix an issue where after a EUTRAN disconnect (i.e. UE idle timeout)
+    // and reattach, UE didn't have connectivity. This was because the old GTP tunnel was never torn down,
+    // therefore a new tunnel could not be created, and old tunnel had wrong TEID value for S1u.
+    // This fix tears down the GTP tunnel when release_acess_bearers is called below.
+    // NOTE: Does this create a problem for the network-paging-UE wake situation? Will the
+    // SPGW still see/buffer the packets destined for UE and know to wake? Do we care?
+    rv = gtp_mod_kernel_tunnel_del(eps_bearer_entry_p->s_gw_teid_S1u_S12_S4_up, eps_bearer_entry_p->enb_teid_S1u);
+    if (rv < 0) {
+      OAILOG_ERROR (LOG_SPGW_APP, "ERROR in tearing down old TUNNEL err=%d\n", rv);
+    }
+
     memset (&eps_bearer_entry_p->enb_ip_address_S1u, 0, sizeof (eps_bearer_entry_p->enb_ip_address_S1u));
     eps_bearer_entry_p->enb_teid_S1u = 0;
   }
