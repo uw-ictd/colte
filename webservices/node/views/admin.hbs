@@ -25,7 +25,7 @@
       </thead>
       <tbody>
         {{#each customers_list}}
-          <tr id="{{this.imsi}}">
+          <tr id="{{this.msisdn}}">
             <td>{{this.imsi}}</td>
             <td>{{this.msisdn}}</td>
             <td>{{this.ip}}</td>
@@ -35,7 +35,9 @@
               <div class="input-group">
                 <input type="text" class="balance form-control" value="{{this.balance}}"></input>
                 <div class="input-group-append">
-                  <button class="btn btn-outline-secondary" type="button">Confirm</button>
+                  <button class="btn btn-outline-secondary confirm" type="button">
+                    Confirm
+                  </button>
                 </div>
               </div>
             </td>
