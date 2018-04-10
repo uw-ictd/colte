@@ -5,8 +5,18 @@
     $(".balance").hover(function() {
       $(".balance").css('cursor', 'pointer');
     });
-    $(".balance").click(function() {
-      console.log($(this).parent()[0].id);
+    $(".confirm").click(function() {
+      var parents = $(this).closest('tr');
+      var msisdn = $(parents).attr('id');
+      var newBalance = $("#"+msisdn+" .balance").val();
+      
+      $.post("/admin", {msisdn: msisdn, newBalance: newBalance})
+        .done(function(data) {
+          alert("hi");
+        })
+        .fail(function() {
+          alert("fail");
+        });
     });
   }
 

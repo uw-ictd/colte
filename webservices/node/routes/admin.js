@@ -13,10 +13,11 @@ router.get('/', function(req, res, next) {
 
 router.post('/', function(req, res) {
   var newBalance = req.body.newBalance;
-
+  console.log(newBalance);
   // call the Model and update the balance
 
-  res.redirect('/');
+  // res.status(404);
+  res.end();
 })
 
 module.exports = router;
