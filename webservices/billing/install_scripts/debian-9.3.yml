@@ -47,6 +47,9 @@
       - n2disk
       - cento
 
+    - name: change ntopng admin password
+      shell: redis-cli SET ntopng.user.admin.password c67a0c16955c2629b51e94101b8639c0
+
     - name: dynamically write ntopng.conf
       lineinfile:
         path: "{{ billing_dir }}/ntopng.conf"
