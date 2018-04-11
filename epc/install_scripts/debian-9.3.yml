@@ -120,9 +120,9 @@
     - name: build epc with enbrains
       shell: |
         source oaienv
-        ./scripts/build_hss -e -D
-        ./scripts/build_mme -e -D
-        ./scripts/build_spgw -e -D
+        ./scripts/build_hss -e
+        ./scripts/build_mme -e
+        ./scripts/build_spgw -e
       args:
         chdir: "{{ epc_dir }}"
 
