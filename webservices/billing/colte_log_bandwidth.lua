@@ -10,7 +10,7 @@ require "lua_utils"
 sendHTTPContentTypeHeader('text/html')
 
 -- local host_ip = _GET["10.42.0.77"]
-local host_ip = "10.42.0.77"
+local host_ip = "192.168.151.2"
 
 interface.select(ifname)
 local host = interface.getHostInfo(host_ip)
