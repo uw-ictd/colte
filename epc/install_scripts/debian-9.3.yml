@@ -229,5 +229,5 @@
       become: yes
 
     - name: run iptables commands
-      shell: "{{ epc_dir }}"/iptables.sh
+      shell: "{{ epc_dir }}/spencer_configs/iptables.sh"
       become: yes

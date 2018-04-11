@@ -1,11 +1,5 @@
 #!/bin/bash
 
-if [ -z "$COLTENV" ]; then
-    echo "WARNING: Using default values from $COLTE_DIR/generate_coltenv. Make sure you look at them!"
-    SOURCEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    source $SOURCEDIR/../../generate_coltenv
-fi
-
 # Step 1: Install prereqs (ansible and python)
 sudo cp $COLTE_DIR/system_setup/debian-9.3/sources/ansible_sources.list /etc/apt/sources.list
 sudo apt-get update
@@ -21,5 +15,5 @@ sudo apt-get update
 
 sudo apt-get -y install vim curl
 
-$COLTE_DIR/system_setup/debian-9.3/ansible.sh
+#$COLTE_DIR/system_setup/debian-9.3/ansible.sh
 
