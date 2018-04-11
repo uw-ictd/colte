@@ -930,6 +930,7 @@ sgw_release_all_enb_related_information (
   void **unused_resultP)
 {
   sgw_eps_bearer_entry_t                 *eps_bearer_entry_p = (sgw_eps_bearer_entry_t *) dataP;
+  int                                     rv = RETURNok;
 
   OAILOG_FUNC_IN(LOG_SPGW_APP);
   if ( eps_bearer_entry_p) {
