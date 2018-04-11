@@ -21,7 +21,7 @@ echo "export COLTE_USER=$CURRENTUSER" | tee --append /usr/local/etc/colte/colten
 
 # Default password for everything database-related (mysql, phpmyadmin, etc.)
 # IMPORTANT: If you change this value AFTER installation, you also need to change it in hss.conf!!!
-echo "export COLTE_DBPASS=\"correcthorsebatterystaple\"" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_DBPASS=\"horse\"" | tee --append /usr/local/etc/colte/coltenv
 
 # The following are default values for phpMyAdmin
 echo "export COLTE_PMA_USERNAME=\"admin\"" | tee --append /usr/local/etc/colte/coltenv
@@ -38,9 +38,9 @@ echo "export COLTE_NT_PASS=\"correcthorse\"" | tee --append /usr/local/etc/colte
 
 # NOTE: THESE ARE NOT LIKELY TO WORK FOR YOUR CONFIG, SO MAKE SURE YOU CHANGE THEM
 # BEFORE YOU COMPILE/INSTALL EVERYTHING.
-echo "export COLTE_WAN_IFACE=enp4s0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_ENB_IFACE=wlp2s0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_ENB_IFACE_ADDR=192.168.150.1/24" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_WAN_IFACE=enp3s0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_ENB_IFACE=enp3s0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_ENB_IFACE_ADDR=172.28.5.93/24" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/colte/coltenv
 
 # add more ifconfig options here. Static IP defaults? DHCP, or don't care?
@@ -53,6 +53,7 @@ echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/co
 echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_ENBRAINS=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_EMERGENCY_WEBSERVICES=0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_IMS=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_NODE=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_BILLING=1" | tee --append /usr/local/etc/colte/coltenv
 
