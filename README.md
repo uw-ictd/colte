@@ -45,12 +45,13 @@ If you want/need to change any of the configurations after install, go to /usr/l
 
 # Exposed Webservices
 There are a bunch of different Web-based services exposed on this machine. Here's an authoritative list of the different services that are exposed, and what port they're assigned to by default.
-phpMyAdmin: http://localhost/phpmyadmin
-ntopng: http://localhost:3002/
-Node Webgui: http://localhost:7999/
-Emergency Home: http://localhost:8080/
-Emergency Rocketchat: http://localhost:8081/
-Emergency Xowa: http://localhost:8082/
+
+1. phpMyAdmin: http://localhost/phpmyadmin
+2. ntopng: http://localhost:3002/
+3. Node Webgui: http://localhost:7999/
+4. Emergency Home: http://localhost:8080/
+5. Emergency Rocketchat: http://localhost:8081/
+6. Emergency Xowa: http://localhost:8082/
 
 
 
