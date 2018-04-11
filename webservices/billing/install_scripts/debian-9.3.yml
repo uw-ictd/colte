@@ -33,7 +33,7 @@
         name: "{{ item }}"
       become: yes 
       with_items:
-      - linux-headers-4.9.0-5-amd64
+      - linux-headers-4.9.0-4-amd64
 
     - name: install ntopng and friends
       apt:
