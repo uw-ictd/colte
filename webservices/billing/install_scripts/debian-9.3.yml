@@ -58,7 +58,14 @@
       with_items:
       - {key: "-i=", value: "-i={{ wan_iface }}"}
       - {key: "-m=", value: "-m={{ lan_subnet }}"}
-      # MORE ENTRIES?!?
+
+    - name: dynamically write lua script with subnet
+      lineinfile:
+        path: "{{ billing_dir }}/colte_log_bandwidth.lua"
+        regexp: "{{ item.key }}"
+        line: "{{ item.value }}"
+      with_items:
+      - {key: "my_subnet =", value: "my_subnet = \"{{ lan_subnet }}\""}
 
     - name: copy ntopng.conf to /etc/ntopng.conf
       copy: 
