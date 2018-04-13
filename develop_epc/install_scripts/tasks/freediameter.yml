@@ -1,0 +1,71 @@
+# SMS TODO: CHECK FOR INSTALLATION AND ABORT IF WE ALREADY HAVE THIS INSTALLED
+
+# ---
+# - hosts: all
+
+#   tasks:
+    - name: freeDiameter - apt-get update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    - name: freeDiameter - apt-get necessary packages
+      apt:
+        name: "{{ item }}"            
+      with_items:
+      - autoconf
+      - automake
+      - bison
+      - build-essential
+      - cmake
+      - cmake-curses-gui
+      - debhelper
+      - flex
+      - g++
+      - gcc
+      - gdb
+      - libgcrypt-dev
+      - libgnutls28-dev
+      - libidn11-dev
+# I commented out these two lines to get compilation for both debian (default-) and ubuntu.
+# The correct lib should have already been installed by the epc playbook.
+# On the off-chance that you're compiling freediameter on its own, put the correct line back in. 
+#      - default-libmysqlclient-dev
+#      - libmysqlclient-dev
+      - libpq-dev
+      - libsctp1
+      - libsctp-dev
+      - libxml2-dev
+      - mercurial
+      - python-dev
+      - ssl-cert
+      - swig
+      become: yes
+
+    - name: freeDiameter - clone from my github copy
+      git:
+        repo: https://github.com/spencersevilla/freediameter.git
+        dest: "{{ packages_dir }}/freediameter"
+
+    - name: freeDiameter - create build directory
+      file:
+        path: "{{ packages_dir }}/freediameter/build"
+        state: directory
+        mode: 0755
+
+    - name: freeDiameter - cmake prep
+      shell: |
+        cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local ../
+      args:
+        chdir: "{{ packages_dir }}/freediameter/build"
+
+    - name: freeDiameter - build
+      make:
+        chdir: "{{ packages_dir }}/freediameter/build"
+
+    - name: freeDiameter - install
+      make:
+        chdir: "{{ packages_dir }}/freediameter/build"
+        target: install
+      become: yes

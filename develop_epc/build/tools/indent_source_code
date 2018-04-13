@@ -1,0 +1,65 @@
+#!/bin/bash
+################################################################################
+# Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The OpenAirInterface Software Alliance licenses this file to You under 
+# the Apache License, Version 2.0  (the "License"); you may not use this file
+# except in compliance with the License.  
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#-------------------------------------------------------------------------------
+# For more information about the OpenAirInterface (OAI) Software Alliance:
+#      contact@openairinterface.org
+################################################################################
+
+# file indent_source_code
+# brief
+# author Lionel Gauthier
+# company Eurecom
+# email: lionel.gauthier@eurecom.fr
+#
+################################
+# include helper functions
+################################
+THIS_SCRIPT_PATH=$(dirname $(readlink -f $0))
+source $THIS_SCRIPT_PATH/build_helper
+
+function main()
+{
+  local MAX_CODE_LENGTH=200
+  local INDENT_SPACES=2          
+  set_openair_env
+
+  command -v astyle -h >/dev/null 2>&1 || { echo >&2 "astyle required but it's not installed."; sudo apt-get install astyle; }
+  
+  find $OPENAIRCN_DIR/src/GTP* $OPENAIRCN_DIR/src/mme_app $OPENAIRCN_DIR/src/nas $OPENAIRCN_DIR/src/OAI* $OPENAIRCN_DIR/src/OPENAIRHSS $OPENAIRCN_DIR/src/S* $OPENAIRCN_DIR/src/udp $OPENAIRCN_DIR/src/utils \
+          -type f -name '*.c' -execdir astyle  --mode=c --convert-tabs --indent=spaces=2 -A14                            \
+          --indent-switches --indent-cases --indent-preproc-block --indent-preproc-define --indent-col1-comments         \
+          --break-blocks --delete-empty-lines --align-pointer=name                                                       \
+          --keep-one-line-blocks --keep-one-line-statements  --remove-comment-prefix                                     \
+          {} \+
+
+  command -v indent -h >/dev/null 2>&1 || { echo >&2 "indent required but it's not installed."; sudo apt-get install indent; }
+  
+  find $OPENAIRCN_DIR  -type f -name '*.c' -execdir indent --no-tabs --indent-level2                                     \
+          --blank-lines-after-declarations --blank-lines-after-commas --declaration-indentation40                        \
+          --space-after-if --space-after-for  --space-after-while --braces-on-if-line                                    \
+          --cuddle-else --cuddle-do-while --braces-on-struct-decl-line   --space-special-semicolon                       \
+          --braces-after-func-def-line --break-function-decl-args --procnames-start-lines --blank-lines-after-procedures \
+          --no-space-after-casts --comment-delimiters-on-blank-lines --start-left-side-of-comments                       \
+          --preprocessor-indentation2 --line-length240                                                                   \
+          {} \+
+
+
+}
+
+
+main "$@"
