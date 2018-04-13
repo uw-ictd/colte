@@ -52,10 +52,18 @@
     # cd ovs
     # git am /tmp/gtp/openair-cn-extras/ovs/0001-datapath-GPRS-Tunneling-Protocol-GTP-support.patch
     # git am /tmp/gtp/openair-cn-extras/ovs/0002-userspace-GPRS-Tunneling-Protocol-GTP-support.patch
+    - name: ovs - copy patches
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      with_items:
+      - {src: "{{ packages_dir }}/openair-cn-extras/ovs/0001-datapath-GPRS-Tunneling-Protocol-GTP-support.patch", dest: "{{ packages_dir }}/ovs/p1.patch"}
+      - {src: "{{ packages_dir }}/openair-cn-extras/ovs/0002-userspace-GPRS-Tunneling-Protocol-GTP-support.patch", dest: "{{ packages_dir }}/ovs/p2.patch"}
+
     - name: ovs - SHELL apply git amend patches
       shell: |
-        "git am {{ packages_dir }}/openair-cn-extras/ovs/0001-datapath-GPRS-Tunneling-Protocol-GTP-support.patch"
-        "git am {{ packages_dir }}/openair-cn-extras/ovs/0002-userspace-GPRS-Tunneling-Protocol-GTP-support.patch"
+        git am p1.patch
+        git am p2.patch
       args:
         chdir: "{{ packages_dir }}/ovs/"
 
