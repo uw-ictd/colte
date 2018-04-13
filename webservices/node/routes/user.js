@@ -3,7 +3,7 @@ var router = express.Router();
 var customer = require('../models/customer');
 
 router.get('/', function(req, res, next) {
-  var ip = '10.0.0.42';//req.ip;
+  var ip = '192.168.151.2';//req.ip;
   customer.find(ip).then((data) => {
     // console.log(data);
     res.render('user', {

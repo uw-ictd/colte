@@ -12,10 +12,11 @@
       
       $.post("/admin", {msisdn: msisdn, newBalance: newBalance})
         .done(function(data) {
-          alert("hi");
+          alert("Success");
+          document.location.reload();
         })
         .fail(function() {
-          alert("fail");
+          alert("Failed");
         });
     });
   }
