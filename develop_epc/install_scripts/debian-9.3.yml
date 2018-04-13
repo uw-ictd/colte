@@ -80,7 +80,7 @@
       - python-pexpect
       - libapache2-mod-php*
 # (first round of MME)
-      - gccxml
+      - castxml
       - guile-2.0-dev
       - libgmp-dev
       - libhogweed?
@@ -90,7 +90,7 @@
       - mscgen
       - check
       - python
-      - libgnutls-dev
+      - libgnutls28-dev
 # (second round of MME)
       - ethtool
       - iproute
@@ -122,9 +122,9 @@
     - name: build epc with enbrains
       shell: |
         source oaienv
-        ./scripts/build_hss -e
-        ./scripts/build_mme -e
-        ./scripts/build_spgw -e
+        ./scripts/build_hss
+        ./scripts/build_mme
+        ./scripts/build_spgw
       args:
         chdir: "{{ epc_dir }}"
 
