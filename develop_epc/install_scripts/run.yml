@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  vars:
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+
+    epc_dir: "{{ colte_dir }}/epc"
+    packages_dir: "{{ colte_dir }}/packages"
+    
+  tasks:
+    - name: check for environment vars
+      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
+
+    - name: start hss
+      shell: |
+        source oaienv
+        ./scripts/run_hss -D
+      args:
+        chdir: "{{ epc_dir }}"
+
+    - name: start mme
+      shell: |
+        source oaienv
+        ./scripts/run_mme -D
+      args:
+        chdir: "{{ epc_dir }}"
+
+    - name: start spgw
+      shell: |
+        source oaienv
+        ./scripts/run_spgw -D
+      args:
+        chdir: "{{ epc_dir }}"
