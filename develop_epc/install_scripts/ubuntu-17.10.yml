@@ -1,0 +1,171 @@
+---
+- hosts: localhost
+  vars:
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+
+    epc_dir: "{{ colte_dir }}/epc"
+    packages_dir: "{{ colte_dir }}/packages"
+    
+  tasks:
+    - name: check for environment vars
+      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
+    
+    - name: apt-get update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    - name: pre-configure phpmyadmin
+      debconf:
+        name: phpmyadmin 
+        question: "{{ item.name }}"
+        vtype: "{{ item.type }}"
+        value: "{{ item.val }}"
+      with_items:
+        - {name: phpmyadmin/dbconfig-install, type: boolean, val: true}
+        - {name: phpmyadmin/app-password-confirm, type: password, val: "{{ mysql_password }}"}
+        - {name: phpmyadmin/mysql/admin-pass, type: password, val: "{{ mysql_password }}"}
+        - {name: phpmyadmin/mysql/app-pass, type: password, val: "{{ mysql_password }}"}
+        - {name: phpmyadmin/reconfigure-webserver, type: multiselect, val: apache2}
+      become: yes
+
+    - name: first round of HSS apt install
+      apt:
+        name: "{{ item }}"
+      with_items:
+      - autoconf
+      - automake
+      - bison
+      - build-essential
+      - cmake
+      - cmake-curses-gui
+      - doxygen
+      - doxygen-gui
+      - flex
+      - gdb
+      - pkg-config
+      - git
+      - subversion
+      - libconfig8-dev
+      - libgcrypt11-dev
+      - libidn2-0-dev
+      - libidn11-dev
+      - libmysqlclient-dev
+      - libpthread-stubs0-dev
+      - libsctp1
+      - libsctp-dev
+      - libssl-dev
+      - libtool
+      - mysql-client
+      - mysql-server
+      - openssl
+      - nettle-dev
+      - nettle-bin
+      - python-mysqldb
+# (install database and phpmyadmin)
+      - php
+      - phpmyadmin
+      - python-pexpect
+      - libapache2-mod-php*
+# (first round of MME)
+      - castxml
+      - guile-2.0-dev
+      - libgmp-dev
+      - libhogweed?
+      - libgtk-3-dev
+      - libxml2
+      - libxml2-dev
+      - mscgen
+      - check
+      - python
+      - libgnutls28-dev
+# (second round of MME)
+      - ethtool
+      - iproute
+      - vlan
+      - tshark
+      - python-dev
+      - unzip
+      - iperf
+      become: yes
+
+    - name: MySQL Configs
+      mysql_user:
+        name: "{{ username }}"
+        password: "{{ mysql_password }}"
+        host: localhost
+        priv: '*.*:ALL'
+      become: yes
+
+# INSTALL FD
+    - import_tasks: tasks/freediameter.yml
+
+    # - name: second round of HSS apt install
+    #   apt:
+    #     name: "{{ item }}"
+    #   with_items:
+    #   - php
+    #   - phpmyadmin
+    #   - python-pexpect
+    #   - libapache2-mod-php*
+    #   become: yes
+
+    # - name: first round of MME apt install
+    #   apt:
+    #     name: "{{ item }}"
+    #   with_items:
+    #   - castxml
+    #   - guile-2.0-dev
+    #   - libgmp-dev
+    #   - libhogweed?
+    #   - libgtk-3-dev
+    #   - libxml2
+    #   - libxml2-dev
+    #   - mscgen
+    #   - check
+    #   - python
+    #   - libgnutls28-dev
+    #   become: yes
+
+    - import_tasks: tasks/asn1c.yml
+
+    - import_tasks: tasks/libgtpnl.yml
+
+    # - name: second round of MME apt install
+    #   apt:
+    #     name: "{{ item }}"
+    #   with_items:
+    #   - ethtool
+    #   - iproute
+    #   - vlan
+    #   - tshark
+    #   - python-dev
+    #   - unzip
+    #   - iperf
+    #   become: yes
+
+    - name: build epc with enbrains
+      shell: |
+        source oaienv
+        ./scripts/build_hss -e
+        ./scripts/build_mme -e
+        ./scripts/build_spgw -e
+      args:
+        chdir: "{{ epc_dir }}"
+
+    - name: post-install config
+      shell: |
+        source {{ epc_dir }}/oaienv
+        mkdir -p /usr/local/etc/oai
+        cp -rp {{ epc_dir }}/spencer_configs/*.conf /usr/local/etc/oai/
+        cp -rp {{ epc_dir }}/spencer_configs/freeDiameter /usr/local/etc/oai/
+        {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/oai/freeDiameter hss.OpenAir5G.Alliance
+        {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/oai/freeDiameter mme.OpenAir5G.Alliance
+        {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} colte_db {{ epc_dir }}/spencer_configs/sample_db.sql
+      become: yes
+
