@@ -25,15 +25,27 @@ router.post('/updatebalance', function(req, res) {
 router.post('/activation', function(req, res) {
   var msisdn = req.body.msisdn;
   var isActivated = req.body.isActivated;
-  // console.log(msisdn + " " + isActivated);
+
+  // authorize the request?
+
+  // validate msisdn and isActivated
+  // throw res.status(400) if parameters are invalid
   
-  customer.change_activation(msisdn, isActivated).then((data) => {
-    console.log(data);
+  customer.change_activation(msisdn, isActivated).then((data) => { 
+    // data is the number of row affected
+
+    // need to be printed in log file
+    console.log(msisdn + "'s activation is now " + isActivated);
+
+    res.status(200).end();
   })
   .catch((error) => {
-    console.log(error);
+    // need to be printed in log file
+    console.log(error.code);
+    console.log(error.sqlMessage);
+    
+    res.status(500).end();
   })
-  res.end();
 })
 
 module.exports = router;
