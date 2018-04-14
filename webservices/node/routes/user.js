@@ -16,17 +16,10 @@ router.get('/', function(req, res, next) {
 });
   
 router.post('/transfer', function(req,res) {
+  var ip = '192.168.151.2';
   var amount = req.body.amount;
   var msisdn = req.body.msisdn;
-  
-  // validate phone number
-  
-  // validate amount 
-
-  // queries - subtract, add 
-
-  // return status
-  console.log(amount + " to " + msisdn);
+  customer.transfer_balance(ip, msisdn, amount);
   res.redirect('/user');
 });
 module.exports = router;
