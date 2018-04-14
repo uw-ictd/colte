@@ -25,16 +25,16 @@
       var msisdn = $(parents).attr('id');
       var isChecked = $("#"+msisdn+" .activated").is(':checked');
       var isActivated = isChecked ? 1 : 0;
+      var message = isChecked ? "Activation" : "Deactivation";
 
       $.post("/admin/activation", {msisdn: msisdn, isActivated: isActivated})
         .done(function(data) {
-          alert("Success");
+          alert(message + " successful");
           document.location.reload();
         })
         .fail(function() {
-          alert("Failed");
+          alert(message + " failed");
         })
     });
   }
-
 })();
