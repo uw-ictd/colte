@@ -28,12 +28,13 @@
       var message = isChecked ? "Activation" : "Deactivation";
 
       $.post("/admin/activation", {msisdn: msisdn, isActivated: isActivated})
-        .done(function(data) {
+        .done(function() {
           alert(message + " successful");
           document.location.reload();
         })
         .fail(function() {
           alert(message + " failed");
+          document.location.reload();
         })
     });
   }
