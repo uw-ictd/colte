@@ -4,13 +4,14 @@ var knex = require('knex')(require('../knexfile')[env]);
 
 var customer = {
   all() {
-    return knex.select('imsi', 'msisdn', 'ip', 'raw_down', 'raw_up', 'balance').from('customers');
+    return knex.select('imsi', 'msisdn', 'ip', 'raw_down', 'raw_up', 'balance', 'activated').from('customers');
   },
   find(ip) {
     return knex.select('raw_up', 'raw_down', 'balance').where('ip', ip).from('customers');
   },
-  create() {
-
+  change_activation(msisdn, isActivated) {
+    console.log(isActivated);
+    return knex.update({activated: isActivated}).where('msisdn', msisdn).from('customers')
   },
   change_balance(ip, delta) {
     // IP should be switched with IMSI

@@ -1,3 +1,4 @@
+<link rel='stylesheet' href='/stylesheets/admin.css' />
 <main role="main" class="container">
   {{!-- <div class="card mb-3">
     <div class="card-header">
@@ -12,39 +13,50 @@
     </div>
   </div> --}}
   <div class="card mb-3">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>IMSI</th>
-          <th>MSISDN</th>
-          <th>IP Address</th>
-          <th>Upload</th>
-          <th>Download</th>
-          <th>Balance</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each customers_list}}
-          <tr id="{{this.msisdn}}">
-            <td>{{this.imsi}}</td>
-            <td>{{this.msisdn}}</td>
-            <td>{{this.ip}}</td>
-            <td>{{this.raw_up}}</td>
-            <td>{{this.raw_down}}</td>
-            <td>
-              <div class="input-group">
-                <input type="text" class="balance form-control" value="{{this.balance}}"></input>
-                <div class="input-group-append">
-                  <button class="btn btn-outline-secondary confirm" type="button">
-                    Confirm
-                  </button>
-                </div>
-              </div>
-            </td>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Activated</th>
+            <th>IMSI</th>
+            <th>MSISDN</th>
+            <th>IP Address</th>
+            <th>Upload</th>
+            <th>Download</th>
+            <th>Balance</th>
           </tr>
-        {{/each}}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {{#each customers_list}}
+            <tr id="{{this.msisdn}}">
+              {{!-- <td>{{this.activated}}</td> --}}
+              <td class="center">
+                {{#if this.activated}}
+                  <input type="checkbox" class="activated form-check-input" value="" checked>
+                {{else}}
+                  <input type="checkbox" class="activated form-check-input" value="">
+                {{/if}}
+              </td>
+              <td>{{this.imsi}}</td>
+              <td>{{this.msisdn}}</td>
+              <td>{{this.ip}}</td>
+              <td>{{this.raw_up}}</td>
+              <td>{{this.raw_down}}</td>
+              <td>
+                <div class="input-group">
+                  <input type="text" class="balance form-control" value="{{this.balance}}"></input>
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary confirm" type="button">
+                      Confirm
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
   </div>
 </main>
 <script src="/javascripts/jquery-3.3.1.min.js"></script>

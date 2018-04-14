@@ -11,17 +11,28 @@ router.get('/', function(req, res, next) {
   });
 });
 
-router.post('/', function(req, res) {
-  var ip = "192.168.151.5";
+router.post('/updatebalance', function(req, res) {
   var msisdn = req.body.msisdn;
-  var newBalance = req.body.newBalance;
-  var delta 
-  // call the Model and update the balance
-  customer.change_balance(ip, newBalance).then((data) => {
+  var delta = req.body.delta;
+
+  customer.change_balance(msisdn, delta).then((data) => {
+    // todo : handle error
+    // res.status(404);
+  })
+  res.end();
+})
+
+router.post('/activation', function(req, res) {
+  var msisdn = req.body.msisdn;
+  var isActivated = req.body.isActivated;
+  // console.log(msisdn + " " + isActivated);
+  
+  customer.change_activation(msisdn, isActivated).then((data) => {
     console.log(data);
   })
-  // res.status(404);
-  res.redirect(req.originalUrl);
+  .catch((error) => {
+    console.log(error);
+  })
   res.end();
 })
 
