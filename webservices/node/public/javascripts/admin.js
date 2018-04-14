@@ -10,7 +10,7 @@
       var msisdn = $(parents).attr('id');
       var newBalance = $("#"+msisdn+" .balance").val();
       
-      $.post("/admin", {msisdn: msisdn, newBalance: newBalance})
+      $.post("/admin/updatebalance", {msisdn: msisdn, newBalance: newBalance})
         .done(function(data) {
           alert("Success");
           document.location.reload();
@@ -18,6 +18,22 @@
         .fail(function() {
           alert("Failed");
         });
+    });
+
+    $(".activated").change(function () {
+      var parents = $(this).closest('tr');
+      var msisdn = $(parents).attr('id');
+      var isChecked = $("#"+msisdn+" .activated").is(':checked');
+      var isActivated = isChecked ? 1 : 0;
+
+      $.post("/admin/activation", {msisdn: msisdn, isActivated: isActivated})
+        .done(function(data) {
+          alert("Success");
+          document.location.reload();
+        })
+        .fail(function() {
+          alert("Failed");
+        })
     });
   }
 
