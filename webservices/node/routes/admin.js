@@ -15,11 +15,19 @@ router.post('/updatebalance', function(req, res) {
   var msisdn = req.body.msisdn;
   var delta = req.body.delta;
 
-  customer.change_balance(msisdn, delta).then((data) => {
+  customer.top_up(msisdn, delta).then((data) => {
+    
     // todo : handle error
     // res.status(404);
+    console.log(msisdn + "'s balance is update");
+    res.status(200).end();
   })
-  res.end();
+  .catch((error) => {
+    console.log(error.code);
+    console.log(error.sqlMessage);
+
+    res.status(500).end();
+  })
 })
 
 router.post('/activation', function(req, res) {
