@@ -12,6 +12,7 @@
             <th>Upload</th>
             <th>Download</th>
             <th>Balance</th>
+            <th>Top Up</th>
           </tr>
         </thead>
         <tbody>
@@ -30,9 +31,10 @@
               <td>{{this.ip}}</td>
               <td>{{this.raw_up}}</td>
               <td>{{this.raw_down}}</td>
+              <td>{{this.balance}}</td>
               <td>
                 <div class="input-group">
-                  <input type="text" class="balance form-control" value="{{this.balance}}"></input>
+                  <input type="text" class="balance form-control" value=""></input>
                   <div class="input-group-append">
                     <button class="btn btn-outline-secondary confirm" type="button">
                       Confirm

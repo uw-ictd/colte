@@ -8,9 +8,9 @@
     $(".confirm").click(function() {
       var parents = $(this).closest('tr');
       var msisdn = $(parents).attr('id');
-      var newBalance = $("#"+msisdn+" .balance").val();
+      var delta = $("#"+msisdn+" .balance").val();
       
-      $.post("/admin/updatebalance", {msisdn: msisdn, newBalance: newBalance})
+      $.post("/admin/updatebalance", {msisdn: msisdn, delta: delta})
         .done(function(data) {
           alert("Success");
           document.location.reload();

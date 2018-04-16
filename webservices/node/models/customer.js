@@ -14,6 +14,16 @@ var customer = {
     // verify msisdn count == 1, then update
     return knex.update({activated: isActivated}).where('msisdn', msisdn).from('customers');
   },
+  top_up(msisdn, delta) {
+    // TODO:
+    // verify msisdn count == 1
+    return knex.select('balance').where('msisdn', msisdn).from('customers')
+    .then(function(rows) {
+      var newBalance = parseInt(rows[0].balance) + parseInt(delta);
+      console.log(newBalance);
+      return knex.update({balance: newBalance}).where('msisdn', msisdn).from('customers');
+    })
+  },
   update_balance(imsi, delta) {
     //TODO:
     // should reject (not resolve) on failure?
