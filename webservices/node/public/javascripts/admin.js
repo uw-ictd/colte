@@ -12,11 +12,12 @@
       
       $.post("/admin/updatebalance", {msisdn: msisdn, delta: delta})
         .done(function(data) {
-          alert("Success");
+          alert("Top up successful");
           document.location.reload();
         })
         .fail(function() {
-          alert("Failed");
+          alert("Top up failed");
+          document.location.reload();
         });
     });
 
