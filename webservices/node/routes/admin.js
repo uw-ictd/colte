@@ -16,16 +16,11 @@ router.post('/updatebalance', function(req, res) {
   var delta = req.body.delta;
 
   customer.top_up(msisdn, delta).then((data) => {
-    
-    // todo : handle error
-    // res.status(404);
     console.log(msisdn + "'s balance is update");
     res.status(200).end();
   })
   .catch((error) => {
-    console.log(error.code);
-    console.log(error.sqlMessage);
-
+    console.log(error);
     res.status(500).end();
   })
 })
@@ -34,24 +29,16 @@ router.post('/activation', function(req, res) {
   var msisdn = req.body.msisdn;
   var isActivated = req.body.isActivated;
 
-  // authorize the request?
-
-  // validate msisdn and isActivated
-  // throw res.status(400) if parameters are invalid
+  if (isActivated != 1 && isActivated != 0) {
+    res.status(400).end();
+  }
   
   customer.change_activation(msisdn, isActivated).then((data) => { 
-    // data is the number of row affected
-
-    // need to be printed in log file
     console.log(msisdn + "'s activation is now " + isActivated);
-
     res.status(200).end();
   })
   .catch((error) => {
-    // need to be printed in log file
-    console.log(error.code);
-    console.log(error.sqlMessage);
-    
+    console.log(error);
     res.status(500).end();
   })
 })
