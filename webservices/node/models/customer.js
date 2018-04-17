@@ -9,7 +9,7 @@ var customer = {
   find(ip) {
     return knex.select('raw_up', 'raw_down', 'balance').where('ip', ip).from('customers');
   },
-  change_activation(msisdn, isActivated) {=
+  change_activation(msisdn, isActivated) {
     return knex.select('activated').where('msisdn', msisdn).from('customers')
     .catch(function (error) {
       throw new Error(error.sqlMessage);
