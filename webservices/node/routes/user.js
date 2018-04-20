@@ -19,7 +19,9 @@ router.post('/transfer', function(req,res) {
   var ip = '192.168.151.2';
   var amount = req.body.amount;
   var msisdn = req.body.msisdn;
-  customer.transfer_balance(ip, msisdn, amount);
+  customer.transfer_balance(ip, msisdn, amount).catch((error) => {
+    console.log("Transfer error: " + error);
+  });
   res.redirect('/user');
 });
 module.exports = router;
