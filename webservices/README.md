@@ -11,8 +11,8 @@ This folder is for essential webservices. Same basic architecture as emergency_w
 
 ## Todo
 ### /admin 
-- [ ] customer activation/deactivation
-- [ ] editing customer's balance 
+- [x] customer activation/deactivation
+- [x] editing customer's balance 
 - [ ] request log 
 ### /user 
 - [ ] credit transfer
