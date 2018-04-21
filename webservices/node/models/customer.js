@@ -10,18 +10,41 @@ var customer = {
     return knex.select('raw_up', 'raw_down', 'balance').where('ip', ip).from('customers');
   },
   change_activation(msisdn, isActivated) {
-    // TODO:
-    // verify msisdn count == 1, then update
-    return knex.update({activated: isActivated}).where('msisdn', msisdn).from('customers');
+    return knex.select('activated').where('msisdn', msisdn).from('customers')
+    .catch(function (error) {
+      throw new Error(error.sqlMessage);
+    })
+    .then(function(rows) {
+      if (rows.length != 1) {
+        console.log("msisdn error");
+        throw new Error("msisdn error");
+      }
+      return rows;
+    })
+    .then(function(rows) {
+      return knex.update({activated: isActivated}).where('msisdn', msisdn).from('customers')
+      .catch(function(error) {
+        throw new Error(error.sqlMessage);
+      });
+    })
   },
   top_up(msisdn, delta) {
-    // TODO:
-    // verify msisdn count == 1
     return knex.select('balance').where('msisdn', msisdn).from('customers')
+    .catch(function(error) {
+      throw new Error(error.sqlMessage);
+    })
+    .then(function(rows) {
+      if (rows.length != 1) {
+        throw new Error("msisdn error");
+      }
+      return rows;
+    })
     .then(function(rows) {
       var newBalance = parseInt(rows[0].balance) + parseInt(delta);
-      console.log(newBalance);
-      return knex.update({balance: newBalance}).where('msisdn', msisdn).from('customers');
+      return knex.update({balance: newBalance}).where('msisdn', msisdn).from('customers')
+      .catch(function (error) {
+        throw new Error(error.sqlMessage);
+      });
     })
   },
   // moves "amount" from the customer with sender_ip to the customer with receiver_msisdn
