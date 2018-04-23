@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Step 1: Install prereqs (ansible and python)
-sudo cp $COLTE_DIR/system_setup/debian-9.3/sources/ansible_sources.list /etc/apt/sources.list
+sudo cp $COLTE_DIR/system_setup/debian-9.4/sources/ansible_sources.list /etc/apt/sources.list
 sudo apt-get update
 sudo apt-get install -y --allow-unauthenticated ansible python2.7
 
@@ -10,10 +10,10 @@ sudo apt-get install -y --allow-unauthenticated ansible python2.7
 #sudo apt-get update
 
 # Step 2: Run Ansible script to do all the rest of the setup
-sudo cp $COLTE_DIR/system_setup/debian-9.3/sources/sources.list /etc/apt/sources.list
+sudo cp $COLTE_DIR/system_setup/debian-9.4/sources/sources.list /etc/apt/sources.list
 sudo apt-get update
 
 sudo apt-get -y install vim curl
 
-#$COLTE_DIR/system_setup/debian-9.3/ansible.sh
+#$COLTE_DIR/system_setup/debian-9.4/ansible.sh
 
