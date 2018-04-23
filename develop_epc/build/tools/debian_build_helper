@@ -840,7 +840,7 @@ check_install_hss_software() {
         python-pexpect \
         libapache2-mod-php*"
       ;;
-    "debian9.3")
+    "debian9.4")
       PACKAGE_LIST="\
         php \
         phpmyadmin \

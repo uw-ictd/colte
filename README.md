@@ -7,7 +7,7 @@ CoLTE is the Community LTE Project. It consists of several main elements working
 # Installation
 
 ## Basic System Requirements:
-Our main (best-tested) build environment is debian-9.3 (scratch) but I also have had success with Ubuntu-17.04 (now deprecated) and Ubuntu-17.10. We had problems with Ubuntu-16.04. Just use Debian.
+Our main (best-tested) build environment is debian-9.4 (scratch) but I also have had success with Ubuntu-17.04 (now deprecated) and Ubuntu-17.10. We had problems with Ubuntu-16.04. Just use Debian.
 
 ## Step 1: Configure Your Network
 Your machine will need two separate interfaces: one connected to the Internet (the upstream WAN) and another to connect to the eNodeB (the downstream LAN). Both of these interfaces must be already configured with IP addresses (doesn't matter if Static or Dynamic) and must be up. Note that if the LAN interface is down, you won't be able to start the MME, and if the WAN interface is down, you won't be able to start the SPGW.
@@ -78,7 +78,7 @@ There are a bunch of different Web-based services exposed on this machine. Here'
 
 <!-- If you want to install colte on an already existing/configured system, you must first install python-2.7 and ansible-2.4 or greater. Please note that installing Ansible >= 2.4 can be as straightforward as specifying the version to apt-get, or a major pain if you're on a LTS version that doesn't want to support it (a lot of releases currently only go to ansible-2.2). -->
 
-<!-- With debian-9.3, for example, this can be accomplished by adding "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" to /etc/sources.list and then sudo running "apt-get install -y --allow-unauthenticated ansible". This might eventually (will inevitably?) change, version control is frustrating, YMMV. -->
+<!-- With debian-9.4, for example, this can be accomplished by adding "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" to /etc/sources.list and then sudo running "apt-get install -y --allow-unauthenticated ansible". This might eventually (will inevitably?) change, version control is frustrating, YMMV. -->
 
 <!-- Once ansible-2.4 or greater is installed, look at $COLTE_DIR/system_setup/$OS/ansible/main_playbook.yml to edit the username and mysql_user variables to be whatever user you want to install the system for. You can also change the mysql_password variable here as well (HIGHLY RECOMMENDED) but note that if you do, you'll also need to change it in /configs/hss.conf. -->
 
