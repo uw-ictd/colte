@@ -224,8 +224,9 @@ emm_send_attach_accept (
     OAILOG_DEBUG (LOG_NAS_EMM,
                   "EMMAS-SAP - Unused attach type defaults to EPS attach\n");
   case EMM_ATTACH_TYPE_EPS:
-    emm_msg->epsattachresult = EPS_ATTACH_RESULT_EPS;
+    emm_msg->epsattachresult = EPS_ATTACH_RESULT_EPS_IMSI;
     OAILOG_DEBUG (LOG_NAS_EMM, "EMMAS-SAP - EPS attach\n");
+    OAILOG_DEBUG (LOG_NAS_EMM, "EMMAS-SAP - SPENCER: FORCING IMSI SUPPORT HERE\n");
     break;
   case EMM_ATTACH_TYPE_EMERGENCY:  // We should not reach here
     OAILOG_ERROR (LOG_NAS_EMM,
