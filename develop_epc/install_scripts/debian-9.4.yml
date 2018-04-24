@@ -211,7 +211,9 @@
       - {src: "{{ epc_dir }}/spencer_configs/mme.conf", dst: "/usr/local/etc/colte/"}
       # - {src: "{{ epc_dir }}/spencer_configs/mme_fd.conf", dst: "/usr/local/etc/colte/"}
       - {src: "{{ epc_dir }}/spencer_configs/spgw.conf", dst: "/usr/local/etc/colte/"}
-      - {src: "{{ epc_dir }}/spencer_configs/freeDiameter", dst: "/usr/local/etc/colte/"}
+      - {src: "{{ epc_dir }}/spencer_configs/freeDiameter/acl.conf", dst: "/usr/local/etc/colte/freeDiameter"}
+      - {src: "{{ epc_dir }}/spencer_configs/freeDiameter/hss_fd.conf", dst: "/usr/local/etc/colte/freeDiameter"}
+      - {src: "{{ epc_dir }}/spencer_configs/freeDiameter/mme_fd.conf", dst: "/usr/local/etc/colte/freeDiameter"}
 
     - name: generate s6a certificates
       shell: |
