@@ -260,6 +260,7 @@ void sgw_cm_free_pdn_connection (sgw_pdn_connection_t * pdn_connectionP)
     }
     for (int ebix = 0; ebix < BEARERS_PER_UE; ebix++) {
       sgw_free_sgw_eps_bearer_context(&pdn_connectionP->sgw_eps_bearers_array[ebix]);
+      pdn_connectionP->sgw_eps_bearers_array[ebix] = NULL;
     }
   }
 }
@@ -421,6 +422,7 @@ sgw_cm_remove_eps_bearer_entry (
   sgw_eps_bearer_ctxt_t * sgw_eps_bearer_ctxt = sgw_pdn_connection->sgw_eps_bearers_array[EBI_TO_INDEX(ebi)];
   if (sgw_eps_bearer_ctxt) {
     sgw_free_sgw_eps_bearer_context(&sgw_eps_bearer_ctxt);
+    sgw_pdn_connection->sgw_eps_bearers_array[EBI_TO_INDEX(ebi)] = NULL;
     return RETURNok;
   }
   return RETURNerror;
