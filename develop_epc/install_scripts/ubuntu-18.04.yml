@@ -80,7 +80,7 @@
       - python-pexpect
       - libapache2-mod-php*
 # (first round of MME)
-      - castxml
+      - gccxml
       - guile-2.0-dev
       - libgmp-dev
       - libhogweed?

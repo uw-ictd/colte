@@ -24,7 +24,7 @@
 # author Laurent Thomas, Lionel GAUTHIER
 #
 #######################################
-SUPPORTED_DISTRO="Ubuntu 14.04/16.04, CentOS 7, RHEL 7"
+SUPPORTED_DISTRO="Ubuntu 14.04/18.04, CentOS 7, RHEL 7"
 if [ ! -f /etc/os-release ]; then
   echo_fatal "No /etc/os-release file found. You're likely on an unsupported distro."
 fi
@@ -84,7 +84,7 @@ echo_info()    { cecho "$*" $blue         ;}
 # If we can't check the distribution, it returns "Unknown"
 # This function return always true as exit code by design
 # Examples:
-#   ubuntu16.04
+#   ubuntu18.04
 #   debian8.5
 get_distribution_release() {
     if [[ ! -z "$OS_DISTRO$OS_RELEASE" ]]; then
@@ -97,7 +97,7 @@ get_distribution_release() {
 check_supported_distribution() {
     local distribution=$(get_distribution_release)
     case "$distribution" in
-        "ubuntu16.04") return 0 ;;
+        "ubuntu18.04") return 0 ;;
         "ubuntu14.04") return 0 ;;
         "rhel7")       return 0 ;;
         "centos7")     return 0 ;;
@@ -839,7 +839,7 @@ check_install_hss_software() {
         python-pexpect \
         libapache2-mod-php*"
       ;;
-    "ubuntu16.04")
+    "ubuntu18.04")
       PACKAGE_LIST="\
         php \
         phpmyadmin \
