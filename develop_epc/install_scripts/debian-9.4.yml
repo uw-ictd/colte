@@ -145,7 +145,7 @@
 
     # NEW FOR OAI/DEVELOP BRANCH
     - import_tasks: tasks/liblfds.yml
-    - import_tasks: tasks/ovs.yml
+#    - import_tasks: tasks/ovs.yml
 
     - name: build epc 
       shell: |
