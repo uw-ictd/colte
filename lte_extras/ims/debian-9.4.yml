@@ -11,21 +11,46 @@
       fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
       when: coltenv is not defined
 
-    - name: apt-get docker-compose
+    - name: install virtualbox
       apt:
-        name: docker-compose
-      become: yes
-  
-    # (since stretch, apt-get docker doesn't work anymore so we have to manual install)
-    - name: manually download/install docker deb
-      apt: 
-        deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
-      become: yes
+        name: virtualbox
 
-    - name: git clone clearwater-docker
-      git:
-        repo: https://github.com/Metaswitch/clearwater-docker.git
-        dest: "{{ ims_dir }}/clearwater-docker"
+# STEP ONE: sudo add the line "deb http://download.virtualbox.org/virtualbox/debian stretch contrib"
+# to the file /etc/apt/sources.list.d/virtualbox.list
+# NEXT STEPS:
+# wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
+# apt update
+# apt install virtualbox-5.2
+
+# NEXT: DOWNLOAD THE CLEARWATER IMS OVF FILE
+
+# NEXT: IMPORT THE OVF FILE INTO VIRTUALBOX
+
+# NEXT: START THE IMS VM
+
+# NEXT: HOW TO CONFIGURE??!?!?!? VAGRANT PLUS OTHER ANSIBLE SCRIPT?!?!?!?
+
+
+    # WARNING: I WAS NEVER ABLE TO GET CLEARWATER-DOCKER USEFULLY WORKING. THE BELOW
+    # COMMENTED-OUT CODE WORKS TO INSTALL/SETUP/RUN THE DOCKER IMAGES, BUT THEY SUCK.
+    # DISREGARD CODE, I'M NOW USING THE VIRTUALBOX ALL-IN-ONE OVS FILE INSTEAD.
+
+    # - name: apt-get docker-compose
+    #   apt:
+    #     name: docker-compose
+    #   become: yes
+
+    # (since stretch, apt-get docker doesn't work anymore so we have to manual install)
+    # - name: manually download/install docker deb
+    #   apt: 
+    #     deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
+    #   become: yes
+
+
+    # - name: git clone clearwater-docker
+    #   git:
+    #     repo: https://github.com/Metaswitch/clearwater-docker.git
+    #     dest: "{{ ims_dir }}/clearwater-docker"
 
     # - name: build clearwater ims docker images
     #   shell: |
@@ -35,15 +60,15 @@
     #     chdir: "{{ ims_dir }}/clearwater-docker"
     #   become: yes
 
-    - name: docker build clearwater ims
-      docker_image:
-        path: "{{ ims_dir }}/clearwater-docker/base"
-        name: clearwater/base
-      become: yes
+    #- name: docker build clearwater ims
+    #  docker_image:
+    #    path: "{{ ims_dir }}/clearwater-docker/base"
+    #    name: clearwater/base
+    #  become: yes
 
     #     sudo docker-compose -f minimal-distributed.yaml up -d
-    - name: docker compose clearwater ims (start group of services)
-      docker_service:
-        project_src: "{{ ims_dir }}/clearwater-docker"
-        files: minimal-distributed.yaml
-      become: yes
+    #- name: docker compose clearwater ims (start group of services)
+    #  docker_service:
+    #    project_src: "{{ ims_dir }}/clearwater-docker"
+    #    files: minimal-distributed.yaml
+    #  become: yes
