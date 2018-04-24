@@ -13,7 +13,7 @@
       - libssl-dev
       - libcap-ng-dev
       - python-pip
-      - linux-headers-4.9.0-4-amd64
+      - linux-headers-4.9.0-6-amd64
       become: yes
 
     # pip install six

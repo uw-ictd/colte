@@ -109,25 +109,6 @@
         priv: '*.*:ALL'
       become: yes
 
-    - import_tasks: tasks/freediameter.yml
-
-    - import_tasks: tasks/asn1c.yml
-
-    - import_tasks: tasks/libgtpnl.yml
-
-    # NEW FOR OAI/DEVELOP BRANCH
-    - import_tasks: tasks/liblfds.yml
-    - import_tasks: tasks/ovs.yml
-
-    - name: build epc 
-      shell: |
-        source oaienv
-        ./scripts/build_hss
-        ./scripts/build_mme
-        ./scripts/build_spgw
-      args:
-        chdir: "{{ epc_dir }}"
-
     - name: ensure log directory exists
       file:
         path: /var/log/colte
@@ -155,6 +136,25 @@
         group: "{{ username }}"
         mode: 0755
       become: yes
+
+    - import_tasks: tasks/freediameter.yml
+
+    - import_tasks: tasks/asn1c.yml
+
+    - import_tasks: tasks/libgtpnl.yml
+
+    # NEW FOR OAI/DEVELOP BRANCH
+    - import_tasks: tasks/liblfds.yml
+    - import_tasks: tasks/ovs.yml
+
+    - name: build epc 
+      shell: |
+        source oaienv
+        ./scripts/build_hss
+        ./scripts/build_mme
+        ./scripts/build_spgw
+      args:
+        chdir: "{{ epc_dir }}"
 
 # {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} colte_db {{ epc_dir }}/spencer_configs/sample_db.sql
     - name: install sample_db into mysql
