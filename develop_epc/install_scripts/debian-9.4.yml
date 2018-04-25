@@ -127,6 +127,15 @@
         mode: 0755
       become: yes
 
+    - name: ensure freeDiameter directory exists
+      file:
+        path: /usr/local/etc/colte/freeDiameter
+        state: directory
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0755
+      become: yes
+
     - name: symlink for oai scripts (needed until we remake build/run scripts)
       file:
         src: /usr/local/etc/colte
@@ -150,9 +159,9 @@
     - name: build epc 
       shell: |
         source oaienv
-        ./scripts/build_hss
-        ./scripts/build_mme
-        ./scripts/build_spgw
+        ./scripts/build_hss -c
+        ./scripts/build_mme -c
+        ./scripts/build_spgw -c
       args:
         chdir: "{{ epc_dir }}"
 
