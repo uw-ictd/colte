@@ -26,11 +26,19 @@
   \email: lionel.gauthier@eurecom.fr
 */
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+
 #include "bstrlib.h"
+
 #include "assertions.h"
 #include "log.h"
-#include "pgw_pco.h"
 #include "common_defs.h"
+#include "common_types.h"
+#include "3gpp_24.008.h"
+#include "3gpp_29.274.h"
+#include "pgw_pco.h"
 #include "rfc_1877.h"
 #include "rfc_1332.h"
 #include "spgw_config.h"
@@ -51,10 +59,10 @@ int pgw_pco_push_protocol_or_container_id(protocol_configuration_options_t * con
 //------------------------------------------------------------------------------
 int pgw_process_pco_request_ipcp(protocol_configuration_options_t * const pco_resp, const pco_protocol_or_container_id_t * const poc_id)
 {
-  uint32_t                                ipcp_dns_prim_ipv4_addr = 0xFFFFFFFF;
-  uint32_t                                ipcp_dns_sec_ipv4_addr = 0xFFFFFFFF;
-  uint32_t                                ipcp_out_dns_prim_ipv4_addr = 0xFFFFFFFF;
-  uint32_t                                ipcp_out_dns_sec_ipv4_addr = 0xFFFFFFFF;
+  in_addr_t                               ipcp_dns_prim_ipv4_addr = INADDR_NONE;
+  in_addr_t                               ipcp_dns_sec_ipv4_addr = INADDR_NONE;
+  in_addr_t                               ipcp_out_dns_prim_ipv4_addr = INADDR_NONE;
+  in_addr_t                               ipcp_out_dns_sec_ipv4_addr = INADDR_NONE;
   pco_protocol_or_container_id_t          poc_id_resp = {0};
   size_t                                  ipcp_req_remaining_length = poc_id->length;
   size_t                                  pco_in_index = 0;
@@ -107,14 +115,14 @@ int pgw_process_pco_request_ipcp(protocol_configuration_options_t * const pco_re
          */
         OAILOG_TRACE (LOG_SPGW_APP, "PCO: Protocol identifier IPCP option PRIMARY_DNS_SERVER_IP_ADDRESS length %u\n", ipcp_req_option_length);
         if (ipcp_req_option_length >= 6) {
-          ipcp_dns_prim_ipv4_addr = (((uint32_t) poc_id->contents->data[pco_in_index + 2]) << 24) |
+          ipcp_dns_prim_ipv4_addr = htonl((((uint32_t) poc_id->contents->data[pco_in_index + 2]) << 24) |
               (((uint32_t) poc_id->contents->data[pco_in_index + 3]) << 16) |
               (((uint32_t) poc_id->contents->data[pco_in_index + 4]) << 8) |
-              (((uint32_t) poc_id->contents->data[pco_in_index + 5]));
+              (((uint32_t) poc_id->contents->data[pco_in_index + 5])));
           OAILOG_DEBUG (LOG_SPGW_APP, "PCO: Protocol identifier IPCP option SECONDARY_DNS_SERVER_IP_ADDRESS ipcp_dns_prim_ipv4_addr 0x%x\n", ipcp_dns_prim_ipv4_addr);
 
-          if (ipcp_dns_prim_ipv4_addr == 0) {
-            ipcp_out_dns_prim_ipv4_addr = spgw_config.pgw_config.ipv4.default_dns;
+          if (ipcp_dns_prim_ipv4_addr == INADDR_ANY) {
+            ipcp_out_dns_prim_ipv4_addr = spgw_config.pgw_config.ipv4.default_dns.s_addr;
             /* RFC 1877:
              * Primary-DNS-Address
              *  The four octet Primary-DNS-Address is the address of the primary
@@ -122,9 +130,9 @@ int pgw_process_pco_request_ipcp(protocol_configuration_options_t * const pco_re
              *  set to zero, it indicates an explicit request that the peer
              *  provide the address information in a Config-Nak packet. */
             ipcp_out_code = IPCP_CODE_CONFIGURE_NACK;
-          } else if (spgw_config.pgw_config.ipv4.default_dns != ipcp_dns_prim_ipv4_addr) {
+          } else if (spgw_config.pgw_config.ipv4.default_dns.s_addr != ipcp_dns_prim_ipv4_addr) {
             ipcp_out_code = IPCP_CODE_CONFIGURE_NACK;
-            ipcp_out_dns_prim_ipv4_addr = spgw_config.pgw_config.ipv4.default_dns;
+            ipcp_out_dns_prim_ipv4_addr = spgw_config.pgw_config.ipv4.default_dns.s_addr;
           } else {
             ipcp_out_dns_prim_ipv4_addr = ipcp_dns_prim_ipv4_addr;
           }
@@ -155,18 +163,18 @@ int pgw_process_pco_request_ipcp(protocol_configuration_options_t * const pco_re
         OAILOG_DEBUG (LOG_SPGW_APP, "PCO: Protocol identifier IPCP option SECONDARY_DNS_SERVER_IP_ADDRESS length %u\n", ipcp_req_option_length);
 
         if (ipcp_req_option_length >= 6) {
-          ipcp_dns_sec_ipv4_addr = (((uint32_t) poc_id->contents->data[pco_in_index + 2]) << 24) |
+          ipcp_dns_sec_ipv4_addr = htonl((((uint32_t) poc_id->contents->data[pco_in_index + 2]) << 24) |
               (((uint32_t) poc_id->contents->data[pco_in_index + 3]) << 16) |
               (((uint32_t) poc_id->contents->data[pco_in_index + 4]) << 8) |
-              (((uint32_t) poc_id->contents->data[pco_in_index + 5]));
+              (((uint32_t) poc_id->contents->data[pco_in_index + 5])));
           OAILOG_DEBUG (LOG_SPGW_APP, "PCO: Protocol identifier IPCP option SECONDARY_DNS_SERVER_IP_ADDRESS ipcp_dns_sec_ipv4_addr 0x%x\n", ipcp_dns_sec_ipv4_addr);
 
-          if (ipcp_dns_sec_ipv4_addr == 0) {
-            ipcp_out_dns_sec_ipv4_addr = spgw_config.pgw_config.ipv4.default_dns_sec;
+          if (ipcp_dns_sec_ipv4_addr == INADDR_ANY) {
+            ipcp_out_dns_sec_ipv4_addr = spgw_config.pgw_config.ipv4.default_dns_sec.s_addr;
             ipcp_out_code = IPCP_CODE_CONFIGURE_NACK;
-          } else if (spgw_config.pgw_config.ipv4.default_dns_sec != ipcp_dns_sec_ipv4_addr) {
+          } else if (spgw_config.pgw_config.ipv4.default_dns_sec.s_addr != ipcp_dns_sec_ipv4_addr) {
             ipcp_out_code = IPCP_CODE_CONFIGURE_NACK;
-            ipcp_out_dns_sec_ipv4_addr = spgw_config.pgw_config.ipv4.default_dns_sec;
+            ipcp_out_dns_sec_ipv4_addr = spgw_config.pgw_config.ipv4.default_dns_sec.s_addr;
           } else {
             ipcp_out_dns_sec_ipv4_addr = ipcp_dns_sec_ipv4_addr;
           }
@@ -203,7 +211,7 @@ int pgw_process_pco_request_ipcp(protocol_configuration_options_t * const pco_re
 //------------------------------------------------------------------------------
 int pgw_process_pco_dns_server_request(protocol_configuration_options_t * const pco_resp, const pco_protocol_or_container_id_t * const poc_id)
 {
-  uint32_t                                ipcp_out_dns_prim_ipv4_addr = spgw_config.pgw_config.ipv4.default_dns;
+  in_addr_t                               ipcp_out_dns_prim_ipv4_addr = spgw_config.pgw_config.ipv4.default_dns.s_addr;
   pco_protocol_or_container_id_t          poc_id_resp = {0};
   uint8_t                                 dns_array[4];
 

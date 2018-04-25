@@ -19,27 +19,20 @@
  *      contact@openairinterface.org
  */
 
+/*! \file mme_app_itti_messaging.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 
 #ifndef FILE_MME_APP_ITTI_MESSAGING_SEEN
 #define FILE_MME_APP_ITTI_MESSAGING_SEEN
 
-#include "msc.h"
-
-static inline void mme_app_itti_ue_context_release(
-    struct ue_context_s *ue_context_p, enum s1cause cause)
-{
-  MessageDef *message_p;
-
-  message_p = itti_alloc_new_message(TASK_MME_APP, S1AP_UE_CONTEXT_RELEASE_COMMAND);
-  memset ((void *)&message_p->ittiMsg.s1ap_ue_context_release_command, 0, sizeof (itti_s1ap_ue_context_release_command_t));
-  S1AP_UE_CONTEXT_RELEASE_COMMAND (message_p).mme_ue_s1ap_id = ue_context_p->mme_ue_s1ap_id;
-  S1AP_UE_CONTEXT_RELEASE_COMMAND (message_p).enb_ue_s1ap_id = ue_context_p->enb_ue_s1ap_id;
-  S1AP_UE_CONTEXT_RELEASE_COMMAND (message_p).cause = cause;
-  MSC_LOG_TX_MESSAGE (MSC_MMEAPP_MME, MSC_S1AP_MME, NULL, 0, "0 S1AP_UE_CONTEXT_RELEASE_COMMAND mme_ue_s1ap_id %06" PRIX32 " ",
-                      S1AP_UE_CONTEXT_RELEASE_COMMAND (message_p).mme_ue_s1ap_id);
-  itti_send_msg_to_task (TASK_S1AP, INSTANCE_DEFAULT, message_p);
-  OAILOG_FUNC_OUT (LOG_MME_APP);
-}
+void mme_app_itti_ue_context_release(struct ue_mm_context_s *ue_context_p, enum s1cause cause);
+int mme_app_notify_s1ap_ue_context_released(const mme_ue_s1ap_id_t   ue_idP);
+int mme_app_send_s11_release_access_bearers_req (struct ue_mm_context_s *const ue_mm_context, const pdn_cid_t pdn_index);
+int mme_app_send_s11_create_session_req (struct ue_mm_context_s *const ue_mm_context, const pdn_cid_t pdn_cid);
 
 #endif /* FILE_MME_APP_ITTI_MESSAGING_SEEN */

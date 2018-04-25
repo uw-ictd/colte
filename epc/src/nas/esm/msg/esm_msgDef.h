@@ -37,7 +37,6 @@ Description Defines identifiers of the EPS Session Management messages
 #ifndef __ESM_MSGDEF_H__
 #define __ESM_MSGDEF_H__
 
-#include <stdint.h>
 #include <asm/byteorder.h>
 
 /****************************************************************************/

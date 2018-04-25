@@ -20,15 +20,17 @@
  */
 
 
+/*! \file s1ap_mme_nas_procedures.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #ifndef FILE_S1AP_MME_NAS_PROCEDURES_SEEN
 #define FILE_S1AP_MME_NAS_PROCEDURES_SEEN
-#include <stdint.h>
 
 #include "common_defs.h"
-#include "bstrlib.h"
-#include "s1ap_ies_defs.h"
-#include "intertask_interface.h"
 
 /** \brief Handle an Initial UE message.
  * \param assocId lower layer assoc id (SCTP)
@@ -71,5 +73,8 @@ int s1ap_generate_downlink_nas_transport (
 void
 s1ap_handle_mme_ue_id_notification (
   const itti_mme_app_s1ap_mme_ue_id_notification_t * const notification_p);
+
+int s1ap_generate_s1ap_e_rab_setup_req (itti_s1ap_e_rab_setup_req_t * const e_rab_setup_req);
+
 
 #endif /* FILE_S1AP_MME_NAS_PROCEDURES_SEEN */

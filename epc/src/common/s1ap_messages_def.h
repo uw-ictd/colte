@@ -28,6 +28,13 @@
  */
 //WARNING: Do not include this header directly. Use intertask_interface.h instead.
 
+/*! \file s1ap_messages_def.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
+
 /* Messages for S1AP logging */
 MESSAGE_DEF(S1AP_UPLINK_NAS_LOG            , MESSAGE_PRIORITY_MED, IttiMsgText                      , s1ap_uplink_nas_log)
 MESSAGE_DEF(S1AP_UE_CAPABILITY_IND_LOG     , MESSAGE_PRIORITY_MED, IttiMsgText                      , s1ap_ue_capability_ind_log)
@@ -39,6 +46,7 @@ MESSAGE_DEF(S1AP_INITIAL_UE_MESSAGE_LOG    , MESSAGE_PRIORITY_MED, IttiMsgText  
 MESSAGE_DEF(S1AP_UE_CONTEXT_RELEASE_REQ_LOG, MESSAGE_PRIORITY_MED, IttiMsgText                      , s1ap_ue_context_release_req_log)
 MESSAGE_DEF(S1AP_UE_CONTEXT_RELEASE_COMMAND_LOG, MESSAGE_PRIORITY_MED, IttiMsgText                  , s1ap_ue_context_release_command_log)
 MESSAGE_DEF(S1AP_UE_CONTEXT_RELEASE_LOG    , MESSAGE_PRIORITY_MED, IttiMsgText                      , s1ap_ue_context_release_log)
+MESSAGE_DEF(S1AP_ENB_RESET_LOG             , MESSAGE_PRIORITY_MED, IttiMsgText                      , s1ap_enb_reset_log)
 
 MESSAGE_DEF(S1AP_UE_CAPABILITIES_IND       ,  MESSAGE_PRIORITY_MED, itti_s1ap_ue_cap_ind_t                ,  s1ap_ue_cap_ind)
 MESSAGE_DEF(S1AP_ENB_DEREGISTERED_IND      ,  MESSAGE_PRIORITY_MED, itti_s1ap_eNB_deregistered_ind_t      ,  s1ap_eNB_deregistered_ind)
@@ -47,3 +55,8 @@ MESSAGE_DEF(S1AP_UE_CONTEXT_RELEASE_REQ    ,  MESSAGE_PRIORITY_MED, itti_s1ap_ue
 MESSAGE_DEF(S1AP_UE_CONTEXT_RELEASE_COMMAND,  MESSAGE_PRIORITY_MED, itti_s1ap_ue_context_release_command_t,  s1ap_ue_context_release_command)
 MESSAGE_DEF(S1AP_UE_CONTEXT_RELEASE_COMPLETE, MESSAGE_PRIORITY_MED, itti_s1ap_ue_context_release_complete_t, s1ap_ue_context_release_complete)
 MESSAGE_DEF(S1AP_NAS_DL_DATA_REQ           ,  MESSAGE_PRIORITY_MED, itti_s1ap_nas_dl_data_req_t           ,  s1ap_nas_dl_data_req)
+MESSAGE_DEF(S1AP_INITIAL_UE_MESSAGE         , MESSAGE_PRIORITY_MED, itti_s1ap_initial_ue_message_t  ,        s1ap_initial_ue_message)
+MESSAGE_DEF(S1AP_E_RAB_SETUP_REQ            , MESSAGE_PRIORITY_MED, itti_s1ap_e_rab_setup_req_t  ,           s1ap_e_rab_setup_req)
+MESSAGE_DEF(S1AP_E_RAB_SETUP_RSP            , MESSAGE_PRIORITY_MED, itti_s1ap_e_rab_setup_rsp_t  ,           s1ap_e_rab_setup_rsp)
+MESSAGE_DEF(S1AP_ENB_INITIATED_RESET_REQ   ,  MESSAGE_PRIORITY_MED, itti_s1ap_enb_initiated_reset_req_t   ,  s1ap_enb_initiated_reset_req)
+MESSAGE_DEF(S1AP_ENB_INITIATED_RESET_ACK   ,  MESSAGE_PRIORITY_MED, itti_s1ap_enb_initiated_reset_ack_t   ,  s1ap_enb_initiated_reset_ack)

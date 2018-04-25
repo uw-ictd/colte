@@ -48,24 +48,24 @@
 extern "C" {
 #endif
 
-struct NwGtpv2cStack;
+struct nw_gtpv2c_stack_s;
 
-typedef struct NwGtpv2cTunnel {
-  uint32_t                        teid;
-  uint32_t                        ipv4AddrRemote;
-  NwGtpv2cUlpTunnelHandleT      hUlpTunnel;
-  RB_ENTRY (NwGtpv2cTunnel)     tunnelMapRbtNode;            /**< RB Tree Data Structure Node        */
-  struct NwGtpv2cTunnel*        next;
-} NwGtpv2cTunnelT;
+typedef struct nw_gtpv2c_tunnel_s {
+  uint32_t                      teid;
+  struct in_addr                ipv4AddrRemote;
+  nw_gtpv2c_ulp_tunnel_handle_t      hUlpTunnel;
+  RB_ENTRY (nw_gtpv2c_tunnel_s)     tunnelMapRbtNode;            /**< RB Tree Data Structure Node        */
+  struct nw_gtpv2c_tunnel_s*        next;
+} nw_gtpv2c_tunnel_t;
 
-NwGtpv2cTunnelT*
-nwGtpv2cTunnelNew(struct NwGtpv2cStack *hStack, uint32_t teid, uint32_t peerIpv4Addr, NwGtpv2cUlpTunnelHandleT hUlpTunnel);
+nw_gtpv2c_tunnel_t*
+nwGtpv2cTunnelNew(struct nw_gtpv2c_stack_s *hStack, uint32_t teid, struct in_addr * peerIpv4Addr, nw_gtpv2c_ulp_tunnel_handle_t hUlpTunnel);
 
-NwRcT
-nwGtpv2cTunnelDelete(struct NwGtpv2cStack *pStack, NwGtpv2cTunnelT* thiz);
+nw_rc_t
+nwGtpv2cTunnelDelete(struct nw_gtpv2c_stack_s *pStack, nw_gtpv2c_tunnel_t* thiz);
 
-NwRcT
-nwGtpv2cTunnelGetUlpTunnelHandle( NwGtpv2cTunnelT* thiz, NwGtpv2cUlpTunnelHandleT* phUlpTunnel);
+nw_rc_t
+nwGtpv2cTunnelGetUlpTunnelHandle( nw_gtpv2c_tunnel_t* thiz, nw_gtpv2c_ulp_tunnel_handle_t* phUlpTunnel);
 
 #ifdef __cplusplus
 }

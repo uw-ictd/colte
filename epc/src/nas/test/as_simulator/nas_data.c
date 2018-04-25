@@ -232,7 +232,7 @@ esmMsgType (
 */
 const char                             *
 emmCauseCode (
-  EmmCause code)
+  emm_cause_t code)
 {
   if (code == EMM_CAUSE_SUCCESS) {
     return "SUCCESS";
@@ -318,7 +318,7 @@ emmCauseCode (
 */
 const char                             *
 esmCauseCode (
-  EsmCause code)
+  esm_cause_t code)
 {
   if (code == ESM_CAUSE_SUCCESS) {
     return "SUCCESS";
@@ -416,7 +416,7 @@ esmCauseCode (
 */
 const char                             *
 attachType (
-  const EpsAttachType * type)
+  const eps_attach_type_t * type)
 {
   if (*type == EPS_ATTACH_TYPE_EPS) {
     return "EPS";
@@ -438,7 +438,7 @@ attachType (
 */
 const char                             *
 detachType (
-  const DetachType * type)
+  const detach_type_t * type)
 {
   if (type->switchoff == DETACH_TYPE_NORMAL_DETACH) {
     if (type->typeofdetach == DETACH_TYPE_EPS) {
@@ -561,7 +561,7 @@ identityType (
 */
 const char                             *
 requestType (
-  const RequestType * type)
+  const request_type_t * type)
 {
   if (*type == REQUEST_TYPE_INITIAL_REQUEST) {
     return "INITIAL";

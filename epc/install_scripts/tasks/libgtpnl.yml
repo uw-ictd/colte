@@ -21,15 +21,20 @@
       - libmnl-dev
       become: yes
 
-    - name: libgtpnl - clone from my github copy
+    - name: libgtpnl - clone from osmocom git
       git:
         repo: git://git.osmocom.org/libgtpnl
         dest: "{{ packages_dir }}/libgtpnl"
 
+#    git reset --hard 345d687
+#    NOTE: could also just do "git checkout 345d687"
+#    patch --verbose -p1  < $OPENAIRCN_DIR/build/tools/libgtpnl.LTE_dedicated_bearer.v0.patch 
 # NOTE: if this causes build failure, comment out become and just add sudo
     - name: libgtpnl - configure
       shell: |
-        sudo autoreconf -fi
+        git reset --hard 345d687
+        patch --verbose -p1  < {{ epc_dir }}/build/tools/libgtpnl.LTE_dedicated_bearer.v0.patch 
+        autoreconf -fi
         ./configure
       args:
         chdir: "{{ packages_dir }}/libgtpnl"

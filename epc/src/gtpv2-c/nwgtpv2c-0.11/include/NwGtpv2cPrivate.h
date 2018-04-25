@@ -60,9 +60,9 @@ extern "C" {
 
 #define NW_GTPV2C_MALLOC(_stack, _size, _mem, _type)                    \
   do {                                                                  \
-    if(((NwGtpv2cStackT*)(_stack))->memMgr.memAlloc && ((NwGtpv2cStackT*)(_stack))->memMgr.memFree )\
+    if(((nw_gtpv2c_stack_t*)(_stack))->memMgr.memAlloc && ((nw_gtpv2c_stack_t*)(_stack))->memMgr.memFree )\
     {                                                                   \
-      _mem = (_type) ((NwGtpv2cStackT*) (_stack))->memMgr.memAlloc(((NwGtpv2cStackT*) (_stack))->memMgr.hMemMgr, _size, __FILE__, __LINE__);\
+      _mem = (_type) ((nw_gtpv2c_stack_t*) (_stack))->memMgr.memAlloc(((nw_gtpv2c_stack_t*) (_stack))->memMgr.hMemMgr, _size, __FILE__, __LINE__);\
       AssertFatal(0, "Do not use this Mem manager");                    \
     }                                                                   \
     else                                                                \
@@ -73,9 +73,9 @@ extern "C" {
 
 #define NW_GTPV2C_FREE(_stack, _mem)                                    \
   do {                                                                  \
-    if(((NwGtpv2cStackT*)(_stack))->memMgr.memAlloc && ((NwGtpv2cStackT*)(_stack))->memMgr.memFree )\
+    if(((nw_gtpv2c_stack_t*)(_stack))->memMgr.memAlloc && ((nw_gtpv2c_stack_t*)(_stack))->memMgr.memFree )\
     {                                                                   \
-      ((NwGtpv2cStackT*)(_stack))->memMgr.memFree(((NwGtpv2cStackT*) (_stack))->memMgr.hMemMgr, _mem, __FILE__, __LINE__);\
+      ((nw_gtpv2c_stack_t*)(_stack))->memMgr.memFree(((nw_gtpv2c_stack_t*) (_stack))->memMgr.hMemMgr, _mem, __FILE__, __LINE__);\
       AssertFatal(0, "Do not use this Mem manager");                    \
     }                                                                   \
     else                                                                \
@@ -92,27 +92,27 @@ extern "C" {
  * gtpv2c stack class definition
  */
 
-typedef struct NwGtpv2cStack {
+typedef struct nw_gtpv2c_stack_s {
   uint32_t                        id;
-  NwGtpv2cUlpEntityT            ulp;
-  NwGtpv2cUdpEntityT            udp;
-  NwGtpv2cMemMgrEntityT         memMgr;
-  NwGtpv2cTimerMgrEntityT       tmrMgr;
-  NwGtpv2cLogMgrEntityT         logMgr;
+  nw_gtpv2c_ulp_entity_t            ulp;
+  nw_gtpv2c_udp_entity_t            udp;
+  nw_gtpv2c_mem_mgr_entity_t         memMgr;
+  nw_gtpv2c_timer_mgr_entity_t       tmrMgr;
+  nw_gtpv2c_log_mgr_entity_t         logMgr;
 
   uint32_t                        seqNum;
   uint32_t                        logLevel;
   uint32_t                        restartCounter;
 
-  NwGtpv2cMsgIeParseInfoT       *pGtpv2cMsgIeParseInfo[NW_GTP_MSG_END];
-  struct NwGtpv2cTimeoutInfo    *activeTimerInfo;
+  nw_gtpv2c_msg_ie_parse_info_t       *pGtpv2cMsgIeParseInfo[NW_GTP_MSG_END];
+  struct nw_gtpv2c_timeout_info_s    *activeTimerInfo;
 
-  RB_HEAD( NwGtpv2cTunnelMap, NwGtpv2cTunnel                ) tunnelMap;
-  RB_HEAD( NwGtpv2cOutstandingTxSeqNumTrxnMap, NwGtpv2cTrxn ) outstandingTxSeqNumMap;
-  RB_HEAD( NwGtpv2cOutstandingRxSeqNumTrxnMap, NwGtpv2cTrxn ) outstandingRxSeqNumMap;
-  RB_HEAD( NwGtpv2cActiveTimerList, NwGtpv2cTimeoutInfo     ) activeTimerList;
-  NwHandleT                     hTmrMinHeap;
-} NwGtpv2cStackT;
+  RB_HEAD( NwGtpv2cTunnelMap, nw_gtpv2c_tunnel_s                ) tunnelMap;
+  RB_HEAD( NwGtpv2cOutstandingTxSeqNumTrxnMap, nw_gtpv2c_trxn_s ) outstandingTxSeqNumMap;
+  RB_HEAD( NwGtpv2cOutstandingRxSeqNumTrxnMap, nw_gtpv2c_trxn_s ) outstandingRxSeqNumMap;
+  RB_HEAD( NwGtpv2cActiveTimerList, nw_gtpv2c_timeout_info_s     ) activeTimerList;
+  NwPtrT                        hTmrMinHeap;
+} nw_gtpv2c_stack_t;
 
 
 /*--------------------------------------------------------------------------*
@@ -123,17 +123,17 @@ typedef struct NwGtpv2cStack {
  * gtpv2c timeout info
  */
 
-typedef struct NwGtpv2cTimeoutInfo {
-  NwGtpv2cStackHandleT          hStack;
-  struct timeval                tvTimeout;
-  uint32_t                        tmrType;
-  void*                         timeoutArg;
-  NwRcT                         (*timeoutCallbackFunc)(void*);
-  NwGtpv2cTimerHandleT          hTimer;
-  RB_ENTRY (NwGtpv2cTimeoutInfo)       activeTimerListRbtNode;            /**< RB Tree Data Structure Node        */
-  uint32_t                        timerMinHeapIndex;
-  struct NwGtpv2cTimeoutInfo *next;
-} NwGtpv2cTimeoutInfoT;
+typedef struct nw_gtpv2c_timeout_info_s {
+  nw_gtpv2c_stack_handle_t          hStack;
+  struct timeval                    tvTimeout;
+  uint32_t                          tmrType;
+  void*                             timeoutArg;
+  nw_rc_t                         (*timeoutCallbackFunc)(void*);
+  nw_gtpv2c_timer_handle_t          hTimer;
+  RB_ENTRY (nw_gtpv2c_timeout_info_s)       activeTimerListRbtNode;            /**< RB Tree Data Structure Node        */
+  uint32_t                          timerMinHeapIndex;
+  struct nw_gtpv2c_timeout_info_s  *next;
+} nw_gtpv2c_timeout_info_t;
 
 
 /*---------------------------------------------------------------------------
@@ -145,7 +145,7 @@ typedef struct NwGtpv2cTimeoutInfo {
 /**
  * NwGtpv2cMsgT holds gtpv2c messages to/from the peer.
  */
-typedef struct NwGtpv2cMsgS {
+typedef struct nw_gtpv2c_msg_s {
   uint8_t                         version;
   uint8_t                         teidPresent;
   uint8_t                         msgType;
@@ -156,78 +156,78 @@ typedef struct NwGtpv2cMsgS {
 
 #define NW_GTPV2C_MAX_GROUPED_IE_DEPTH                                  (2)
   struct {
-    NwGtpv2cIeTlvT *pIe[NW_GTPV2C_MAX_GROUPED_IE_DEPTH];
-    uint8_t         top;
+    nw_gtpv2c_ie_tlv_t *pIe[NW_GTPV2C_MAX_GROUPED_IE_DEPTH];
+    uint8_t             top;
   } groupedIeEncodeStack;
 
-  NwBoolT                       isIeValid[NW_GTPV2C_IE_TYPE_MAXIMUM][NW_GTPV2C_IE_INSTANCE_MAXIMUM];
-  uint8_t                         *pIe[NW_GTPV2C_IE_TYPE_MAXIMUM][NW_GTPV2C_IE_INSTANCE_MAXIMUM];
-  uint8_t                         msgBuf[NW_GTPV2C_MAX_MSG_LEN];
-  NwGtpv2cStackHandleT          hStack;
-  struct NwGtpv2cMsgS*          next;
-} NwGtpv2cMsgT;
+  bool                          isIeValid[NW_GTPV2C_IE_TYPE_MAXIMUM][NW_GTPV2C_IE_INSTANCE_MAXIMUM];
+  uint8_t                      *pIe[NW_GTPV2C_IE_TYPE_MAXIMUM][NW_GTPV2C_IE_INSTANCE_MAXIMUM];
+  uint8_t                       msgBuf[NW_GTPV2C_MAX_MSG_LEN];
+  nw_gtpv2c_stack_handle_t      hStack;
+  struct nw_gtpv2c_msg_s*       next;
+} nw_gtpv2c_msg_t;
 
 /**
  * Transaction structure
  */
 
-typedef struct NwGtpv2cTrxn {
-  uint32_t                        seqNum;
-  uint32_t                        peerIp;
-  uint32_t                        peerPort;
-  uint8_t                         t3Timer;
-  uint8_t                         maxRetries;
-  NwGtpv2cMsgT*                 pMsg;
-  NwGtpv2cStackT*               pStack;
-  NwGtpv2cTimerHandleT          hRspTmr;                                /**< Handle to reponse timer            */
-  NwGtpv2cTunnelHandleT         hTunnel;                                /**< Handle to local tunnel context     */
-  NwGtpv2cUlpTrxnHandleT        hUlpTrxn;                               /**< Handle to ULP tunnel context       */
-  RB_ENTRY (NwGtpv2cTrxn)       outstandingTxSeqNumMapRbtNode;          /**< RB Tree Data Structure Node        */
-  RB_ENTRY (NwGtpv2cTrxn)       outstandingRxSeqNumMapRbtNode;          /**< RB Tree Data Structure Node        */
-  struct NwGtpv2cTrxn*          next;
-} NwGtpv2cTrxnT;
+typedef struct nw_gtpv2c_trxn_s {
+  uint32_t                      seqNum;
+  struct in_addr                peerIp;
+  uint32_t                      peerPort;
+  uint8_t                       t3Timer;
+  uint8_t                       maxRetries;
+  nw_gtpv2c_msg_t*              pMsg;
+  nw_gtpv2c_stack_t*            pStack;
+  nw_gtpv2c_timer_handle_t      hRspTmr;                                /**< Handle to reponse timer            */
+  nw_gtpv2c_tunnel_handle_t     hTunnel;                                /**< Handle to local tunnel context     */
+  nw_gtpv2c_ulp_trxn_handle_t   hUlpTrxn;                               /**< Handle to ULP tunnel context       */
+  RB_ENTRY (nw_gtpv2c_trxn_s)   outstandingTxSeqNumMapRbtNode;          /**< RB Tree Data Structure Node        */
+  RB_ENTRY (nw_gtpv2c_trxn_s)   outstandingRxSeqNumMapRbtNode;          /**< RB Tree Data Structure Node        */
+  struct nw_gtpv2c_trxn_s*      next;
+} nw_gtpv2c_trxn_t;
 
 /**
  *  GTPv2c Path Context
  */
 
 typedef struct NwGtpv2cPathS {
-  uint32_t                        hUlpPath;                               /**< Handle to ULP path contect         */
-  uint32_t                        ipv4Address;
-  uint32_t                        restartCounter;
-  uint16_t                        t3ResponseTimout;
-  uint16_t                        n3RequestCount;
-  NwGtpv2cTimerHandleT          hKeepAliveTmr;                          /**< Handle to path keep alive echo timer */
+  uint32_t                      hUlpPath;                               /**< Handle to ULP path contect         */
+  uint32_t                      ipv4Address;
+  uint32_t                      restartCounter;
+  uint16_t                      t3ResponseTimout;
+  uint16_t                      n3RequestCount;
+  nw_gtpv2c_timer_handle_t      hKeepAliveTmr;                          /**< Handle to path keep alive echo timer */
   RB_ENTRY (NwGtpv2cPathS)      pathMapRbtNode;
 } NwGtpv2cPathT;
 
 
-RB_PROTOTYPE(NwGtpv2cTunnelMap, NwGtpv2cTunnel, tunnelMapRbtNode, nwGtpv2cCompareTunnel)
-RB_PROTOTYPE(NwGtpv2cOutstandingTxSeqNumTrxnMap, NwGtpv2cTrxn, outstandingTxSeqNumMapRbtNode, nwGtpv2cCompareSeqNum)
-RB_PROTOTYPE(NwGtpv2cOutstandingRxSeqNumTrxnMap, NwGtpv2cTrxn, outstandingRxSeqNumMapRbtNode, nwGtpv2cCompareSeqNum)
-RB_PROTOTYPE(NwGtpv2cActiveTimerList, NwGtpv2cTimeoutInfo, activeTimerListRbtNode, nwGtpv2cCompareOutstandingTxRexmitTime)
+RB_PROTOTYPE(NwGtpv2cTunnelMap, nw_gtpv2c_tunnel_s, tunnelMapRbtNode, nwGtpv2cCompareTunnel)
+RB_PROTOTYPE(NwGtpv2cOutstandingTxSeqNumTrxnMap, nw_gtpv2c_trxn_s, outstandingTxSeqNumMapRbtNode, nwGtpv2cCompareSeqNum)
+RB_PROTOTYPE(NwGtpv2cOutstandingRxSeqNumTrxnMap, nw_gtpv2c_trxn_s, outstandingRxSeqNumMapRbtNode, nwGtpv2cCompareSeqNum)
+RB_PROTOTYPE(NwGtpv2cActiveTimerList, nw_gtpv2c_timeout_info_s, activeTimerListRbtNode, nwGtpv2cCompareOutstandingTxRexmitTime)
 
 /**
  * Start Timer with ULP Timer Manager
  */
 
-NwRcT
-nwGtpv2cStartTimer(NwGtpv2cStackT* thiz,
+nw_rc_t
+nwGtpv2cStartTimer(nw_gtpv2c_stack_t* thiz,
                    uint32_t timeoutSec,
                    uint32_t timeoutUsec,
                    uint32_t tmrType,
-                   NwRcT (*timeoutCallbackFunc)(void*),
+                   nw_rc_t (*timeoutCallbackFunc)(void*),
                    void*  timeoutCallbackArg,
-                   NwGtpv2cTimerHandleT *phTimer);
+                   nw_gtpv2c_timer_handle_t *phTimer);
 
 
 /**
  * Stop Timer with ULP Timer Manager
  */
 
-NwRcT
-nwGtpv2cStopTimer(NwGtpv2cStackT* thiz,
-                  NwGtpv2cTimerHandleT hTimer);
+nw_rc_t
+nwGtpv2cStopTimer(nw_gtpv2c_stack_t* thiz,
+                  nw_gtpv2c_timer_handle_t hTimer);
 
 #ifdef __cplusplus
 }

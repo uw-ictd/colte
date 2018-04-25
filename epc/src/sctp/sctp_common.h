@@ -21,8 +21,8 @@
 
 
 /*! \file sctp_common.h
- *  \brief eNB/MME SCTP related common procedures
- *  \author Sebastien ROUX
+ *  \brief MME SCTP related common procedures
+ *  \author Sebastien ROUX, Lionel GAUTHIER
  *  \date 2013
  *  \version 1.0
  *  @ingroup _sctp
@@ -30,10 +30,6 @@
 
 #ifndef FILE_SCTP_COMMON_SEEN
 #define FILE_SCTP_COMMON_SEEN
-
-#include <stdio.h>
-#include <stdint.h>
-#include <sys/socket.h>
 
 #include "common_types.h"
 

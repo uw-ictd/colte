@@ -19,8 +19,8 @@
  *      contact@openairinterface.org
  */
 
-#ifndef ADDITIONAL_UPDATE_TYPE_H_
-#define ADDITIONAL_UPDATE_TYPE_H_
+#ifndef ADDITIONAL_UPDATE_TYPE_SEEN
+#define ADDITIONAL_UPDATE_TYPE_SEEN
 #include <stdint.h>
 
 #define ADDITIONAL_UPDATE_TYPE_MINIMUM_LENGTH 1
@@ -31,13 +31,11 @@ typedef enum {
   SMS_ONLY                  = 0x1,
   MAX                       = 1 << ADDITIONAL_UPDATE_TYPE_MAXIMUM_LENGTH,
   SENTINEL_MAX              = 0xFF
-} AdditionalUpdateType;
+} additional_update_type_t;
 
-int encode_additional_update_type(AdditionalUpdateType *additionalupdatetype, uint8_t iei, uint8_t *buffer, uint32_t len);
+int encode_additional_update_type(additional_update_type_t *additionalupdatetype, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-int decode_additional_update_type(AdditionalUpdateType *additionalupdatetype, uint8_t iei, uint8_t *buffer, uint32_t len);
+int decode_additional_update_type(additional_update_type_t *additionalupdatetype, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_additional_update_type_xml(AdditionalUpdateType *additionalupdatetype, uint8_t iei);
-
-#endif /* ADDITIONAL UPDATE TYPE_H_ */
+#endif /* ADDITIONAL_UPDATE_TYPE_SEEN */
 

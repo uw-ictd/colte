@@ -21,20 +21,20 @@
 
 #ifndef FILE_IDENTITY_RESPONSE_SEEN
 #define FILE_IDENTITY_RESPONSE_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
-#include "MobileIdentity.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define IDENTITY_RESPONSE_MINIMUM_LENGTH ( \
-    MOBILE_IDENTITY_MINIMUM_LENGTH )
+    MOBILE_IDENTITY_IE_MIN_LENGTH )
 
 /* Maximum length macro. Formed by maximum length of each field */
 #define IDENTITY_RESPONSE_MAXIMUM_LENGTH ( \
-    MOBILE_IDENTITY_MAXIMUM_LENGTH )
+    MOBILE_IDENTITY_IE_MAX_LENGTH )
 
 
 /*
@@ -46,10 +46,10 @@
 
 typedef struct identity_response_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator   protocoldiscriminator:4;
-  SecurityHeaderType      securityheadertype:4;
-  MessageType             messagetype;
-  MobileIdentity          mobileidentity;
+  eps_protocol_discriminator_t   protocoldiscriminator:4;
+  security_header_type_t         securityheadertype:4;
+  message_type_t                 messagetype;
+  mobile_identity_t              mobileidentity;
 } identity_response_msg;
 
 int decode_identity_response(identity_response_msg *identityresponse, uint8_t *buffer, uint32_t len);

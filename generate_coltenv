@@ -40,7 +40,7 @@ echo "export COLTE_NT_PASS=\"correcthorse\"" | tee --append /usr/local/etc/colte
 # BEFORE YOU COMPILE/INSTALL EVERYTHING.
 echo "export COLTE_WAN_IFACE=enp3s0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_ENB_IFACE=enp3s0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_ENB_IFACE_ADDR=172.28.5.93/24" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_ENB_IFACE_ADDR=172.28.5.91/24" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/colte/coltenv
 
 # add more ifconfig options here. Static IP defaults? DHCP, or don't care?
@@ -53,8 +53,8 @@ echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/co
 echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_ENBRAINS=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_EMERGENCY_WEBSERVICES=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_IMS=1" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_NODE=1" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_BILLING=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_IMS=0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_NODE=0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_BILLING=0" | tee --append /usr/local/etc/colte/coltenv
 
 source /usr/local/etc/colte/coltenv

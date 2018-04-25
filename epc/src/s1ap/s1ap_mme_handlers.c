@@ -19,27 +19,40 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s1ap_mme_handlers.c
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <pthread.h>
 
 #include "bstrlib.h"
+
 #include "hashtable.h"
 #include "log.h"
 #include "msc.h"
+#include "3gpp_requirements_36.413.h"
 #include "assertions.h"
 #include "conversions.h"
+#include "intertask_interface.h"
+#include "timer.h"
+#include "dynamic_memory_check.h"
 #include "mme_config.h"
 #include "s1ap_common.h"
 #include "s1ap_ies_defs.h"
 #include "s1ap_mme_encoder.h"
-#include "s1ap_mme_handlers.h"
 #include "s1ap_mme_nas_procedures.h"
 #include "s1ap_mme_itti_messaging.h"
+#include "s1ap_mme.h"
 #include "s1ap_mme_ta.h"
+#include "s1ap_mme_handlers.h"
 #include "mme_app_statistics.h"
-#include "timer.h"
 
 
 extern hash_table_ts_t g_s1ap_enb_coll; // contains eNB_description_s, key is eNB_description_s.assoc_id
@@ -63,7 +76,8 @@ s1ap_message_decoded_callback           messages_callback[][3] = {
   {0, 0, 0},                    /* HandoverNotification */
   {s1ap_mme_handle_path_switch_request, 0, 0},  /* PathSwitchRequest */
   {0, 0, 0},                    /* HandoverCancel */
-  {0, 0, 0},                    /* E_RABSetup */
+  {0, s1ap_mme_handle_erab_setup_response,
+      s1ap_mme_handle_erab_setup_failure},                    /* E_RABSetup */
   {0, 0, 0},                    /* E_RABModify */
   {0, 0, 0},                    /* E_RABRelease */
   {0, 0, 0},                    /* E_RABReleaseIndication */
@@ -74,7 +88,7 @@ s1ap_message_decoded_callback           messages_callback[][3] = {
   {0, 0, 0},                    /* downlinkNASTransport */
   {s1ap_mme_handle_initial_ue_message, 0, 0},   /* initialUEMessage */
   {s1ap_mme_handle_uplink_nas_transport, 0, 0}, /* uplinkNASTransport */
-  {0, 0, 0},                    /* Reset */
+  {s1ap_mme_handle_enb_reset, 0, 0},                    /* Reset */
   {s1ap_mme_handle_error_ind_message, 0, 0},                    /* ErrorIndication */
   {s1ap_mme_handle_nas_non_delivery, 0, 0},     /* NASNonDeliveryIndication */
   {s1ap_mme_handle_s1_setup_request, 0, 0},     /* S1Setup */
@@ -223,6 +237,7 @@ s1ap_mme_generate_s1_setup_failure (
 
   MSC_LOG_TX_MESSAGE (MSC_S1AP_MME, MSC_S1AP_ENB, NULL, 0, "0 S1Setup/unsuccessfulOutcome  assoc_id %u cause %u value %u", assoc_id, cause_type, cause_value);
   bstring b = blk2bstr(buffer_p, length);
+  free(buffer_p);
   rc =  s1ap_mme_itti_send_sctp_request (&b, assoc_id, 0, INVALID_MME_UE_S1AP_ID);
   OAILOG_FUNC_RETURN (LOG_S1AP, rc);
 }
@@ -312,7 +327,7 @@ s1ap_mme_handle_s1_setup_request (
     OAILOG_FUNC_RETURN (LOG_S1AP, rc);
   }
 
-  log_queue_item_t *context = NULL;
+  shared_log_queue_item_t *  context = NULL;
   OAILOG_MESSAGE_START (OAILOG_LEVEL_DEBUG, LOG_S1AP, (&context), "New s1 setup request incoming from ");
 
   if (s1SetupRequest_p->presenceMask & S1AP_S1SETUPREQUESTIES_ENBNAME_PRESENT) {
@@ -455,6 +470,7 @@ s1ap_generate_s1_setup_response (
     mmec = calloc (1, sizeof (*mmec));
     INT8_TO_OCTET_STRING (mme_config.gummei.gummei[i].mme_code, mmec);
     ASN_SEQUENCE_ADD (&servedGUMMEI->servedMMECs.list, mmec);
+
   }
 
 
@@ -486,6 +502,7 @@ s1ap_generate_s1_setup_response (
    * Non-UE signalling -> stream 0
    */
   bstring b = blk2bstr(buffer, length);
+  free(buffer);
   rc = s1ap_mme_itti_send_sctp_request (&b, enb_association->sctp_assoc_id, 0, INVALID_MME_UE_S1AP_ID);
 
   free_s1ap_s1setupresponse(s1_setup_response_p);
@@ -580,7 +597,7 @@ s1ap_mme_handle_initial_context_setup_response (
   MSC_LOG_RX_MESSAGE (MSC_S1AP_MME,
                       MSC_S1AP_ENB,
                       NULL, 0,
-                      "0 InitialContextSetup/%s enb_ue_s1ap_id " ENB_UE_S1AP_ID_FMT " mme_ue_s1ap_id " MME_UE_S1AP_ID_FMT " len %u",
+                      "0 InitialContextSetup/%s enb_ue_s1ap_id " ENB_UE_S1AP_ID_FMT " mme_ue_s1ap_id " MME_UE_S1AP_ID_FMT " ",
                       s1ap_direction2String[message->direction], initialContextSetupResponseIEs_p->eNB_UE_S1AP_ID, initialContextSetupResponseIEs_p->mme_ue_s1ap_id);
 
   if ((ue_ref_p = s1ap_is_ue_mme_id_in_list ((uint32_t) initialContextSetupResponseIEs_p->mme_ue_s1ap_id)) == NULL) {
@@ -603,26 +620,27 @@ s1ap_mme_handle_initial_context_setup_response (
   ue_ref_p->s1_ue_state = S1AP_UE_CONNECTED;
   message_p = itti_alloc_new_message (TASK_S1AP, MME_APP_INITIAL_CONTEXT_SETUP_RSP);
   AssertFatal (message_p != NULL, "itti_alloc_new_message Failed");
-  memset ((void *)&message_p->ittiMsg.mme_app_initial_context_setup_rsp, 0, sizeof (itti_mme_app_initial_context_setup_rsp_t));
-  /*
-   * Bad, very bad cast...
-   */
-  eRABSetupItemCtxtSURes_p = (S1ap_E_RABSetupItemCtxtSURes_t *)
-    initialContextSetupResponseIEs_p->e_RABSetupListCtxtSURes.s1ap_E_RABSetupItemCtxtSURes.array[0];
-  MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).mme_ue_s1ap_id = ue_ref_p->mme_ue_s1ap_id;
-  MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).eps_bearer_id = eRABSetupItemCtxtSURes_p->e_RAB_ID;
-  MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).bearer_s1u_enb_fteid.ipv4 = 1;  // TO DO
-  MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).bearer_s1u_enb_fteid.ipv6 = 0;  // TO DO
-  MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).bearer_s1u_enb_fteid.interface_type = S1_U_ENODEB_GTP_U;
-  MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).bearer_s1u_enb_fteid.teid = htonl (*((uint32_t *) eRABSetupItemCtxtSURes_p->gTP_TEID.buf));
-  memcpy (&MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).bearer_s1u_enb_fteid.ipv4_address, eRABSetupItemCtxtSURes_p->transportLayerAddress.buf, 4);
+  MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).ue_id = ue_ref_p->mme_ue_s1ap_id;
+  MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).no_of_e_rabs = initialContextSetupResponseIEs_p->e_RABSetupListCtxtSURes.s1ap_E_RABSetupItemCtxtSURes.count;
+  for (int item = 0; item < initialContextSetupResponseIEs_p->e_RABSetupListCtxtSURes.s1ap_E_RABSetupItemCtxtSURes.count; item++) {
+    /*
+     * Bad, very bad cast...
+     */
+    eRABSetupItemCtxtSURes_p = (S1ap_E_RABSetupItemCtxtSURes_t *)
+        initialContextSetupResponseIEs_p->e_RABSetupListCtxtSURes.s1ap_E_RABSetupItemCtxtSURes.array[item];
+    MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).e_rab_id[item] = eRABSetupItemCtxtSURes_p->e_RAB_ID;
+    MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).gtp_teid[item] = htonl (*((uint32_t *) eRABSetupItemCtxtSURes_p->gTP_TEID.buf));
+    MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).transport_layer_address[item] =
+        blk2bstr(eRABSetupItemCtxtSURes_p->transportLayerAddress.buf, eRABSetupItemCtxtSURes_p->transportLayerAddress.size);
+  }
+  // TODO num items
   MSC_LOG_TX_MESSAGE (MSC_S1AP_MME,
                       MSC_MMEAPP_MME,
                       NULL, 0,
                       "0 MME_APP_INITIAL_CONTEXT_SETUP_RSP mme_ue_s1ap_id " MME_UE_S1AP_ID_FMT " ebi %u s1u enb teid %u",
-                      MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).mme_ue_s1ap_id,
-                      MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).eps_bearer_id,
-                      MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).bearer_s1u_enb_fteid.teid);
+                      MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).ue_id,
+                      MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).e_rab_id[0],
+                      MME_APP_INITIAL_CONTEXT_SETUP_RSP (message_p).gtp_teid[0]);
   rc =  itti_send_msg_to_task (TASK_MME_APP, INSTANCE_DEFAULT, message_p);
   OAILOG_FUNC_RETURN (LOG_S1AP, rc);
 }
@@ -706,10 +724,11 @@ s1ap_mme_handle_ue_context_release_request (
        */
       message_p = itti_alloc_new_message (TASK_S1AP, S1AP_UE_CONTEXT_RELEASE_REQ);
       AssertFatal (message_p != NULL, "itti_alloc_new_message Failed");
-      memset ((void *)&message_p->ittiMsg.s1ap_ue_context_release_req, 0, sizeof (itti_s1ap_ue_context_release_req_t));
+
       S1AP_UE_CONTEXT_RELEASE_REQ (message_p).mme_ue_s1ap_id = ue_ref_p->mme_ue_s1ap_id;
       S1AP_UE_CONTEXT_RELEASE_REQ (message_p).enb_ue_s1ap_id = ue_ref_p->enb_ue_s1ap_id;
       S1AP_UE_CONTEXT_RELEASE_REQ (message_p).enb_id         = ue_ref_p->enb->enb_id;
+      S1AP_UE_CONTEXT_RELEASE_REQ (message_p).cause          = ueContextReleaseRequest_p->cause;
       MSC_LOG_TX_MESSAGE (MSC_S1AP_MME, MSC_MMEAPP_MME, NULL, 0, "0 S1AP_UE_CONTEXT_RELEASE_REQ mme_ue_s1ap_id " MME_UE_S1AP_ID_FMT " ",
               S1AP_UE_CONTEXT_RELEASE_REQ (message_p).mme_ue_s1ap_id);
       rc =  itti_send_msg_to_task (TASK_MME_APP, INSTANCE_DEFAULT, message_p);
@@ -784,6 +803,7 @@ s1ap_mme_generate_ue_context_release_command (
           ue_ref_p->enb_ue_s1ap_id, ue_ref_p->mme_ue_s1ap_id);
 
   bstring b = blk2bstr(buffer, length);
+  free(buffer);
   rc = s1ap_mme_itti_send_sctp_request (&b, ue_ref_p->enb->sctp_assoc_id, ue_ref_p->sctp_stream_send, ue_ref_p->mme_ue_s1ap_id);
   ue_ref_p->s1_ue_state = S1AP_UE_WAITING_CRR;
   
@@ -867,7 +887,6 @@ s1ap_mme_handle_ue_context_release_complete (
    */
   message_p = itti_alloc_new_message (TASK_S1AP, S1AP_UE_CONTEXT_RELEASE_COMPLETE);
   AssertFatal (message_p != NULL, "itti_alloc_new_message Failed");
-  memset ((void *)&message_p->ittiMsg.s1ap_ue_context_release_complete, 0, sizeof (itti_s1ap_ue_context_release_complete_t));
   S1AP_UE_CONTEXT_RELEASE_COMPLETE (message_p).mme_ue_s1ap_id = ue_ref_p->mme_ue_s1ap_id;
   MSC_LOG_TX_MESSAGE (MSC_S1AP_MME, MSC_MMEAPP_MME, NULL, 0, "0 S1AP_UE_CONTEXT_RELEASE_COMPLETE mme_ue_s1ap_id " MME_UE_S1AP_ID_FMT " ", S1AP_UE_CONTEXT_RELEASE_COMPLETE (message_p).mme_ue_s1ap_id);
   itti_send_msg_to_task (TASK_MME_APP, INSTANCE_DEFAULT, message_p);
@@ -910,6 +929,7 @@ s1ap_mme_handle_initial_context_setup_failure (
   }
 
   if (ue_ref_p->enb_ue_s1ap_id != (initialContextSetupFailureIEs_p->eNB_UE_S1AP_ID & ENB_UE_S1AP_ID_MASK)) {
+    MSC_LOG_EVENT (MSC_S1AP_MME, "0 InitialContextSetupFailure ignored, mismatch enb_ue_s1ap_id " ENB_UE_S1AP_ID_FMT " ", initialContextSetupFailureIEs_p->eNB_UE_S1AP_ID & ENB_UE_S1AP_ID_MASK);
     // abnormal case. No need to do anything. Ignore the message   
     OAILOG_DEBUG (LOG_S1AP, "INITIAL_CONTEXT_SETUP_FAILURE ignored, mismatch enb_ue_s1ap_id: ctxt " ENB_UE_S1AP_ID_FMT " != received " ENB_UE_S1AP_ID_FMT " ",
     		  (uint32_t)ue_ref_p->enb_ue_s1ap_id, (uint32_t)(initialContextSetupFailureIEs_p->eNB_UE_S1AP_ID & ENB_UE_S1AP_ID_MASK));
@@ -956,49 +976,6 @@ s1ap_mme_handle_initial_context_setup_failure (
   MME_APP_INITIAL_CONTEXT_SETUP_FAILURE (message_p).mme_ue_s1ap_id = ue_ref_p->mme_ue_s1ap_id;
   rc =  itti_send_msg_to_task (TASK_MME_APP, INSTANCE_DEFAULT, message_p);
   OAILOG_FUNC_RETURN (LOG_S1AP, rc);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//************************ Handover signalling *******************************//
-////////////////////////////////////////////////////////////////////////////////
-
-//------------------------------------------------------------------------------
-int
-s1ap_mme_handle_path_switch_request (
-    __attribute__((unused)) const sctp_assoc_id_t assoc_id,
-    __attribute__((unused)) const sctp_stream_id_t stream,
-    struct s1ap_message_s *message)
-{
-  S1ap_PathSwitchRequestIEs_t            *pathSwitchRequest_p = NULL;
-  ue_description_t                       *ue_ref_p = NULL;
-  enb_ue_s1ap_id_t                        enb_ue_s1ap_id = 0;
-
-  OAILOG_FUNC_IN (LOG_S1AP);
-  pathSwitchRequest_p = &message->msg.s1ap_PathSwitchRequestIEs;
-  // eNB UE S1AP ID is limited to 24 bits
-  enb_ue_s1ap_id = (enb_ue_s1ap_id_t) (pathSwitchRequest_p->eNB_UE_S1AP_ID & ENB_UE_S1AP_ID_MASK);
-  OAILOG_DEBUG (LOG_S1AP, "Path Switch Request message received from eNB UE S1AP ID: " ENB_UE_S1AP_ID_FMT "\n", enb_ue_s1ap_id);
-
-  if ((ue_ref_p = s1ap_is_ue_mme_id_in_list (pathSwitchRequest_p->sourceMME_UE_S1AP_ID)) == NULL) {
-    /*
-     * The MME UE S1AP ID provided by eNB doesn't point to any valid UE.
-     * * * * MME replies with a PATH SWITCH REQUEST FAILURE message and start operation
-     * * * * as described in TS 36.413 [11].
-     * * * * TODO
-     */
-  } else {
-    if (ue_ref_p->enb_ue_s1ap_id != enb_ue_s1ap_id) {
-      /*
-       * Received unique UE eNB ID mismatch with the one known in MME.
-       * * * * Handle this case as defined upper.
-       * * * * TODO
-       */
-      return -1;
-    }
-    //TODO: Switch the eRABs provided
-  }
-
-  OAILOG_FUNC_RETURN (LOG_S1AP, RETURNok);
 }
 
 //------------------------------------------------------------------------------
@@ -1051,6 +1028,35 @@ static bool s1ap_send_enb_deregistered_ind (
   }
   return false;
 }
+//------------------------------------------------------------------------------
+typedef struct arg_s1ap_construct_enb_reset_req_s {
+  uint8_t      current_ue_index;
+  MessageDef  *message_p;
+}arg_s1ap_construct_enb_reset_req_t;
+//------------------------------------------------------------------------------
+static bool construct_s1ap_mme_full_reset_req (
+    __attribute__((unused)) const hash_key_t keyP,
+    void * const dataP,
+    void *argP,
+    void ** resultP)
+{
+  arg_s1ap_construct_enb_reset_req_t          *arg = (arg_s1ap_construct_enb_reset_req_t*) argP;
+  ue_description_t                       *ue_ref_p = (ue_description_t*)dataP;
+  enb_ue_s1ap_id_t enb_ue_s1ap_id;    
+  uint32_t i = arg->current_ue_index;
+  if (ue_ref_p) {
+    enb_ue_s1ap_id = ue_ref_p->enb_ue_s1ap_id;    
+    S1AP_ENB_INITIATED_RESET_REQ (arg->message_p).ue_to_reset_list[i].mme_ue_s1ap_id = &(ue_ref_p->mme_ue_s1ap_id);
+    S1AP_ENB_INITIATED_RESET_REQ (arg->message_p).ue_to_reset_list[i].enb_ue_s1ap_id = &enb_ue_s1ap_id;
+    arg->current_ue_index++;
+    *resultP = arg->message_p;
+  } else {
+    OAILOG_TRACE (LOG_S1AP, "No valid UE provided in callback: %p\n", ue_ref_p);
+    S1AP_ENB_INITIATED_RESET_REQ (arg->message_p).ue_to_reset_list[i].mme_ue_s1ap_id = NULL;
+  }
+  return false;
+}
+
 //------------------------------------------------------------------------------
 int
 s1ap_handle_sctp_disconnection(
@@ -1202,5 +1208,287 @@ s1ap_mme_handle_error_ind_message (const sctp_assoc_id_t assoc_id, const sctp_st
   OAILOG_DEBUG (LOG_S1AP, "*****ERROR IND is not supported*****\n");
   OAILOG_FUNC_RETURN (LOG_S1AP, RETURNok);
 }
-//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+int
+s1ap_mme_handle_enb_reset (
+     const sctp_assoc_id_t assoc_id,
+     const sctp_stream_id_t stream,
+    struct s1ap_message_s *message)
+{
+  S1ap_ResetIEs_t                         *enb_reset_p = NULL;
+  MessageDef                              *message_p  = NULL;
+  ue_description_t                        *ue_ref_p = NULL;
+  enb_description_t                       *enb_association = NULL;
+  s1ap_reset_type_t                       s1ap_reset_type;
+  S1ap_UE_associatedLogicalS1_ConnectionItem_t* s1_sig_conn_id_p = NULL;
+  arg_s1ap_construct_enb_reset_req_t      arg = {0};
+  uint32_t                                i = 0;
+  int                                     rc = RETURNok;
+  mme_ue_s1ap_id_t  mme_ue_s1ap_id;
+  enb_ue_s1ap_id_t  enb_ue_s1ap_id;
+
+
+  OAILOG_FUNC_IN (LOG_S1AP);
+  /*
+   * Checking that the assoc id has a valid eNB attached to.
+   */
+  enb_association = s1ap_is_enb_assoc_id_in_list (assoc_id);
+
+  if (enb_association == NULL) {
+    OAILOG_ERROR (LOG_S1AP, "No eNB attached to this assoc_id: %d\n", assoc_id);
+    OAILOG_FUNC_RETURN (LOG_S1AP, RETURNerror);
+  }
+
+  // Check the state of S1AP
+  if (enb_association->s1_state != S1AP_READY) {
+    // Ignore the message
+    OAILOG_INFO (LOG_S1AP, "S1 setup is not done.Invalid state.Ignoring ENB Initiated Reset.eNB Id = %d , S1AP state = %d \n", enb_association->enb_id, enb_association->s1_state);
+    OAILOG_FUNC_RETURN (LOG_S1AP, RETURNok);
+  }
+
+  // Check if there are no UEs connected
+  if (!enb_association->nb_ue_associated) {
+    // Ignore the message
+    OAILOG_INFO (LOG_S1AP, "No UEs is connected.Ignoring ENB Initiated Reset.eNB Id = %d\n", enb_association->enb_id);
+    OAILOG_FUNC_RETURN (LOG_S1AP, RETURNok);
+  }
+  // Check the reset type - partial_reset OR reset_all
+  enb_reset_p = &message->msg.s1ap_ResetIEs;
+  switch (enb_reset_p->resetType.present) {
+
+  case S1ap_ResetType_PR_s1_Interface:
+      s1ap_reset_type = RESET_ALL;
+    break;
+  case S1ap_ResetType_PR_partOfS1_Interface:
+      s1ap_reset_type = RESET_PARTIAL;
+    break;
+  default:
+    OAILOG_ERROR (LOG_S1AP, "Reset Request from eNB  with Invalid reset_type = %d\n", enb_reset_p->resetType.present);
+    // TBD - Here MME should send Error Indication as it is abnormal scenario.
+    OAILOG_FUNC_RETURN (LOG_S1AP, RETURNerror);
+  }
+
+  if (s1ap_reset_type == RESET_PARTIAL) {
+
+    if (enb_reset_p->resetType.choice.partOfS1_Interface.list.count == 0) {
+      OAILOG_ERROR (LOG_S1AP, "Partial Reset Request without any S1 signaling connection.Ignoring it \n");
+      // TBD - Here MME should send Error Indication as it is abnormal scenario.
+      OAILOG_FUNC_RETURN (LOG_S1AP, RETURNerror);
+    }
+    if (enb_reset_p->resetType.choice.partOfS1_Interface.list.count > enb_association->nb_ue_associated) {
+      OAILOG_ERROR (LOG_S1AP, "Partial Reset Request. Requested number of UEs %d to be reset is more than connected UEs %d \n",
+                          enb_reset_p->resetType.choice.partOfS1_Interface.list.count, enb_association->nb_ue_associated);
+      // TBD - Here MME should send Error Indication as it is abnormal scenario.
+      OAILOG_FUNC_RETURN (LOG_S1AP, RETURNerror);
+    }
+  }
+  message_p = itti_alloc_new_message (TASK_S1AP, S1AP_ENB_INITIATED_RESET_REQ);
+  AssertFatal (message_p != NULL, "itti_alloc_new_message Failed");
+  memset ((void *)&message_p->ittiMsg.s1ap_enb_initiated_reset_req, 0, sizeof (itti_s1ap_enb_initiated_reset_req_t));
+  S1AP_ENB_INITIATED_RESET_REQ (message_p).s1ap_reset_type = s1ap_reset_type;
+  S1AP_ENB_INITIATED_RESET_REQ (message_p).enb_id = enb_association->enb_id;
+  S1AP_ENB_INITIATED_RESET_REQ (message_p).sctp_assoc_id = assoc_id;
+  S1AP_ENB_INITIATED_RESET_REQ (message_p).sctp_stream_id = stream;
+
+  if (s1ap_reset_type == RESET_ALL) {
+    S1AP_ENB_INITIATED_RESET_REQ (message_p).num_ue = enb_association->nb_ue_associated;
+    S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list = (s1_sig_conn_id_t*) calloc (enb_association->nb_ue_associated,
+                                                                                          sizeof (*(S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list)));
+    DevAssert(S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list != NULL);
+    arg.message_p = message_p;
+    hashtable_ts_apply_callback_on_elements(&enb_association->ue_coll, construct_s1ap_mme_full_reset_req, (void*)&arg, (void**) &message_p);
+  } else {
+    // Partial Reset
+    S1AP_ENB_INITIATED_RESET_REQ (message_p).num_ue = enb_reset_p->resetType.choice.partOfS1_Interface.list.count;
+    S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list = (s1_sig_conn_id_t*)
+                        calloc (enb_reset_p->resetType.choice.partOfS1_Interface.list.count, sizeof (*(S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list)));
+    DevAssert(S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list != NULL);
+    for (i = 0; i < enb_reset_p->resetType.choice.partOfS1_Interface.list.count; i++) {
+      s1_sig_conn_id_p = (S1ap_UE_associatedLogicalS1_ConnectionItem_t*) enb_reset_p->resetType.choice.partOfS1_Interface.list.array[i];
+      DevAssert(s1_sig_conn_id_p != NULL);
+
+      if (s1_sig_conn_id_p->mME_UE_S1AP_ID != NULL) {
+        mme_ue_s1ap_id = (mme_ue_s1ap_id_t) *(s1_sig_conn_id_p->mME_UE_S1AP_ID);
+        if ((ue_ref_p = s1ap_is_ue_mme_id_in_list (mme_ue_s1ap_id)) != NULL) {
+          if (s1_sig_conn_id_p->eNB_UE_S1AP_ID != NULL) {
+            enb_ue_s1ap_id = (enb_ue_s1ap_id_t) *(s1_sig_conn_id_p->eNB_UE_S1AP_ID);
+            if (ue_ref_p->enb_ue_s1ap_id == (enb_ue_s1ap_id & ENB_UE_S1AP_ID_MASK)) {
+              S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list[i].mme_ue_s1ap_id = &(ue_ref_p->mme_ue_s1ap_id);
+              enb_ue_s1ap_id &= ENB_UE_S1AP_ID_MASK;
+              S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list[i].enb_ue_s1ap_id = &enb_ue_s1ap_id;
+            } else {
+              // mismatch in enb_ue_s1ap_id sent by eNB and stored in S1AP ue context in EPC. Abnormal case.
+              S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list[i].mme_ue_s1ap_id = NULL;
+              S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list[i].enb_ue_s1ap_id = NULL;
+              OAILOG_ERROR (LOG_S1AP, "Partial Reset Request:enb_ue_s1ap_id mismatch between id %d sent by eNB and id %d stored in epc for mme_ue_s1ap_id %d \n",
+                          enb_ue_s1ap_id, ue_ref_p->enb_ue_s1ap_id, mme_ue_s1ap_id);
+            }
+          } else {
+            S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list[i].mme_ue_s1ap_id = &(ue_ref_p->mme_ue_s1ap_id);
+            S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list[i].enb_ue_s1ap_id = NULL;
+          }
+        } else {
+          OAILOG_ERROR (LOG_S1AP, "Partial Reset Request - No UE context found for mme_ue_s1ap_id %d \n", mme_ue_s1ap_id);
+          // TBD - Here MME should send Error Indication as it is abnormal scenario.
+          OAILOG_FUNC_RETURN (LOG_S1AP, RETURNerror);
+        }
+      } else {
+        if (s1_sig_conn_id_p->eNB_UE_S1AP_ID != NULL) {
+          enb_ue_s1ap_id = (enb_ue_s1ap_id_t) *(s1_sig_conn_id_p->eNB_UE_S1AP_ID);
+          if ((ue_ref_p = s1ap_is_ue_enb_id_in_list (enb_association, enb_ue_s1ap_id)) != NULL) {
+            enb_ue_s1ap_id &= ENB_UE_S1AP_ID_MASK;
+            S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list[i].enb_ue_s1ap_id = &enb_ue_s1ap_id;
+            if (ue_ref_p->mme_ue_s1ap_id != INVALID_MME_UE_S1AP_ID) {
+              S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list[i].mme_ue_s1ap_id = &(ue_ref_p->mme_ue_s1ap_id);
+            } else {
+              S1AP_ENB_INITIATED_RESET_REQ (message_p).ue_to_reset_list[i].mme_ue_s1ap_id = NULL;
+            }
+          } else {
+              OAILOG_ERROR (LOG_S1AP, "Partial Reset Request without any valid S1 signaling connection.Ignoring it \n");
+              // TBD - Here MME should send Error Indication as it is abnormal scenario.
+              OAILOG_FUNC_RETURN (LOG_S1AP, RETURNerror);
+          }
+        } else {
+          OAILOG_ERROR (LOG_S1AP, "Partial Reset Request without any valid S1 signaling connection.Ignoring it \n");
+          // TBD - Here MME should send Error Indication as it is abnormal scenario.
+          OAILOG_FUNC_RETURN (LOG_S1AP, RETURNerror);
+        }
+      }
+    }
+  }
+  rc =  itti_send_msg_to_task (TASK_MME_APP, INSTANCE_DEFAULT, message_p);
+  OAILOG_FUNC_RETURN (LOG_S1AP, rc);
+}
+
+//------------------------------------------------------------------------------
+int
+s1ap_handle_enb_initiated_reset_ack (
+  const itti_s1ap_enb_initiated_reset_ack_t * const enb_reset_ack_p)
+{
+  uint8_t                                *buffer = NULL;
+  uint32_t                                length = 0;
+  s1ap_message                            message = {0};
+  S1ap_ResetAcknowledgeIEs_t * s1ap_ResetAcknowledgeIEs_p = NULL;
+  S1ap_UE_associatedLogicalS1_ConnectionItem_t sig_conn_list[MAX_NUM_PARTIAL_S1_CONN_RESET] = {{0}};
+  S1ap_MME_UE_S1AP_ID_t mme_ue_id[MAX_NUM_PARTIAL_S1_CONN_RESET] = {0};
+  S1ap_ENB_UE_S1AP_ID_t enb_ue_id[MAX_NUM_PARTIAL_S1_CONN_RESET] = {0};
+
+
+  int                                     rc = RETURNok;
+
+  OAILOG_FUNC_IN (LOG_S1AP);
+
+  message.procedureCode = S1ap_ProcedureCode_id_Reset;
+  message.direction = S1AP_PDU_PR_successfulOutcome;
+  s1ap_ResetAcknowledgeIEs_p = &message.msg.s1ap_ResetAcknowledgeIEs;
+  s1ap_ResetAcknowledgeIEs_p->presenceMask = 0;
+
+  if (enb_reset_ack_p->s1ap_reset_type == RESET_PARTIAL) {
+    DevAssert(enb_reset_ack_p->num_ue > 0);
+    s1ap_ResetAcknowledgeIEs_p->presenceMask |= S1AP_RESETACKNOWLEDGEIES_UE_ASSOCIATEDLOGICALS1_CONNECTIONLISTRESACK_PRESENT;
+    s1ap_ResetAcknowledgeIEs_p->uE_associatedLogicalS1_ConnectionListResAck.s1ap_UE_associatedLogicalS1_ConnectionItemResAck.count = enb_reset_ack_p->num_ue;
+    for (uint32_t i = 0; i < enb_reset_ack_p->num_ue; i++) {
+      if (enb_reset_ack_p->ue_to_reset_list[i].mme_ue_s1ap_id != NULL) {
+        mme_ue_id[i] = *(enb_reset_ack_p->ue_to_reset_list[i].mme_ue_s1ap_id);
+        sig_conn_list[0].mME_UE_S1AP_ID = &mme_ue_id[i];
+      } else {
+        sig_conn_list[0].mME_UE_S1AP_ID = NULL;
+      }
+      if (enb_reset_ack_p->ue_to_reset_list[i].enb_ue_s1ap_id != NULL) {
+        enb_ue_id[i] = *(enb_reset_ack_p->ue_to_reset_list[i].enb_ue_s1ap_id);
+        sig_conn_list[0].eNB_UE_S1AP_ID = &enb_ue_id[i];
+      } else {
+        sig_conn_list[0].eNB_UE_S1AP_ID = NULL;
+      }
+      sig_conn_list[0].iE_Extensions = NULL;
+    }
+
+    ASN_SEQUENCE_ADD (&s1ap_ResetAcknowledgeIEs_p->uE_associatedLogicalS1_ConnectionListResAck.s1ap_UE_associatedLogicalS1_ConnectionItemResAck, sig_conn_list);
+  }
+  if (s1ap_mme_encode_pdu (&message, &buffer, &length) < 0) {
+    OAILOG_ERROR (LOG_S1AP, "Reset Ack encoding failed \n");
+    OAILOG_FUNC_RETURN (LOG_S1AP, RETURNerror);
+  }
+  bstring b = blk2bstr(buffer, length);
+  rc = s1ap_mme_itti_send_sctp_request (&b, enb_reset_ack_p->sctp_assoc_id, enb_reset_ack_p->sctp_stream_id, INVALID_MME_UE_S1AP_ID);
+  free_wrapper ((void**) &(enb_reset_ack_p->ue_to_reset_list));
+  OAILOG_FUNC_RETURN (LOG_S1AP, rc);
+}
+
+//------------------------------------------------------------------------------
+int
+s1ap_mme_handle_erab_setup_response (
+    const sctp_assoc_id_t assoc_id,
+    const sctp_stream_id_t stream,
+    struct s1ap_message_s *message)
+{
+  OAILOG_FUNC_IN (LOG_S1AP);
+  S1ap_E_RABSetupResponseIEs_t           *s1ap_E_RABSetupResponseIEs_p = NULL;
+  ue_description_t                       *ue_ref_p  = NULL;
+  MessageDef                             *message_p = NULL;
+  int                                     rc = RETURNok;
+
+  s1ap_E_RABSetupResponseIEs_p = &message->msg.s1ap_E_RABSetupResponseIEs;
+  MSC_LOG_RX_MESSAGE (MSC_S1AP_MME,
+                      MSC_S1AP_ENB,
+                      NULL, 0,
+                      "0 E_RABSetupResponse/%s enb_ue_s1ap_id " ENB_UE_S1AP_ID_FMT " mme_ue_s1ap_id " MME_UE_S1AP_ID_FMT " len %u",
+                      s1ap_direction2String[message->direction], s1ap_E_RABSetupResponseIEs_p->eNB_UE_S1AP_ID,
+                      s1ap_E_RABSetupResponseIEs_p->mme_ue_s1ap_id);
+
+  if ((ue_ref_p = s1ap_is_ue_mme_id_in_list ((uint32_t) s1ap_E_RABSetupResponseIEs_p->mme_ue_s1ap_id)) == NULL) {
+    OAILOG_DEBUG (LOG_S1AP, "No UE is attached to this mme UE s1ap id: " MME_UE_S1AP_ID_FMT "\n", (mme_ue_s1ap_id_t)s1ap_E_RABSetupResponseIEs_p->mme_ue_s1ap_id);
+    OAILOG_FUNC_RETURN (LOG_S1AP, RETURNerror);
+  }
+
+  if (ue_ref_p->enb_ue_s1ap_id != s1ap_E_RABSetupResponseIEs_p->eNB_UE_S1AP_ID) {
+    OAILOG_DEBUG (LOG_S1AP, "Mismatch in eNB UE S1AP ID, known: " ENB_UE_S1AP_ID_FMT ", received: " ENB_UE_S1AP_ID_FMT "\n",
+                ue_ref_p->enb_ue_s1ap_id, (enb_ue_s1ap_id_t)s1ap_E_RABSetupResponseIEs_p->eNB_UE_S1AP_ID);
+    OAILOG_FUNC_RETURN (LOG_S1AP, RETURNerror);
+  }
+
+  message_p = itti_alloc_new_message (TASK_S1AP, S1AP_E_RAB_SETUP_RSP);
+  AssertFatal (message_p != NULL, "itti_alloc_new_message Failed");
+  S1AP_E_RAB_SETUP_RSP (message_p).mme_ue_s1ap_id = ue_ref_p->mme_ue_s1ap_id;
+  S1AP_E_RAB_SETUP_RSP (message_p).enb_ue_s1ap_id = ue_ref_p->enb_ue_s1ap_id;
+  S1AP_E_RAB_SETUP_RSP (message_p).e_rab_setup_list.no_of_items = 0;
+  S1AP_E_RAB_SETUP_RSP (message_p).e_rab_failed_to_setup_list.no_of_items = 0;
+
+  if (s1ap_E_RABSetupResponseIEs_p->presenceMask & S1AP_E_RABSETUPRESPONSEIES_E_RABSETUPLISTBEARERSURES_PRESENT) {
+    int num_erab = s1ap_E_RABSetupResponseIEs_p->e_RABSetupListBearerSURes.s1ap_E_RABSetupItemBearerSURes.count;
+    for (int index = 0; index < num_erab; index++) {
+      S1ap_E_RABSetupItemBearerSURes_t * erab_setup_item =
+          (S1ap_E_RABSetupItemBearerSURes_t*)s1ap_E_RABSetupResponseIEs_p->e_RABSetupListBearerSURes.s1ap_E_RABSetupItemBearerSURes.array[index];
+      S1AP_E_RAB_SETUP_RSP (message_p).e_rab_setup_list.item[index].e_rab_id = erab_setup_item->e_RAB_ID;
+      S1AP_E_RAB_SETUP_RSP (message_p).e_rab_setup_list.item[index].transport_layer_address =
+          blk2bstr(erab_setup_item->transportLayerAddress.buf, erab_setup_item->transportLayerAddress.size);
+      S1AP_E_RAB_SETUP_RSP (message_p).e_rab_setup_list.item[index].gtp_teid = htonl (*((uint32_t *) erab_setup_item->gTP_TEID.buf));
+      S1AP_E_RAB_SETUP_RSP (message_p).e_rab_setup_list.no_of_items += 1;
+    }
+  }
+
+  if (s1ap_E_RABSetupResponseIEs_p->presenceMask & S1AP_E_RABSETUPRESPONSEIES_E_RABFAILEDTOSETUPLISTBEARERSURES_PRESENT) {
+    int num_erab = s1ap_E_RABSetupResponseIEs_p->e_RABFailedToSetupListBearerSURes.s1ap_E_RABItem.count;
+    for (int index = 0; index < num_erab; index++) {
+      S1ap_E_RABItem_t * erab_item = (S1ap_E_RABItem_t *)s1ap_E_RABSetupResponseIEs_p->e_RABFailedToSetupListBearerSURes.s1ap_E_RABItem.array[index];
+      S1AP_E_RAB_SETUP_RSP (message_p).e_rab_failed_to_setup_list.item[index].e_rab_id = erab_item->e_RAB_ID;
+      S1AP_E_RAB_SETUP_RSP (message_p).e_rab_failed_to_setup_list.item[index].cause = erab_item->cause;
+      S1AP_E_RAB_SETUP_RSP (message_p).e_rab_failed_to_setup_list.no_of_items += 1;
+    }
+  }
+
+  MSC_LOG_TX_MESSAGE (MSC_S1AP_MME,
+                      MSC_MMEAPP_MME,
+                      NULL, 0,
+                      "0 S1AP_E_RAB_SETUP_RSP mme_ue_s1ap_id " MME_UE_S1AP_ID_FMT " ");
+  rc =  itti_send_msg_to_task (TASK_MME_APP, INSTANCE_DEFAULT, message_p);
+  OAILOG_FUNC_RETURN (LOG_S1AP, rc);
+}
+
+//------------------------------------------------------------------------------
+int s1ap_mme_handle_erab_setup_failure (const sctp_assoc_id_t assoc_id,
+    const sctp_stream_id_t stream, struct s1ap_message_s *message)
+{
+  AssertFatal(0, "TODO");
+}

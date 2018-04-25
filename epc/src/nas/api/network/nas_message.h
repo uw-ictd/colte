@@ -42,7 +42,7 @@ Description Defines the layer 3 messages supported by the NAS sublayer
 
 #include "commonDef.h"
 #include "emm_msg.h"
-#include "emmData.h"
+#include "emm_data.h"
 #include "esm_msg.h"
 
 /****************************************************************************/
@@ -105,6 +105,12 @@ typedef struct nas_message_decode_status_s {
 /****************************************************************************/
 /******************  E X P O R T E D    F U N C T I O N S  ******************/
 /****************************************************************************/
+int nas_message_header_decode (
+    const unsigned char * const buffer,
+    nas_message_security_header_t * const header,
+    const size_t length,
+    nas_message_decode_status_t * const status,
+    bool * const is_sr);
 
 int nas_message_encrypt(
     const unsigned char                 *inbuf,

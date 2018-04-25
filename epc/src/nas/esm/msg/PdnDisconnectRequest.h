@@ -19,19 +19,12 @@
  *      contact@openairinterface.org
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
-#include "ProtocolDiscriminator.h"
-#include "EpsBearerIdentity.h"
-#include "ProcedureTransactionIdentity.h"
-#include "MessageType.h"
-#include "LinkedEpsBearerIdentity.h"
-#include "ProtocolConfigurationOptions.h"
-
 #ifndef PDN_DISCONNECT_REQUEST_H_
 #define PDN_DISCONNECT_REQUEST_H_
+#include "MessageType.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define PDN_DISCONNECT_REQUEST_MINIMUM_LENGTH ( \
@@ -40,7 +33,7 @@
 /* Maximum length macro. Formed by maximum length of each field */
 #define PDN_DISCONNECT_REQUEST_MAXIMUM_LENGTH ( \
     LINKED_EPS_BEARER_IDENTITY_MAXIMUM_LENGTH + \
-    PROTOCOL_CONFIGURATION_OPTIONS_MAXIMUM_LENGTH )
+    PROTOCOL_CONFIGURATION_OPTIONS_IE_MAX_LENGTH )
 
 /* If an optional value is present and should be encoded, the corresponding
  * Bit mask should be set to 1.
@@ -48,7 +41,7 @@
 # define PDN_DISCONNECT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT (1<<0)
 
 typedef enum pdn_disconnect_request_iei_tag {
-  PDN_DISCONNECT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = 0x27, /* 0x27 = 39 */
+  PDN_DISCONNECT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = SM_PROTOCOL_CONFIGURATION_OPTIONS_IEI,
 } pdn_disconnect_request_iei;
 
 /*
@@ -60,14 +53,14 @@ typedef enum pdn_disconnect_request_iei_tag {
 
 typedef struct pdn_disconnect_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator               protocoldiscriminator:4;
-  EpsBearerIdentity                   epsbeareridentity:4;
-  ProcedureTransactionIdentity        proceduretransactionidentity;
-  MessageType                         messagetype;
-  LinkedEpsBearerIdentity             linkedepsbeareridentity;
+  eps_protocol_discriminator_t                           protocoldiscriminator:4;
+  ebi_t                                                  epsbeareridentity:4;
+  pti_t                                                  proceduretransactionidentity;
+  message_type_t                                         messagetype;
+  linked_eps_bearer_identity_t                                linkedepsbeareridentity;
   /* Optional fields */
-  uint32_t                            presencemask;
-  ProtocolConfigurationOptions        protocolconfigurationoptions;
+  uint32_t                                               presencemask;
+  protocol_configuration_options_t                       protocolconfigurationoptions;
 } pdn_disconnect_request_msg;
 
 int decode_pdn_disconnect_request(pdn_disconnect_request_msg *pdndisconnectrequest, uint8_t *buffer, uint32_t len);

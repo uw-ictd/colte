@@ -19,14 +19,13 @@
  *      contact@openairinterface.org
  */
 
-#ifndef EPS_NETWORK_FEATURE_SUPPORT_H_
-#define EPS_NETWORK_FEATURE_SUPPORT_H_
-#include <stdint.h>
+#ifndef EPS_NETWORK_FEATURE_SUPPORT_SEEN
+#define EPS_NETWORK_FEATURE_SUPPORT_SEEN
 
 #define EPS_NETWORK_FEATURE_SUPPORT_MINIMUM_LENGTH 3
 #define EPS_NETWORK_FEATURE_SUPPORT_MAXIMUM_LENGTH 3
 
-typedef uint8_t EpsNetworkFeatureSupport;
+typedef uint8_t eps_network_feature_support_t;
 
 #define EPS_NETWORK_FEATURE_SUPPORT_IMS_VOICE_OVER_PS_SESSION_IN_S1_NOT_SUPPORTED        0x00
 #define EPS_NETWORK_FEATURE_SUPPORT_IMS_VOICE_OVER_PS_SESSION_IN_S1_SUPPORTED            0x01
@@ -50,12 +49,9 @@ typedef uint8_t EpsNetworkFeatureSupport;
 #define EPS_NETWORK_FEATURE_SUPPORT_EXTENDED_SERVICE_REQUEST_SUPPORTED                   0x20
 #define EPS_NETWORK_FEATURE_SUPPORT_EXTENDED_SERVICE_REQUEST_BITMASK                     0x20
 
+int encode_eps_network_feature_support(eps_network_feature_support_t *epsnetworkfeaturesupport, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-int encode_eps_network_feature_support(EpsNetworkFeatureSupport *epsnetworkfeaturesupport, uint8_t iei, uint8_t *buffer, uint32_t len);
+int decode_eps_network_feature_support(eps_network_feature_support_t *epsnetworkfeaturesupport, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-int decode_eps_network_feature_support(EpsNetworkFeatureSupport *epsnetworkfeaturesupport, uint8_t iei, uint8_t *buffer, uint32_t len);
-
-void dump_eps_network_feature_support_xml(EpsNetworkFeatureSupport *epsnetworkfeaturesupport, uint8_t iei);
-
-#endif /* EPS NETWORK FEATURE SUPPORT_H_ */
+#endif /* EPS_NETWORK_FEATURE_SUPPORT_SEEN */
 

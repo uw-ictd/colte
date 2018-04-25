@@ -40,8 +40,6 @@ Description Defines the EPS Session Management procedure call manager,
 #ifndef __ESM_MAIN_H__
 #define __ESM_MAIN_H__
 
-#include "networkDef.h"
-
 /****************************************************************************/
 /*********************  G L O B A L    C O N S T A N T S  *******************/
 /****************************************************************************/

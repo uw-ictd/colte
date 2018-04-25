@@ -23,8 +23,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "assertions.h"
+#include "3gpp_24.301.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "NASSecurityModeCommand.h"
@@ -68,12 +73,12 @@ decode_security_mode_command (
     /*
      * Type | value iei are below 0x80 so just return the first 4 bits
      */
-    if (ieiDecoded >= 0x80)
+    if (ieiDecoded >= SECURITY_MODE_COMMAND_IMEISV_REQUEST_IEI)
       ieiDecoded = ieiDecoded & 0xf0;
 
     switch (ieiDecoded) {
     case SECURITY_MODE_COMMAND_IMEISV_REQUEST_IEI:
-      if ((decoded_result = decode_imeisv_request (&security_mode_command->imeisvrequest, SECURITY_MODE_COMMAND_IMEISV_REQUEST_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_imeisv_request_ie (&security_mode_command->imeisvrequest, SECURITY_MODE_COMMAND_IMEISV_REQUEST_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -107,6 +112,7 @@ decode_security_mode_command (
 
     default:
       errorCodeDecoder = TLV_UNEXPECTED_IEI;
+      OAILOG_ERROR (LOG_NAS_EMM, "Failed to decode SECURITY_MODE_COMMAND unexpected IEI 0x%02x\n", ieiDecoded);
       return TLV_UNEXPECTED_IEI;
     }
   }
@@ -143,7 +149,7 @@ encode_security_mode_command (
 
   if ((security_mode_command->presencemask & SECURITY_MODE_COMMAND_IMEISV_REQUEST_PRESENT)
       == SECURITY_MODE_COMMAND_IMEISV_REQUEST_PRESENT) {
-    if ((encode_result = encode_imeisv_request (&security_mode_command->imeisvrequest, SECURITY_MODE_COMMAND_IMEISV_REQUEST_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_imeisv_request_ie (&security_mode_command->imeisvrequest, SECURITY_MODE_COMMAND_IMEISV_REQUEST_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

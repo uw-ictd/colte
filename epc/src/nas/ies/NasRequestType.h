@@ -19,28 +19,26 @@
  *      contact@openairinterface.org
  */
 
-#ifndef NAS_REQUEST_TYPE_H_
-#define NAS_REQUEST_TYPE_H_
-#include <stdint.h>
+#ifndef NAS_REQUEST_TYPE_SEEN
+#define NAS_REQUEST_TYPE_SEEN
 
 #define REQUEST_TYPE_MINIMUM_LENGTH 1
 #define REQUEST_TYPE_MAXIMUM_LENGTH 1
 
 #define REQUEST_TYPE_INITIAL_REQUEST  0b001
-#define REQUEST_TYPE_HANDOVER   0b010
-#define REQUEST_TYPE_UNUSED   0b011
-#define REQUEST_TYPE_EMERGENCY    0b100
-typedef uint8_t RequestType;
+#define REQUEST_TYPE_HANDOVER         0b010
+#define REQUEST_TYPE_UNUSED           0b011
+#define REQUEST_TYPE_EMERGENCY        0b100
 
-int encode_request_type(RequestType *requesttype, uint8_t iei, uint8_t *buffer, uint32_t len);
+typedef uint8_t request_type_t;
 
-void dump_request_type_xml(RequestType *requesttype, uint8_t iei);
+int encode_request_type(request_type_t *requesttype, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-uint8_t encode_u8_request_type(RequestType *requesttype);
+uint8_t encode_u8_request_type(request_type_t *requesttype);
 
-int decode_request_type(RequestType *requesttype, uint8_t iei, uint8_t *buffer, uint32_t len);
+int decode_request_type(request_type_t *requesttype, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-int decode_u8_request_type(RequestType *requesttype, uint8_t iei, uint8_t value, uint32_t len);
+int decode_u8_request_type(request_type_t *requesttype, uint8_t iei, uint8_t value, uint32_t len);
 
-#endif /* NAS_REQUEST_TYPE_H_ */
+#endif /* NAS_REQUEST_TYPE_SEEN */
 

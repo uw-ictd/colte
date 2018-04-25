@@ -23,13 +23,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "msc.h"
 #include "assertions.h"
+#include "conversions.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "AttachAccept.h"
-#include "log.h"
 
 int
 decode_attach_accept (
@@ -51,7 +55,7 @@ decode_attach_accept (
 
   decoded++;
 
-  if ((decoded_result = decode_gprs_timer (&attach_accept->t3412value, 0, buffer + decoded, len - decoded)) < 0)
+  if ((decoded_result = decode_gprs_timer_ie (&attach_accept->t3412value, 0, buffer + decoded, len - decoded)) < 0)
     return decoded_result;
   else
     decoded += decoded_result;
@@ -92,7 +96,7 @@ decode_attach_accept (
       break;
 
     case ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI:
-      if ((decoded_result = decode_location_area_identification (&attach_accept->locationareaidentification, ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_location_area_identification_ie (&attach_accept->locationareaidentification, ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -103,7 +107,7 @@ decode_attach_accept (
       break;
 
     case ATTACH_ACCEPT_MS_IDENTITY_IEI:
-      if ((decoded_result = decode_mobile_identity (&attach_accept->msidentity, ATTACH_ACCEPT_MS_IDENTITY_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_mobile_identity_ie (&attach_accept->msidentity, ATTACH_ACCEPT_MS_IDENTITY_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -125,7 +129,7 @@ decode_attach_accept (
       break;
 
     case ATTACH_ACCEPT_T3402_VALUE_IEI:
-      if ((decoded_result = decode_gprs_timer (&attach_accept->t3402value, ATTACH_ACCEPT_T3402_VALUE_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_gprs_timer_ie (&attach_accept->t3402value, ATTACH_ACCEPT_T3402_VALUE_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -136,7 +140,7 @@ decode_attach_accept (
       break;
 
     case ATTACH_ACCEPT_T3423_VALUE_IEI:
-      if ((decoded_result = decode_gprs_timer (&attach_accept->t3423value, ATTACH_ACCEPT_T3423_VALUE_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_gprs_timer_ie (&attach_accept->t3423value, ATTACH_ACCEPT_T3423_VALUE_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -147,7 +151,7 @@ decode_attach_accept (
       break;
 
     case ATTACH_ACCEPT_EQUIVALENT_PLMNS_IEI:
-      if ((decoded_result = decode_plmn_list (&attach_accept->equivalentplmns, ATTACH_ACCEPT_EQUIVALENT_PLMNS_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_plmn_list_ie (&attach_accept->equivalentplmns, ATTACH_ACCEPT_EQUIVALENT_PLMNS_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -158,7 +162,7 @@ decode_attach_accept (
       break;
 
     case ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_IEI:
-      if ((decoded_result = decode_emergency_number_list (&attach_accept->emergencynumberlist, ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_emergency_number_list_ie (&attach_accept->emergencynumberlist, ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -199,8 +203,8 @@ decode_attach_accept (
   return decoded;
 }
 
-int
-encode_attach_accept (
+//------------------------------------------------------------------------------
+int encode_attach_accept (
   attach_accept_msg * attach_accept,
   uint8_t * buffer,
   uint32_t len)
@@ -216,8 +220,8 @@ encode_attach_accept (
   *(buffer + encoded) = (encode_u8_eps_attach_result (&attach_accept->epsattachresult) & 0x0f);
   encoded++;
 
-  if ((encode_result = encode_gprs_timer (&attach_accept->t3412value, 0, buffer + encoded, len - encoded)) < 0) {       //Return in case of error
-    OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_gprs_timer\n");
+  if ((encode_result = encode_gprs_timer_ie (&attach_accept->t3412value, 0, buffer + encoded, len - encoded)) < 0) {       //Return in case of error
+    OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_gprs_timer_ie\n");
     OAILOG_FUNC_RETURN (LOG_NAS_EMM, encode_result);
   } else
     encoded += encode_result;
@@ -246,8 +250,8 @@ encode_attach_accept (
 
   if ((attach_accept->presencemask & ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_PRESENT)
       == ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_PRESENT) {
-    if ((encode_result = encode_location_area_identification (&attach_accept->locationareaidentification, ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI, buffer + encoded, len - encoded)) < 0) {
-      OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_location_area_identification\n");
+    if ((encode_result = encode_location_area_identification_ie (&attach_accept->locationareaidentification, ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI, buffer + encoded, len - encoded)) < 0) {
+      OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_location_area_identification_ie\n");
       // Return in case of error
       OAILOG_FUNC_RETURN (LOG_NAS_EMM, encode_result);
     } else
@@ -256,8 +260,8 @@ encode_attach_accept (
 
   if ((attach_accept->presencemask & ATTACH_ACCEPT_MS_IDENTITY_PRESENT)
       == ATTACH_ACCEPT_MS_IDENTITY_PRESENT) {
-    if ((encode_result = encode_mobile_identity (&attach_accept->msidentity, ATTACH_ACCEPT_MS_IDENTITY_IEI, buffer + encoded, len - encoded)) < 0) {
-      OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_mobile_identity\n");
+    if ((encode_result = encode_mobile_identity_ie (&attach_accept->msidentity, ATTACH_ACCEPT_MS_IDENTITY_IEI, buffer + encoded, len - encoded)) < 0) {
+      OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_mobile_identity_ie\n");
       // Return in case of error
       OAILOG_FUNC_RETURN (LOG_NAS_EMM, encode_result);
     } else
@@ -275,8 +279,8 @@ encode_attach_accept (
 
   if ((attach_accept->presencemask & ATTACH_ACCEPT_T3402_VALUE_PRESENT)
       == ATTACH_ACCEPT_T3402_VALUE_PRESENT) {
-    if ((encode_result = encode_gprs_timer (&attach_accept->t3402value, ATTACH_ACCEPT_T3402_VALUE_IEI, buffer + encoded, len - encoded)) < 0) {
-      OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_gprs_timer\n");
+    if ((encode_result = encode_gprs_timer_ie (&attach_accept->t3402value, ATTACH_ACCEPT_T3402_VALUE_IEI, buffer + encoded, len - encoded)) < 0) {
+      OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_gprs_timer_ie\n");
       // Return in case of error
       OAILOG_FUNC_RETURN (LOG_NAS_EMM, encode_result);
     } else
@@ -285,8 +289,8 @@ encode_attach_accept (
 
   if ((attach_accept->presencemask & ATTACH_ACCEPT_T3423_VALUE_PRESENT)
       == ATTACH_ACCEPT_T3423_VALUE_PRESENT) {
-    if ((encode_result = encode_gprs_timer (&attach_accept->t3423value, ATTACH_ACCEPT_T3423_VALUE_IEI, buffer + encoded, len - encoded)) < 0) {
-      OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_gprs_timer\n");
+    if ((encode_result = encode_gprs_timer_ie (&attach_accept->t3423value, ATTACH_ACCEPT_T3423_VALUE_IEI, buffer + encoded, len - encoded)) < 0) {
+      OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_gprs_timer_ie\n");
       // Return in case of error
       OAILOG_FUNC_RETURN (LOG_NAS_EMM, encode_result);
     } else
@@ -295,8 +299,8 @@ encode_attach_accept (
 
   if ((attach_accept->presencemask & ATTACH_ACCEPT_EQUIVALENT_PLMNS_PRESENT)
       == ATTACH_ACCEPT_EQUIVALENT_PLMNS_PRESENT) {
-    if ((encode_result = encode_plmn_list (&attach_accept->equivalentplmns, ATTACH_ACCEPT_EQUIVALENT_PLMNS_IEI, buffer + encoded, len - encoded)) < 0) {
-      OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_plmn_list\n");
+    if ((encode_result = encode_plmn_list_ie (&attach_accept->equivalentplmns, ATTACH_ACCEPT_EQUIVALENT_PLMNS_IEI, buffer + encoded, len - encoded)) < 0) {
+      OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_plmn_list_ie\n");
       // Return in case of error
       OAILOG_FUNC_RETURN (LOG_NAS_EMM, encode_result);
     } else
@@ -305,7 +309,7 @@ encode_attach_accept (
 
   if ((attach_accept->presencemask & ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_PRESENT)
       == ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_PRESENT) {
-    if ((encode_result = encode_emergency_number_list (&attach_accept->emergencynumberlist, ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_IEI, buffer + encoded, len - encoded)) < 0) {
+    if ((encode_result = encode_emergency_number_list_ie (&attach_accept->emergencynumberlist, ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_IEI, buffer + encoded, len - encoded)) < 0) {
     	OAILOG_ERROR (LOG_NAS_EMM, "Failed encode_emergency_number_list\n");
       // Return in case of error
       OAILOG_FUNC_RETURN (LOG_NAS_EMM, encode_result);

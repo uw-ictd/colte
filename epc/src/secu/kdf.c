@@ -44,7 +44,7 @@ kdf (
   hmac_sha256_set_key (ctx, key_len, key);
   hmac_sha256_update (ctx, s_len, s);
   hmac_sha256_digest (ctx, out_len, out);
-  free_wrapper((void**) &ctx);
+  free_wrapper((void**)&ctx);
 }
 
 int

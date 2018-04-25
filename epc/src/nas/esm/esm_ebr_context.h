@@ -35,10 +35,8 @@ Author      Frederic Maurel
 Description Defines functions used to handle EPS bearer contexts.
 
 *****************************************************************************/
-#ifndef __ESM_EBR_CONTEXT_H__
-#define __ESM_EBR_CONTEXT_H__
-
-#include "networkDef.h"
+#ifndef ESM_EBR_CONTEXT_SEEN
+#define ESM_EBR_CONTEXT_SEEN
 
 /****************************************************************************/
 /*********************  G L O B A L    C O N S T A N T S  *******************/
@@ -57,12 +55,16 @@ Description Defines functions used to handle EPS bearer contexts.
 /******************  E X P O R T E D    F U N C T I O N S  ******************/
 /****************************************************************************/
 
+#define IS_DEFAULT_BEARER_YES true
+#define IS_DEFAULT_BEARER_NO  false
+ebi_t esm_ebr_context_create(emm_context_t * emm_context, const proc_tid_t pti, pdn_cid_t pid, ebi_t ebi, bool is_default,
+    const qci_t qci, const bitrate_t gbr_dl, const bitrate_t gbr_ul, const bitrate_t mbr_dl, const bitrate_t mbr_ul,
+    traffic_flow_template_t * tft, protocol_configuration_options_t * pco);
 
-int esm_ebr_context_create(emm_data_context_t *ctx, int pid, int ebi, int is_default,
-                           const network_qos_t *qos, const network_tft_t *tft);
+void esm_ebr_context_init (esm_ebr_context_t *esm_ebr_context);
 
-int esm_ebr_context_release(emm_data_context_t *ctx, int ebi, int *pid, int *bid);
+ebi_t esm_ebr_context_release(emm_context_t * emm_context, ebi_t ebi, pdn_cid_t *pid, int *bid);
 
 void free_esm_ebr_context(esm_ebr_context_t * ctx);
 
-#endif /* __ESM_EBR_CONTEXT_H__ */
+#endif /* ESM_EBR_CONTEXT_SEEN */

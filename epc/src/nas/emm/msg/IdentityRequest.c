@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "assertions.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "IdentityRequest.h"
@@ -44,7 +48,7 @@ decode_identity_request (
   /*
    * Decoding mandatory fields
    */
-  if ((decoded_result = decode_u8_identity_type_2 (&identity_request->identitytype, 0, *(buffer + decoded) >> 4, len - decoded)) < 0)
+  if ((decoded_result = decode_identity_type_2_ie (&identity_request->identitytype, false, buffer + decoded, len - decoded)) < 0)
     return decoded_result;
 
   decoded++;
@@ -63,7 +67,6 @@ encode_identity_request (
    * Checking IEI and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, IDENTITY_REQUEST_MINIMUM_LENGTH, len);
-  *(buffer + encoded) = encode_u8_identity_type_2 (&identity_request->identitytype) & 0x0f;
-  encoded++;
+  encoded += encode_identity_type_2_ie (&identity_request->identitytype, false, buffer, IDENTITY_TYPE_2_IE_MIN_LENGTH);
   return encoded;
 }

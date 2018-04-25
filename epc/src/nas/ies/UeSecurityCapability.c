@@ -22,16 +22,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <string.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
+#include "3gpp_24.301.h"
 #include "UeSecurityCapability.h"
 
-int
-decode_ue_security_capability (
-  UeSecurityCapability * uesecuritycapability,
+//------------------------------------------------------------------------------
+int decode_ue_security_capability (
+    ue_security_capability_t * uesecuritycapability,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -44,7 +46,7 @@ decode_ue_security_capability (
     decoded++;
   }
 
-  memset (uesecuritycapability, 0, sizeof (UeSecurityCapability));
+  memset (uesecuritycapability, 0, sizeof (ue_security_capability_t));
   ielen = *(buffer + decoded);
   decoded++;
   CHECK_LENGTH_DECODER (len - decoded, ielen);
@@ -53,28 +55,25 @@ decode_ue_security_capability (
   uesecuritycapability->eia = *(buffer + decoded);
   decoded++;
 
-  if (len >= decoded + 3) {
+  if (len >= (decoded + 2)) {
     uesecuritycapability->umts_present = 1;
     uesecuritycapability->uea = *(buffer + decoded);
     decoded++;
     uesecuritycapability->uia = *(buffer + decoded) & 0x7f;
     decoded++;
 
-    if (len == decoded + 4) {
+    if (len >= (decoded + 1)) {
       uesecuritycapability->gprs_present = 1;
       uesecuritycapability->gea = *(buffer + decoded) & 0x7f;
       decoded++;
     }
   }
-#if NAS_DEBUG
-  dump_ue_security_capability_xml (uesecuritycapability, iei);
-#endif
   return decoded;
 }
 
-int
-encode_ue_security_capability (
-  UeSecurityCapability * uesecuritycapability,
+//------------------------------------------------------------------------------
+int encode_ue_security_capability (
+    ue_security_capability_t * uesecuritycapability,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -86,9 +85,6 @@ encode_ue_security_capability (
    * Checking IEI and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, UE_SECURITY_CAPABILITY_MAXIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_ue_security_capability_xml (uesecuritycapability, iei);
-#endif
 
   if (iei > 0) {
     *buffer = iei;
@@ -133,30 +129,3 @@ encode_ue_security_capability (
   return encoded;
 }
 
-void
-dump_ue_security_capability_xml (
-  UeSecurityCapability * uesecuritycapability,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Ue Security Capability>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <EEA>%08X</EEA>\n", uesecuritycapability->eea);
-  OAILOG_DEBUG (LOG_NAS, "    <EIA>%08X</EIA>\n", uesecuritycapability->eia);
-
-  if (uesecuritycapability->umts_present == 1) {
-    OAILOG_DEBUG (LOG_NAS, "    <UEA>%08X</UEA>\n", uesecuritycapability->uea);
-    OAILOG_DEBUG (LOG_NAS, "    <UIA>%08X</UIA>\n", uesecuritycapability->uia);
-  }
-
-  if (uesecuritycapability->gprs_present == 1) {
-    OAILOG_DEBUG (LOG_NAS, "    <GEA>%08X</GEA>\n", uesecuritycapability->gea);
-  }
-
-  OAILOG_DEBUG (LOG_NAS, "</Ue Security Capability>\n");
-}

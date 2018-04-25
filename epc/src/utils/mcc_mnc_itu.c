@@ -27,6 +27,12 @@
  * either expressed or implied, of the FreeBSD Project.
  */
 
+/*! \file mcc_mnc_itu.c
+  \brief
+  \author Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #include <stdlib.h>
 #include <stdint.h>

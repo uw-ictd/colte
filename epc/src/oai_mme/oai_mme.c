@@ -19,25 +19,46 @@
  *      contact@openairinterface.org
  */
 
+/*! \file oai_mme.c
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 #include <stdio.h>
+#include <pthread.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <syslog.h>
-#include <string.h>
 
 #if HAVE_CONFIG_H
 #  include "config.h"
 #endif
 
+#include "bstrlib.h"
+
+
+#include "log.h"
 #include "dynamic_memory_check.h"
 #include "assertions.h"
-#include "log.h"
 #include "msc.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.008.h"
+#include "3gpp_33.401.h"
+#include "3gpp_24.007.h"
+#include "3gpp_36.401.h"
+#include "3gpp_36.331.h"
+#include "security_types.h"
+#include "common_types.h"
+#include "common_defs.h"
 #include "mme_config.h"
 
 #include "intertask_interface_init.h"
@@ -58,10 +79,6 @@
 #include "oai_mme.h"
 #include "pid_file.h"
 
-#if ENBRAINS
-#   include "enbrains.h"
-#endif
-
 int
 main (
   int argc,
@@ -70,21 +87,20 @@ main (
   char *pid_dir;
   char *pid_file_name;
 
-//  CHECK_INIT_RETURN (OAILOG_INIT (LOG_SPGW_ENV, OAILOG_LEVEL_DEBUG, MAX_LOG_PROTOS));
+  CHECK_INIT_RETURN (shared_log_init (MAX_LOG_PROTOS));
+  CHECK_INIT_RETURN (OAILOG_INIT (LOG_SPGW_ENV, OAILOG_LEVEL_DEBUG, MAX_LOG_PROTOS));
   /*
    * Parse the command line for options and set the mme_config accordingly.
    */
-//  CHECK_INIT_RETURN (mme_config_parse_opt_line (argc, argv, &mme_config));
+  CHECK_INIT_RETURN (mme_config_parse_opt_line (argc, argv, &mme_config));
 
-//  pid_dir = bstr2cstr(mme_config.pid_dir, 1);
-//  if (pid_dir == NULL) {
-//      pid_file_name = get_exe_absolute_path("/var/run");
-//  } else {
-//      pid_file_name = get_exe_absolute_path(pid_dir);
-//      bcstrfree(pid_dir);
-//  }
-
-  pid_file_name = get_exe_absolute_path("/var/run");
+  pid_dir = bstr2cstr(mme_config.pid_dir, 1);
+  if (pid_dir == NULL) {
+      pid_file_name = get_exe_absolute_path("/var/run");
+  } else {
+      pid_file_name = get_exe_absolute_path(pid_dir);
+      bcstrfree(pid_dir);
+  }
 
 #if DAEMONIZE
   pid_t pid, sid; // Our process ID and Session ID
@@ -118,35 +134,25 @@ main (
   close(STDOUT_FILENO);
   close(STDERR_FILENO);
 
-  openlog(NULL, 0, LOG_DAEMON);
 
   if (! is_pid_file_lock_success(pid_file_name)) {
     closelog();
-    free_wrapper((void **) &pid_file_name);
+    free_wrapper((void**)&pid_file_name);
     exit (-EDEADLK);
   }
 #else
   if (! is_pid_file_lock_success(pid_file_name)) {
-    free_wrapper((void**) &pid_file_name);
+    free_wrapper((void**)&pid_file_name);
     exit (-EDEADLK);
   }
 #endif
 
+
+  CHECK_INIT_RETURN (itti_init (TASK_MAX, THREAD_MAX, MESSAGES_ID_MAX, tasks_info, messages_info, NULL, NULL));
+  MSC_INIT (MSC_MME, THREAD_MAX + TASK_MAX);
   /*
    * Calling each layer init function
    */
-  CHECK_INIT_RETURN (OAILOG_INIT (LOG_SPGW_ENV, OAILOG_LEVEL_DEBUG, MAX_LOG_PROTOS));
-  CHECK_INIT_RETURN (mme_config_parse_opt_line (argc, argv, &mme_config));
-
-  //CHECK_INIT_RETURN (log_init (&mme_config, oai_mme_log_specific));
-  CHECK_INIT_RETURN (itti_init (TASK_MAX, THREAD_MAX, MESSAGES_ID_MAX, tasks_info, messages_info,
-#if ENABLE_ITTI_ANALYZER
-          messages_definition_xml,
-#else
-          NULL,
-#endif
-          NULL));
-  MSC_INIT (MSC_MME, THREAD_MAX + TASK_MAX);
   CHECK_INIT_RETURN (nas_init (&mme_config));
   CHECK_INIT_RETURN (sctp_init (&mme_config));
   CHECK_INIT_RETURN (udp_init ());
@@ -155,16 +161,12 @@ main (
   CHECK_INIT_RETURN (mme_app_init (&mme_config));
   CHECK_INIT_RETURN (s6a_init (&mme_config));
 
-#if ENBRAINS
-  CHECK_INIT_RETURN (enbrains_mme_init());
-#endif
-
   OAILOG_DEBUG(LOG_MME_APP, "MME app initialization complete\n");
   /*
    * Handle signals here
    */
   itti_wait_tasks_end ();
   pid_file_unlock();
-  free_wrapper((void**) &pid_file_name);
+  free_wrapper((void**)&pid_file_name);
   return 0;
 }

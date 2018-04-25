@@ -19,66 +19,82 @@
  *      contact@openairinterface.org
  */
 
+/*! \file nas_itti_messaging.h
+   \brief
+   \author  Sebastien ROUX, Lionel GAUTHIER
+   \date
+   \email: lionel.gauthier@eurecom.fr
+*/
 
 #ifndef FILE_NAS_ITTI_MESSAGING_SEEN
 #define FILE_NAS_ITTI_MESSAGING_SEEN
-#include <stdint.h>
 
-#include "bstrlib.h"
-#include "assertions.h"
-#include "log.h"
-#include "msc.h"
-#include "intertask_interface.h"
-#include "3gpp_24.301.h"
+#include "nas_message.h"
+#include "as_message.h"
 #include "esm_proc.h"
-
-int nas_itti_plain_msg(
-  const char          *buffer,
-  const nas_message_t *msg,
-  const size_t         lengthP,
-  const bool           is_down_link);
-
-int nas_itti_protected_msg(
-  const char          *buffer,
-  const nas_message_t *msg,
-  const size_t         lengthP,
-  const bool           is_down_link);
-
 
 int nas_itti_dl_data_req(
   const mme_ue_s1ap_id_t ue_idP,
   bstring                nas_msgP,
   nas_error_code_t transaction_status);
 
-void nas_itti_pdn_connectivity_req(
+int
+nas_itti_erab_setup_req (
+    const mme_ue_s1ap_id_t ue_id,
+    const ebi_t            ebi,
+    const bitrate_t        mbr_dl,
+    const bitrate_t        mbr_ul,
+    const bitrate_t        gbr_dl,
+    const bitrate_t        gbr_ul,
+    bstring                nas_msg);
+
+void nas_itti_pdn_config_req(
   int                     ptiP,
   unsigned int            ue_idP,
   const imsi_t           *const imsi_pP,
   esm_proc_data_t        *proc_data_pP,
   esm_proc_pdn_request_t  request_typeP);
 
+void nas_itti_pdn_connectivity_req(
+  int                     ptiP,
+  const mme_ue_s1ap_id_t  ue_idP,
+  const pdn_cid_t         pdn_cidP,
+  const imsi_t           *const imsi_pP,
+  esm_proc_data_t        *proc_data_pP,
+  esm_proc_pdn_request_t  request_typeP);
+
 void nas_itti_auth_info_req(
-  const uint32_t        ue_idP,
-  const imsi64_t        imsi64_P,
-  const bool            is_initial_reqP,
-  plmn_t        * const visited_plmnP,
-  const uint8_t         num_vectorsP,
-  const_bstring   const auts_pP);
+  const mme_ue_s1ap_id_t ue_idP,
+  const imsi_t   * const imsiP,
+  const bool             is_initial_reqP,
+  plmn_t         * const visited_plmnP,
+  const uint8_t          num_vectorsP,
+  const_bstring    const auts_pP);
 
 void nas_itti_establish_rej(
-  const uint32_t      ue_idP,
-  const imsi_t *const imsi_pP
-  , uint8_t           initial_reqP);
+  const mme_ue_s1ap_id_t ue_idP,
+  const imsi_t  * const imsi_pP,
+  uint8_t             initial_reqP);
 
 void nas_itti_establish_cnf(
-  const uint32_t         ue_idP,
+  const mme_ue_s1ap_id_t ue_idP,
   const nas_error_code_t error_codeP,
   bstring                msgP,
   const uint16_t         selected_encryption_algorithmP,
   const uint16_t         selected_integrity_algorithmP);
 
 void nas_itti_detach_req(
-  const uint32_t      ue_idP);
+  const mme_ue_s1ap_id_t      ue_idP);
+
+void nas_itti_dedicated_eps_bearer_complete(
+    const mme_ue_s1ap_id_t ue_idP,
+    const ebi_t ebiP);
+
+void nas_itti_dedicated_eps_bearer_reject(
+    const mme_ue_s1ap_id_t ue_idP,
+    const ebi_t ebiP);
+
+void  s6a_auth_info_rsp_timer_expiry_handler (void *args);
 
 
 #endif /* FILE_NAS_ITTI_MESSAGING_SEEN */

@@ -22,24 +22,24 @@
 typedef struct {
   uint8_t                         peerIpStr[16];
   uint32_t                        restartCounter;
-  NwGtpv2cStackHandleT          hGtpv2cStack;
+  nw_gtpv2c_StackHandleT          hGtpv2cStack;
 } NwGtpv2cNodeUlpT;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-NwRcT
-nwGtpv2cUlpInit(NwGtpv2cNodeUlpT* thiz, NwGtpv2cStackHandleT hGtpv2cStack, char* peerIpStr );
+nw_rc_t
+nwGtpv2cUlpInit(NwGtpv2cNodeUlpT* thiz, nw_gtpv2c_StackHandleT hGtpv2cStack, char* peerIpStr );
 
-NwRcT
+nw_rc_t
 nwGtpv2cUlpDestroy(NwGtpv2cNodeUlpT* thiz);
 
-NwRcT
-nwGtpv2cUlpProcessStackReqCallback (NwGtpv2cUlpHandleT hUlp,
-                                    NwGtpv2cUlpApiT *pUlpApi);
+nw_rc_t
+nwGtpv2cUlpProcessStackReqCallback (nw_gtpv2c_UlpHandleT hUlp,
+                                    nw_gtpv2c_ulp_api_t *pUlpApi);
 
-NwRcT
+nw_rc_t
 nwGtpv2cUlpPing(NwGtpv2cNodeUlpT* thiz,
                 uint32_t peerIp,
                 uint32_t pingCount,

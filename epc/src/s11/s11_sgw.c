@@ -19,17 +19,31 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s11_sgw.c
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <inttypes.h>
+#include <pthread.h>
+#include <assert.h>
 #include <errno.h>
 
+#include "bstrlib.h"
+
+#include "dynamic_memory_check.h"
 #include "log.h"
 #include "assertions.h"
 #include "queue.h"
+#include "hashtable.h"
 #include "sgw_config.h"
 #include "intertask_interface.h"
+#include "itti_free_defined_msg.h"
 #include "timer.h"
 #include "NwLog.h"
 #include "NwGtpv2c.h"
@@ -42,59 +56,79 @@
 #include "s11_sgw_session_manager.h"
 
 
-static NwGtpv2cStackHandleT             s11_sgw_stack_handle = 0;
+static nw_gtpv2c_stack_handle_t             s11_sgw_stack_handle = 0;
+
+hash_table_ts_t                        *s11_sgw_teid_2_gtv2c_teid_handle = NULL;
+
+static void s11_sgw_exit (void);
 
 /* ULP callback for the GTPv2-C stack */
 //------------------------------------------------------------------------------
-static NwRcT s11_sgw_ulp_process_stack_req_cb (NwGtpv2cUlpHandleT hUlp, NwGtpv2cUlpApiT * pUlpApi)
+static nw_rc_t s11_sgw_ulp_process_stack_req_cb (nw_gtpv2c_ulp_handle_t hUlp, nw_gtpv2c_ulp_api_t * pUlpApi)
 {
   int                                     ret = 0;
 
   DevAssert (pUlpApi );
 
   switch (pUlpApi->apiType) {
-  case NW_GTPV2C_ULP_API_INITIAL_REQ_IND:
-    OAILOG_DEBUG (LOG_S11, "Received initial req indication\n");
+    case NW_GTPV2C_ULP_API_INITIAL_REQ_IND:
+      OAILOG_DEBUG (LOG_S11, "Received initial req indication\n");
 
-    switch (pUlpApi->apiInfo.initialReqIndInfo.msgType) {
-    case NW_GTP_CREATE_SESSION_REQ:
-      ret = s11_sgw_handle_create_session_request (&s11_sgw_stack_handle, pUlpApi);
+      switch (pUlpApi->u_api_info.initialReqIndInfo.msgType) {
+        case NW_GTP_CREATE_SESSION_REQ:
+          ret = s11_sgw_handle_create_session_request (&s11_sgw_stack_handle, pUlpApi);
+          break;
+
+        case NW_GTP_MODIFY_BEARER_REQ:
+          ret = s11_sgw_handle_modify_bearer_request (&s11_sgw_stack_handle, pUlpApi);
+          break;
+
+        case NW_GTP_DELETE_SESSION_REQ:
+          ret = s11_sgw_handle_delete_session_request (&s11_sgw_stack_handle, pUlpApi);
+          break;
+
+        case NW_GTP_RELEASE_ACCESS_BEARERS_REQ:
+          ret = s11_sgw_handle_release_access_bearers_request (&s11_sgw_stack_handle, pUlpApi);
+          break;
+
+        default:
+          OAILOG_WARNING (LOG_S11,  "Received unhandled initial request message type %d\n", pUlpApi->u_api_info.initialReqIndInfo.msgType);
+          break;
+      }
       break;
 
-    case NW_GTP_MODIFY_BEARER_REQ:
-      ret = s11_sgw_handle_modify_bearer_request (&s11_sgw_stack_handle, pUlpApi);
-      break;
+      case NW_GTPV2C_ULP_API_RSP_FAILURE_IND:
+        OAILOG_WARNING (LOG_S11, "Received response failure indication from ULP API\n");
+        break;
 
-    case NW_GTP_DELETE_SESSION_REQ:
-      ret = s11_sgw_handle_delete_session_request (&s11_sgw_stack_handle, pUlpApi);
-      break;
+      case NW_GTPV2C_ULP_API_TRIGGERED_RSP_IND:
+        OAILOG_WARNING (LOG_S11, "Received response indication from ULP API\n");
+        switch (pUlpApi->u_api_info.triggeredRspIndInfo.msgType) {
+        case NW_GTP_CREATE_BEARER_RSP:
+          ret = s11_sgw_handle_create_bearer_response (&s11_sgw_stack_handle, pUlpApi);
+          break;
 
-    case NW_GTP_RELEASE_ACCESS_BEARERS_REQ:
-      ret = s11_sgw_handle_release_access_bearers_request (&s11_sgw_stack_handle, pUlpApi);
-      break;
+          default:
+            OAILOG_WARNING (LOG_S11,  "Received unhandled response message type %d\n", pUlpApi->u_api_info.triggeredRspIndInfo.msgType);
+            break;
+        }
+        break;
 
     default:
-      OAILOG_WARNING (LOG_S11,  "Received unhandled message type %d\n", pUlpApi->apiInfo.initialReqIndInfo.msgType);
+      OAILOG_ERROR (LOG_S11, "Received unknown stack req message %d\n", pUlpApi->apiType);
       break;
-    }
-
-    break;
-
-  default:
-    OAILOG_ERROR (LOG_S11, "Received unknown stack req message %d\n", pUlpApi->apiType);
-    break;
   }
 
   return ret == -1 ? NW_FAILURE : NW_OK;
 }
 
 //------------------------------------------------------------------------------
-static NwRcT s11_sgw_send_udp_msg (
-  NwGtpv2cUdpHandleT udpHandle,
+static nw_rc_t s11_sgw_send_udp_msg (
+  nw_gtpv2c_udp_handle_t udpHandle,
   uint8_t * buffer,
   uint32_t buffer_len,
-  uint32_t peerIpAddr,
-  uint32_t peerPort)
+  struct in_addr *peerIpAddr,
+  uint16_t peerPort)
 {
   // Create and alloc new message
   MessageDef                             *message_p;
@@ -103,7 +137,7 @@ static NwRcT s11_sgw_send_udp_msg (
 
   message_p = itti_alloc_new_message (TASK_S11, UDP_DATA_REQ);
   udp_data_req_p = &message_p->ittiMsg.udp_data_req;
-  udp_data_req_p->peer_address = peerIpAddr;
+  udp_data_req_p->peer_address.s_addr = peerIpAddr->s_addr;
   udp_data_req_p->peer_port = peerPort;
   udp_data_req_p->buffer = buffer;
   udp_data_req_p->buffer_length = buffer_len;
@@ -112,25 +146,25 @@ static NwRcT s11_sgw_send_udp_msg (
 }
 
 //------------------------------------------------------------------------------
-static NwRcT s11_sgw_log_wrapper (
-  NwGtpv2cLogMgrHandleT hLogMgr,
+static nw_rc_t s11_sgw_log_wrapper (
+  nw_gtpv2c_log_mgr_handle_t hLogMgr,
   uint32_t logLevel,
-  NwCharT * file,
+  char * file,
   uint32_t line,
-  NwCharT * logStr)
+  char * logStr)
 {
   OAILOG_DEBUG (LOG_S11, "%s\n", logStr);
   return NW_OK;
 }
 
 //------------------------------------------------------------------------------
-static NwRcT s11_sgw_start_timer_wrapper (
-  NwGtpv2cTimerMgrHandleT tmrMgrHandle,
+static nw_rc_t s11_sgw_start_timer_wrapper (
+  nw_gtpv2c_timer_mgr_handle_t tmrMgrHandle,
   uint32_t timeoutSec,
   uint32_t timeoutUsec,
   uint32_t tmrType,
   void *timeoutArg,
-  NwGtpv2cTimerHandleT * hTmr)
+  nw_gtpv2c_timer_handle_t * hTmr)
 {
   long                                    timer_id;
   int                                     ret = 0;
@@ -145,15 +179,15 @@ static NwRcT s11_sgw_start_timer_wrapper (
 }
 
 //------------------------------------------------------------------------------
-static NwRcT s11_sgw_stop_timer_wrapper (
-  NwGtpv2cTimerMgrHandleT tmrMgrHandle,
-  NwGtpv2cTimerHandleT tmrHandle)
+static nw_rc_t s11_sgw_stop_timer_wrapper (
+  nw_gtpv2c_timer_mgr_handle_t tmrMgrHandle,
+  nw_gtpv2c_timer_handle_t tmrHandle)
 {
   int                                     ret;
   long                                    timer_id;
 
   timer_id = (long)tmrHandle;
-  ret = timer_remove (timer_id);        //TODO
+  ret = timer_remove (timer_id, NULL);
   return ret == 0 ? NW_OK : NW_FAILURE;
 }
 
@@ -161,7 +195,6 @@ static NwRcT s11_sgw_stop_timer_wrapper (
 static void *s11_sgw_thread (void *args)
 {
   itti_mark_task_ready (TASK_S11);
-  OAILOG_START_USE ();
 
   while (1) {
     MessageDef                             *received_message_p = NULL;
@@ -173,13 +206,19 @@ static void *s11_sgw_thread (void *args)
         /*
          * We received new data to handle from the UDP layer
          */
-        NwRcT                                   rc;
+        nw_rc_t                                   rc;
         udp_data_ind_t                         *udp_data_ind;
 
         udp_data_ind = &received_message_p->ittiMsg.udp_data_ind;
         OAILOG_DEBUG (LOG_S11, "Processing new data indication from UDP\n");
-        rc = nwGtpv2cProcessUdpReq (s11_sgw_stack_handle, udp_data_ind->buffer, udp_data_ind->buffer_length, udp_data_ind->peer_port, udp_data_ind->peer_address);
+        rc = nwGtpv2cProcessUdpReq (s11_sgw_stack_handle, udp_data_ind->buffer, udp_data_ind->buffer_length, udp_data_ind->peer_port, &udp_data_ind->peer_address);
         DevAssert (rc == NW_OK);
+      }
+      break;
+
+    case S11_CREATE_BEARER_REQUEST:{
+        OAILOG_DEBUG (LOG_S11, "Received S11_CREATE_BEARER_REQUEST from S-PGW APP\n");
+        s11_sgw_handle_create_bearer_request (&s11_sgw_stack_handle, &received_message_p->ittiMsg.s11_create_bearer_request);
       }
       break;
 
@@ -189,15 +228,15 @@ static void *s11_sgw_thread (void *args)
       }
       break;
 
-    case S11_MODIFY_BEARER_RESPONSE:{
-        OAILOG_DEBUG (LOG_S11, "Received S11_MODIFY_BEARER_RESPONSE from S-PGW APP\n");
-        s11_sgw_handle_modify_bearer_response (&s11_sgw_stack_handle, &received_message_p->ittiMsg.s11_modify_bearer_response);
-      }
-      break;
-
     case S11_DELETE_SESSION_RESPONSE:{
         OAILOG_DEBUG (LOG_S11, "Received S11_DELETE_SESSION_RESPONSE from S-PGW APP\n");
         s11_sgw_handle_delete_session_response (&s11_sgw_stack_handle, &received_message_p->ittiMsg.s11_delete_session_response);
+      }
+      break;
+
+    case S11_MODIFY_BEARER_RESPONSE:{
+        OAILOG_DEBUG (LOG_S11, "Received S11_MODIFY_BEARER_RESPONSE from S-PGW APP\n");
+        s11_sgw_handle_modify_bearer_response (&s11_sgw_stack_handle, &received_message_p->ittiMsg.s11_modify_bearer_response);
       }
       break;
 
@@ -214,12 +253,20 @@ static void *s11_sgw_thread (void *args)
       }
       break;
 
+    case TERMINATE_MESSAGE:{
+        s11_sgw_exit();
+        OAI_FPRINTF_INFO("TASK_S11 terminated\n");
+        itti_exit_task ();
+      }
+      break;
+
     default:{
         OAILOG_ERROR (LOG_S11, "Unkwnon message ID %d:%s\n", ITTI_MSG_ID (received_message_p), ITTI_MSG_NAME (received_message_p));
       }
       break;
     }
 
+    itti_free_msg_content(received_message_p);
     itti_free (ITTI_MSG_ORIGIN_ID (received_message_p), received_message_p);
     received_message_p = NULL;
   }
@@ -228,7 +275,7 @@ static void *s11_sgw_thread (void *args)
 }
 
 //------------------------------------------------------------------------------
-static int s11_send_init_udp (char *address, uint16_t port_number)
+static int s11_send_init_udp (struct in_addr *address, uint16_t port_number)
 {
   MessageDef                             *message_p;
 
@@ -239,9 +286,10 @@ static int s11_send_init_udp (char *address, uint16_t port_number)
   }
 
   message_p->ittiMsg.udp_init.port = port_number;
-  //LG message_p->ittiMsg.udpInit.address = "0.0.0.0"; //ANY address
-  message_p->ittiMsg.udp_init.address = address;
-  OAILOG_DEBUG (LOG_S11, "Tx UDP_INIT IP addr %s\n", message_p->ittiMsg.udp_init.address);
+  message_p->ittiMsg.udp_init.address.s_addr = address->s_addr;
+  char ipv4[INET_ADDRSTRLEN];
+  inet_ntop (AF_INET, (void*)&message_p->ittiMsg.udp_init.address, ipv4, INET_ADDRSTRLEN);
+  OAILOG_DEBUG (LOG_S11, "Tx UDP_INIT IP addr %s:%" PRIu16"\n", ipv4, message_p->ittiMsg.udp_init.port);
   return itti_send_msg_to_task (TASK_UDP, INSTANCE_DEFAULT, message_p);
 }
 
@@ -249,12 +297,10 @@ static int s11_send_init_udp (char *address, uint16_t port_number)
 int s11_sgw_init (sgw_config_t * config_p)
 {
   int                                     ret = 0;
-  NwGtpv2cUlpEntityT                      ulp;
-  NwGtpv2cUdpEntityT                      udp;
-  NwGtpv2cTimerMgrEntityT                 tmrMgr;
-  NwGtpv2cLogMgrEntityT                   logMgr;
-  struct in_addr                          addr;
-  char                                   *s11_address_str = NULL;
+  nw_gtpv2c_ulp_entity_t                      ulp;
+  nw_gtpv2c_udp_entity_t                      udp;
+  nw_gtpv2c_timer_mgr_entity_t                 tmrMgr;
+  nw_gtpv2c_log_mgr_entity_t                   logMgr;
 
   OAILOG_DEBUG (LOG_S11, "Initializing S11 interface\n");
 
@@ -266,25 +312,31 @@ int s11_sgw_init (sgw_config_t * config_p)
   /*
    * Set ULP entity
    */
-  ulp.hUlp = (NwGtpv2cUlpHandleT) NULL;
+  ulp.hUlp = (nw_gtpv2c_ulp_handle_t) NULL;
   ulp.ulpReqCallback = s11_sgw_ulp_process_stack_req_cb;
   DevAssert (NW_OK == nwGtpv2cSetUlpEntity (s11_sgw_stack_handle, &ulp));
   /*
    * Set UDP entity
    */
-  udp.hUdp = (NwGtpv2cUdpHandleT) NULL;
+  udp.hUdp = (nw_gtpv2c_udp_handle_t) NULL;
   udp.udpDataReqCallback = s11_sgw_send_udp_msg;
   DevAssert (NW_OK == nwGtpv2cSetUdpEntity (s11_sgw_stack_handle, &udp));
   /*
    * Set Timer entity
    */
-  tmrMgr.tmrMgrHandle = (NwGtpv2cTimerMgrHandleT) NULL;
+  tmrMgr.tmrMgrHandle = (nw_gtpv2c_timer_mgr_handle_t) NULL;
   tmrMgr.tmrStartCallback = s11_sgw_start_timer_wrapper;
   tmrMgr.tmrStopCallback = s11_sgw_stop_timer_wrapper;
   DevAssert (NW_OK == nwGtpv2cSetTimerMgrEntity (s11_sgw_stack_handle, &tmrMgr));
   logMgr.logMgrHandle = 0;
   logMgr.logReqCallback = s11_sgw_log_wrapper;
   DevAssert (NW_OK == nwGtpv2cSetLogMgrEntity (s11_sgw_stack_handle, &logMgr));
+
+
+  bstring b = bfromcstr("s11_sgw_teid_2_gtv2c_teid_handle");
+  s11_sgw_teid_2_gtv2c_teid_handle = hashtable_ts_create(256, HASH_TABLE_DEFAULT_HASH_FUNC, hash_free_int_func, b);
+  bdestroy_wrapper (&b);
+
 
   if (itti_create_task (TASK_S11, &s11_sgw_thread, NULL) < 0) {
     OAILOG_ERROR (LOG_S11, "S11 pthread_create: %s\n", strerror (errno));
@@ -293,14 +345,18 @@ int s11_sgw_init (sgw_config_t * config_p)
 
   DevAssert (NW_OK == nwGtpv2cSetLogLevel (s11_sgw_stack_handle, NW_LOG_LEVEL_DEBG));
   sgw_config_read_lock (config_p);
-  addr.s_addr = config_p->ipv4.S11;
+  s11_send_init_udp (&config_p->ipv4.S11, 2123);
   sgw_config_unlock (config_p);
-  s11_address_str = inet_ntoa (addr);
-  DevAssert (s11_address_str );
-  s11_send_init_udp (s11_address_str, 2123);
   OAILOG_DEBUG (LOG_S11, "Initializing S11 interface: DONE\n");
   return ret;
 fail:
   OAILOG_DEBUG (LOG_S11, "Initializing S11 interface: FAILURE\n");
   return RETURNerror;
 }
+//------------------------------------------------------------------------------
+static void s11_sgw_exit (void)
+{
+  nwGtpv2cFinalize (s11_sgw_stack_handle);
+  hashtable_ts_destroy(s11_sgw_teid_2_gtv2c_teid_handle);
+}
+

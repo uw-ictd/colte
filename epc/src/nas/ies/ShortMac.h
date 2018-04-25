@@ -19,20 +19,19 @@
  *      contact@openairinterface.org
  */
 
-#ifndef SHORT_MAC_H_
-#define SHORT_MAC_H_
-#include <stdint.h>
+#ifndef SHORT_MAC_SEEN
+#define SHORT_MAC_SEEN
 
 #define SHORT_MAC_MINIMUM_LENGTH 3
 #define SHORT_MAC_MAXIMUM_LENGTH 3
 
-typedef uint16_t ShortMac;
+typedef uint16_t short_mac_t;
 
-int encode_short_mac(ShortMac *shortmac, uint8_t iei, uint8_t *buffer, uint32_t len);
+#define SHORT_MAC_FMT             "%"PRIX16
 
-void dump_short_mac_xml(ShortMac *shortmac, uint8_t iei);
+int encode_short_mac(short_mac_t *shortmac, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-int decode_short_mac(ShortMac *shortmac, uint8_t iei, uint8_t *buffer, uint32_t len);
+int decode_short_mac(short_mac_t *shortmac, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-#endif /* SHORT MAC_H_ */
+#endif /* SHORT MAC_SEEN */
 

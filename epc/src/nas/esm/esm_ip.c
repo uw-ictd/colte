@@ -18,14 +18,15 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-#include "3gpp_24.007.h"
-#include "emmData.h"
-#include "esmData.h"
+#include "bstrlib.h"
 
 char                                    ip_addr_str[100];
 
-inline char                            *
+char                            *
 esm_data_get_ipv4_addr (
     const_bstring ip_addr)
 {
@@ -37,7 +38,7 @@ esm_data_get_ipv4_addr (
   return (NULL);
 }
 
-inline char                            *
+char                            *
 esm_data_get_ipv6_addr (
     const_bstring ip_addr)
 {
@@ -51,7 +52,7 @@ esm_data_get_ipv6_addr (
   return (NULL);
 }
 
-inline char                            *
+char                            *
 esm_data_get_ipv4v6_addr (
     const_bstring ip_addr)
 {

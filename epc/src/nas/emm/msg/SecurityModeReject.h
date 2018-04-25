@@ -21,11 +21,12 @@
 
 #ifndef FILE_SECURITY_MODE_REJECT_SEEN
 #define FILE_SECURITY_MODE_REJECT_SEEN
-#include <stdint.h>
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "EmmCause.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define SECURITY_MODE_REJECT_MINIMUM_LENGTH ( \
@@ -45,10 +46,10 @@
 
 typedef struct security_mode_reject_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator             protocoldiscriminator:4;
-  SecurityHeaderType                securityheadertype:4;
-  MessageType                       messagetype;
-  EmmCause                          emmcause;
+  eps_protocol_discriminator_t      protocoldiscriminator:4;
+  security_header_type_t            securityheadertype:4;
+  message_type_t                    messagetype;
+  emm_cause_t                       emmcause;
 } security_mode_reject_msg;
 
 int decode_security_mode_reject(security_mode_reject_msg *securitymodereject, uint8_t *buffer, uint32_t len);

@@ -27,6 +27,11 @@
  * either expressed or implied, of the FreeBSD Project.
  */
 
+/*! \file assertions.h
+  \brief
+  \author Sebastien ROUX,
+  \company Eurecom
+*/
 #ifndef FILE_COMMON_ASSERTIONS_SEEN
 #define FILE_COMMON_ASSERTIONS_SEEN
 

@@ -27,8 +27,6 @@
 */
 #ifndef FILE_PGW_PCO_SEEN
 #define FILE_PGW_PCO_SEEN
-#include <stdbool.h>
-#include "ProtocolConfigurationOptions.h"
 
 /**
  * protocol_configuration_options_ids_t

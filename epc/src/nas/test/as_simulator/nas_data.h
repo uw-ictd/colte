@@ -77,17 +77,17 @@ Description Defines constants and functions used by the AS simulator
 const char* emmMsgType(int type);
 const char* esmMsgType(int type);
 
-const char* emmCauseCode(EmmCause code);
-const char* esmCauseCode(EsmCause code);
+const char* emmCauseCode(emm_cause_t code);
+const char* esmCauseCode(esm_cause_t code);
 
-const char* attachType(const EpsAttachType* type);
-const char* detachType(const DetachType* type);
+const char* attachType(const eps_attach_type_t* type);
+const char* detachType(const detach_type_t* type);
 
 ssize_t epsIdentity(char* buffer, size_t len, const EpsMobileIdentity* ident);
 const char* identityType(const IdentityType2* type);
 ssize_t mobileIdentity(char* buffer, size_t len, const MobileIdentity* ident);
 
-const char* requestType(const RequestType* type);
+const char* requestType(const request_type_t* type);
 const char* pdnType(const PdnType* type);
 ssize_t pdnAddress(char* buffer, size_t len, const PdnAddress* addr);
 

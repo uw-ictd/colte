@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "common_types.h"
 #include "3gpp_24.007.h"
 #include "3gpp_24.301.h"
 #include "TLVEncoder.h"
@@ -56,7 +60,7 @@ decode_activate_dedicated_eps_bearer_context_request (
   else
     decoded += decoded_result;
 
-  if ((decoded_result = decode_traffic_flow_template (&activate_dedicated_eps_bearer_context_request->tft, 0, buffer + decoded, len - decoded)) < 0)
+  if ((decoded_result = decode_traffic_flow_template_ie (&activate_dedicated_eps_bearer_context_request->tft, 0, buffer + decoded, len - decoded)) < 0)
     return decoded_result;
   else
     decoded += decoded_result;
@@ -76,7 +80,7 @@ decode_activate_dedicated_eps_bearer_context_request (
     switch (ieiDecoded) {
     case ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_TRANSACTION_IDENTIFIER_IEI:
       if ((decoded_result =
-           decode_transaction_identifier (&activate_dedicated_eps_bearer_context_request->transactionidentifier, ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_TRANSACTION_IDENTIFIER_IEI, buffer + decoded, len - decoded)) <= 0)
+           decode_linked_ti_ie (&activate_dedicated_eps_bearer_context_request->transactionidentifier, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -87,7 +91,7 @@ decode_activate_dedicated_eps_bearer_context_request (
       break;
 
     case ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_QOS_IEI:
-      if ((decoded_result = decode_quality_of_service (&activate_dedicated_eps_bearer_context_request->negotiatedqos, ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_QOS_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_quality_of_service_ie (&activate_dedicated_eps_bearer_context_request->negotiatedqos, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -99,7 +103,7 @@ decode_activate_dedicated_eps_bearer_context_request (
 
     case ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI:
       if ((decoded_result =
-           decode_llc_service_access_point_identifier (&activate_dedicated_eps_bearer_context_request->negotiatedllcsapi, ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI, buffer + decoded, len - decoded)) <= 0)
+           decode_llc_service_access_point_identifier_ie (&activate_dedicated_eps_bearer_context_request->negotiatedllcsapi, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -122,7 +126,7 @@ decode_activate_dedicated_eps_bearer_context_request (
 
     case ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI:
       if ((decoded_result =
-           decode_packet_flow_identifier (&activate_dedicated_eps_bearer_context_request->packetflowidentifier, ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI, buffer + decoded, len - decoded)) <= 0)
+           decode_packet_flow_identifier_ie (&activate_dedicated_eps_bearer_context_request->packetflowidentifier, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -134,8 +138,8 @@ decode_activate_dedicated_eps_bearer_context_request (
 
     case ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI:
       if ((decoded_result =
-           decode_ProtocolConfigurationOptions (&activate_dedicated_eps_bearer_context_request->protocolconfigurationoptions,
-                                                  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + decoded, len - decoded)) <= 0)
+           decode_protocol_configuration_options_ie (&activate_dedicated_eps_bearer_context_request->protocolconfigurationoptions,
+                                                  true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -175,14 +179,14 @@ encode_activate_dedicated_eps_bearer_context_request (
   else
     encoded += encode_result;
 
-  if ((encode_result = encode_traffic_flow_template (&activate_dedicated_eps_bearer_context_request->tft, 0, buffer + encoded, len - encoded)) < 0)     //Return in case of error
+  if ((encode_result = encode_traffic_flow_template_ie (&activate_dedicated_eps_bearer_context_request->tft, TFT_ENCODE_IEI_FALSE, buffer + encoded, len - encoded)) < 0)     //Return in case of error
     return encode_result;
   else
     encoded += encode_result;
 
   if ((activate_dedicated_eps_bearer_context_request->presencemask & ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_TRANSACTION_IDENTIFIER_PRESENT)
       == ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_TRANSACTION_IDENTIFIER_PRESENT) {
-    if ((encode_result = encode_transaction_identifier (&activate_dedicated_eps_bearer_context_request->transactionidentifier, ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_TRANSACTION_IDENTIFIER_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_linked_ti_ie (&activate_dedicated_eps_bearer_context_request->transactionidentifier, ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_TRANSACTION_IDENTIFIER_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -191,7 +195,7 @@ encode_activate_dedicated_eps_bearer_context_request (
 
   if ((activate_dedicated_eps_bearer_context_request->presencemask & ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_QOS_PRESENT)
       == ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_QOS_PRESENT) {
-    if ((encode_result = encode_quality_of_service (&activate_dedicated_eps_bearer_context_request->negotiatedqos, ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_QOS_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_quality_of_service_ie (&activate_dedicated_eps_bearer_context_request->negotiatedqos, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -201,7 +205,7 @@ encode_activate_dedicated_eps_bearer_context_request (
   if ((activate_dedicated_eps_bearer_context_request->presencemask & ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_PRESENT)
       == ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_PRESENT) {
     if ((encode_result =
-         encode_llc_service_access_point_identifier (&activate_dedicated_eps_bearer_context_request->negotiatedllcsapi, ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI, buffer + encoded, len - encoded)) < 0)
+         encode_llc_service_access_point_identifier_ie (&activate_dedicated_eps_bearer_context_request->negotiatedllcsapi, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -219,7 +223,7 @@ encode_activate_dedicated_eps_bearer_context_request (
 
   if ((activate_dedicated_eps_bearer_context_request->presencemask & ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_PRESENT)
       == ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_PRESENT) {
-    if ((encode_result = encode_packet_flow_identifier (&activate_dedicated_eps_bearer_context_request->packetflowidentifier, ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_packet_flow_identifier_ie (&activate_dedicated_eps_bearer_context_request->packetflowidentifier, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -229,8 +233,8 @@ encode_activate_dedicated_eps_bearer_context_request (
   if ((activate_dedicated_eps_bearer_context_request->presencemask & ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT)
       == ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
     if ((encode_result =
-         encode_ProtocolConfigurationOptions (&activate_dedicated_eps_bearer_context_request->protocolconfigurationoptions,
-                                                ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + encoded, len - encoded)) < 0)
+         encode_protocol_configuration_options_ie (&activate_dedicated_eps_bearer_context_request->protocolconfigurationoptions,
+                                                true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

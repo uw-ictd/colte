@@ -27,6 +27,11 @@
  * either expressed or implied, of the FreeBSD Project.
  */
 
+/*! \file enum_string.h
+  \brief
+  \author Sebastien ROUX
+  \company Eurecom
+*/
 #ifndef FILE_ENUM_STRING_SEEN
 #define FILE_ENUM_STRING_SEEN
 

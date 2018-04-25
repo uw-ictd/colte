@@ -29,8 +29,6 @@
 
 #ifndef FILE_MSC_SEEN
 #define FILE_MSC_SEEN
-#include <stdarg.h>
-#include <stdint.h>
 
 typedef enum {
   MIN_MSC_ENV = 0,
@@ -64,6 +62,10 @@ typedef enum {
   MAX_MSC_PROTOS,
 } msc_proto_t;
 
+typedef struct msc_private_s {
+  uint8_t                                *message_bin;
+  uint32_t                                message_bin_size;
+} msc_private_t;
 
 
 // Access stratum
@@ -83,21 +85,23 @@ void msc_log_message(
 	const char * const message_operationP,
     const msc_proto_t  receiverP,
     const msc_proto_t  senderP,
-    const uint8_t* const bytesP,
+    uint8_t* bytesP,
     const unsigned int num_bytes,
     char *format, ...);
+struct shared_log_queue_item_s;
+
+void msc_flush_message (struct shared_log_queue_item_s *item_p);
 
 #define MSC_INIT(arg1,arg2)                                      msc_init(arg1,arg2)
-#define MSC_START_USE                                            msc_start_use
 #define MSC_END                                                  msc_end
 #define MSC_LOG_EVENT(mScPaRaMs, fORMAT, aRGS...)                msc_log_event(mScPaRaMs, fORMAT, ##aRGS)
 #define MSC_LOG_RX_MESSAGE(rECEIVER, sENDER, bYTES, nUMbYTES, fORMAT, aRGS...)           msc_log_message("<-",rECEIVER, sENDER, bYTES, nUMbYTES, fORMAT, ##aRGS)
 #define MSC_LOG_RX_DISCARDED_MESSAGE(rECEIVER, sENDER, bYTES, nUMbYTES, fORMAT, aRGS...) msc_log_message("x-",rECEIVER, sENDER, bYTES, nUMbYTES, fORMAT, ##aRGS)
 #define MSC_LOG_TX_MESSAGE(sENDER, rECEIVER, bYTES, nUMbYTES, fORMAT, aRGS...)           msc_log_message("->",sENDER, rECEIVER, bYTES, nUMbYTES, fORMAT, ##aRGS)
 #define MSC_LOG_TX_MESSAGE_FAILED(sENDER, rECEIVER, bYTES, nUMbYTES, fORMAT, aRGS...)    msc_log_message("-x",sENDER, rECEIVER, bYTES, nUMbYTES, fORMAT, ##aRGS)
+#include "shared_ts_log.h"
 #else
 #define MSC_INIT(arg1,arg2)
-#define MSC_START_USE(mScPaRaMs)
 #define MSC_END(mScPaRaMs)
 #define MSC_LOG_EVENT(mScPaRaMs, fORMAT, aRGS...)
 #define MSC_LOG_RX_MESSAGE(mScPaRaMs, fORMAT, aRGS...)

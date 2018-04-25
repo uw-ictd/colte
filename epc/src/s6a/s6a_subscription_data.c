@@ -19,12 +19,26 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s6a_subscription_data.c
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #include <stdint.h>
+#include <stdbool.h>
+
+#include "bstrlib.h"
 
 #include "assertions.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.008.h"
+#include "3gpp_33.401.h"
+#include "security_types.h"
 #include "common_defs.h"
 #include "common_types.h"
+#include "PdnType.h"
 #include "s6a_defs.h"
 
 static inline int
@@ -152,7 +166,7 @@ s6a_parse_service_selection (
   char *service_selection,
   int *length)
 {
-  DevCheck (hdr_service_selection->avp_value->os.len <= APN_MAX_LENGTH, hdr_service_selection->avp_value->os.len, APN_MAX_LENGTH, 0);
+  DevCheck (hdr_service_selection->avp_value->os.len <= SERVICE_SELECTION_MAX_LENGTH, hdr_service_selection->avp_value->os.len, ACCESS_POINT_NAME_MAX_LENGTH, 0);
   *length = sprintf (service_selection, "%*s", (int)hdr_service_selection->avp_value->os.len, hdr_service_selection->avp_value->os.data);
   return RETURNok;
 }
@@ -180,7 +194,7 @@ s6a_parse_priority_level (
 static inline int
 s6a_parse_pre_emp_capability (
   struct avp_hdr *hdr,
-  pre_emp_capability_t * pre_emp_capability)
+  pre_emption_capability_t * pre_emp_capability)
 {
   DevCheck (hdr->avp_value->u32 < PRE_EMPTION_CAPABILITY_MAX, hdr->avp_value->u32, PRE_EMPTION_CAPABILITY_MAX, 0);
   *pre_emp_capability = hdr->avp_value->u32;
@@ -190,7 +204,7 @@ s6a_parse_pre_emp_capability (
 static inline int
 s6a_parse_pre_emp_vulnerability (
   struct avp_hdr *hdr,
-  pre_emp_vulnerability_t * pre_emp_vulnerability)
+  pre_emption_vulnerability_t * pre_emp_vulnerability)
 {
   DevCheck (hdr->avp_value->u32 < PRE_EMPTION_VULNERABILITY_MAX, hdr->avp_value->u32, PRE_EMPTION_VULNERABILITY_MAX, 0);
   *pre_emp_vulnerability = hdr->avp_value->u32;
@@ -299,14 +313,19 @@ s6a_parse_ip_address (
      */
     ip_address->pdn_type = IPv4;
     DevCheck (hdr->avp_value->os.len == 6, hdr->avp_value->os.len, 6, ip_type);
-    memcpy (ip_address->address.ipv4_address, &hdr->avp_value->os.data[2], 4);
+    uint32_t ip = (((uint32_t)hdr->avp_value->os.data[2]) << 24) |
+                  (((uint32_t)hdr->avp_value->os.data[3]) << 16) |
+                  (((uint32_t)hdr->avp_value->os.data[4]) << 8) |
+                   ((uint32_t)hdr->avp_value->os.data[5]);
+
+    ip_address->address.ipv4_address.s_addr = htonl(ip);
   } else if (ip_type == IANA_IPV6) {
     /*
      * This is an IPv6 address
      */
     ip_address->pdn_type = IPv6;
     DevCheck (hdr->avp_value->os.len == 18, hdr->avp_value->os.len, 18, ip_type);
-    memcpy (ip_address->address.ipv6_address, &hdr->avp_value->os.data[2], 16);
+    memcpy (ip_address->address.ipv6_address.__in6_u.__u6_addr8, &hdr->avp_value->os.data[2], 16);
   } else {
     /*
      * unhandled case...

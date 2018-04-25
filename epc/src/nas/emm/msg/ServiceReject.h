@@ -21,13 +21,13 @@
 
 #ifndef FILE_SERVICE_REJECT_SEEN
 #define FILE_SERVICE_REJECT_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "EmmCause.h"
-#include "GprsTimer.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define SERVICE_REJECT_MINIMUM_LENGTH ( \
@@ -36,7 +36,7 @@
 /* Maximum length macro. Formed by maximum length of each field */
 #define SERVICE_REJECT_MAXIMUM_LENGTH ( \
     EMM_CAUSE_MAXIMUM_LENGTH + \
-    GPRS_TIMER_MAXIMUM_LENGTH )
+    GPRS_TIMER_IE_MAX_LENGTH )
 
 
 /*
@@ -48,13 +48,13 @@
 
 typedef struct service_reject_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator        protocoldiscriminator:4;
-  SecurityHeaderType           securityheadertype:4;
-  MessageType                  messagetype;
-  EmmCause                     emmcause;
+  eps_protocol_discriminator_t protocoldiscriminator:4;
+  security_header_type_t       securityheadertype:4;
+  message_type_t               messagetype;
+  emm_cause_t                     emmcause;
   /* Optional fields */
   uint32_t                     presencemask;
-  GprsTimer                    t3442value;
+  gprs_timer_t                 t3442value;
 } service_reject_msg;
 
 int decode_service_reject(service_reject_msg *servicereject, uint8_t *buffer, uint32_t len);

@@ -23,12 +23,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
 #include "3gpp_24.007.h"
 #include "3gpp_24.301.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
+#include "EsmCause.h"
 #include "ModifyEpsBearerContextReject.h"
 
 int
@@ -65,7 +69,7 @@ decode_modify_eps_bearer_context_reject (
 
     switch (ieiDecoded) {
     case MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI:
-      if ((decoded_result = decode_ProtocolConfigurationOptions (&modify_eps_bearer_context_reject->protocolconfigurationoptions, MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_protocol_configuration_options_ie (&modify_eps_bearer_context_reject->protocolconfigurationoptions, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -105,7 +109,7 @@ encode_modify_eps_bearer_context_reject (
 
   if ((modify_eps_bearer_context_reject->presencemask & MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT)
       == MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
-    if ((encode_result = encode_ProtocolConfigurationOptions (&modify_eps_bearer_context_reject->protocolconfigurationoptions, MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_protocol_configuration_options_ie (&modify_eps_bearer_context_reject->protocolconfigurationoptions, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

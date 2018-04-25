@@ -86,44 +86,72 @@ Description Defines functions executed at the EMMAS Service Access
  */
 int emm_recv_status(mme_ue_s1ap_id_t ueid, emm_status_msg *msg, int *emm_cause, const nas_message_decode_status_t * const status);
 
-int emm_recv_attach_request (
-    const mme_ue_s1ap_id_t     ueid,
+int
+emm_recv_attach_request (
+    const mme_ue_s1ap_id_t ue_id,
     const tai_t              * const originating_tai,
     const ecgi_t             * const originating_ecgi,
-    const attach_request_msg * const msg,
+    attach_request_msg       * const msg,
+    const bool                       is_initial,
+    const bool                       ctx_is_new,
     int * const emm_cause,
+    const nas_message_decode_status_t  * decode_status);
+
+int emm_recv_attach_complete(
+    const mme_ue_s1ap_id_t                     ueid,
+    const attach_complete_msg                 *msg,
+    int                                * const emm_cause,
     const nas_message_decode_status_t  * const decode_status);
 
-int emm_recv_attach_complete(mme_ue_s1ap_id_t ueid, const attach_complete_msg *msg,
-                             int *emm_cause, const nas_message_decode_status_t * status);
-
-int emm_recv_detach_request(mme_ue_s1ap_id_t ueid, const detach_request_msg *msg,
-                            int *emm_cause, const nas_message_decode_status_t * status);
+int emm_recv_detach_request(
+    mme_ue_s1ap_id_t                           ueid,
+    const detach_request_msg                  *msg,
+    const bool                                 is_initial,
+    int                                * const emm_cause,
+    const nas_message_decode_status_t  * const decode_status);
 
 int emm_recv_tracking_area_update_request(
-    const mme_ue_s1ap_id_t ueid,
-    const tracking_area_update_request_msg *msg,
-    int *emm_cause,
-    const nas_message_decode_status_t  * decode_status);
+    const mme_ue_s1ap_id_t                     ueid,
+    tracking_area_update_request_msg   * const msg,
+    const bool                                 is_initial,
+    int                                * const emm_cause,
+    const nas_message_decode_status_t  * const decode_status);
 
-int emm_recv_service_request(mme_ue_s1ap_id_t ueid,
-    const service_request_msg *msg,
-    int *emm_cause,
-    const nas_message_decode_status_t  * decode_status);
+int emm_recv_service_request(
+    mme_ue_s1ap_id_t                           ueid,
+    const service_request_msg                 *msg,
+    const bool                                 is_initial,
+    int                                * const emm_cause,
+    const nas_message_decode_status_t  * const decode_status);
 
-int emm_recv_identity_response(mme_ue_s1ap_id_t ueid, identity_response_msg *msg,
-                               int *emm_cause, const nas_message_decode_status_t * status);
-int emm_recv_authentication_response(mme_ue_s1ap_id_t ueid,
-                                     authentication_response_msg *msg, int *emm_cause,
-                                     const nas_message_decode_status_t * status);
-int emm_recv_authentication_failure(mme_ue_s1ap_id_t ueid,
-                                    authentication_failure_msg *msg, int *emm_cause,
-                                    const nas_message_decode_status_t * status);
-int emm_recv_security_mode_complete(mme_ue_s1ap_id_t ueid,
-                                    security_mode_complete_msg *msg, int *emm_cause,
-                                    const nas_message_decode_status_t * status);
-int emm_recv_security_mode_reject(mme_ue_s1ap_id_t ueid,
-                                  security_mode_reject_msg *msg, int *emm_cause,
-                                  const nas_message_decode_status_t * status);
+int emm_recv_identity_response(
+    const mme_ue_s1ap_id_t                     ueid,
+    identity_response_msg                     *msg,
+    int                                * const emm_cause,
+    const nas_message_decode_status_t  * const decode_status);
+
+int emm_recv_authentication_response(
+    const mme_ue_s1ap_id_t                     ueid,
+    authentication_response_msg               *msg,
+    int                                * const emm_cause,
+    const nas_message_decode_status_t  * const decode_status);
+
+int emm_recv_authentication_failure(
+    const mme_ue_s1ap_id_t                     ueid,
+    authentication_failure_msg                *msg,
+    int                                * const emm_cause,
+    const nas_message_decode_status_t  * const decode_status);
+
+int emm_recv_security_mode_complete(
+    const mme_ue_s1ap_id_t                     ueid,
+    security_mode_complete_msg                *msg,
+    int                                * const emm_cause,
+    const nas_message_decode_status_t  * const decode_status);
+
+int emm_recv_security_mode_reject(
+    const mme_ue_s1ap_id_t                     ueid,
+    security_mode_reject_msg                  *msg,
+    int                                * const emm_cause,
+    const nas_message_decode_status_t  * const decode_status);
 
 #endif /* FILE_EMM_RECV_SEEN*/

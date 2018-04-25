@@ -19,16 +19,31 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s6a_dict.c
+  \brief
+  \author Sebastien ROUX
+  \company Eurecom
+*/
 
 #if HAVE_CONFIG_H
 #  include "config.h"
 #endif
+#include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 
-#include "intertask_interface.h"
+#include "bstrlib.h"
+
+#include "3gpp_23.003.h"
+#include "3gpp_24.008.h"
+#include "3gpp_33.401.h"
+#include "security_types.h"
+#include "common_types.h"
+#include "common_defs.h"
 #include "s6a_defs.h"
+#include "s6a_messages_types.h"
 #include "s6a_messages.h"
 #include "assertions.h"
-#include "log.h"
 
 #define CHECK_FD_FCT(fCT)  DevAssert(fCT == 0);
 

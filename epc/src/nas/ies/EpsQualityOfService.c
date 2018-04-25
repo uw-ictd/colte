@@ -22,14 +22,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
+#include "common_types.h"
 #include "EpsQualityOfService.h"
 
-static int
-decode_eps_qos_bit_rates (
+//------------------------------------------------------------------------------
+static int decode_eps_qos_bit_rates (
   EpsQoSBitRates * epsqosbitrates,
   const uint8_t * buffer)
 {
@@ -46,8 +50,8 @@ decode_eps_qos_bit_rates (
   return decoded;
 }
 
-int
-decode_eps_quality_of_service (
+//------------------------------------------------------------------------------
+int decode_eps_quality_of_service (
   EpsQualityOfService * epsqualityofservice,
   uint8_t iei,
   uint8_t * buffer,
@@ -93,14 +97,11 @@ decode_eps_quality_of_service (
     epsqualityofservice->bitRatesExtPresent = 0;
   }
 
-#if NAS_DEBUG
-  dump_eps_quality_of_service_xml (epsqualityofservice, iei);
-#endif
   return decoded;
 }
 
-static int
-encode_eps_qos_bit_rates (
+//------------------------------------------------------------------------------
+static int encode_eps_qos_bit_rates (
   const EpsQoSBitRates * epsqosbitrates,
   uint8_t * buffer)
 {
@@ -117,8 +118,8 @@ encode_eps_qos_bit_rates (
   return encoded;
 }
 
-int
-encode_eps_quality_of_service (
+//------------------------------------------------------------------------------
+int encode_eps_quality_of_service (
   EpsQualityOfService * epsqualityofservice,
   uint8_t iei,
   uint8_t * buffer,
@@ -131,9 +132,6 @@ encode_eps_quality_of_service (
    * Checking IEI and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, EPS_QUALITY_OF_SERVICE_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_eps_quality_of_service_xml (epsqualityofservice, iei);
-#endif
 
   if (iei > 0) {
     *buffer = iei;
@@ -157,46 +155,10 @@ encode_eps_quality_of_service (
   return encoded;
 }
 
-void
-dump_eps_quality_of_service_xml (
-  EpsQualityOfService * epsqualityofservice,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Eps Quality Of Service>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <QCI>%u</QCI>\n", epsqualityofservice->qci);
-
-  if (epsqualityofservice->bitRatesPresent) {
-    OAILOG_DEBUG (LOG_NAS, "    <bitRates>\n");
-    OAILOG_DEBUG (LOG_NAS, "        <maxBitRateForUL>%u</maxBitRateForUL>\n", epsqualityofservice->bitRates.maxBitRateForUL);
-    OAILOG_DEBUG (LOG_NAS, "        <maxBitRateForDL>%u</maxBitRateForDL>\n", epsqualityofservice->bitRates.maxBitRateForDL);
-    OAILOG_DEBUG (LOG_NAS, "        <guarBitRateForUL>%u</guarBitRateForUL>\n", epsqualityofservice->bitRates.guarBitRateForUL);
-    OAILOG_DEBUG (LOG_NAS, "        <guarBitRateForDL>%u</guarBitRateForDL>\n", epsqualityofservice->bitRates.guarBitRateForDL);
-    OAILOG_DEBUG (LOG_NAS, "    </bitRates>\n");
-  }
-
-  if (epsqualityofservice->bitRatesExtPresent) {
-    OAILOG_DEBUG (LOG_NAS, "    <bitRatesExt>\n");
-    OAILOG_DEBUG (LOG_NAS, "        <maxBitRateForUL>%u</maxBitRateForUL>\n", epsqualityofservice->bitRatesExt.maxBitRateForUL);
-    OAILOG_DEBUG (LOG_NAS, "        <maxBitRateForDL>%u</maxBitRateForDL>\n", epsqualityofservice->bitRatesExt.maxBitRateForDL);
-    OAILOG_DEBUG (LOG_NAS, "        <guarBitRateForUL>%u</guarBitRateForUL>\n", epsqualityofservice->bitRatesExt.guarBitRateForUL);
-    OAILOG_DEBUG (LOG_NAS, "        <guarBitRateForDL>%u</guarBitRateForDL>\n", epsqualityofservice->bitRatesExt.guarBitRateForDL);
-    OAILOG_DEBUG (LOG_NAS, "    </bitRatesExt>\n");
-  }
-
-  OAILOG_DEBUG (LOG_NAS, "</Eps Quality Of Service>\n");
-}
 
 #define EPS_QOS_BIT_RATE_MAX  262144    // 256 Mbps
-int
-eps_qos_bit_rate_value (
-  uint8_t br)
+//------------------------------------------------------------------------------
+int eps_qos_bit_rate_value (uint8_t br)
 {
   if (br < 0b00000001) {
     return (EPS_QOS_BIT_RATE_MAX);
@@ -211,9 +173,8 @@ eps_qos_bit_rate_value (
   }
 }
 
-int
-eps_qos_bit_rate_ext_value (
-  uint8_t br)
+//------------------------------------------------------------------------------
+int eps_qos_bit_rate_ext_value (uint8_t br)
 {
   if ((br > 0b00000000) && (br < 0b01001011)) {
     return (8600 + br * 100);
@@ -224,4 +185,96 @@ eps_qos_bit_rate_ext_value (
   } else {
     return (-1);
   }
+}
+
+//------------------------------------------------------------------------------
+int qos_params_to_eps_qos(const qci_t qci, const bitrate_t mbr_dl, const bitrate_t mbr_ul, const bitrate_t gbr_dl, const bitrate_t gbr_ul,
+    EpsQualityOfService * const eps_qos, bool is_default_bearer)
+{
+  // if someone volunteer for subroutines..., no time yet.
+  if (eps_qos) {
+    memset(eps_qos, 0, sizeof(EpsQualityOfService));
+    eps_qos->qci = qci;
+    if (!is_default_bearer) {
+      eps_qos->bitRatesPresent = 1;
+      if (mbr_ul == 0) {
+        eps_qos->bitRates.maxBitRateForUL = 0xff;
+      } else if ((mbr_ul > 0) && (mbr_ul <= 63)) {
+        eps_qos->bitRates.maxBitRateForUL = mbr_ul;
+      } else if ((mbr_ul > 63) && (mbr_ul <= 568)) {
+        eps_qos->bitRates.maxBitRateForUL = ((mbr_ul - 64) / 8) + 64;
+      } else if ((mbr_ul >= 576) && (mbr_ul <= 8640)) {
+        eps_qos->bitRates.maxBitRateForUL = ((mbr_ul - 128) / 64) + 128;
+      } else if (mbr_ul > 8640) {
+        eps_qos->bitRates.maxBitRateForUL = 0xfe;
+        eps_qos->bitRatesExtPresent = 1;
+        if ((mbr_ul >= 8600) && (mbr_ul <= 16000)) {
+          eps_qos->bitRatesExt.maxBitRateForUL = (mbr_ul - 8600) / 100;
+        } else if ((mbr_ul > 16000) && (mbr_ul <= 128000)) {
+          eps_qos->bitRatesExt.maxBitRateForUL = ((mbr_ul - 16000) / 1000) + 74;
+        } else if ((mbr_ul > 128000) && (mbr_ul <= 256000)) {
+          eps_qos->bitRatesExt.maxBitRateForUL = ((mbr_ul - 128000) / 2000) + 186;
+        }
+      }
+      if (mbr_dl == 0) {
+        eps_qos->bitRates.maxBitRateForDL = 0xff;
+      } else if ((mbr_dl > 0) && (mbr_dl <= 63)) {
+        eps_qos->bitRates.maxBitRateForDL = mbr_dl;
+      } else if ((mbr_dl > 63) && (mbr_dl <= 568)) {
+        eps_qos->bitRates.maxBitRateForDL = ((mbr_dl - 64) / 8) + 64;
+      } else if ((mbr_dl >= 576) && (mbr_dl <= 8640)) {
+        eps_qos->bitRates.maxBitRateForDL = ((mbr_dl - 128) / 64) + 128;
+      } else if (mbr_dl > 8640) {
+        eps_qos->bitRates.maxBitRateForDL = 0xfe;
+        eps_qos->bitRatesExtPresent = 1;
+        if ((mbr_dl >= 8600) && (mbr_dl <= 16000)) {
+          eps_qos->bitRatesExt.maxBitRateForDL = (mbr_dl - 8600) / 100;
+        } else if ((mbr_dl > 16000) && (mbr_dl <= 128000)) {
+          eps_qos->bitRatesExt.maxBitRateForDL = ((mbr_dl - 16000) / 1000) + 74;
+        } else if ((mbr_dl > 128000) && (mbr_dl <= 256000)) {
+          eps_qos->bitRatesExt.maxBitRateForDL = ((mbr_dl - 128000) / 2000) + 186;
+        }
+      }
+      if (gbr_ul == 0) {
+        eps_qos->bitRates.guarBitRateForUL = 0xff;
+      } else if ((gbr_ul > 0) && (gbr_ul <= 63)) {
+        eps_qos->bitRates.guarBitRateForUL = gbr_ul;
+      } else if ((gbr_ul > 63) && (gbr_ul <= 568)) {
+        eps_qos->bitRates.guarBitRateForUL = ((gbr_ul - 64) / 8) + 64;
+      } else if ((gbr_ul >= 576) && (gbr_ul <= 8640)) {
+        eps_qos->bitRates.guarBitRateForUL = ((gbr_ul - 128) / 64) + 128;
+      } else if (gbr_ul > 8640) {
+        eps_qos->bitRates.guarBitRateForUL = 0xfe;
+        eps_qos->bitRatesExtPresent = 1;
+        if ((gbr_ul >= 8600) && (gbr_ul <= 16000)) {
+          eps_qos->bitRatesExt.guarBitRateForUL = (gbr_ul - 8600) / 100;
+        } else if ((gbr_ul > 16000) && (gbr_ul <= 128000)) {
+          eps_qos->bitRatesExt.guarBitRateForUL = ((gbr_ul - 16000) / 1000) + 74;
+        } else if ((gbr_ul > 128000) && (gbr_ul <= 256000)) {
+          eps_qos->bitRatesExt.guarBitRateForUL = ((gbr_ul - 128000) / 2000) + 186;
+        }
+      }
+      if (gbr_dl == 0) {
+        eps_qos->bitRates.guarBitRateForDL = 0xff;
+      } else if ((gbr_dl > 0) && (gbr_dl <= 63)) {
+        eps_qos->bitRates.guarBitRateForDL = gbr_dl;
+      } else if ((gbr_dl > 63) && (gbr_dl <= 568)) {
+        eps_qos->bitRates.guarBitRateForDL = ((gbr_dl - 64) / 8) + 64;
+      } else if ((gbr_dl >= 576) && (gbr_dl <= 8640)) {
+        eps_qos->bitRates.guarBitRateForDL = ((gbr_dl - 128) / 64) + 128;
+      } else if (gbr_dl > 8640) {
+        eps_qos->bitRates.guarBitRateForDL = 0xfe;
+        eps_qos->bitRatesExtPresent = 1;
+        if ((gbr_dl >= 8600) && (gbr_dl <= 16000)) {
+          eps_qos->bitRatesExt.guarBitRateForDL = (gbr_dl - 8600) / 100;
+        } else if ((gbr_dl > 16000) && (gbr_dl <= 128000)) {
+          eps_qos->bitRatesExt.guarBitRateForDL = ((gbr_dl - 16000) / 1000) + 74;
+        } else if ((gbr_dl > 128000) && (gbr_dl <= 256000)) {
+          eps_qos->bitRatesExt.guarBitRateForDL = ((gbr_dl - 128000) / 2000) + 186;
+        }
+      }
+    }
+    return RETURNok;
+  }
+  return RETURNerror;
 }

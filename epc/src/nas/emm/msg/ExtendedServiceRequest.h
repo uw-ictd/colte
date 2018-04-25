@@ -21,28 +21,28 @@
 
 #ifndef FILE_EXTENDED_SERVICE_REQUEST_SEEN
 #define FILE_EXTENDED_SERVICE_REQUEST_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "ServiceType.h"
 #include "NasKeySetIdentifier.h"
-#include "MobileIdentity.h"
 #include "CsfbResponse.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define EXTENDED_SERVICE_REQUEST_MINIMUM_LENGTH ( \
     SERVICE_TYPE_MINIMUM_LENGTH + \
     NAS_KEY_SET_IDENTIFIER_MINIMUM_LENGTH + \
-    MOBILE_IDENTITY_MINIMUM_LENGTH )
+    MOBILE_IDENTITY_IE_MIN_LENGTH )
 
 /* Maximum length macro. Formed by maximum length of each field */
 #define EXTENDED_SERVICE_REQUEST_MAXIMUM_LENGTH ( \
     SERVICE_TYPE_MAXIMUM_LENGTH + \
     NAS_KEY_SET_IDENTIFIER_MAXIMUM_LENGTH + \
-    MOBILE_IDENTITY_MAXIMUM_LENGTH + \
+    MOBILE_IDENTITY_IE_MAX_LENGTH + \
     CSFB_RESPONSE_MAXIMUM_LENGTH )
 
 
@@ -55,15 +55,15 @@
 
 typedef struct extended_service_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                 protocoldiscriminator:4;
-  SecurityHeaderType                    securityheadertype:4;
-  MessageType                           messagetype;
-  ServiceType                           servicetype;
+  eps_protocol_discriminator_t          protocoldiscriminator:4;
+  security_header_type_t                securityheadertype:4;
+  message_type_t                        messagetype;
+  service_type_t                        servicetype;
   NasKeySetIdentifier                   naskeysetidentifier;
-  MobileIdentity                        mtmsi;
+  mobile_identity_t                     mtmsi;
   /* Optional fields */
   uint32_t                              presencemask;
-  CsfbResponse                          csfbresponse;
+  csfb_response_t                       csfbresponse;
 } extended_service_request_msg;
 
 int decode_extended_service_request(extended_service_request_msg *extendedservicerequest, uint8_t *buffer, uint32_t len);

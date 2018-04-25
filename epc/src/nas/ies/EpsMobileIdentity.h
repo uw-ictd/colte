@@ -19,66 +19,69 @@
  *      contact@openairinterface.org
  */
 
-#ifndef EPS_MOBILE_IDENTITY_H_
-#define EPS_MOBILE_IDENTITY_H_
-#include <stdint.h>
+#ifndef EPS_MOBILE_IDENTITY_SEEN
+#define EPS_MOBILE_IDENTITY_SEEN
 
 #define EPS_MOBILE_IDENTITY_MINIMUM_LENGTH 3
 #define EPS_MOBILE_IDENTITY_MAXIMUM_LENGTH 13
 
-typedef struct {
+typedef struct guti_eps_mobile_identity_s {
   uint8_t  spare:4;
 #define EPS_MOBILE_IDENTITY_EVEN  0
 #define EPS_MOBILE_IDENTITY_ODD   1
   uint8_t  oddeven:1;
   uint8_t  typeofidentity:3;
-  uint8_t  mccdigit2:4;
-  uint8_t  mccdigit1:4;
-  uint8_t  mncdigit3:4;
-  uint8_t  mccdigit3:4;
-  uint8_t  mncdigit2:4;
-  uint8_t  mncdigit1:4;
-  uint16_t mmegroupid;
-  uint8_t  mmecode;
-  uint32_t mtmsi;
-} GutiEpsMobileIdentity_t;
+  uint8_t  mcc_digit2:4;
+  uint8_t  mcc_digit1:4;
+  uint8_t  mnc_digit3:4;
+  uint8_t  mcc_digit3:4;
+  uint8_t  mnc_digit2:4;
+  uint8_t  mnc_digit1:4;
+  uint16_t mme_group_id;
+  uint8_t  mme_code;
+  uint32_t m_tmsi;
+} guti_eps_mobile_identity_t;
 
-typedef struct {
-  uint8_t  digit1:4;
+typedef struct imsi_eps_mobile_identity_s {
+  uint8_t  identity_digit1:4;
   uint8_t  oddeven:1;
   uint8_t  typeofidentity:3;
-  uint8_t  digit2:4;
-  uint8_t  digit3:4;
-  uint8_t  digit4:4;
-  uint8_t  digit5:4;
-  uint8_t  digit6:4;
-  uint8_t  digit7:4;
-  uint8_t  digit8:4;
-  uint8_t  digit9:4;
-  uint8_t  digit10:4;
-  uint8_t  digit11:4;
-  uint8_t  digit12:4;
-  uint8_t  digit13:4;
-  uint8_t  digit14:4;
-  uint8_t  digit15:4;
-} ImsiEpsMobileIdentity_t;
+  uint8_t  identity_digit2:4;
+  uint8_t  identity_digit3:4;
+  uint8_t  identity_digit4:4;
+  uint8_t  identity_digit5:4;
+  uint8_t  identity_digit6:4;
+  uint8_t  identity_digit7:4;
+  uint8_t  identity_digit8:4;
+  uint8_t  identity_digit9:4;
+  uint8_t  identity_digit10:4;
+  uint8_t  identity_digit11:4;
+  uint8_t  identity_digit12:4;
+  uint8_t  identity_digit13:4;
+  uint8_t  identity_digit14:4;
+  uint8_t  identity_digit15:4;
+  // because of union put this extra attribute at the end
+  uint8_t  num_digits;
+} imsi_eps_mobile_identity_t;
 
-typedef ImsiEpsMobileIdentity_t ImeiEpsMobileIdentity_t;
+typedef imsi_eps_mobile_identity_t imei_eps_mobile_identity_t;
 
-typedef union EpsMobileIdentity_tag {
+typedef union eps_mobile_identity_s {
 #define EPS_MOBILE_IDENTITY_IMSI  0b001
 #define EPS_MOBILE_IDENTITY_GUTI  0b110
 #define EPS_MOBILE_IDENTITY_IMEI  0b011
-  ImsiEpsMobileIdentity_t imsi;
-  GutiEpsMobileIdentity_t guti;
-  ImeiEpsMobileIdentity_t imei;
-} EpsMobileIdentity;
+  imsi_eps_mobile_identity_t imsi;
+  guti_eps_mobile_identity_t guti;
+  imei_eps_mobile_identity_t imei;
+} eps_mobile_identity_t;
 
-int encode_eps_mobile_identity(EpsMobileIdentity *epsmobileidentity, uint8_t iei, uint8_t *buffer, uint32_t len);
+#define EPS_MOBILE_IDENTITY_XML_STR    "eps_mobile_identity"
+#define TYPE_OF_IDENTITY_ATTR_XML_STR  "type_of_identity"
 
-int decode_eps_mobile_identity(EpsMobileIdentity *epsmobileidentity, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_eps_mobile_identity_xml(EpsMobileIdentity *epsmobileidentity, uint8_t iei);
+int encode_eps_mobile_identity(eps_mobile_identity_t *epsmobileidentity, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-#endif /* EPS MOBILE IDENTITY_H_ */
+int decode_eps_mobile_identity(eps_mobile_identity_t *epsmobileidentity, uint8_t iei, uint8_t *buffer, uint32_t len);
+
+#endif /* EPS_MOBILE_IDENTITY_SEEN */
 

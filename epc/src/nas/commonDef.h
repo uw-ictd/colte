@@ -39,8 +39,6 @@ Description Contains global common definitions
 #ifndef FILE_COMMONDEF_SEEN
 #define FILE_COMMONDEF_SEEN
 
-#include <stdint.h>
-
 /*
  * A list of PLMNs
  */
@@ -51,9 +49,5 @@ Description Contains global common definitions
  */
 #define TAC_LIST_T(SIZE) struct {uint8_t n_tacs; TAC_t tac[SIZE];}
 
-/*
- * A list of TAIs
- */
-#define TAI_LIST_T(SIZE) struct {uint8_t list_type; uint8_t n_tais; tai_t tai[SIZE];}
 
 #endif /* FILE_COMMONDEF_SEEN*/

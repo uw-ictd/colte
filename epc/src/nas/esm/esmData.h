@@ -44,7 +44,7 @@ Description Defines internal private data handled by EPS Session
 #include "tree.h"
 #include "bstrlib.h"
 #include "networkDef.h"
-#include "EpsBearerIdentity.h"
+#include "3gpp_24.007.h"
 #include "mme_api.h"
 
 /****************************************************************************/

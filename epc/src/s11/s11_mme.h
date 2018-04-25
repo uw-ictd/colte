@@ -19,9 +19,15 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s11_mme.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 #ifndef FILE_S11_MME_SEEN
 #define FILE_S11_MME_SEEN
 
-int s11_mme_init(const mme_config_t *mme_config);
+int s11_mme_init(const mme_config_t * const mme_config);
 
 #endif /* FILE_S11_MME_SEEN */

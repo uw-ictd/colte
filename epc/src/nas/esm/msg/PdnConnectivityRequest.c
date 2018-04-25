@@ -23,8 +23,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
 #include "3gpp_24.007.h"
 #include "3gpp_24.301.h"
 #include "TLVEncoder.h"
@@ -79,7 +82,7 @@ decode_pdn_connectivity_request (
       break;
 
     case PDN_CONNECTIVITY_REQUEST_ACCESS_POINT_NAME_IEI:
-      if ((decoded_result = decode_access_point_name (&pdn_connectivity_request->accesspointname, PDN_CONNECTIVITY_REQUEST_ACCESS_POINT_NAME_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_access_point_name_ie (&pdn_connectivity_request->accesspointname, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -90,7 +93,7 @@ decode_pdn_connectivity_request (
       break;
 
     case PDN_CONNECTIVITY_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI:
-      if ((decoded_result = decode_ProtocolConfigurationOptions (&pdn_connectivity_request->protocolconfigurationoptions, PDN_CONNECTIVITY_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_protocol_configuration_options_ie (&pdn_connectivity_request->protocolconfigurationoptions, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -143,7 +146,7 @@ encode_pdn_connectivity_request (
 
   if ((pdn_connectivity_request->presencemask & PDN_CONNECTIVITY_REQUEST_ACCESS_POINT_NAME_PRESENT)
       == PDN_CONNECTIVITY_REQUEST_ACCESS_POINT_NAME_PRESENT) {
-    if ((encode_result = encode_access_point_name (pdn_connectivity_request->accesspointname, PDN_CONNECTIVITY_REQUEST_ACCESS_POINT_NAME_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_access_point_name_ie (pdn_connectivity_request->accesspointname, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -152,7 +155,7 @@ encode_pdn_connectivity_request (
 
   if ((pdn_connectivity_request->presencemask & PDN_CONNECTIVITY_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT)
       == PDN_CONNECTIVITY_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
-    if ((encode_result = encode_ProtocolConfigurationOptions (&pdn_connectivity_request->protocolconfigurationoptions, PDN_CONNECTIVITY_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_protocol_configuration_options_ie (&pdn_connectivity_request->protocolconfigurationoptions, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
