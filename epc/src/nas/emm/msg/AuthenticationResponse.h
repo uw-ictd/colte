@@ -21,21 +21,21 @@
 
 #ifndef FILE_AUTHENTICATION_RESPONSE_SEEN
 #define FILE_AUTHENTICATION_RESPONSE_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
-#include "AuthenticationResponseParameter.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define AUTHENTICATION_RESPONSE_MINIMUM_LENGTH ( \
-    AUTHENTICATION_RESPONSE_PARAMETER_MINIMUM_LENGTH )
+    AUTHENTICATION_RESPONSE_PARAMETER_IE_MIN_LENGTH )
 
 /* Maximum length macro. Formed by maximum length of each field */
 #define AUTHENTICATION_RESPONSE_MAXIMUM_LENGTH ( \
-    AUTHENTICATION_RESPONSE_PARAMETER_MAXIMUM_LENGTH )
+    AUTHENTICATION_RESPONSE_PARAMETER_IE_MAX_LENGTH )
 
 
 /*
@@ -47,10 +47,10 @@
 
 typedef struct authentication_response_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator             protocoldiscriminator:4;
-  SecurityHeaderType                securityheadertype:4;
-  MessageType                       messagetype;
-  AuthenticationResponseParameter   authenticationresponseparameter;
+  eps_protocol_discriminator_t        protocoldiscriminator:4;
+  security_header_type_t              securityheadertype:4;
+  message_type_t                      messagetype;
+  authentication_response_parameter_t authenticationresponseparameter;
 } authentication_response_msg;
 
 int decode_authentication_response(authentication_response_msg *authenticationresponse, uint8_t *buffer, uint32_t len);

@@ -51,17 +51,6 @@ extern "C" {
 #define NW_OUT                                  /**< An output argument         */
 #define NW_INOUT                                /**< An input and output argument */
 
-#define NW_TRUE                 (1)             /**< Truth value                */
-#define NW_FALSE                (0)             /**< False value                */
-
-typedef signed char             NwS8T;          /**< Signed 1 byte              */
-typedef signed short            NwS16T;         /**< Signed 2 byte              */
-typedef signed int              NwS32T;         /**< Signed 4 byte              */
-typedef signed long long        NwS64T;         /**< Signed 8 byte              */
-
-typedef char                    NwBoolT;        /**< Use this for booleans      */
-
-typedef char                    NwCharT;        /**< Use this for strings       */
 
 typedef signed int              NwFdT;          /**< Use this for file descriptor */
 

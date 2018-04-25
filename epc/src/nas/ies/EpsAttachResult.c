@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "EpsAttachResult.h"
 
-int
-decode_eps_attach_result (
-  EpsAttachResult * epsattachresult,
+//------------------------------------------------------------------------------
+int decode_eps_attach_result (
+  eps_attach_result_t * epsattachresult,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -48,9 +50,9 @@ decode_eps_attach_result (
   return decoded;
 }
 
-int
-decode_u8_eps_attach_result (
-  EpsAttachResult * epsattachresult,
+//------------------------------------------------------------------------------
+int decode_u8_eps_attach_result (
+  eps_attach_result_t * epsattachresult,
   uint8_t iei,
   uint8_t value,
   uint32_t len)
@@ -63,9 +65,9 @@ decode_u8_eps_attach_result (
   return decoded;
 }
 
-int
-encode_eps_attach_result (
-  EpsAttachResult * epsattachresult,
+//------------------------------------------------------------------------------
+int encode_eps_attach_result (
+  eps_attach_result_t * epsattachresult,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -81,36 +83,17 @@ encode_eps_attach_result (
   return encoded;
 }
 
-uint8_t
-encode_u8_eps_attach_result (
-  EpsAttachResult * epsattachresult)
+//------------------------------------------------------------------------------
+uint8_t encode_u8_eps_attach_result (
+  eps_attach_result_t * epsattachresult)
 {
   uint8_t                                 bufferReturn;
   uint8_t                                *buffer = &bufferReturn;
   uint8_t                                 encoded = 0;
   uint8_t                                 iei = 0;
 
-#if NAS_DEBUG
-  dump_eps_attach_result_xml (epsattachresult, 0);
-#endif
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*epsattachresult & 0x7);
   encoded++;
   return bufferReturn;
 }
 
-void
-dump_eps_attach_result_xml (
-  EpsAttachResult * epsattachresult,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Eps Attach Result>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <EPS attach result value>%u</EPS attach result value>\n", *epsattachresult);
-  OAILOG_DEBUG (LOG_NAS, "</Eps Attach Result>\n");
-}

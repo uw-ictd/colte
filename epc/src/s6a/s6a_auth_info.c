@@ -19,19 +19,30 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s6a_auth_info.c
+  \brief
+  \author Sebastien ROUX
+  \company Eurecom
+*/
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <pthread.h>
 
+#include "bstrlib.h"
+
+#include "dynamic_memory_check.h"
+#include "log.h"
+#include "msc.h"
 #include "mme_config.h"
-
 #include "assertions.h"
 #include "conversions.h"
-
+#include "common_types.h"
+#include "common_defs.h"
 #include "intertask_interface.h"
 #include "s6a_defs.h"
 #include "s6a_messages.h"
-#include "msc.h"
 
 static
   int
@@ -340,7 +351,7 @@ s6a_generate_authentication_info_req (
     value.os.len = blength(host);
     CHECK_FCT (fd_msg_avp_setvalue (avp, &value));
     CHECK_FCT (fd_msg_avp_add (msg, MSG_BRW_LAST_CHILD, avp));
-    bdestroy(host);
+    bdestroy_wrapper (&host);
   }
   /*
    * Destination_Realm

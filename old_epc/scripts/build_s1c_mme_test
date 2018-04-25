@@ -1,0 +1,128 @@
+#!/bin/bash
+################################################################################
+# Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The OpenAirInterface Software Alliance licenses this file to You under 
+# the Apache License, Version 2.0  (the "License"); you may not use this file
+# except in compliance with the License.  
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#-------------------------------------------------------------------------------
+# For more information about the OpenAirInterface (OAI) Software Alliance:
+#      contact@openairinterface.org
+################################################################################
+# file build_s1c_mme_test
+# brief
+# author Lionel Gauthier
+# company Eurecom
+# email: lionel.gauthier@eurecom.fr
+#
+################################
+# include helper functions
+################################
+THIS_SCRIPT_PATH=$(dirname $(readlink -f $0))
+source $THIS_SCRIPT_PATH/tools/build_helper
+
+function help()
+{
+  echo_error " "
+  echo_error "Usage: build_s1c_mme_test [OPTION]..."
+  echo_error "Build the fake ENB executable."
+  echo_error " "
+  echo_error "Options:"
+  echo_error "Mandatory arguments to long options are mandatory for short options too."
+  echo_error "  -c, --clean                               Clean the build generated files (build from scratch)"
+  echo_error "  -d, --debug                               Compile with debug informations."
+  echo_error "  -h, --help                                Print this help."
+  echo_error "  -v, --verbose                             Build process verbose."
+}
+
+
+
+function main()
+{
+  local -i clean=0
+  local -i verbose=0
+  local    cmake_args=" "
+  local    make_args="-j $NUM_CPU"
+  local    REL="Rel10"
+
+
+  until [ -z "$1" ]
+    do
+    case "$1" in
+      -c | --clean)
+        clean=1
+        echo "Clean the build generated files (build from scratch)"
+        shift;
+        ;;
+      -d | --debug)
+        cmake_args="$cmake_args -DDEBUG=1"
+        echo "Compile with debug informations"
+        shift;
+        ;;
+      -h | --help)
+        help
+        shift;
+        exit 0
+        ;;
+      -v | --verbose)
+        echo "Make build process verbose"
+        cmake_args="$cmake_args -DCMAKE_VERBOSE_MAKEFILE=ON"
+        make_args="VERBOSE=1 $make_args"
+        verbose=1
+        shift;
+        ;;
+      *)   
+        echo "Unknown option $1"
+        help
+        exit 1
+        ;;
+    esac
+  done
+  
+
+
+  set_openair_env 
+  if [[ $verbose -eq 1 ]]; then
+    cecho "OPENAIR_DIR    = $OPENAIR_DIR" $green
+  fi
+    
+  
+  local dbin=$OPENAIR_DIR/targets/bin
+  local dlog=$OPENAIR_DIR/cmake_targets/log
+  local dconf=$OPENAIR_DIR/targets/bin
+  
+  mkdir -m 777 -p $dbin $dlog
+  
+  
+  
+  
+  ##############################################################################
+  # Compile fake eNB
+  ##############################################################################
+  cd $OPENAIR_DIR/cmake_targets/s1c_mme_test
+  if [ ! -d ./build ]; then
+    mkdir -m 777 -p -v build
+  fi
+  cmake_file=./CMakeLists.txt
+  cp $OPENAIR_DIR/cmake_targets/s1c_mme_test/CMakeLists.template $cmake_file
+  echo 'include(${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists.txt)' >> $cmake_file
+  cd ./build
+  cmake  $cmake_args ..
+  compilations s1c_mme_test test_s1c_mme test_s1c_mme 
+
+    
+}
+
+
+main "$@"
+

@@ -22,11 +22,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include <nettle/nettle-meta.h>
 #include <nettle/aes.h>
 #include <nettle/ctr.h>
+#include "bstrlib.h"
 #include "assertions.h"
 #include "conversions.h"
 #include "secu_defs.h"
@@ -53,7 +55,7 @@ nas_stream_encrypt_eea2 (
     byte_length += 1;
 
   ctx = malloc (nettle_aes128.context_size);
-  data = malloc (byte_length);
+  data = calloc (1, byte_length);
   local_count = hton_int32 (stream_cipher->count);
   memset (m, 0, sizeof (m));
   memcpy (&m[0], &local_count, 4);
@@ -74,7 +76,7 @@ nas_stream_encrypt_eea2 (
     data[byte_length - 1] = data[byte_length - 1] & (uint8_t) (0xFF << (8 - zero_bit));
 
   memcpy (out, data, byte_length);
-  free_wrapper ((void**) &data);
-  free_wrapper (&ctx);
+  free_wrapper ((void**)&data);
+  free_wrapper ((void**)&ctx);
   return 0;
 }

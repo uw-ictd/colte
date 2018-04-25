@@ -19,24 +19,21 @@
  *      contact@openairinterface.org
  */
 
-#ifndef SERVICE_TYPE_H_
-#define SERVICE_TYPE_H_
-#include <stdint.h>
+#ifndef SERVICE_TYPE_SEEN
+#define SERVICE_TYPE_SEEN
 
 #define SERVICE_TYPE_MINIMUM_LENGTH 1
 #define SERVICE_TYPE_MAXIMUM_LENGTH 1
 
-typedef uint8_t ServiceType;
+typedef uint8_t service_type_t;
 
-int encode_service_type(ServiceType *servicetype, uint8_t iei, uint8_t *buffer, uint32_t len);
+int encode_service_type(service_type_t *servicetype, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_service_type_xml(ServiceType *servicetype, uint8_t iei);
+uint8_t encode_u8_service_type(service_type_t *servicetype);
 
-uint8_t encode_u8_service_type(ServiceType *servicetype);
+int decode_service_type(service_type_t *servicetype, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-int decode_service_type(ServiceType *servicetype, uint8_t iei, uint8_t *buffer, uint32_t len);
+int decode_u8_service_type(service_type_t *servicetype, uint8_t iei, uint8_t value, uint32_t len);
 
-int decode_u8_service_type(ServiceType *servicetype, uint8_t iei, uint8_t value, uint32_t len);
-
-#endif /* SERVICE TYPE_H_ */
+#endif /* SERVICE_TYPE_SEEN */
 

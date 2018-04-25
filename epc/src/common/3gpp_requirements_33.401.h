@@ -27,16 +27,23 @@
  * either expressed or implied, of the FreeBSD Project.
  */
 
+/*! \file 3gpp_requirements_33_401.h
+  \brief
+  \author Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 #ifndef FILE_3GPP_REQUIREMENTS_33_401_SEEN
 #define FILE_3GPP_REQUIREMENTS_33_401_SEEN
 
 #include "3gpp_requirements.h"
 #include "log.h"
 
-#define REQUIREMENT_3GPP_33_401(rElEaSe_sEcTiOn__OaImark) REQUIREMENT_3GPP_SPEC(LOG_NAS, "Hit 3GPP TS 33_401"#rElEaSe_sEcTiOn__OaImark"\n")
-#define NO_REQUIREMENT_3GPP_33_401(rElEaSe_sEcTiOn__OaImark) REQUIREMENT_3GPP_SPEC(LOG_NAS, "3GPP TS 33_401"#rElEaSe_sEcTiOn__OaImark" NOT IMPLEMENTED\n")
+#define REQUIREMENT_3GPP_33_401(rElEaSe_sEcTiOn__OaImark) REQUIREMENT_3GPP_SPEC(LOG_S1AP, "Hit 3GPP TS 33_401"#rElEaSe_sEcTiOn__OaImark" : "rElEaSe_sEcTiOn__OaImark##_BRIEF"\n")
+#define NO_REQUIREMENT_3GPP_33_401(rElEaSe_sEcTiOn__OaImark) REQUIREMENT_3GPP_SPEC(LOG_S1AP, "#NOT IMPLEMENTED 3GPP TS 33_401"#rElEaSe_sEcTiOn__OaImark" : "rElEaSe_sEcTiOn__OaImark##_BRIEF"\n")
+#define NOT_REQUIREMENT_3GPP_33_401(rElEaSe_sEcTiOn__OaImark) REQUIREMENT_3GPP_SPEC(LOG_S1AP, "#NOT ASSERTED 3GPP TS 33_401"#rElEaSe_sEcTiOn__OaImark" : "rElEaSe_sEcTiOn__OaImark##_BRIEF"\n")
 
 //-----------------------------------------------------------------------------------------------------------------------
 
 
-#endif FILE_3GPP_REQUIREMENTS_33_401_SEEN
+#endif /* FILE_3GPP_REQUIREMENTS_33_401_SEEN */

@@ -32,6 +32,8 @@
 #ifndef FILE_S1AP_COMMON_SEEN
 #define FILE_S1AP_COMMON_SEEN
 
+#include "bstrlib.h"
+
 /* Defined in asn_internal.h */
 // extern int asn_debug_indent;
 extern int asn_debug;
@@ -385,7 +387,12 @@ inline void ASN_DEBUG(const char *fmt, ...);
 extern int asn_debug;
 extern int asn1_xer_print;
 
+# include <stdbool.h>
 # include "mme_default_values.h"
+# include "3gpp_23.003.h"
+# include "3gpp_24.008.h"
+# include "3gpp_33.401.h"
+# include "security_types.h"
 # include "common_types.h"
 
 //Forward declaration

@@ -21,7 +21,7 @@
 
 /*****************************************************************************
 
-  Source    nas_message.h
+  Source    nas_message.c
 
   Version   0.1
 
@@ -37,21 +37,28 @@
     protocol and functions used to encode and decode
 
 *****************************************************************************/
+#include <arpa/inet.h>          // htonl
+#include <string.h>             // memcpy
+#include <stdlib.h>             // free
+#include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
+
+#include "log.h"
+#include "3gpp_36.401.h"
 #include "common_types.h"
 #include "nas_message.h"
-#include "log.h"
 #include "gcc_diag.h"
-
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"
-
-#include <stdlib.h>             // malloc, free
-#include <string.h>             // memcpy
-
-#include "nas_itti_messaging.h"
+#include "mme_api.h"
+#include "mme_config.h"
+#include "emm_main.h"
+#include "esm_main.h"
+#include "emm_sap.h"
+#include "emm_data.h"
 #include "secu_defs.h"
-#include "emmData.h"
 #include "dynamic_memory_check.h"
 
 /****************************************************************************/
@@ -61,15 +68,10 @@
 /****************************************************************************/
 /*******************  L O C A L    D E F I N I T I O N S  *******************/
 /****************************************************************************/
+
 #define SR_MAC_SIZE_BYTES 2
 
 /* Functions used to decode layer 3 NAS messages */
-static int _nas_message_header_decode (
-    const unsigned char * const buffer,
-    nas_message_security_header_t * const header,
-    const size_t length,
-    nas_message_decode_status_t * const status,
-    bool * const is_sr);
 
 static int _nas_message_plain_decode (
     const unsigned char *buffer,
@@ -178,8 +180,7 @@ int nas_message_encrypt (
      * Encrypt the plain NAS message
      */
     bytes = _nas_message_encrypt (outbuf + size, inbuf, header->security_header_type, header->message_authentication_code, header->sequence_number,
-                                  SECU_DIRECTION_DOWNLINK,
-                                  length - size, emm_security_context);
+        emm_security_context->direction_encode, length - size, emm_security_context);
 
     /*
      * Integrity protected the NAS message
@@ -195,7 +196,7 @@ int nas_message_encrypt (
        */
       uint32_t                                mac = _nas_message_get_mac (outbuf + offset,
                                                                           bytes + size - offset,
-                                                                          SECU_DIRECTION_DOWNLINK,
+                                                                          emm_security_context->direction_encode,
                                                                           emm_security_context);
 
       /*
@@ -222,13 +223,23 @@ int nas_message_encrypt (
    * * * * overflow counter shall also be incremented by one (see
    * * * * subclause 4.4.3.5).
    */
-  emm_security_context->dl_count.seq_num += 1;
+  if (SECU_DIRECTION_DOWNLINK == emm_security_context->direction_encode) {
+    emm_security_context->dl_count.seq_num += 1;
 
-  if (!emm_security_context->dl_count.seq_num) {
-    emm_security_context->dl_count.overflow += 1;
+    if (!emm_security_context->dl_count.seq_num) {
+      emm_security_context->dl_count.overflow += 1;
+    }
+
+    OAILOG_DEBUG (LOG_NAS, "Incremented emm_security_context.dl_count.seq_num -> %u\n", emm_security_context->dl_count.seq_num);
+  } else {
+    emm_security_context->ul_count.seq_num += 1;
+
+    if (!emm_security_context->ul_count.seq_num) {
+      emm_security_context->ul_count.overflow += 1;
+    }
+
+    OAILOG_DEBUG (LOG_NAS, "Incremented emm_security_context.ul_count.seq_num -> %u\n", emm_security_context->ul_count.seq_num);
   }
-
-  OAILOG_DEBUG (LOG_NAS, "Incremented emm_security_context.dl_count.seq_num -> %u\n", emm_security_context->dl_count.seq_num);
 
   if (bytes < 0) {
     OAILOG_FUNC_RETURN (LOG_NAS, bytes);
@@ -276,7 +287,7 @@ int nas_message_decrypt (
   /*
    * Decode the header
    */
-  int                                     size = _nas_message_header_decode (inbuf, header, length, status, &is_sr);
+  int                                     size = nas_message_header_decode (inbuf, header, length, status, &is_sr);
 
   if (size < 0) {
     OAILOG_DEBUG (LOG_NAS, "MESSAGE TOO SHORT\n");
@@ -387,9 +398,9 @@ int nas_message_decode (
   if (emm_security_context) {
     status->security_context_available = 1;
   }
-  size  = _nas_message_header_decode (buffer, &msg->header, length, status, &is_sr);
+  size  = nas_message_header_decode (buffer, &msg->header, length, status, &is_sr);
 
-  OAILOG_DEBUG (LOG_NAS, "_nas_message_header_decode returned size %d\n", size);
+  OAILOG_DEBUG (LOG_NAS, "nas_message_header_decode returned size %d\n", size);
 
   if (size < 0) {
     OAILOG_FUNC_RETURN (LOG_NAS, TLV_BUFFER_TOO_SHORT);
@@ -470,17 +481,26 @@ int nas_message_decode (
     int offset = size - sizeof (uint8_t);
     if (emm_security_context) {
       status->security_context_available = 1;
-      if (emm_security_context->ul_count.seq_num > msg->header.sequence_number) {
-        emm_security_context->ul_count.overflow += 1;
+      if (SECU_DIRECTION_UPLINK == emm_security_context->direction_decode) {
+        if (emm_security_context->ul_count.seq_num > msg->header.sequence_number) {
+          emm_security_context->ul_count.overflow += 1;
+        }
+
+        emm_security_context->ul_count.seq_num = msg->header.sequence_number;
+      } else {
+        if (emm_security_context->dl_count.seq_num > msg->header.sequence_number) {
+          emm_security_context->dl_count.overflow += 1;
+        }
+
+        emm_security_context->dl_count.seq_num = msg->header.sequence_number;
       }
 
-      emm_security_context->ul_count.seq_num = msg->header.sequence_number;
       /*
        * Compute the NAS message authentication code, return 0 if no security context
        */
       mac = _nas_message_get_mac (buffer + offset,
           length - offset,
-          SECU_DIRECTION_UPLINK,
+          emm_security_context->direction_decode,
           emm_security_context);
       /*
        * Check NAS message integrity
@@ -495,7 +515,7 @@ int nas_message_decode (
     /*
      * Decode security protected NAS message
      */
-    
+    // LG WARNING  msg->plain versus msg->security.plain.
     bytes = _nas_message_protected_decode ((unsigned char *const)(buffer + size), &msg->header, &msg->plain, length - size, emm_security_context, status);
   } else {
     /*
@@ -504,7 +524,7 @@ int nas_message_decode (
     bytes = _nas_message_plain_decode (buffer, &msg->header, &msg->plain, length);
   }
 
-  if (bytes < 0)  {
+  if (bytes < 0) {
     OAILOG_FUNC_RETURN (LOG_NAS, bytes);
   }
 
@@ -569,7 +589,7 @@ int nas_message_encode (
       OAILOG_DEBUG (LOG_NAS, "offset %d = %d - %lu, hdr encode = %d, length = %lu bytes = %d\n", offset, size, sizeof (uint8_t), size, length, bytes);
       uint32_t                                mac = _nas_message_get_mac (buffer + offset,
                                                                           bytes + size - offset,
-                                                                          SECU_DIRECTION_DOWNLINK,
+                                                                          emm_security_context->direction_encode,
                                                                           emm_security_context);
 
       /*
@@ -590,15 +610,23 @@ int nas_message_encode (
          * * * * overflow counter shall also be incremented by one (see
          * * * * subclause 4.4.3.5).
          */
-        emm_security_context->dl_count.seq_num += 1;
+        if (SECU_DIRECTION_DOWNLINK == emm_security_context->direction_encode) {
+          emm_security_context->dl_count.seq_num += 1;
 
-        if (!emm_security_context->dl_count.seq_num) {
-          emm_security_context->dl_count.overflow += 1;
+          if (!emm_security_context->dl_count.seq_num) {
+            emm_security_context->dl_count.overflow += 1;
+          }
+          OAILOG_DEBUG (LOG_NAS, "Incremented emm_security_context.dl_count.seq_num -> %u\n", emm_security_context->dl_count.seq_num);
+        } else {
+          emm_security_context->ul_count.seq_num += 1;
+
+          if (!emm_security_context->ul_count.seq_num) {
+            emm_security_context->ul_count.overflow += 1;
+          }
+          OAILOG_DEBUG (LOG_NAS, "Incremented emm_security_context.ul_count.seq_num -> %u\n", emm_security_context->ul_count.seq_num);
         }
-
-        OAILOG_DEBUG (LOG_NAS, "Incremented emm_security_context.dl_count.seq_num -> %u\n", emm_security_context->dl_count.seq_num);
       } else {
-        OAILOG_DEBUG (LOG_NAS, "Did not increment emm_security_context.dl_count.seq_num because no security context\n");
+        OAILOG_DEBUG (LOG_NAS, "Did not increment emm_security_context.xl_count.seq_num because no security context\n");
       }
     }
     /*
@@ -635,7 +663,7 @@ int nas_message_encode (
 
 /****************************************************************************
  **                                                                        **
- ** Name:  _nas_message_header_decode()                              **
+ ** Name:  nas_message_header_decode()                              **
  **                                                                        **
  ** Description: Decode header of a security protected NAS message         **
  **                                                                        **
@@ -653,7 +681,7 @@ int nas_message_encode (
  **    Others:  None                                       **
  **                                                                        **
  ***************************************************************************/
-static int _nas_message_header_decode (
+int nas_message_header_decode (
     const unsigned char * const buffer,
     nas_message_security_header_t * const header,
     const size_t length,
@@ -813,7 +841,7 @@ static int _nas_message_protected_decode (
      * Decode the decrypted message as plain NAS message
      */
     bytes = _nas_message_plain_decode (plain_msg, header, msg, length);
-    free_wrapper ((void**) &plain_msg);
+    free_wrapper ((void**)&plain_msg);
   }
 
   OAILOG_FUNC_RETURN (LOG_NAS, bytes);
@@ -913,12 +941,12 @@ static int _nas_message_plain_encode (
   OAILOG_FUNC_IN (LOG_NAS);
   int                                     bytes = TLV_PROTOCOL_NOT_SUPPORTED;
 
-  if (header->protocol_discriminator == EPS_MOBILITY_MANAGEMENT_MESSAGE) {
+  if (EPS_MOBILITY_MANAGEMENT_MESSAGE == msg->emm.header.protocol_discriminator) {
     /*
      * Encode EPS Mobility Management L3 message
      */
     bytes = emm_msg_encode ((EMM_msg *) (&msg->emm), (uint8_t *) buffer, length);
-  } else if (header->protocol_discriminator == EPS_SESSION_MANAGEMENT_MESSAGE) {
+  } else if (EPS_SESSION_MANAGEMENT_MESSAGE == msg->emm.header.protocol_discriminator) {
     /*
      * Encode EPS Session Management L3 message
      */
@@ -975,13 +1003,12 @@ static int _nas_message_protected_encode (
        * Encrypt the encoded plain NAS message
        */
       bytes = _nas_message_encrypt (buffer, plain_msg, msg->header.security_header_type, msg->header.message_authentication_code, msg->header.sequence_number,
-                                    SECU_DIRECTION_DOWNLINK,
-                                    size, emm_security_context);
+          emm_security_context->direction_encode, size, emm_security_context);
       //seq, size);
       //seq ++;
     }
 
-    free_wrapper ((void**) &plain_msg);
+    free_wrapper ((void**)&plain_msg);
   }
 
   OAILOG_FUNC_RETURN (LOG_NAS, bytes);
@@ -1022,15 +1049,13 @@ static int _nas_message_decrypt (
     emm_security_context_t * const emm_security_context,
     nas_message_decode_status_t * status)
 {
+  OAILOG_FUNC_IN (LOG_NAS);
   nas_stream_cipher_t                     stream_cipher = {0};
   uint32_t                                count = 0;
-  uint8_t                                 direction = 0;
-
-  OAILOG_FUNC_IN (LOG_NAS);
+  uint8_t                                 direction = SECU_DIRECTION_UPLINK;
   int                                     size = 0;
   nas_message_security_header_t           header = {0};
 
-  direction = SECU_DIRECTION_UPLINK;
 
   switch (security_header_type) {
   case SECURITY_HEADER_TYPE_NOT_PROTECTED:
@@ -1047,6 +1072,7 @@ static int _nas_message_decrypt (
   case SECURITY_HEADER_TYPE_INTEGRITY_PROTECTED_CYPHERED:
   case SECURITY_HEADER_TYPE_INTEGRITY_PROTECTED_CYPHERED_NEW:
     if ( emm_security_context) {
+      direction = emm_security_context->direction_decode;
       switch (emm_security_context->selected_algorithms.encryption) {
         case NAS_SECURITY_ALGORITHMS_EEA1:{
           if (0 == status->mac_matched) {
@@ -1054,9 +1080,9 @@ static int _nas_message_decrypt (
             OAILOG_FUNC_RETURN (LOG_NAS, 0);
           }
           if (direction == SECU_DIRECTION_UPLINK) {
-            count = 0x00000000 || ((emm_security_context->ul_count.overflow && 0x0000FFFF) << 8) || (emm_security_context->ul_count.seq_num & 0x000000FF);
+            count = 0x00000000 | ((emm_security_context->ul_count.overflow && 0x0000FFFF) << 8) | (emm_security_context->ul_count.seq_num & 0x000000FF);
           } else {
-            count = 0x00000000 || ((emm_security_context->dl_count.overflow && 0x0000FFFF) << 8) || (emm_security_context->dl_count.seq_num & 0x000000FF);
+            count = 0x00000000 | ((emm_security_context->dl_count.overflow && 0x0000FFFF) << 8) | (emm_security_context->dl_count.seq_num & 0x000000FF);
           }
 
           OAILOG_DEBUG (LOG_NAS,
@@ -1089,9 +1115,9 @@ static int _nas_message_decrypt (
             OAILOG_FUNC_RETURN (LOG_NAS, 0);
           }
           if (direction == SECU_DIRECTION_UPLINK) {
-            count = 0x00000000 || ((emm_security_context->ul_count.overflow && 0x0000FFFF) << 8) || (emm_security_context->ul_count.seq_num & 0x000000FF);
+            count = 0x00000000 | ((emm_security_context->ul_count.overflow && 0x0000FFFF) << 8) | (emm_security_context->ul_count.seq_num & 0x000000FF);
           } else {
-            count = 0x00000000 || ((emm_security_context->dl_count.overflow && 0x0000FFFF) << 8) || (emm_security_context->dl_count.seq_num & 0x000000FF);
+            count = 0x00000000 | ((emm_security_context->dl_count.overflow && 0x0000FFFF) << 8) | (emm_security_context->dl_count.seq_num & 0x000000FF);
           }
 
           OAILOG_DEBUG (LOG_NAS,
@@ -1209,9 +1235,9 @@ static int _nas_message_encrypt (
     switch (emm_security_context->selected_algorithms.encryption) {
     case NAS_SECURITY_ALGORITHMS_EEA1:{
         if (direction == SECU_DIRECTION_UPLINK) {
-          count = 0x00000000 || ((emm_security_context->ul_count.overflow && 0x0000FFFF) << 8) || (emm_security_context->ul_count.seq_num & 0x000000FF);
+          count = 0x00000000 | ((emm_security_context->ul_count.overflow && 0x0000FFFF) << 8) | (emm_security_context->ul_count.seq_num & 0x000000FF);
         } else {
-          count = 0x00000000 || ((emm_security_context->dl_count.overflow && 0x0000FFFF) << 8) || (emm_security_context->dl_count.seq_num & 0x000000FF);
+          count = 0x00000000 | ((emm_security_context->dl_count.overflow && 0x0000FFFF) << 8) | (emm_security_context->dl_count.seq_num & 0x000000FF);
         }
 
         OAILOG_DEBUG (LOG_NAS,
@@ -1234,9 +1260,9 @@ static int _nas_message_encrypt (
 
     case NAS_SECURITY_ALGORITHMS_EEA2:{
         if (direction == SECU_DIRECTION_UPLINK) {
-          count = 0x00000000 || ((emm_security_context->ul_count.overflow && 0x0000FFFF) << 8) || (emm_security_context->ul_count.seq_num & 0x000000FF);
+          count = 0x00000000 | ((emm_security_context->ul_count.overflow && 0x0000FFFF) << 8) | (emm_security_context->ul_count.seq_num & 0x000000FF);
         } else {
-          count = 0x00000000 || ((emm_security_context->dl_count.overflow && 0x0000FFFF) << 8) || (emm_security_context->dl_count.seq_num & 0x000000FF);
+          count = 0x00000000 | ((emm_security_context->dl_count.overflow && 0x0000FFFF) << 8) | (emm_security_context->dl_count.seq_num & 0x000000FF);
         }
 
         OAILOG_DEBUG (LOG_NAS,

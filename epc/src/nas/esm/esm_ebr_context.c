@@ -35,15 +35,30 @@
   Description Defines functions used to handle EPS bearer contexts.
 
 *****************************************************************************/
-#include <stdlib.h>             // malloc, free_wrapper
-#include <string.h>             // memset
+#include <pthread.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 
+#include "bstrlib.h"
+
+#include "obj_hashtable.h"
+#include "log.h"
+#include "msc.h"
+#include "gcc_diag.h"
 #include "dynamic_memory_check.h"
 #include "assertions.h"
-#include "log.h"
+#include "common_types.h"
 #include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
+#include "3gpp_29.274.h"
+#include "mme_app_ue_context.h"
+#include "mme_app_bearer_context.h"
+#include "common_defs.h"
 #include "commonDef.h"
-#include "emmData.h"
+#include "emm_data.h"
 #include "esm_ebr.h"
 #include "esm_ebr_context.h"
 #include "emm_sap.h"
@@ -86,80 +101,75 @@
  **      Others:    _esm_data                                  **
  **                                                                        **
  ***************************************************************************/
-int
+ebi_t
 esm_ebr_context_create (
-  emm_data_context_t * ctx,
-  int pid,
-  int ebi,
-  int is_default,
-  const network_qos_t * qos,
-  const network_tft_t * tft)
+  emm_context_t * emm_context,
+  const proc_tid_t pti,
+  pdn_cid_t pid,
+  ebi_t ebi,
+  bool is_default,
+  const qci_t qci,
+  const bitrate_t gbr_dl,
+  const bitrate_t gbr_ul,
+  const bitrate_t mbr_dl,
+  const bitrate_t mbr_ul,
+  traffic_flow_template_t * tft,
+  protocol_configuration_options_t * pco)
 {
-  int                                     bid = 0;
-  esm_data_context_t                     *esm_ctx = NULL;
+  int                                     bidx = 0;
+  esm_context_t                          *esm_ctx = NULL;
   esm_pdn_t                              *pdn = NULL;
 
   OAILOG_FUNC_IN (LOG_NAS_ESM);
-  esm_ctx = &ctx->esm_data_ctx;
+  esm_ctx = &emm_context->esm_ctx;
+  ue_mm_context_t      *ue_mm_context = PARENT_STRUCT(emm_context, struct ue_mm_context_s, emm_context);
 
-  bid = ESM_DATA_EPS_BEARER_MAX;
   OAILOG_INFO (LOG_NAS_ESM, "ESM-PROC  - Create new %s EPS bearer context (ebi=%d) " "for PDN connection (pid=%d)\n",
       (is_default) ? "default" : "dedicated", ebi, pid);
 
-  if (pid < ESM_DATA_PDN_MAX) {
-    if (pid != esm_ctx->pdn[pid].pid) {
-      OAILOG_ERROR(LOG_NAS_ESM , "ESM-PROC  - PDN connection identifier %d is " "not valid\n", pid);
-    } else if (esm_ctx->pdn[pid].data == NULL) {
+
+  if (pid < MAX_APN_PER_UE) {
+    if (ue_mm_context->pdn_contexts[pid] == NULL) {
       OAILOG_ERROR(LOG_NAS_ESM , "ESM-PROC  - PDN connection %d has not been " "allocated\n", pid);
     }
     /*
      * Check the total number of active EPS bearers
      */
-    else if (esm_ctx->n_ebrs > ESM_DATA_EPS_BEARER_TOTAL) {
+    else if (esm_ctx->n_active_ebrs > BEARERS_PER_UE) {
       OAILOG_WARNING (LOG_NAS_ESM , "ESM-PROC  - The total number of active EPS" "bearers is exceeded\n");
+      OAILOG_FUNC_RETURN (LOG_NAS_ESM, ESM_EBI_UNASSIGNED);
     } else {
+      bidx = EBI_TO_INDEX(ebi);
       /*
        * Get the PDN connection entry
        */
-      pdn = esm_ctx->pdn[pid].data;
+      pdn = &ue_mm_context->pdn_contexts[pid]->esm_data;
 
-      if (is_default) {
-        /*
-         * Default EPS bearer entry is defined at index 0
-         */
-        bid = 0;
-
-        if (pdn->bearer[bid] ) {
-          OAILOG_ERROR(LOG_NAS_ESM , "ESM-PROC  - A default EPS bearer context " "is already allocated\n");
-          OAILOG_FUNC_RETURN (LOG_NAS_ESM, ESM_EBI_UNASSIGNED);
-        }
-      } else {
-        /*
-         * Search for an available EPS bearer context entry
-         */
-        for (bid = 1; bid < ESM_DATA_EPS_BEARER_MAX; bid++) {
-          if (pdn->bearer[bid] ) {
-            continue;
-          }
-
-          break;
-        }
+      if ((ue_mm_context->bearer_contexts[bidx]) && (ESM_EBR_INACTIVE != ue_mm_context->bearer_contexts[bidx]->esm_ebr_context.status)) {
+        OAILOG_ERROR(LOG_NAS_ESM , "ESM-PROC  - A EPS bearer context " "is already allocated\n");
+        OAILOG_FUNC_RETURN (LOG_NAS_ESM, ESM_EBI_UNASSIGNED);
       }
     }
   }
 
-  if (bid < ESM_DATA_EPS_BEARER_MAX) {
+  if (bidx < BEARERS_PER_UE) {
     /*
      * Create new EPS bearer context
      */
-    esm_bearer_t                           *ebr = (esm_bearer_t *) malloc (sizeof (esm_bearer_t));
+    bearer_context_t *bearer_context =  NULL;
+    if (ue_mm_context->bearer_contexts[bidx]) {
+      bearer_context =  ue_mm_context->bearer_contexts[bidx];
+    } else {
+      bearer_context =  mme_app_create_bearer_context(ue_mm_context, pid, ebi, is_default);
+    }
 
-    if (ebr ) {
-      memset (ebr, 0, sizeof (esm_bearer_t));
+    if (bearer_context ) {
+      MSC_LOG_EVENT (MSC_NAS_ESM_MME, "0 Create Bearer ebi %u cid %u pti %u", ebi, pid, pti);
+      bearer_context->transaction_identifier = pti;
       /*
        * Increment the total number of active EPS bearers
        */
-      esm_ctx->n_ebrs += 1;
+      esm_ctx->n_active_ebrs += 1;
       /*
        * Increment the number of EPS bearer for this PDN connection
        */
@@ -167,39 +177,30 @@ esm_ebr_context_create (
       /*
        * Setup the EPS bearer data
        */
-      pdn->bearer[bid] = ebr;
-      ebr->bid = bid;
-      ebr->ebi = ebi;
 
-      if (qos ) {
-        /*
-         * EPS bearer level QoS parameters
-         */
-        ebr->qos = *qos;
+      bearer_context->qci = qci;
+      bearer_context->esm_ebr_context.gbr_dl = gbr_dl;
+      bearer_context->esm_ebr_context.gbr_ul = gbr_ul;
+      bearer_context->esm_ebr_context.mbr_dl = mbr_dl;
+      bearer_context->esm_ebr_context.mbr_ul = mbr_ul;
+
+      if (bearer_context->esm_ebr_context.tft) {
+        free_traffic_flow_template(&bearer_context->esm_ebr_context.tft);
       }
+      bearer_context->esm_ebr_context.tft = tft;
 
-      if ((tft ) && (tft->n_pkfs < NET_PACKET_FILTER_MAX)) {
-        int                                     i;
-
-        /*
-         * Traffic flow template parameters
-         */
-        for (i = 0; i < tft->n_pkfs; i++) {
-          ebr->tft.pkf[i] = (network_pkf_t *) malloc (sizeof (network_pkf_t));
-
-          if (ebr->tft.pkf[i] ) {
-            *(ebr->tft.pkf[i]) = *(tft->pkf[i]);
-            ebr->tft.n_pkfs += 1;
-          }
-        }
+      if (bearer_context->esm_ebr_context.pco) {
+        free_protocol_configuration_options(&bearer_context->esm_ebr_context.pco);
       }
+      bearer_context->esm_ebr_context.pco = pco;
 
       if (is_default) {
         /*
          * Set the PDN connection activation indicator
          */
-        esm_ctx->pdn[pid].is_active = true;
+        ue_mm_context->pdn_contexts[pid]->is_active = true;
 
+        ue_mm_context->pdn_contexts[pid]->default_ebi = ebi;
         /*
          * Update the emergency bearer services indicator
          */
@@ -212,13 +213,31 @@ esm_ebr_context_create (
        * Return the EPS bearer identity of the default EPS bearer
        * * * * associated to the new EPS bearer context
        */
-      OAILOG_FUNC_RETURN (LOG_NAS_ESM, pdn->bearer[0]->ebi);
+      OAILOG_FUNC_RETURN (LOG_NAS_ESM, ue_mm_context->pdn_contexts[pid]->default_ebi);
     }
 
     OAILOG_WARNING (LOG_NAS_ESM , "ESM-PROC  - Failed to create new EPS bearer " "context (ebi=%d)\n", ebi);
   }
 
   OAILOG_FUNC_RETURN (LOG_NAS_ESM, ESM_EBI_UNASSIGNED);
+}
+
+//------------------------------------------------------------------------------
+void esm_ebr_context_init (esm_ebr_context_t *esm_ebr_context)
+{
+  OAILOG_FUNC_IN (LOG_NAS_ESM);
+  if (esm_ebr_context)  {
+    memset(esm_ebr_context, 0, sizeof(*esm_ebr_context));
+    /*
+     * Set the EPS bearer context status to INACTIVE
+     */
+    esm_ebr_context->status = ESM_EBR_INACTIVE;
+    /*
+     * Disable the retransmission timer
+     */
+    esm_ebr_context->timer.id = NAS_TIMER_INACTIVE_ID;
+  }
+  OAILOG_FUNC_OUT (LOG_NAS_ESM);
 }
 
 /****************************************************************************
@@ -242,19 +261,18 @@ esm_ebr_context_create (
  **      Others:    _esm_data                                  **
  **                                                                        **
  ***************************************************************************/
-int
+ebi_t
 esm_ebr_context_release (
-  emm_data_context_t * ctx,
-  int ebi,
-  int *pid,
+  emm_context_t * emm_context,
+  ebi_t ebi,
+  pdn_cid_t *pid,
   int *bid)
 {
+  OAILOG_FUNC_IN (LOG_NAS_ESM);
   int                                     found = false;
   esm_pdn_t                              *pdn = NULL;
-  esm_data_context_t                     *esm_ctx;
 
-  OAILOG_FUNC_IN (LOG_NAS_ESM);
-  esm_ctx = &ctx->esm_data_ctx;
+  ue_mm_context_t      *ue_mm_context = PARENT_STRUCT(emm_context, struct ue_mm_context_s, emm_context);
 
   if (ebi != ESM_EBI_UNASSIGNED) {
     /*
@@ -263,39 +281,18 @@ esm_ebr_context_release (
      * bearer identity
      */
 
-    /*
-     * Search for active PDN connection
-     */
-    for (*pid = 0; *pid < ESM_DATA_PDN_MAX; (*pid)++) {
-      if (!esm_ctx->pdn[*pid].data) {
-        continue;
-      }
-
-      /*
-       * An active PDN connection is found
-       */
-      if (esm_ctx->pdn[*pid].data ) {
-        pdn = esm_ctx->pdn[*pid].data;
+    for (*bid = 0; *bid < BEARERS_PER_UE; (*bid)++) {
+      if (ue_mm_context->bearer_contexts[*bid] ) {
+        if (ue_mm_context->bearer_contexts[*bid]->ebi != ebi) {
+          continue;
+        }
 
         /*
-         * Search for the specified EPS bearer context entry
+         * The EPS bearer context entry is found
          */
-        for (*bid = 0; *bid < pdn->n_bearers; (*bid)++) {
-          if (pdn->bearer[*bid] ) {
-            if (pdn->bearer[*bid]->ebi != ebi) {
-              continue;
-            }
-
-            /*
-             * The EPS bearer context entry is found
-             */
-            found = true;
-            break;
-          }
-        }
-      }
-
-      if (found) {
+        found = true;
+        *pid = ue_mm_context->bearer_contexts[*bid]->pdn_cx_id;
+        pdn = &ue_mm_context->pdn_contexts[*pid]->esm_data;
         break;
       }
     }
@@ -308,18 +305,18 @@ esm_ebr_context_release (
      * Default EPS bearer to a given PDN is always identified by the
      * first EPS bearer context entry at index bid = 0
      */
-    if (*pid < ESM_DATA_PDN_MAX) {
-      if (*pid != esm_ctx->pdn[*pid].pid) {
+    if (*pid < MAX_APN_PER_UE) {
+      if (!ue_mm_context->pdn_contexts[*pid]) {
         OAILOG_ERROR(LOG_NAS_ESM , "ESM-PROC  - PDN connection identifier %d " "is not valid\n", *pid);
-      } else if (!esm_ctx->pdn[*pid].is_active) {
+      } /*else if (!ue_mm_context->active_pdn_contexts[*pid]->esm_data.is_active) {
         OAILOG_WARNING (LOG_NAS_ESM , "ESM-PROC  - PDN connection %d is not active\n", *pid);
       } else if (esm_ctx->pdn[*pid].data == NULL) {
         OAILOG_ERROR(LOG_NAS_ESM , "ESM-PROC  - PDN connection %d has not been " "allocated\n", *pid);
-      } else {
-        pdn = esm_ctx->pdn[*pid].data;
+      } */ else {
 
-        if (pdn->bearer[*bid] ) {
-          ebi = pdn->bearer[*bid]->ebi;
+        if (ue_mm_context->pdn_contexts[*pid]->bearer_contexts[*bid] ) {
+          pdn = &ue_mm_context->pdn_contexts[*pid]->esm_data;
+          ebi = ue_mm_context->bearer_contexts[*bid]->ebi;
           found = true;
         }
       }
@@ -327,40 +324,34 @@ esm_ebr_context_release (
   }
 
   if (found) {
-    int                                     i,
-                                            j;
+    int                                     i;
 
     /*
      * Delete the specified EPS bearer context entry
      */
-    if (pdn->bearer[*bid]->bid != *bid) {
+    if (ue_mm_context->pdn_contexts[*pid]->bearer_contexts[*bid] != *bid) {
       OAILOG_ERROR(LOG_NAS_ESM , "ESM-PROC  - EPS bearer identifier %d is " "not valid\n", *bid);
       OAILOG_FUNC_RETURN (LOG_NAS_ESM, ESM_EBI_UNASSIGNED);
     }
 
-    OAILOG_WARNING (LOG_NAS_ESM, "ESM-PROC  - Release EPS bearer context " "(ebi=%d)\n", ebi);
+    OAILOG_INFO (LOG_NAS_ESM, "ESM-PROC  - Release EPS bearer context " "(ebi=%d)\n", ebi);
 
     /*
      * Delete the TFT
      */
-    for (i = 0; i < pdn->bearer[*bid]->tft.n_pkfs; i++) {
-      free_wrapper ((void**) &pdn->bearer[*bid]->tft.pkf[i]);
-    }
+// TODO Look at "free_traffic_flow_template"
+    //free_traffic_flow_template(&pdn->bearer[*bid]->tft);
 
     /*
      * Release the specified EPS bearer data
      */
-    free_wrapper ((void**) &pdn->bearer[*bid]);
-    pdn->bearer[*bid] = NULL;
+// TODO Look at "free pdn->bearer"
+    //free_wrapper ((void**)&pdn->bearer[*bid]);
     /*
      * Decrement the number of EPS bearer context allocated
      * * * * to the PDN connection
      */
     pdn->n_bearers -= 1;
-    /*
-     * Decrement the total number of active EPS bearers
-     */
-    esm_ctx->n_ebrs -= 1;
 
     if (*bid == 0) {
       /*
@@ -370,61 +361,59 @@ esm_ebr_context_release (
        * * * * that PDN connection.
        */
       for (i = 1; pdn->n_bearers > 0; i++) {
-        if (pdn->bearer[i]) {
-          OAILOG_WARNING (LOG_NAS_ESM , "ESM-PROC  - Release EPS bearer context " "(ebi=%d)\n", pdn->bearer[i]->ebi);
+        int idx = ue_mm_context->pdn_contexts[*pid]->bearer_contexts[i];
+        if ((idx >= 0) && (idx < BEARERS_PER_UE)) {
+          OAILOG_WARNING (LOG_NAS_ESM , "ESM-PROC  - Release EPS bearer context " "(ebi=%d)\n", ue_mm_context->bearer_contexts[idx]->ebi);
 
           /*
            * Delete the TFT
            */
-          for (j = 0; j < pdn->bearer[i]->tft.n_pkfs; j++) {
-            free_wrapper ((void**) &pdn->bearer[i]->tft.pkf[j]);
-          }
+          // TODO Look at "free_traffic_flow_template"
+          //free_traffic_flow_template(&pdn->bearer[i]->tft);
 
           /*
            * Set the EPS bearer context state to INACTIVE
            */
-          (void)esm_ebr_set_status (ctx, pdn->bearer[i]->ebi, ESM_EBR_INACTIVE, true);
+          (void)esm_ebr_set_status (emm_context, ue_mm_context->bearer_contexts[idx]->ebi, ESM_EBR_INACTIVE, true);
           /*
            * Release EPS bearer data
            */
-          (void)esm_ebr_release (ctx, pdn->bearer[i]->ebi);
+          (void)esm_ebr_release (emm_context, ue_mm_context->bearer_contexts[idx]->ebi);
           // esm_ebr_release()
           /*
            * Release dedicated EPS bearer data
            */
-          free_wrapper ((void**) &pdn->bearer[i]);
-          pdn->bearer[i] = NULL;
+          // TODO Look at "free pdn->bearer"
+          //free_wrapper ((void**)&pdn->bearer[i]);
+          //pdn->bearer[i] = NULL;
           /*
            * Decrement the number of EPS bearer context allocated
            * * * * to the PDN connection
            */
           pdn->n_bearers -= 1;
-          /*
-           * Decrement the total number of active EPS bearers
-           */
-          esm_ctx->n_ebrs -= 1;
         }
       }
 
       /*
        * Reset the PDN connection activation indicator
        */
-      esm_ctx->pdn[*pid].is_active = false;
+      // TODO Look at "Reset the PDN connection activation indicator"
+      // .is_active = false;
 
       /*
        * Update the emergency bearer services indicator
        */
       if (pdn->is_emergency) {
-        esm_ctx->is_emergency = false;
+        pdn->is_emergency = false;
       }
     }
 
-    if (esm_ctx->n_ebrs == 0) {
+    //if (esm_ctx->n_active_ebrs == 0) {
       /*
        * TODO: Release the PDN connection and marked the UE as inactive
        * * * * in the network for EPS services (is_attached = false)
        */
-    }
+    //}
 
     OAILOG_FUNC_RETURN (LOG_NAS_ESM, ebi);
   }
@@ -432,18 +421,6 @@ esm_ebr_context_release (
   OAILOG_FUNC_RETURN (LOG_NAS_ESM, ESM_EBI_UNASSIGNED);
 }
 
-
-// free structs only
-void free_esm_ebr_context(esm_ebr_context_t * ctx)
-{
-  if (ctx) {
-    if (ctx->args) {
-      bdestroy(ctx->args->msg);
-      // do not free ctx->args->ctx
-    }
-    free_wrapper((void**) &ctx);
-  }
-}
 
 /****************************************************************************/
 /*********************  L O C A L    F U N C T I O N S  *********************/

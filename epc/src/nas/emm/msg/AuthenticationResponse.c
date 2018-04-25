@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "assertions.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "AuthenticationResponse.h"
@@ -44,7 +48,7 @@ decode_authentication_response (
   /*
    * Decoding mandatory fields
    */
-  if ((decoded_result = decode_authentication_response_parameter (&authentication_response->authenticationresponseparameter, 0, buffer + decoded, len - decoded)) < 0)
+  if ((decoded_result = decode_authentication_response_parameter_ie (&authentication_response->authenticationresponseparameter, 0, buffer + decoded, len - decoded)) < 0)
     return decoded_result;
   else
     decoded += decoded_result;
@@ -66,7 +70,7 @@ encode_authentication_response (
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, AUTHENTICATION_RESPONSE_MINIMUM_LENGTH, len);
 
-  if ((encode_result = encode_authentication_response_parameter (authentication_response->authenticationresponseparameter, 0, buffer + encoded, len - encoded)) < 0)   //Return in case of error
+  if ((encode_result = encode_authentication_response_parameter_ie (authentication_response->authenticationresponseparameter, 0, buffer + encoded, len - encoded)) < 0)   //Return in case of error
     return encode_result;
   else
     encoded += encode_result;

@@ -22,18 +22,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "ShortMac.h"
 
-int
-decode_short_mac (
-  ShortMac * shortmac,
-  uint8_t iei,
-  uint8_t * buffer,
-  uint32_t len)
+//------------------------------------------------------------------------------
+int decode_short_mac (
+    short_mac_t * shortmac,
+    uint8_t iei,
+    uint8_t * buffer,
+    uint32_t len)
 {
   int                                     decoded = 0;
 
@@ -43,18 +45,15 @@ decode_short_mac (
   }
   //IES_DECODE_U16(*shortmac, *(buffer + decoded));
   IES_DECODE_U16 (buffer, decoded, *shortmac);
-#if NAS_DEBUG
-  dump_short_mac_xml (shortmac, iei);
-#endif
   return decoded;
 }
 
-int
-encode_short_mac (
-  ShortMac * shortmac,
-  uint8_t iei,
-  uint8_t * buffer,
-  uint32_t len)
+//------------------------------------------------------------------------------
+int encode_short_mac (
+    short_mac_t * shortmac,
+    uint8_t iei,
+    uint8_t * buffer,
+    uint32_t len)
 {
   uint32_t                                encoded = 0;
 
@@ -62,9 +61,6 @@ encode_short_mac (
    * Checking IEI and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, SHORT_MAC_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_short_mac_xml (shortmac, iei);
-#endif
 
   if (iei > 0) {
     *buffer = iei;
@@ -75,19 +71,3 @@ encode_short_mac (
   return encoded;
 }
 
-void
-dump_short_mac_xml (
-  ShortMac * shortmac,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Short Mac>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <Short MAC value>%u</Short MAC value>\n", *shortmac);
-  OAILOG_DEBUG (LOG_NAS, "</Short Mac>\n");
-}

@@ -38,8 +38,6 @@ Description Defines functions used to handle ESM procedure transactions.
 #ifndef __ESM_PT_H__
 #define __ESM_PT_H__
 
-#include "ProcedureTransactionIdentity.h"
-
 /****************************************************************************/
 /*********************  G L O B A L    C O N S T A N T S  *******************/
 /****************************************************************************/

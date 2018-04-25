@@ -28,32 +28,38 @@
  */
 
 
+/*! \file common_types.c
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #ifndef FILE_COMMON_TYPES_SEEN
 #define FILE_COMMON_TYPES_SEEN
 
-#include <stdint.h>
-#include "3gpp_23.003.h"
-#include "3gpp_24.007.h"
-#include "3gpp_24.008.h"
-#include "3gpp_24.301.h"
+#include <arpa/inet.h>
+#include "bstrlib.h"
 #include "3gpp_33.401.h"
 #include "3gpp_36.401.h"
 #include "security_types.h"
 #include "common_dim.h"
 
-void clear_guti(guti_t * const guti);
-void clear_imsi(imsi_t * const imsi);
-void clear_imei(imei_t * const imei);
-void clear_imeisv(imeisv_t * const imeisv);
-void clear_tai(tai_t * const tai);
+//------------------------------------------------------------------------------
+#define PRIORITY_LEVEL_MAX (15)
+#define PRIORITY_LEVEL_MIN (1)
+#define BEARERS_PER_UE     (11)
+#define MSISDN_LENGTH      (15)
+#define IMEI_DIGITS_MAX    (15)
+#define IMEISV_DIGITS_MAX  (16)
+#define MAX_APN_PER_UE     (5)
 
 typedef uint16_t                 sctp_stream_id_t;
 typedef uint32_t                 sctp_assoc_id_t;
-typedef uint64_t enb_s1ap_id_key_t ;
+typedef uint64_t                 enb_s1ap_id_key_t ;
 #define MME_APP_ENB_S1AP_ID_KEY(kEy, eNb_Id, eNb_Ue_S1Ap_Id) do { kEy = (((enb_s1ap_id_key_t)eNb_Id) << 24) | eNb_Ue_S1Ap_Id; } while(0);
 #define MME_APP_ENB_S1AP_ID_KEY2ENB_S1AP_ID(kEy) (enb_ue_s1ap_id_t)(((enb_s1ap_id_key_t)kEy) & ENB_UE_S1AP_ID_MASK)
-#define MME_APP_ENB_S1AP_ID_KEY_FORMAT "0x%16"PRIX64
+#define MME_APP_ENB_S1AP_ID_KEY_FORMAT "0x%16"PRIx64
 
 #define M_TMSI_BIT_MASK          UINT32_MAX
 
@@ -63,9 +69,9 @@ typedef uint64_t enb_s1ap_id_key_t ;
 
 #define INVALID_ENB_UE_S1AP_ID_KEY   0xFFFFFFFFFFFFFFFF
 #define ENB_UE_S1AP_ID_MASK      0x00FFFFFF
-#define ENB_UE_S1AP_ID_FMT       "0x%06"PRIX32
+#define ENB_UE_S1AP_ID_FMT       "%06"PRIx32
 
-#define MME_UE_S1AP_ID_FMT       "0x%08"PRIX32
+#define MME_UE_S1AP_ID_FMT       "%"PRIx32
 
 
 /* INVALID_MME_UE_S1AP_ID 
@@ -77,15 +83,17 @@ typedef uint64_t enb_s1ap_id_key_t ;
 //------------------------------------------------------------------------------
 // TEIDs
 typedef uint32_t                 teid_t;
-#define TEID_FMT                "0x%"PRIX32
+#define TEID_FMT                "0x%"PRIx32
+#define TEID_SCAN_FMT            SCNx32
 typedef teid_t                   s11_teid_t;
 typedef teid_t                   s1u_teid_t;
+#define INVALID_TEID             0x00000000
 
 //------------------------------------------------------------------------------
 // IMSI
 
 typedef uint64_t                 imsi64_t;
-#define IMSI_64_FMT              "%"SCNu64
+#define IMSI_64_FMT              "%015"SCNu64
 #define INVALID_IMSI64           (imsi64_t)0
 
 //------------------------------------------------------------------------------
@@ -93,60 +101,9 @@ typedef uint64_t                 imsi64_t;
 
 
 
-/* Checks Mobile Country Code equality */
-#define MCCS_ARE_EQUAL(n1, n2)  (((n1).mcc_digit1 == (n2).mcc_digit1) && \
-                                 ((n1).mcc_digit2 == (n2).mcc_digit2) && \
-                                 ((n1).mcc_digit3 == (n2).mcc_digit3))
 
-/* Checks Mobile Network Code equality */
-#define MNCS_ARE_EQUAL(n1, n2)  (((n1).mnc_digit1 == (n2).mnc_digit1) &&  \
-                                 ((n1).mnc_digit2 == (n2).mnc_digit2) &&  \
-                                 ((n1).mnc_digit3 == (n2).mnc_digit3))
-
-/* Checks PLMNs equality */
-#define PLMNS_ARE_EQUAL(p1, p2) ((MCCS_ARE_EQUAL((p1),(p2))) && \
-                                 (MNCS_ARE_EQUAL((p1),(p2))))
-// MCC digit 2 MCC digit 1 octet 1
-// MNC digit 3 MCC digit 3 octet 2
-// MNC digit 2 MNC digit 1 octet 3
-// The coding of this field is the responsibility of each administration but BCD coding
-// shall be used. The MNC shall consist of 2 or 3 digits. If a network operator decides
-// to use only two digits in the MNC, bits 5 to 8 of octet 2 shall be coded as "1111".
-#define PLMN_FMT "%c%c%c.%c%c%c"
-#define PLMN_ARG(PlMn_PtR) \
-  (char)((PlMn_PtR)->mcc_digit1+0x30), (char)((PlMn_PtR)->mcc_digit2+0x30), (char)((PlMn_PtR)->mcc_digit3+0x30), \
-  (char)((PlMn_PtR)->mnc_digit1+0x30), (char)((PlMn_PtR)->mnc_digit2+0x30), \
-  (((PlMn_PtR)->mnc_digit3) == 0x0f) ? ' ':(char)((PlMn_PtR)->mnc_digit3+0x30)
-
-/* Checks PLMN validity !?! */
-#define PLMN_IS_VALID(plmn) (((plmn).mcc_digit1 &    \
-                              (plmn).mcc_digit2 &    \
-                              (plmn).mcc_digit3) != 0x0F)
 //------------------------------------------------------------------------------
-// TAI
-#define TAI_LIST_MAX_SIZE 16
-typedef struct tai_list_s {
-  uint8_t list_type;
-  uint8_t n_tais;
-  tai_t  tai[TAI_LIST_MAX_SIZE];
-}tai_list_t;
 
-
-/* Checks TAIs equality */
-#define TAIS_ARE_EQUAL(t1, t2)  ((PLMNS_ARE_EQUAL((t1).plmn,(t2).plmn)) && \
-                                 ((t1).tac == (t2).tac))
-#define TAC_FMT "0x%04X"
-#define TAI_FMT PLMN_FMT"-"TAC_FMT
-#define TAI_ARG(tAi_PtR) \
-  PLMN_ARG(&(tAi_PtR)->plmn),\
-  (tAi_PtR)->tac
-
-/* Checks TAC validity */
-#define TAC_IS_VALID(tac)   (((tac) != INVALID_TAC_0000) && ((tac) != INVALID_TAC_FFFE))
-
-/* Checks TAI validity */
-#define TAI_IS_VALID(tai)   (PLMN_IS_VALID((tai).plmn) &&   \
-                             TAC_IS_VALID((tai).tac))
 
 
 //------------------------------------------------------------------------------
@@ -157,14 +114,6 @@ typedef struct tai_list_s {
   (GuTi_PtR)->gummei.mme_gid,\
   (GuTi_PtR)->gummei.mme_code,\
   (GuTi_PtR)->m_tmsi
-#define MSISDN_LENGTH      (15)
-#define IMEI_DIGITS_MAX    (15)
-#define IMEISV_DIGITS_MAX  (16)
-#define APN_MAX_LENGTH     (100)
-#define PRIORITY_LEVEL_MAX (15)
-#define PRIORITY_LEVEL_MIN (1)
-#define BEARERS_PER_UE     (11)
-#define MAX_APN_PER_UE     (5)
 
 //------------------------------------------------------------------------------
 typedef uint8_t       ksi_t;
@@ -210,14 +159,17 @@ typedef char*    APN_t;
 typedef uint8_t  APNRestriction_t;
 typedef uint8_t  DelayValue_t;
 typedef uint8_t  priority_level_t;
+#define PRIORITY_LEVEL_FMT                "0x%"PRIu8
+#define PRIORITY_LEVEL_SCAN_FMT            SCNu8
 typedef uint32_t SequenceNumber_t;
 typedef uint32_t access_restriction_t;
 typedef uint32_t context_identifier_t;
 typedef uint32_t rau_tau_timer_t;
 
-//typedef uint32_t in_addr_t; is network byte order
 
 typedef uint32_t ard_t;
+typedef int      pdn_cid_t;  // pdn connexion identity, related to esm protocol, sometimes type is mixed with int return code!!...
+typedef uint8_t  proc_tid_t; // procedure transaction identity, related to esm protocol
 #define ARD_UTRAN_NOT_ALLOWED               (1U)
 #define ARD_GERAN_NOT_ALLOWED               (1U << 1)
 #define ARD_GAN_NOT_ALLOWED                 (1U << 2)
@@ -238,7 +190,7 @@ typedef struct {
   bitrate_t br_dl;
 } ambr_t;
 
-typedef uint32_t ipv4_nbo_t;
+typedef uint8_t pdn_type_t;
 
 typedef enum {
   IPv4 = 0,
@@ -246,16 +198,35 @@ typedef enum {
   IPv4_AND_v6 = 2,
   IPv4_OR_v6 = 3,
   IP_MAX,
-} pdn_type_t;
+} pdn_type_value_t;
 
+typedef struct paa_s{
+  pdn_type_value_t pdn_type;
+  struct in_addr ipv4_address;
+  struct in6_addr ipv6_address;
+  /* Note in rel.8 the ipv6 prefix length has a fixed value of /64 */
+  uint8_t ipv6_prefix_length;
+} paa_t;
+
+void copy_paa(paa_t *paa_dst, paa_t *paa_src);
+bstring paa_to_bstring(paa_t *paa);
+
+
+//-----------------
 typedef struct {
-  pdn_type_t pdn_type;
+  pdn_type_value_t pdn_type;
   struct {
-    uint8_t ipv4_address[4];
-    uint8_t ipv6_address[16];
+    struct in_addr  ipv4_address;
+    struct in6_addr ipv6_address;
   } address;
 } ip_address_t;
 
+struct fteid_s;
+bstring fteid_ip_address_to_bstring(const struct fteid_s * const fteid);
+bstring ip_address_to_bstring(ip_address_t *ip_address);
+void    bstring_to_ip_address(bstring const bstr, ip_address_t * const ip_address);
+
+//-----------------
 typedef enum {
   QCI_1 = 1,
   QCI_2 = 2,
@@ -270,24 +241,34 @@ typedef enum {
    * Other are reserved.
    */
   QCI_MAX,
-} qci_t;
+} qci_e;
+
+typedef uint8_t qci_t;
+#define QCI_FMT                "0x%"PRIu8
+#define QCI_SCAN_FMT            SCNu8
 
 typedef enum {
   PRE_EMPTION_CAPABILITY_ENABLED  = 0,
   PRE_EMPTION_CAPABILITY_DISABLED = 1,
   PRE_EMPTION_CAPABILITY_MAX,
-} pre_emp_capability_t;
+} pre_emption_capability_t;
+
+#define PRE_EMPTION_CAPABILITY_FMT                "0x%"PRIu8
+#define PRE_EMPTION_CAPABILITY_SCAN_FMT            SCNu8
 
 typedef enum {
   PRE_EMPTION_VULNERABILITY_ENABLED  = 0,
   PRE_EMPTION_VULNERABILITY_DISABLED = 1,
   PRE_EMPTION_VULNERABILITY_MAX,
-} pre_emp_vulnerability_t;
+} pre_emption_vulnerability_t;
+
+#define PRE_EMPTION_VULNERABILITY_FMT                "0x%"PRIu8
+#define PRE_EMPTION_VULNERABILITY_SCAN_FMT            SCNu8
 
 typedef struct {
-  priority_level_t priority_level;
-  pre_emp_vulnerability_t pre_emp_vulnerability;
-  pre_emp_capability_t    pre_emp_capability;
+  priority_level_t            priority_level;
+  pre_emption_vulnerability_t pre_emp_vulnerability;
+  pre_emption_capability_t    pre_emp_capability;
 } allocation_retention_priority_t;
 
 typedef struct eps_subscribed_qos_profile_s {
@@ -308,8 +289,13 @@ typedef struct apn_configuration_s {
   uint8_t nb_ip_address;
   ip_address_t ip_address[2];
 
+#ifdef ACCESS_POINT_NAME_MAX_LENGTH
+#define SERVICE_SELECTION_MAX_LENGTH ACCESS_POINT_NAME_MAX_LENGTH
+#else
+#define SERVICE_SELECTION_MAX_LENGTH 100
+#endif
   pdn_type_t  pdn_type;
-  char        service_selection[APN_MAX_LENGTH];
+  char        service_selection[SERVICE_SELECTION_MAX_LENGTH];
   int         service_selection_length;
   eps_subscribed_qos_profile_t subscribed_qos;
   ambr_t ambr;
@@ -372,7 +358,5 @@ typedef struct {
     s6a_base_result_t         base;
   } choice;
 } s6a_result_t;
-
-#include "commonDef.h"
 
 #endif /* FILE_COMMON_TYPES_SEEN */

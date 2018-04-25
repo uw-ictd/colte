@@ -22,11 +22,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include <nettle/nettle-meta.h>
 #include <nettle/aes.h>
 #include <nettle/ctr.h>
+#include "bstrlib.h"
 
 #include "assertions.h"
 #include "conversions.h"
@@ -88,7 +90,7 @@ nas_stream_encrypt_eea1 (
    * Run SNOW 3G algorithm to generate sequence of key stream bits KS
    */
   snow3g_initialize (K, IV, &snow_3g_context);
-  KS = (uint32_t *) malloc (4 * n);
+  KS = (uint32_t *) calloc (1, 4 * n);
   snow3g_generate_key_stream (n, (uint32_t *) KS, &snow_3g_context);
 
   if (zero_bit > 0) {
@@ -114,7 +116,7 @@ nas_stream_encrypt_eea1 (
     stream_cipher->message[ceil_index - 1] = stream_cipher->message[ceil_index - 1] & (uint8_t) (0xFF << (8 - zero_bit));
   }
 
-  free_wrapper ((void**) &KS);
+  free_wrapper ((void**)&KS);
   memcpy (out, stream_cipher->message, n * 4);
 
   if (zero_bit > 0) {

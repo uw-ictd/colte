@@ -19,10 +19,10 @@
  *      contact@openairinterface.org
  */
 
-#ifndef ESM_MESSAGE_CONTAINER_H_
-#define ESM_MESSAGE_CONTAINER_H_
-#include <stdint.h>
-#include "bstrlib.h"
+#ifndef ESM_MESSAGE_CONTAINER_SEEN
+#define ESM_MESSAGE_CONTAINER_SEEN
+struct scenario_s;
+struct scenario_player_msg_s;
 
 #define ESM_MESSAGE_CONTAINER_MINIMUM_LENGTH 2 // [length]+[length]
 #define ESM_MESSAGE_CONTAINER_MAXIMUM_LENGTH 65538 // [IEI]+[length]+[length]+[ESM msg]
@@ -33,7 +33,5 @@ int encode_esm_message_container(EsmMessageContainer esmmessagecontainer, uint8_
 
 int decode_esm_message_container(EsmMessageContainer *esmmessagecontainer, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_esm_message_container_xml(EsmMessageContainer esmmessagecontainer, uint8_t iei);
-
-#endif /* ESM MESSAGE CONTAINER_H_ */
+#endif /* ESM_MESSAGE_CONTAINER_SEEN */
 

@@ -19,18 +19,32 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s6a_update_loc.c
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <pthread.h>
 
-#include "mme_config.h"
+#include "bstrlib.h"
+
+#include "dynamic_memory_check.h"
+#include "hashtable.h"
+#include "obj_hashtable.h"
+#include "log.h"
+#include "msc.h"
 #include "assertions.h"
 #include "conversions.h"
 #include "intertask_interface.h"
+#include "common_defs.h"
 #include "s6a_defs.h"
-#include "s6a_messages.h"
-#include "msc.h"
-#include "log.h"
+#include "s6a_messages_types.h"
+#include "mme_config.h"
 
 
 int
@@ -208,7 +222,7 @@ s6a_generate_update_location (
     value.os.len = blength(host);
     CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
     CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_LAST_CHILD, avp_p));
-    bdestroy(host);
+    bdestroy_wrapper (&host);
   }
   /*
    * Destination_Realm

@@ -19,18 +19,30 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s11_mme_bearer_manager.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #ifndef FILE_S11_MME_BEARER_MANAGER_SEEN
 #define FILE_S11_MME_BEARER_MANAGER_SEEN
 
 
 /* @brief Create a new Release Access Bearers Request and send it to provided S-GW. */
-int s11_mme_release_access_bearers_request(NwGtpv2cStackHandleT *stack_p, itti_s11_release_access_bearers_request_t *release_access_bearers_p);
+int s11_mme_release_access_bearers_request(nw_gtpv2c_stack_handle_t *stack_p, itti_s11_release_access_bearers_request_t *release_access_bearers_p);
 
 /* @brief Handle a Release Access Bearer Response received from S-GW. */
-int s11_mme_handle_release_access_bearer_response (NwGtpv2cStackHandleT * stack_p, NwGtpv2cUlpApiT * pUlpApi);
+int s11_mme_handle_release_access_bearer_response (nw_gtpv2c_stack_handle_t * stack_p, nw_gtpv2c_ulp_api_t * pUlpApi);
 
 /* @brief Handle a Modify Bearer Response received from S-GW. */
-int s11_mme_handle_modify_bearer_response (NwGtpv2cStackHandleT * stack_p, NwGtpv2cUlpApiT * pUlpApi);
+int s11_mme_handle_modify_bearer_response (nw_gtpv2c_stack_handle_t * stack_p, nw_gtpv2c_ulp_api_t * pUlpApi);
+
+/* @brief Handle a Create Bearer Request received from S-GW. */
+int s11_mme_handle_create_bearer_request (nw_gtpv2c_stack_handle_t * stack_p, nw_gtpv2c_ulp_api_t * pUlpApi);
+
+/* @brief Create a new Create Bearer Response and send it to provided S-GW. */
+int s11_mme_create_bearer_response (nw_gtpv2c_stack_handle_t * stack_p, itti_s11_create_bearer_response_t * rsp_p);
 
 #endif /* FILE_S11_MME_BEARER_MANAGER_SEEN */

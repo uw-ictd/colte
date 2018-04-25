@@ -28,8 +28,54 @@
 #ifndef FILE_GTPV1_U_SEEN
 #define FILE_GTPV1_U_SEEN
 
-# define GTPU_HEADER_OVERHEAD_MAX 64
+#include <arpa/inet.h>
+#include <net/if.h>
+
+#define GTPU_HEADER_OVERHEAD_MAX 64
+
+/*
+ * This structure defines the management hooks for GTP tunnels.
+ * The following hooks can be defined; unless noted otherwise, they are
+ * optional and can be filled with a null pointer.
+ *
+ * int (*init)(struct in_addr *ue_net, uint32_t mask,
+ *             int mtu, int *fd0, int *fd1u);
+ *     This function is called when initializing GTP network device. How to use
+ *     these input parameters are defined by the actual function implementations.
+ *         @ue_net: subnet assigned to UEs
+ *         @mask: network mask for the UE subnet
+ *         @mtu: MTU for the GTP network device.
+ *         @fd0: socket file descriptor for GTPv0.
+ *         @fd1u: socket file descriptor for GTPv1u.
+ *
+ * int (*uninit)(void);
+ *     This function is called to destroy GTP network device.
+ *
+ * int (*reset)(void);
+ *     This function is called to reset the GTP network device to clean state.
+ *
+ * int (*add_tunnel)(struct in_addr ue, struct in_addr enb, uint32_t i_tei, uint32_t o_tei);
+ *     Add a gtp tunnel.
+ *         @ue: UE IP address
+ *         @enb: eNB IP address
+ *         @i_tei: RX GTP Tunnel ID
+ *         @o_tei: TX GTP Tunnel ID.
+ *
+ * int (*del_tunnel)(uint32_t i_tei, uint32_t o_tei);
+ *     Delete a gtp tunnel.
+ *         @i_tei: RX GTP Tunnel ID
+ *         @o_tei: TX GTP Tunnel ID.
+ */
+struct gtp_tunnel_ops {
+  int  (*init)(struct in_addr *ue_net, uint32_t mask, int mtu, int *fd0, int *fd1u);
+  int  (*uninit)(void);
+  int  (*reset)(void);
+  int  (*add_tunnel)(struct in_addr ue, struct in_addr enb, uint32_t i_tei, uint32_t o_tei);
+  int  (*del_tunnel)(uint32_t i_tei, uint32_t o_tei);
+};
 
 uint32_t gtpv1u_new_teid(void);
+
+const struct gtp_tunnel_ops *gtp_tunnel_ops_init(void);
 
 #endif /* FILE_GTPV1_U_SEEN */

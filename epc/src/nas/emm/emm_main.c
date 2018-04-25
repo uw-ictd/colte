@@ -36,16 +36,24 @@
         the main entry point for elementary EMM processing.
 
 *****************************************************************************/
-
-#include "3gpp_24.007.h"
-#include "emm_main.h"
-#include "log.h"
-#include "emmData.h"
-
-
-#include "mme_config.h"
-#include "obj_hashtable.h"
+#include <pthread.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
+
+#include "bstrlib.h"
+
+#include "log.h"
+#include "obj_hashtable.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
+#include "common_defs.h"
+#include "emm_main.h"
+#include "emm_data.h"
+#include "mme_config.h"
+
 
 
 /****************************************************************************/
@@ -88,15 +96,6 @@ emm_main_initialize (
   if (mme_api_get_emm_config (&_emm_data.conf, mme_config_p) != RETURNok) {
     OAILOG_ERROR (LOG_NAS_EMM, "EMM-MAIN  - Failed to get MME configuration data");
   }
-  bstring b = bfromcstr("emm_data.ctx_coll_ue_id");
-  _emm_data.ctx_coll_ue_id = hashtable_ts_create (mme_config.max_ues, NULL, NULL, b);
-  btrunc(b, 0);
-  bassigncstr(b, "emm_data.ctx_coll_imsi");
-  _emm_data.ctx_coll_imsi  = hashtable_ts_create (mme_config.max_ues, NULL, hash_free_int_func, b);
-  btrunc(b, 0);
-  bassigncstr(b, "emm_data.ctx_coll_guti");
-  _emm_data.ctx_coll_guti  = obj_hashtable_ts_create (mme_config.max_ues, NULL, NULL, hash_free_int_func, b);
-  bdestroy(b);
   OAILOG_FUNC_OUT(LOG_NAS_EMM);
 }
 
@@ -119,9 +118,6 @@ emm_main_cleanup (
   void)
 {
   OAILOG_FUNC_IN (LOG_NAS_EMM);
-  hashtable_ts_destroy(_emm_data.ctx_coll_ue_id);
-  hashtable_ts_destroy(_emm_data.ctx_coll_imsi);
-  obj_hashtable_ts_destroy(_emm_data.ctx_coll_guti);
   OAILOG_FUNC_OUT(LOG_NAS_EMM);
 }
 

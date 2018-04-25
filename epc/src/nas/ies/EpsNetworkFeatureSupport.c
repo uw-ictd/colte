@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "EpsNetworkFeatureSupport.h"
 
-int
-decode_eps_network_feature_support (
-  EpsNetworkFeatureSupport * epsnetworkfeaturesupport,
+//------------------------------------------------------------------------------
+int decode_eps_network_feature_support (
+  eps_network_feature_support_t * epsnetworkfeaturesupport,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -48,15 +50,12 @@ decode_eps_network_feature_support (
   CHECK_LENGTH_DECODER (len - decoded, ielen);
   *epsnetworkfeaturesupport = *buffer & 0x1;
   decoded++;
-#if NAS_DEBUG
-  dump_eps_network_feature_support_xml (epsnetworkfeaturesupport, iei);
-#endif
   return decoded;
 }
 
-int
-encode_eps_network_feature_support (
-  EpsNetworkFeatureSupport * epsnetworkfeaturesupport,
+//------------------------------------------------------------------------------
+int encode_eps_network_feature_support (
+  eps_network_feature_support_t * epsnetworkfeaturesupport,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -68,9 +67,6 @@ encode_eps_network_feature_support (
    * Checking IEI and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, EPS_NETWORK_FEATURE_SUPPORT_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_eps_network_feature_support_xml (epsnetworkfeaturesupport, iei);
-#endif
 
   if (iei > 0) {
     *buffer = iei;
@@ -85,19 +81,3 @@ encode_eps_network_feature_support (
   return encoded;
 }
 
-void
-dump_eps_network_feature_support_xml (
-  EpsNetworkFeatureSupport * epsnetworkfeaturesupport,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Eps Network Feature Support>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <IMS VoPS>%u</IMS VoPS>\n", *epsnetworkfeaturesupport);
-  OAILOG_DEBUG (LOG_NAS, "</Eps Network Feature Support>\n");
-}

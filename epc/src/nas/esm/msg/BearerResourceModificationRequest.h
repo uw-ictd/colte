@@ -19,22 +19,17 @@
  *      contact@openairinterface.org
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
+#ifndef BEARER_RESOURCE_MODIFICATION_REQUEST_H_
+#define BEARER_RESOURCE_MODIFICATION_REQUEST_H_
 
-#include "ProtocolDiscriminator.h"
-#include "EpsBearerIdentity.h"
-#include "ProcedureTransactionIdentity.h"
 #include "MessageType.h"
 #include "LinkedEpsBearerIdentity.h"
 #include "TrafficFlowAggregateDescription.h"
 #include "EpsQualityOfService.h"
 #include "EsmCause.h"
-#include "ProtocolConfigurationOptions.h"
-
-#ifndef BEARER_RESOURCE_MODIFICATION_REQUEST_H_
-#define BEARER_RESOURCE_MODIFICATION_REQUEST_H_
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define BEARER_RESOURCE_MODIFICATION_REQUEST_MINIMUM_LENGTH ( \
@@ -45,7 +40,7 @@
     TRAFFIC_FLOW_AGGREGATE_DESCRIPTION_MAXIMUM_LENGTH + \
     EPS_QUALITY_OF_SERVICE_MAXIMUM_LENGTH + \
     ESM_CAUSE_MAXIMUM_LENGTH + \
-    PROTOCOL_CONFIGURATION_OPTIONS_MAXIMUM_LENGTH )
+    PROTOCOL_CONFIGURATION_OPTIONS_IE_MAX_LENGTH )
 
 /* If an optional value is present and should be encoded, the corresponding
  * Bit mask should be set to 1.
@@ -57,7 +52,7 @@
 typedef enum bearer_resource_modification_request_iei_tag {
   BEARER_RESOURCE_MODIFICATION_REQUEST_REQUIRED_TRAFFIC_FLOW_QOS_IEI       = 0x5B, /* 0x5B = 91 */
   BEARER_RESOURCE_MODIFICATION_REQUEST_ESM_CAUSE_IEI                       = 0x58, /* 0x58 = 88 */
-  BEARER_RESOURCE_MODIFICATION_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = 0x27, /* 0x27 = 39 */
+  BEARER_RESOURCE_MODIFICATION_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = SM_PROTOCOL_CONFIGURATION_OPTIONS_IEI,
 } bearer_resource_modification_request_iei;
 
 /*
@@ -69,17 +64,17 @@ typedef enum bearer_resource_modification_request_iei_tag {
 
 typedef struct bearer_resource_modification_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                            protocoldiscriminator:4;
-  EpsBearerIdentity                                epsbeareridentity:4;
-  ProcedureTransactionIdentity                     proceduretransactionidentity;
-  MessageType                                      messagetype;
-  LinkedEpsBearerIdentity                          epsbeareridentityforpacketfilter;
-  TrafficFlowAggregateDescription                  trafficflowaggregate;
+  eps_protocol_discriminator_t                           protocoldiscriminator:4;
+  ebi_t                                                  epsbeareridentity:4;
+  pti_t                                                  proceduretransactionidentity;
+  message_type_t                                         messagetype;
+  linked_eps_bearer_identity_t                           epsbeareridentityforpacketfilter;
+  traffic_flow_aggregate_description_t                   trafficflowaggregate;
   /* Optional fields */
-  uint32_t                                         presencemask;
-  EpsQualityOfService                              requiredtrafficflowqos;
-  EsmCause                                         esmcause;
-  ProtocolConfigurationOptions                     protocolconfigurationoptions;
+  uint32_t                                               presencemask;
+  EpsQualityOfService                                    requiredtrafficflowqos;
+  esm_cause_t                                            esmcause;
+  protocol_configuration_options_t                       protocolconfigurationoptions;
 } bearer_resource_modification_request_msg;
 
 int decode_bearer_resource_modification_request(bearer_resource_modification_request_msg *bearerresourcemodificationrequest, uint8_t *buffer, uint32_t len);

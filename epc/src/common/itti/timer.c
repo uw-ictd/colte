@@ -32,17 +32,20 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-
+#include <stdbool.h>
+#include <stdint.h>
 #include <signal.h>
 #include <time.h>
 #include <errno.h>
 
-#include "assertions.h"
+#include "bstrlib.h"
+
 #include "intertask_interface.h"
 #include "timer.h"
 #include "log.h"
 #include "queue.h"
 #include "dynamic_memory_check.h"
+#include "assertions.h"
 
 
 int                                     timer_handle_signal (
@@ -112,7 +115,8 @@ timer_handle_signal (
     //         pthread_mutex_unlock(&timer_desc.timer_list_mutex);
     //         free_wrapper(timer_p);
     //         timer_p = NULL;
-    if (timer_remove ((long)timer_p->timer) != 0) {
+    // timer_arg saved in TIMER_HAS_EXPIRED msg
+    if (timer_remove ((long)timer_p->timer, NULL) != 0) {
       OAILOG_DEBUG (LOG_ITTI, "Failed to delete timer 0x%lx\n", (long)timer_p->timer);
     }
   }
@@ -182,7 +186,7 @@ timer_setup (
    */
   if (timer_create (CLOCK_REALTIME, &se, &timer) < 0) {
     OAILOG_ERROR (LOG_ITTI, "Failed to create timer: (%s:%d)\n", strerror (errno), errno);
-    free_wrapper ((void**) &timer_p);
+    free_wrapper ((void**)&timer_p);
     return -1;
   }
 
@@ -222,9 +226,7 @@ timer_setup (
   return 0;
 }
 
-int
-timer_remove (
-  long timer_id)
+int timer_remove (long timer_id, void ** arg)
 {
   int                                     rc = 0;
   struct timer_elm_s                     *timer_p;
@@ -238,6 +240,7 @@ timer_remove (
    */
   if (timer_p == NULL) {
     pthread_mutex_unlock (&timer_desc.timer_list_mutex);
+    if (arg) *arg = NULL;
     OAILOG_ERROR (LOG_ITTI, "Didn't find timer 0x%lx in list\n", timer_id);
     return -1;
   }
@@ -245,13 +248,15 @@ timer_remove (
   STAILQ_REMOVE (&timer_desc.timer_queue, timer_p, timer_elm_s, entries);
   pthread_mutex_unlock (&timer_desc.timer_list_mutex);
 
+  // let user of API get back arg that can be an allocated memory (memory leak).
+
+  if (arg) *arg = timer_p->timer_arg;
   if (timer_delete (timer_p->timer) < 0) {
     OAILOG_ERROR (LOG_ITTI, "Failed to delete timer 0x%lx\n", (long)timer_p->timer);
     rc = -1;
   }
 
-  free_wrapper ((void **) &timer_p);
-  timer_p = NULL;
+  free_wrapper ((void**)&timer_p);
   return rc;
 }
 

@@ -41,6 +41,11 @@ Description Defines EPS Session Management messages and functions used
 
 #include "esm_msgDef.h"
 
+#include "EsmInformationTransferFlag.h"
+#include "NasRequestType.h"
+#include "PdnType.h"
+#include "TrafficFlowAggregateDescription.h"
+
 #include "ActivateDedicatedEpsBearerContextRequest.h"
 #include "ActivateDedicatedEpsBearerContextAccept.h"
 #include "ActivateDedicatedEpsBearerContextReject.h"
@@ -64,7 +69,6 @@ Description Defines EPS Session Management messages and functions used
 #include "EsmInformationResponse.h"
 #include "EsmStatus.h"
 
-#include <stdint.h>
 
 /****************************************************************************/
 /*********************  G L O B A L    C O N S T A N T S  *******************/
@@ -112,6 +116,7 @@ typedef union {
 /****************************************************************************/
 /******************  E X P O R T E D    F U N C T I O N S  ******************/
 /****************************************************************************/
+int esm_msg_decode_header (esm_msg_header_t * header, const uint8_t * buffer, uint32_t len);
 
 int esm_msg_decode(ESM_msg *msg, uint8_t *buffer, uint32_t len);
 

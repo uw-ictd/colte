@@ -20,20 +20,17 @@
  */
 
 
-#ifndef LCS_INDICATOR_H_
-#define LCS_INDICATOR_H_
-#include <stdint.h>
+#ifndef LCS_INDICATOR_SEEN
+#define LCS_INDICATOR_SEEN
 
 #define LCS_INDICATOR_MINIMUM_LENGTH 2
 #define LCS_INDICATOR_MAXIMUM_LENGTH 2
 
-typedef uint8_t LcsIndicator;
+typedef uint8_t lcs_indicator_t;
 
-int encode_lcs_indicator(LcsIndicator *lcsindicator, uint8_t iei, uint8_t *buffer, uint32_t len);
+int encode_lcs_indicator(lcs_indicator_t *lcsindicator, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_lcs_indicator_xml(LcsIndicator *lcsindicator, uint8_t iei);
+int decode_lcs_indicator(lcs_indicator_t *lcsindicator, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-int decode_lcs_indicator(LcsIndicator *lcsindicator, uint8_t iei, uint8_t *buffer, uint32_t len);
-
-#endif /* LCS INDICATOR_H_ */
+#endif /* LCS INDICATOR_SEEN */
 

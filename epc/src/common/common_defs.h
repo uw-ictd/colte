@@ -28,16 +28,38 @@
  */
 
 
+/*! \file common_defs.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #ifndef FILE_COMMON_DEFS_SEEN
 #define FILE_COMMON_DEFS_SEEN
-#include <arpa/inet.h>  // htonl, htons
-#include <stdint.h>
 
+#include <arpa/inet.h>
 //------------------------------------------------------------------------------
 #define STOLEN_REF
 #define CLONE_REF
 
+#define OFFSET_OF(TyPe, MeMBeR) ((size_t) &((TyPe *)0)->MeMBeR)
+
+
+#define PARENT_STRUCT(cOnTaiNeD, TyPe, MeMBeR) ({                      \
+        const typeof( ((TyPe *)0)->MeMBeR ) *__MemBeR_ptr = (cOnTaiNeD);    \
+        (TyPe *)( (char *)__MemBeR_ptr - OFFSET_OF(TyPe,MeMBeR) );})
+
+
+ #define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+
+ #define min(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
 //------------------------------------------------------------------------------
 
 typedef enum {
@@ -107,10 +129,10 @@ typedef enum {
 
 
 
-#define IPV4_STR_ADDR_TO_INT_NWBO(AdDr_StR,NwBo,MeSsAgE ) do {\
-            struct in_addr inp;\
-            AssertFatal (inet_aton(AdDr_StR, &inp ) , MeSsAgE);\
-            NwBo = inp.s_addr;\
+#define IPV4_STR_ADDR_TO_INADDR(AdDr_StR,InAdDr,MeSsAgE ) do {\
+            if ( inet_aton(AdDr_StR, &InAdDr ) <= 0 ) {\
+                AssertFatal (0, MeSsAgE);\
+            }\
         } while (0)
 
 #define NIPADDR(addr) \
@@ -141,6 +163,8 @@ typedef enum {
    && ((((__const uint32_t *) (a))[2] & (((__const uint32_t *) (m))[2])) == (((__const uint32_t *) (b))[2] & (((__const uint32_t *) (m))[2])))  \
    && ((((__const uint32_t *) (a))[3] & (((__const uint32_t *) (m))[3])) == (((__const uint32_t *) (b))[3] & (((__const uint32_t *) (m))[3]))))
 
+#define EBI_TO_INDEX(eBi) (eBi-5)
+#define INDEX_TO_EBI(iNdEx) (iNdEx+5)
 
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)

@@ -28,10 +28,20 @@
  */
 
 
-#include "assertions.h"
+/*! \file conversions.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #ifndef FILE_CONVERSIONS_SEEN
 #define FILE_CONVERSIONS_SEEN
+#include "common_types.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.008.h"
+#include "3gpp_29.274.h"
+#include "EpsQualityOfService.h"
 
 /* Endianness conversions for 16 and 32 bits integers from host to network order */
 #if (BYTE_ORDER == LITTLE_ENDIAN)
@@ -51,6 +61,14 @@
 #endif
 
 #define IN_ADDR_TO_BUFFER(X,bUFF) INT32_TO_BUFFER((X).s_addr,(char*)bUFF)
+
+#define BUFFER_TO_IN_ADDR(bUFF, X)                          \
+do {                                                        \
+    (X).s_addr = (((uint8_t*)(bUFF))[0])              |     \
+                 (((uint8_t*)(bUFF))[1] <<  8)        |     \
+                 (((uint8_t*)(bUFF))[2] << 16)        |     \
+                 (((uint8_t*)(bUFF))[3] << 24);             \
+} while(0)
 
 #define IN6_ADDR_TO_BUFFER(X,bUFF)                     \
     do {                                               \
@@ -296,12 +314,12 @@ do {                                                    \
 } while(0)
 
 /* Used to format an uint32_t containing an ipv4 address */
-#define IPV4_ADDR    "%u.%u.%u.%u"
-#define IPV4_ADDR_FORMAT(aDDRESS)               \
-    (uint8_t)((aDDRESS)  & 0x000000ff),         \
-    (uint8_t)(((aDDRESS) & 0x0000ff00) >> 8 ),  \
-    (uint8_t)(((aDDRESS) & 0x00ff0000) >> 16),  \
-    (uint8_t)(((aDDRESS) & 0xff000000) >> 24)
+#define IN_ADDR_FMT    "%u.%u.%u.%u"
+#define PRI_IN_ADDR(aDDRESS)               \
+    (uint8_t)((aDDRESS.s_addr)  & 0x000000ff),         \
+    (uint8_t)(((aDDRESS.s_addr) & 0x0000ff00) >> 8 ),  \
+    (uint8_t)(((aDDRESS.s_addr) & 0x00ff0000) >> 16),  \
+    (uint8_t)(((aDDRESS.s_addr) & 0xff000000) >> 24)
 
 #define IPV4_ADDR_DISPLAY_8(aDDRESS)            \
     (aDDRESS)[0], (aDDRESS)[1], (aDDRESS)[2], (aDDRESS)[3]
@@ -317,72 +335,7 @@ do {                                                    \
 /* Convert the IMSI contained by a char string NULL terminated to uint64_t */
 #define IMSI_STRING_TO_IMSI64(sTRING, iMSI64_pTr) sscanf(sTRING, IMSI_64_FMT, iMSI64_pTr)
 #define IMSI64_TO_STRING(iMSI64, sTRING) snprintf(sTRING, IMSI_BCD_DIGITS_MAX+1, IMSI_64_FMT, iMSI64)
-#define IMSI_TO_IMSI64(iMsI_t_PtR,iMsI_u64) \
-        {\
-          uint64_t mUlT = 1; \
-          iMsI_u64 = (iMsI_t_PtR)->u.num.digit1; \
-          if ((iMsI_t_PtR)->u.num.digit15 != 0xf) { \
-            iMsI_u64 = (iMsI_t_PtR)->u.num.digit15 + \
-                       (iMsI_t_PtR)->u.num.digit14 *10 + \
-                       (iMsI_t_PtR)->u.num.digit13 *100 + \
-                       (iMsI_t_PtR)->u.num.digit12 *1000 + \
-                       (iMsI_t_PtR)->u.num.digit11 *10000 + \
-                       (iMsI_t_PtR)->u.num.digit10 *100000 + \
-                       (iMsI_t_PtR)->u.num.digit9  *1000000 + \
-                       (iMsI_t_PtR)->u.num.digit8  *10000000 + \
-                       (iMsI_t_PtR)->u.num.digit7  *100000000;  \
-            mUlT = 1000000000; \
-          } else { \
-            iMsI_u64 = (iMsI_t_PtR)->u.num.digit14  + \
-                       (iMsI_t_PtR)->u.num.digit13 *10 + \
-                       (iMsI_t_PtR)->u.num.digit12 *100 + \
-                       (iMsI_t_PtR)->u.num.digit11 *1000 + \
-                       (iMsI_t_PtR)->u.num.digit10 *10000 + \
-                       (iMsI_t_PtR)->u.num.digit9  *100000 + \
-                       (iMsI_t_PtR)->u.num.digit8  *1000000 + \
-                       (iMsI_t_PtR)->u.num.digit7  *10000000;  \
-            mUlT = 100000000; \
-          } \
-          if ((iMsI_t_PtR)->u.num.digit6 != 0xf) {\
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit6 *mUlT;   \
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit5 *mUlT*10; \
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit4 *mUlT*100; \
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit3 *mUlT*1000; \
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit2 *mUlT*10000; \
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit1 *mUlT*100000; \
-          } else { \
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit5 *mUlT;    \
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit4 *mUlT*10;  \
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit3 *mUlT*100;  \
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit2 *mUlT*1000;  \
-              iMsI_u64 += (iMsI_t_PtR)->u.num.digit1 *mUlT*10000;  \
-          } \
-        }
-/*#define IMSI_TO_STRING(iMsI_t_PtR,iMsI_sTr, MaXlEn) \
-        {\
-          int l_offset = 0;\
-          int l_ret    = 0;\
-          l_ret = snprintf(iMsI_sTr + l_offset, MaXlEn - l_offset, "%u%u%u%u%u",\
-              (iMsI_t_PtR)->u.num.digit1, (iMsI_t_PtR)->u.num.digit2,\
-                  (iMsI_t_PtR)->u.num.digit3, (iMsI_t_PtR)->u.num.digit4,\
-                  (iMsI_t_PtR)->u.num.digit5);\
-          if (((iMsI_t_PtR)->u.num.digit6 != 0xf)  && (l_ret > 0)) {\
-            l_offset += l_ret;\
-            l_ret = snprintf(iMsI_sTr + l_offset, MaXlEn - l_offset,  "%u", (iMsI_t_PtR)->u.num.digit6);\
-          }\
-          if (l_ret > 0) {\
-            l_offset += l_ret;\
-            l_ret = snprintf(iMsI_sTr + l_offset, MaXlEn - l_offset, "%u%u%u%u%u%u%u%u",\
-                (iMsI_t_PtR)->u.num.digit7, (iMsI_t_PtR)->u.num.digit8,\
-                (iMsI_t_PtR)->u.num.digit9, (iMsI_t_PtR)->u.num.digit10,\
-                (iMsI_t_PtR)->u.num.digit11, (iMsI_t_PtR)->u.num.digit12,\
-                (iMsI_t_PtR)->u.num.digit13, (iMsI_t_PtR)->u.num.digit14);\
-          }\
-          if (((iMsI_t_PtR)->u.num.digit15 != 0x0)   && (l_ret > 0)) {\
-            l_offset += l_ret;\
-            l_ret = snprintf(iMsI_sTr + l_offset, MaXlEn - l_offset, "%u", (iMsI_t_PtR)->u.num.digit15);\
-          }\
-        }*/
+imsi64_t imsi_to_imsi64(const imsi_t * const imsi);
 
 #define IMSI_TO_STRING(iMsI_t_PtR,iMsI_sTr, MaXlEn) \
         do { \
@@ -400,7 +353,7 @@ do {                                                    \
             l_i++; \
           } \
           for(; l_j < MaXlEn; l_j++) \
-              iMsI_sTr[l_j] = '\0'; \
+              (iMsI_sTr)[l_j] = '\0'; \
         } while (0);\
 
 #define IMEI_TO_STRING(iMeI_t_PtR,iMeI_sTr, MaXlEn) \
@@ -429,5 +382,15 @@ do {                                                    \
 void hexa_to_ascii(uint8_t *from, char *to, size_t length);
 
 int ascii_to_hex(uint8_t *dst, const char *h);
+#define UINT8_TO_BINARY_FMT "%c%c%c%c%c%c%c%c"
+#define UINT8_TO_BINARY_ARG(bYtE) \
+    ((bYtE) & 0x80 ? '1':'0'),\
+    ((bYtE) & 0x40 ? '1':'0'),\
+    ((bYtE) & 0x20 ? '1':'0'),\
+    ((bYtE) & 0x10 ? '1':'0'),\
+    ((bYtE) & 0x08 ? '1':'0'),\
+    ((bYtE) & 0x04 ? '1':'0'),\
+    ((bYtE) & 0x02 ? '1':'0'),\
+    ((bYtE) & 0x01 ? '1':'0')
 
 #endif /* FILE_CONVERSIONS_SEEN */

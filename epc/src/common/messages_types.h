@@ -45,9 +45,6 @@
 #include "sgw_messages_types.h"
 #include "udp_messages_types.h"
 #include "mme_app_messages_types.h"
-
-#if ENBRAINS
-#include "enbrains_messages_types.h"
-#endif
+#include "async_system_messages_types.h"
 
 #endif /* FILE_MESSAGES_TYPES_SEEN */

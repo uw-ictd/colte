@@ -19,24 +19,21 @@
  *      contact@openairinterface.org
  */
 
-#ifndef ESM_INFORMATION_TRANSFER_FLAG_H_
-#define ESM_INFORMATION_TRANSFER_FLAG_H_
-#include <stdint.h>
+#ifndef ESM_INFORMATION_TRANSFER_FLAG_SEEN
+#define ESM_INFORMATION_TRANSFER_FLAG_SEEN
 
 #define ESM_INFORMATION_TRANSFER_FLAG_MINIMUM_LENGTH 1
 #define ESM_INFORMATION_TRANSFER_FLAG_MAXIMUM_LENGTH 1
 
-typedef uint8_t EsmInformationTransferFlag;
+typedef uint8_t esm_information_transfer_flag_t;
 
-int encode_esm_information_transfer_flag(EsmInformationTransferFlag *esminformationtransferflag, uint8_t iei, uint8_t *buffer, uint32_t len);
+int encode_esm_information_transfer_flag(esm_information_transfer_flag_t *esminformationtransferflag, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_esm_information_transfer_flag_xml(EsmInformationTransferFlag *esminformationtransferflag, uint8_t iei);
+uint8_t encode_u8_esm_information_transfer_flag(esm_information_transfer_flag_t *esminformationtransferflag);
 
-uint8_t encode_u8_esm_information_transfer_flag(EsmInformationTransferFlag *esminformationtransferflag);
+int decode_esm_information_transfer_flag(esm_information_transfer_flag_t *esminformationtransferflag, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-int decode_esm_information_transfer_flag(EsmInformationTransferFlag *esminformationtransferflag, uint8_t iei, uint8_t *buffer, uint32_t len);
+int decode_u8_esm_information_transfer_flag(esm_information_transfer_flag_t *esminformationtransferflag, uint8_t iei, uint8_t value, uint32_t len);
 
-int decode_u8_esm_information_transfer_flag(EsmInformationTransferFlag *esminformationtransferflag, uint8_t iei, uint8_t value, uint32_t len);
-
-#endif /* ESM INFORMATION TRANSFER FLAG_H_ */
+#endif /* ESM INFORMATION TRANSFER FLAG_SEEN */
 

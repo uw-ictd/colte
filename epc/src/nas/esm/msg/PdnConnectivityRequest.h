@@ -19,22 +19,20 @@
  *      contact@openairinterface.org
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
-#include "ProtocolDiscriminator.h"
-#include "EpsBearerIdentity.h"
-#include "ProcedureTransactionIdentity.h"
-#include "MessageType.h"
-#include "NasRequestType.h"
-#include "PdnType.h"
-#include "EsmInformationTransferFlag.h"
-#include "AccessPointName.h"
-#include "ProtocolConfigurationOptions.h"
-
 #ifndef PDN_CONNECTIVITY_REQUEST_H_
 #define PDN_CONNECTIVITY_REQUEST_H_
+
+#include "MessageType.h"
+#include "NasRequestType.h"
+#include "EsmInformationTransferFlag.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
+#include "3gpp_33.401.h"
+#include "security_types.h"
+#include "common_types.h"
+
+#include "PdnType.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define PDN_CONNECTIVITY_REQUEST_MINIMUM_LENGTH ( \
@@ -44,8 +42,8 @@
 #define PDN_CONNECTIVITY_REQUEST_MAXIMUM_LENGTH ( \
     PDN_TYPE_MAXIMUM_LENGTH + \
     ESM_INFORMATION_TRANSFER_FLAG_MAXIMUM_LENGTH + \
-    ACCESS_POINT_NAME_MAXIMUM_LENGTH + \
-    PROTOCOL_CONFIGURATION_OPTIONS_MAXIMUM_LENGTH )
+    ACCESS_POINT_NAME_IE_MAX_LENGTH + \
+    PROTOCOL_CONFIGURATION_OPTIONS_IE_MAX_LENGTH )
 
 /* If an optional value is present and should be encoded, the corresponding
  * Bit mask should be set to 1.
@@ -56,8 +54,8 @@
 
 typedef enum pdn_connectivity_request_iei_tag {
   PDN_CONNECTIVITY_REQUEST_ESM_INFORMATION_TRANSFER_FLAG_IEI   = 0xD0, /* 0xD0 = 208 */
-  PDN_CONNECTIVITY_REQUEST_ACCESS_POINT_NAME_IEI               = 0x28, /* 0x28 = 40 */
-  PDN_CONNECTIVITY_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = 0x27, /* 0x27 = 39 */
+  PDN_CONNECTIVITY_REQUEST_ACCESS_POINT_NAME_IEI               = SM_ACCESS_POINT_NAME_IEI,
+  PDN_CONNECTIVITY_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = SM_PROTOCOL_CONFIGURATION_OPTIONS_IEI,
   PDN_CONNECTIVITY_REQUEST_DEVICE_PROPERTIES_IEI               = 0xC0,
   PDN_CONNECTIVITY_REQUEST_DEVICE_PROPERTIES_LOW_PRIO_IEI      = 0xC1,          
 } pdn_connectivity_request_iei;
@@ -71,17 +69,17 @@ typedef enum pdn_connectivity_request_iei_tag {
 
 typedef struct pdn_connectivity_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                 protocoldiscriminator:4;
-  EpsBearerIdentity                     epsbeareridentity:4;
-  ProcedureTransactionIdentity          proceduretransactionidentity;
-  MessageType                           messagetype;
-  RequestType                           requesttype;
-  PdnType                               pdntype;
+  eps_protocol_discriminator_t                           protocoldiscriminator:4;
+  ebi_t                                                  epsbeareridentity:4;
+  pti_t                                                  proceduretransactionidentity;
+  message_type_t                                         messagetype;
+  request_type_t                                         requesttype;
+  pdn_type_t                                             pdntype;
   /* Optional fields */
-  uint32_t                              presencemask;
-  EsmInformationTransferFlag            esminformationtransferflag;
-  AccessPointName                       accesspointname;
-  ProtocolConfigurationOptions          protocolconfigurationoptions;
+  uint32_t                                               presencemask;
+  esm_information_transfer_flag_t                        esminformationtransferflag;
+  access_point_name_t                                    accesspointname;
+  protocol_configuration_options_t                       protocolconfigurationoptions;
 } pdn_connectivity_request_msg;
 
 int decode_pdn_connectivity_request(pdn_connectivity_request_msg *pdnconnectivityrequest, uint8_t *buffer, uint32_t len);

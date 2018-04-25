@@ -36,7 +36,7 @@ extern                                  "C" {
   static void
                                           NW_TMR_CALLBACK (
   nwGtpv2cNodeHandleStackTimerTimeout) {
-    NwRcT                                   rc;
+    nw_rc_t                                   rc;
     NwGtpv2cNodeTmrT                       *pTmr = (NwGtpv2cNodeTmrT *) arg;
 
     /*
@@ -52,14 +52,14 @@ extern                                  "C" {
    Public functions
   --------------------------------------------------------------------------*/
 
-  NwRcT                                   nwTimerStart (
-  NwGtpv2cTimerMgrHandleT tmrMgrHandle,
+  nw_rc_t                                   nwTimerStart (
+  nw_gtpv2c_TimerMgrHandleT tmrMgrHandle,
   uint32_t timeoutSec,
   uint32_t timeoutUsec,
   uint32_t tmrType,
   void *timeoutArg,
-  NwGtpv2cTimerHandleT * hTmr) {
-    NwRcT                                   rc = NW_OK;
+  nw_gtpv2c_TimerHandleT * hTmr) {
+    nw_rc_t                                   rc = NW_OK;
     NwGtpv2cNodeTmrT                       *pTmr;
     struct timeval                          tv;
 
@@ -76,13 +76,13 @@ extern                                  "C" {
      * add event
      */
     event_add (&(pTmr->ev), &tv);
-    *hTmr = (NwGtpv2cTimerHandleT) pTmr;
+    *hTmr = (nw_gtpv2c_TimerHandleT) pTmr;
     return rc;
   }
 
-  NwRcT                                   nwTimerStop (
-  NwGtpv2cTimerMgrHandleT tmrMgrHandle,
-  NwGtpv2cTimerHandleT hTmr) {
+  nw_rc_t                                   nwTimerStop (
+  nw_gtpv2c_TimerMgrHandleT tmrMgrHandle,
+  nw_gtpv2c_TimerHandleT hTmr) {
     evtimer_del (&(((NwGtpv2cNodeTmrT *) hTmr)->ev));
     free ((void *)hTmr);
     return NW_OK;
