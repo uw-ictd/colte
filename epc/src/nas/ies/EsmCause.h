@@ -19,20 +19,18 @@
  *      contact@openairinterface.org
  */
 
-#ifndef ESM_CAUSE_H_
-#define ESM_CAUSE_H_
-#include <stdint.h>
+#ifndef ESM_CAUSE_SEEN
+#define ESM_CAUSE_SEEN
 
 #define ESM_CAUSE_MINIMUM_LENGTH 1
 #define ESM_CAUSE_MAXIMUM_LENGTH 1
 
-typedef uint8_t EsmCause;
+// warning coding flaws in ESM, do not use uint8_t yet.
+typedef int esm_cause_t;
 
-int encode_esm_cause(EsmCause *esmcause, uint8_t iei, uint8_t *buffer, uint32_t len);
+int encode_esm_cause(esm_cause_t *esmcause, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_esm_cause_xml(EsmCause *esmcause, uint8_t iei);
+int decode_esm_cause(esm_cause_t *esmcause, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-int decode_esm_cause(EsmCause *esmcause, uint8_t iei, uint8_t *buffer, uint32_t len);
-
-#endif /* ESM CAUSE_H_ */
+#endif /* ESM CAUSE_SEEN */
 

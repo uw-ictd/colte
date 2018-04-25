@@ -26,29 +26,35 @@
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the FreeBSD Project.
  */
+/*! \file udp_messages_types.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 #ifndef FILE_UDP_MESSAGES_TYPES_SEEN
 #define FILE_UDP_MESSAGES_TYPES_SEEN
 
 #define UDP_INIT(mSGpTR)    (mSGpTR)->ittiMsg.udp_init
 
 typedef struct {
-  uint32_t  port;
-  char     *address;
+  struct in_addr  address;
+  uint16_t        port;
 } udp_init_t;
 
 typedef struct {
   uint8_t  *buffer;
   uint32_t  buffer_length;
   uint32_t  buffer_offset;
-  uint32_t  peer_address;
-  uint32_t  peer_port;
+  struct in_addr  peer_address;
+  uint16_t  peer_port;
 } udp_data_req_t;
 
 typedef struct {
   uint8_t  *buffer;
   uint32_t  buffer_length;
-  uint32_t  peer_address;
-  uint32_t  peer_port;
+  struct in_addr  peer_address;
+  uint16_t  peer_port;
 } udp_data_ind_t;
 
 #endif /* FILE_UDP_MESSAGES_TYPES_SEEN */

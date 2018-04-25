@@ -43,7 +43,7 @@ void* bstr__alloc (size_t sz) {
 #endif
 
 #ifndef bstr__free
-#define bstr__free(p) do { free (p); p = NULL;} while(0);
+#define bstr__free(p) do { free (p);} while(0);
 #endif
 
 #ifndef bstr__realloc

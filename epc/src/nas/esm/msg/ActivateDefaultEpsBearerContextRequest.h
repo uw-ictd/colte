@@ -19,48 +19,38 @@
  *      contact@openairinterface.org
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
-#include "ProtocolDiscriminator.h"
-#include "EpsBearerIdentity.h"
-#include "ProcedureTransactionIdentity.h"
-#include "MessageType.h"
-#include "EpsQualityOfService.h"
-#include "AccessPointName.h"
-#include "PdnAddress.h"
-#include "TransactionIdentifier.h"
-#include "QualityOfService.h"
-#include "LlcServiceAccessPointIdentifier.h"
-#include "RadioPriority.h"
-#include "PacketFlowIdentifier.h"
-#include "ApnAggregateMaximumBitRate.h"
-#include "EsmCause.h"
-#include "ProtocolConfigurationOptions.h"
-
 #ifndef ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_H_
 #define ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_H_
+
+#include "MessageType.h"
+#include "EpsQualityOfService.h"
+#include "PdnAddress.h"
+#include "RadioPriority.h"
+#include "ApnAggregateMaximumBitRate.h"
+#include "EsmCause.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_MINIMUM_LENGTH ( \
     EPS_QUALITY_OF_SERVICE_MINIMUM_LENGTH + \
-    ACCESS_POINT_NAME_MINIMUM_LENGTH + \
+    ACCESS_POINT_NAME_IE_MIN_LENGTH + \
     PDN_ADDRESS_MINIMUM_LENGTH )
 
 /* Maximum length macro. Formed by maximum length of each field */
 #define ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_MAXIMUM_LENGTH ( \
     EPS_QUALITY_OF_SERVICE_MAXIMUM_LENGTH + \
-    ACCESS_POINT_NAME_MAXIMUM_LENGTH + \
+    ACCESS_POINT_NAME_IE_MAX_LENGTH + \
     PDN_ADDRESS_MAXIMUM_LENGTH + \
     TRANSACTION_IDENTIFIER_MAXIMUM_LENGTH + \
-    QUALITY_OF_SERVICE_MAXIMUM_LENGTH + \
+    QUALITY_OF_SERVICE_IE_MAX_LENGTH + \
     LLC_SERVICE_ACCESS_POINT_IDENTIFIER_MAXIMUM_LENGTH + \
     RADIO_PRIORITY_MAXIMUM_LENGTH + \
     PACKET_FLOW_IDENTIFIER_MAXIMUM_LENGTH + \
     APN_AGGREGATE_MAXIMUM_BIT_RATE_MAXIMUM_LENGTH + \
     ESM_CAUSE_MAXIMUM_LENGTH + \
-    PROTOCOL_CONFIGURATION_OPTIONS_MAXIMUM_LENGTH )
+    PROTOCOL_CONFIGURATION_OPTIONS_IE_MAX_LENGTH )
 
 /* If an optional value is present and should be encoded, the corresponding
  * Bit mask should be set to 1.
@@ -75,14 +65,14 @@
 # define ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT (1<<7)
 
 typedef enum activate_default_eps_bearer_context_request_iei_tag {
-  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_TRANSACTION_IDENTIFIER_IEI          = 0x5D, /* 0x5D = 93 */
-  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_QOS_IEI                  = 0x30, /* 0x30 = 48 */
-  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI             = 0x32, /* 0x32 = 50 */
+  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_TRANSACTION_IDENTIFIER_IEI          = SM_LINKED_TI_IEI,
+  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_QOS_IEI                  = SM_QUALITY_OF_SERVICE_IEI,
+  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI             = SM_LLC_SERVICE_ACCESS_POINT_IDENTIFIER_IEI,
   ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_RADIO_PRIORITY_IEI                  = 0x80, /* 0x80 = 128 */
-  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI          = 0x34, /* 0x34 = 52 */
+  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI          = SM_PACKET_FLOW_IDENTIFIER_IEI,
   ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_APNAMBR_IEI                         = 0x5E, /* 0x5E = 94 */
   ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_ESM_CAUSE_IEI                       = 0x58, /* 0x58 = 88 */
-  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = 0x27, /* 0x27 = 39 */
+  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = SM_PROTOCOL_CONFIGURATION_OPTIONS_IEI,
 } activate_default_eps_bearer_context_request_iei;
 
 /*
@@ -94,23 +84,23 @@ typedef enum activate_default_eps_bearer_context_request_iei_tag {
 
 typedef struct activate_default_eps_bearer_context_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                                 protocoldiscriminator:4;
-  EpsBearerIdentity                                     epsbeareridentity:4;
-  ProcedureTransactionIdentity                          proceduretransactionidentity;
-  MessageType                                           messagetype;
-  EpsQualityOfService                                   epsqos;
-  AccessPointName                                       accesspointname;
-  PdnAddress                                            pdnaddress;
+  eps_protocol_discriminator_t                           protocoldiscriminator:4;
+  ebi_t                                                  epsbeareridentity:4;
+  pti_t                                                  proceduretransactionidentity;
+  message_type_t                                         messagetype;
+  EpsQualityOfService                                    epsqos;
+  access_point_name_t                                    accesspointname;
+  PdnAddress                                             pdnaddress;
   /* Optional fields */
-  uint32_t                                              presencemask;
-  TransactionIdentifier                                 transactionidentifier;
-  QualityOfService                                      negotiatedqos;
-  LlcServiceAccessPointIdentifier                       negotiatedllcsapi;
-  RadioPriority                                         radiopriority;
-  PacketFlowIdentifier                                  packetflowidentifier;
-  ApnAggregateMaximumBitRate                            apnambr;
-  EsmCause                                              esmcause;
-  ProtocolConfigurationOptions                          protocolconfigurationoptions;
+  uint32_t                                               presencemask;
+  linked_ti_t                                            transactionidentifier;
+  quality_of_service_t                                   negotiatedqos;
+  llc_service_access_point_identifier_t                  negotiatedllcsapi;
+  radio_priority_t                                          radiopriority;
+  packet_flow_identifier_t                               packetflowidentifier;
+  ApnAggregateMaximumBitRate                             apnambr;
+  esm_cause_t                                               esmcause;
+  protocol_configuration_options_t                       protocolconfigurationoptions;
 } activate_default_eps_bearer_context_request_msg;
 
 int decode_activate_default_eps_bearer_context_request(activate_default_eps_bearer_context_request_msg *activatedefaultepsbearercontextrequest, uint8_t *buffer, uint32_t len);

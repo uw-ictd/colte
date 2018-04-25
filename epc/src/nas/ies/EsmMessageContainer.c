@@ -22,14 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "EsmMessageContainer.h"
 #include "log.h"
 
-int
-decode_esm_message_container (
+//------------------------------------------------------------------------------
+int decode_esm_message_container (
   EsmMessageContainer * esmmessagecontainer,
   uint8_t iei,
   uint8_t * buffer,
@@ -58,8 +61,8 @@ decode_esm_message_container (
   OAILOG_FUNC_RETURN (LOG_NAS_ESM, decoded);
 }
 
-int
-encode_esm_message_container (
+//------------------------------------------------------------------------------
+int encode_esm_message_container (
   EsmMessageContainer esmmessagecontainer,
   uint8_t iei,
   uint8_t * buffer,
@@ -81,8 +84,6 @@ encode_esm_message_container (
 
   lenPtr = (buffer + encoded);
 
-  //encoded += 2;
-  //if ((encode_result = encode_octet_string(&esmmessagecontainer->esmmessagecontainercontents, buffer + sizeof(uint16_t), len - sizeof(uint16_t))) < 0)
   if ((encode_result = encode_bstring (esmmessagecontainer, lenPtr + sizeof (uint16_t), len - sizeof (uint16_t))) < 0)
     return encode_result;
   else
@@ -96,21 +97,3 @@ encode_esm_message_container (
   return encoded;
 }
 
-void
-dump_esm_message_container_xml (
-  EsmMessageContainer esmmessagecontainer,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Esm Message Container>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  bstring b = dump_bstring_xml (esmmessagecontainer);
-  OAILOG_DEBUG (LOG_NAS, "%s", bdata(b));
-  bdestroy(b);
-  OAILOG_DEBUG (LOG_NAS, "</Esm Message Container>\n");
-}

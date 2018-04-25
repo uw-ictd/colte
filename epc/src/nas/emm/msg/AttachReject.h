@@ -22,13 +22,14 @@
 
 #ifndef FILE_ATTACH_REJECT_SEEN
 #define FILE_ATTACH_REJECT_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "EmmCause.h"
 #include "EsmMessageContainer.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define ATTACH_REJECT_MINIMUM_LENGTH ( \
@@ -57,13 +58,13 @@ typedef enum attach_reject_iei_tag {
 
 typedef struct attach_reject_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator       protocoldiscriminator:4;
-  SecurityHeaderType          securityheadertype:4;
-  MessageType                 messagetype;
-  EmmCause                    emmcause;
+  eps_protocol_discriminator_t protocoldiscriminator:4;
+  security_header_type_t       securityheadertype:4;
+  message_type_t               messagetype;
+  emm_cause_t                  emmcause;
   /* Optional fields */
-  uint32_t                    presencemask;
-  EsmMessageContainer         esmmessagecontainer;
+  uint32_t                     presencemask;
+  EsmMessageContainer          esmmessagecontainer;
 } attach_reject_msg;
 
 int decode_attach_reject(attach_reject_msg *attachreject, uint8_t *buffer, uint32_t len);

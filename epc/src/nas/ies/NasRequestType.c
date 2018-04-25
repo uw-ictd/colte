@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "NasRequestType.h"
 
-int
-decode_request_type (
-  RequestType * requesttype,
+//------------------------------------------------------------------------------
+int decode_request_type (
+  request_type_t * requesttype,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -45,15 +47,12 @@ decode_request_type (
 
   *requesttype = *buffer & 0x7;
   decoded++;
-#if NAS_DEBUG
-  dump_request_type_xml (requesttype, iei);
-#endif
   return decoded;
 }
 
-int
-decode_u8_request_type (
-  RequestType * requesttype,
+//------------------------------------------------------------------------------
+int decode_u8_request_type (
+  request_type_t * requesttype,
   uint8_t iei,
   uint8_t value,
   uint32_t len)
@@ -63,15 +62,12 @@ decode_u8_request_type (
 
   *requesttype = *buffer & 0x7;
   decoded++;
-#if NAS_DEBUG
-  dump_request_type_xml (requesttype, iei);
-#endif
   return decoded;
 }
 
-int
-encode_request_type (
-  RequestType * requesttype,
+//------------------------------------------------------------------------------
+int encode_request_type (
+  request_type_t * requesttype,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -82,44 +78,22 @@ encode_request_type (
    * Checking length and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, REQUEST_TYPE_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_request_type_xml (requesttype, iei);
-#endif
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*requesttype & 0x7);
   encoded++;
   return encoded;
 }
 
-uint8_t
-encode_u8_request_type (
-  RequestType * requesttype)
+//------------------------------------------------------------------------------
+uint8_t encode_u8_request_type (
+  request_type_t * requesttype)
 {
   uint8_t                                 bufferReturn;
   uint8_t                                *buffer = &bufferReturn;
   uint8_t                                 encoded = 0;
   uint8_t                                 iei = 0;
 
-#if NAS_DEBUG
-  dump_request_type_xml (requesttype, 0);
-#endif
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*requesttype & 0x7);
   encoded++;
   return bufferReturn;
 }
 
-void
-dump_request_type_xml (
-  RequestType * requesttype,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Request Type>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <Request type value>%u</Request type value>\n", *requesttype);
-  OAILOG_DEBUG (LOG_NAS, "</Request Type>\n");
-}

@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "secu_defs.h"
@@ -34,11 +35,13 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/bio.h>
+#include "bstrlib.h"
 
 #include "assertions.h"
 #include "conversions.h"
 #include "dynamic_memory_check.h"
 #include "log.h"
+#include "gcc_diag.h"
 
 /*!
    @brief Create integrity cmac t for a given message.
@@ -70,7 +73,7 @@ nas_stream_encrypt_eia2 (
     m_length += 1;
 
   local_count = hton_int32 (stream_cipher->count);
-  m = calloc (m_length + 8, sizeof (uint8_t));
+  m = calloc (1, m_length + 8);
   memcpy (&m[0], &local_count, 4);
   m[4] = ((stream_cipher->bearer & 0x1F) << 3) | ((stream_cipher->direction & 0x01) << 2);
   memcpy (&m[8], stream_cipher->message, m_length);
@@ -87,6 +90,6 @@ nas_stream_encrypt_eia2 (
   CMAC_CTX_free (cmac_ctx);
   OAILOG_STREAM_HEX(OAILOG_LEVEL_TRACE, LOG_NAS, "Out:", data, size);
   memcpy ((void*)out, data, 4);
-  free_wrapper ((void**) &m);
+  free_wrapper ((void**)&m);
   return 0;
 }

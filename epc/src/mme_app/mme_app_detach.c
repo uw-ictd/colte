@@ -30,28 +30,33 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <pthread.h>
 
+#include "bstrlib.h"
+
+#include "log.h"
 #include "assertions.h"
 #include "msc.h"
 #include "intertask_interface.h"
+#include "gcc_diag.h"
+#include "mme_config.h"
 #include "mme_app_ue_context.h"
 #include "mme_app_itti_messaging.h"
 #include "mme_app_defs.h"
 
+
 //------------------------------------------------------------------------------
-void
-mme_app_send_delete_session_request (
-  struct ue_context_s                    *ue_context_p)
+void mme_app_send_delete_session_request (struct ue_mm_context_s * const ue_context_p, const ebi_t ebi, const pdn_cid_t cid)
 {
   MessageDef                             *message_p = NULL;
 
   message_p = itti_alloc_new_message (TASK_MME_APP, S11_DELETE_SESSION_REQUEST);
   AssertFatal (message_p , "itti_alloc_new_message Failed");
-  memset ((void *)&message_p->ittiMsg.s11_delete_session_request, 0, sizeof (itti_s11_delete_session_request_t));
-  S11_DELETE_SESSION_REQUEST (message_p).local_teid = ue_context_p->mme_s11_teid;
-  S11_DELETE_SESSION_REQUEST (message_p).teid = ue_context_p->sgw_s11_teid;
-  S11_DELETE_SESSION_REQUEST (message_p).lbi = ue_context_p->default_bearer_id;
+  S11_DELETE_SESSION_REQUEST (message_p).local_teid = ue_context_p->mme_teid_s11;
+  S11_DELETE_SESSION_REQUEST (message_p).teid       = ue_context_p->pdn_contexts[cid]->s_gw_teid_s11_s4;
+  S11_DELETE_SESSION_REQUEST (message_p).lbi        = ebi; //default bearer
 
   OAI_GCC_DIAG_OFF(pointer-to-int-cast);
   S11_DELETE_SESSION_REQUEST (message_p).sender_fteid_for_cp.teid = (teid_t) ue_context_p;
@@ -61,13 +66,14 @@ mme_app_send_delete_session_request (
   S11_DELETE_SESSION_REQUEST (message_p).sender_fteid_for_cp.ipv4_address = mme_config.ipv4.s11;
   mme_config_unlock (&mme_config);
   S11_DELETE_SESSION_REQUEST (message_p).sender_fteid_for_cp.ipv4 = 1;
+  S11_DELETE_SESSION_REQUEST (message_p).indication_flags.oi = 1;
 
   /*
    * S11 stack specific parameter. Not used in standalone epc mode
    */
   S11_DELETE_SESSION_REQUEST  (message_p).trxn = NULL;
   mme_config_read_lock (&mme_config);
-  S11_DELETE_SESSION_REQUEST (message_p).peer_ip = mme_config.ipv4.sgw_s11;
+  S11_DELETE_SESSION_REQUEST (message_p).peer_ip = ue_context_p->pdn_contexts[cid]->s_gw_address_s11_s4.address.ipv4_address;
   mme_config_unlock (&mme_config);
 
   MSC_LOG_TX_MESSAGE (MSC_MMEAPP_MME, MSC_S11_MME,
@@ -85,7 +91,7 @@ void
 mme_app_handle_detach_req (
   const itti_nas_detach_req_t * const detach_req_p)
 {
-  struct ue_context_s *ue_context    = NULL;
+  struct ue_mm_context_s *ue_context    = NULL;
 
   DevAssert(detach_req_p != NULL);
   ue_context = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, detach_req_p->ue_id);
@@ -93,7 +99,7 @@ mme_app_handle_detach_req (
     OAILOG_ERROR (LOG_MME_APP, "UE context doesn't exist -> Nothing to do :-) \n");
     OAILOG_FUNC_OUT (LOG_MME_APP);
   }
-  if ((ue_context->mme_s11_teid == 0) && (ue_context->sgw_s11_teid == 0)) {
+  if ((!ue_context->mme_teid_s11) && (!ue_context->nb_active_pdn_contexts)) {
     /* No Session.
      * If UE is already in idle state, skip asking eNB to release UE context and just clean up locally.
      */
@@ -121,8 +127,13 @@ mme_app_handle_detach_req (
       }
     }
   } else {
-    // Send a DELETE_SESSION_REQUEST message to the SGW
-    mme_app_send_delete_session_request (ue_context);
+    for (pdn_cid_t i = 0; i < MAX_APN_PER_UE; i++) {
+      if (ue_context->pdn_contexts[i]) {
+        // Send a DELETE_SESSION_REQUEST message to the SGW
+        mme_app_send_delete_session_request(ue_context, ue_context->pdn_contexts[i]->default_ebi, i);
+      }
+    }
   }
+  unlock_ue_contexts(ue_context);
   OAILOG_FUNC_OUT (LOG_MME_APP);
 }

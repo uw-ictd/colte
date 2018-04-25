@@ -36,10 +36,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-
+#include <stdbool.h>
+#include <stdint.h>
 #include <signal.h>
 #include <time.h>
 #include <errno.h>
+
+#include "bstrlib.h"
 
 #include "intertask_interface.h"
 #include "timer.h"

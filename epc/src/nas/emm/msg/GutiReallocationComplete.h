@@ -21,11 +21,12 @@
 
 #ifndef FILE_GUTI_REALLOCATION_COMPLETE_SEEN
 #define FILE_GUTI_REALLOCATION_COMPLETE_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
@@ -43,9 +44,9 @@
 
 typedef struct guti_reallocation_complete_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                   protocoldiscriminator:4;
-  SecurityHeaderType                      securityheadertype:4;
-  MessageType                             messagetype;
+  eps_protocol_discriminator_t            protocoldiscriminator:4;
+  security_header_type_t                  securityheadertype:4;
+  message_type_t                          messagetype;
 } guti_reallocation_complete_msg;
 
 int decode_guti_reallocation_complete(guti_reallocation_complete_msg *gutireallocationcomplete, uint8_t *buffer, uint32_t len);

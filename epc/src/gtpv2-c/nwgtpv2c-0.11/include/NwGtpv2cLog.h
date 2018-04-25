@@ -36,7 +36,6 @@
 
 #include <stdio.h>
 #include "NwLog.h"
-#include "log.h"
 
 /**
  * @file NwGtpv2cLog.h

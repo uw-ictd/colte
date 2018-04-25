@@ -23,12 +23,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
 #include "3gpp_24.007.h"
 #include "3gpp_24.301.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
+#include "LinkedEpsBearerIdentity.h"
 #include "PdnDisconnectRequest.h"
 
 int
@@ -65,7 +69,7 @@ decode_pdn_disconnect_request (
 
     switch (ieiDecoded) {
     case PDN_DISCONNECT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI:
-      if ((decoded_result = decode_ProtocolConfigurationOptions (&pdn_disconnect_request->protocolconfigurationoptions, PDN_DISCONNECT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_protocol_configuration_options_ie (&pdn_disconnect_request->protocolconfigurationoptions, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -102,7 +106,7 @@ encode_pdn_disconnect_request (
 
   if ((pdn_disconnect_request->presencemask & PDN_DISCONNECT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT)
       == PDN_DISCONNECT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
-    if ((encode_result = encode_ProtocolConfigurationOptions (&pdn_disconnect_request->protocolconfigurationoptions, PDN_DISCONNECT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_protocol_configuration_options_ie (&pdn_disconnect_request->protocolconfigurationoptions, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

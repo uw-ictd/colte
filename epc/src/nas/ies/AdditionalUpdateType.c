@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "AdditionalUpdateType.h"
 
-int
-decode_additional_update_type (
-  AdditionalUpdateType * additionalupdatetype,
+//------------------------------------------------------------------------------
+int decode_additional_update_type (
+  additional_update_type_t * additionalupdatetype,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -42,29 +44,12 @@ decode_additional_update_type (
   return decoded;
 }
 
-int
-encode_additional_update_type (
-  AdditionalUpdateType * additionalupdatetype,
+//------------------------------------------------------------------------------
+int encode_additional_update_type (
+  additional_update_type_t * additionalupdatetype,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
 {
   return 0;
-}
-
-void
-dump_additional_update_type_xml (
-  AdditionalUpdateType * additionalupdatetype,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Additional Update Type>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <AUTV>%u</AUTV>\n", *additionalupdatetype);
-  OAILOG_DEBUG (LOG_NAS, "</Additional Update Type>\n");
 }

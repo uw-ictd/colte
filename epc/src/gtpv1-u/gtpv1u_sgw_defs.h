@@ -21,6 +21,10 @@
 #ifndef FILE_GTPV1U_SGW_DEFS_SEEN
 #define FILE_GTPV1U_SGW_DEFS_SEEN
 
+#include "common_types.h"
+#include "hashtable.h"
+#include "spgw_config.h"
+
 #define GTPV1U_UDP_PORT (2152)
 
 #define MAX_BEARERS_PER_UE (11)
@@ -57,7 +61,7 @@ typedef struct {
   /* RB tree of UEs */
   //RB_HEAD(gtpv1u_ue_map, gtpv1u_ue_data_s) gtpv1u_ue_map_head;
   /* Local IP address to use */
-  ipv4_nbo_t            sgw_ip_address_for_S1u_S12_S4_up;
+  struct in_addr        sgw_ip_address_for_S1u_S12_S4_up;
   char                 *ip_addr;
 
   uint16_t              seq_num;

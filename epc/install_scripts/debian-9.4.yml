@@ -16,8 +16,6 @@
     wan_iface: "{{ ansible_env.COLTE_WAN_IFACE }}"
     lte_subnet: "{{ ansible_env.COLTE_LTE_SUBNET }}"
 
-
-
   tasks:
     - name: check for environment vars
       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
@@ -111,21 +109,6 @@
         priv: '*.*:ALL'
       become: yes
 
-    - import_tasks: tasks/freediameter.yml
-
-    - import_tasks: tasks/asn1c.yml
-
-    - import_tasks: tasks/libgtpnl.yml
-
-    - name: build epc with enbrains
-      shell: |
-        source oaienv
-        ./scripts/build_hss -e
-        ./scripts/build_mme -e
-        ./scripts/build_spgw -e
-      args:
-        chdir: "{{ epc_dir }}"
-
     - name: ensure log directory exists
       file:
         path: /var/log/colte
@@ -143,6 +126,44 @@
         group: "{{ username }}"
         mode: 0755
       become: yes
+
+    - name: ensure freeDiameter directory exists
+      file:
+        path: /usr/local/etc/colte/freeDiameter
+        state: directory
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0755
+      become: yes
+
+    - name: symlink for oai scripts (needed until we remake build/run scripts)
+      file:
+        src: /usr/local/etc/colte
+        dest: /usr/local/etc/oai
+        state: link
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0755
+      become: yes
+
+    - import_tasks: tasks/freediameter.yml
+
+    - import_tasks: tasks/asn1c.yml
+
+    - import_tasks: tasks/libgtpnl.yml
+
+    # NEW FOR OAI/DEVELOP BRANCH
+    - import_tasks: tasks/liblfds.yml
+#    - import_tasks: tasks/ovs.yml
+
+    - name: build epc 
+      shell: |
+        source oaienv
+        ./scripts/build_hss -c
+        ./scripts/build_mme -c
+        ./scripts/build_spgw -c
+      args:
+        chdir: "{{ epc_dir }}"
 
 # {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} colte_db {{ epc_dir }}/spencer_configs/sample_db.sql
     - name: install sample_db into mysql
@@ -199,7 +220,9 @@
       - {src: "{{ epc_dir }}/spencer_configs/mme.conf", dst: "/usr/local/etc/colte/"}
       # - {src: "{{ epc_dir }}/spencer_configs/mme_fd.conf", dst: "/usr/local/etc/colte/"}
       - {src: "{{ epc_dir }}/spencer_configs/spgw.conf", dst: "/usr/local/etc/colte/"}
-      - {src: "{{ epc_dir }}/spencer_configs/freeDiameter", dst: "/usr/local/etc/colte/"}
+      - {src: "{{ epc_dir }}/spencer_configs/freeDiameter/acl.conf", dst: "/usr/local/etc/colte/freeDiameter"}
+      - {src: "{{ epc_dir }}/spencer_configs/freeDiameter/hss_fd.conf", dst: "/usr/local/etc/colte/freeDiameter"}
+      - {src: "{{ epc_dir }}/spencer_configs/freeDiameter/mme_fd.conf", dst: "/usr/local/etc/colte/freeDiameter"}
 
     - name: generate s6a certificates
       shell: |

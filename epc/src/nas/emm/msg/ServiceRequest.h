@@ -21,13 +21,14 @@
 
 #ifndef FILE_SERVICE_REQUEST_SEEN
 #define FILE_SERVICE_REQUEST_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "KsiAndSequenceNumber.h"
 #include "ShortMac.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define SERVICE_REQUEST_MINIMUM_LENGTH ( \
@@ -49,11 +50,11 @@
 
 typedef struct service_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator     protocoldiscriminator:4;
-  SecurityHeaderType        securityheadertype:4;
-  MessageType               messagetype;
-  KsiAndSequenceNumber      ksiandsequencenumber;
-  ShortMac                  messageauthenticationcode;
+  eps_protocol_discriminator_t     protocoldiscriminator:4;
+  security_header_type_t           securityheadertype:4;
+  message_type_t                   messagetype;
+  KsiAndSequenceNumber             ksiandsequencenumber;
+  short_mac_t                      messageauthenticationcode;
 } service_request_msg;
 
 int decode_service_request(service_request_msg *servicerequest, uint8_t *buffer, uint32_t len);

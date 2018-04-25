@@ -20,31 +20,48 @@
  */
 
 
+/*! \file mme_app_main.c
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <pthread.h>
 
+#include "bstrlib.h"
+
+#include "dynamic_memory_check.h"
+#include "log.h"
+#include "msc.h"
+#include "assertions.h"
 #include "intertask_interface.h"
+#include "itti_free_defined_msg.h"
+#include "mme_config.h"
 #include "timer.h"
 #include "mme_app_extern.h"
 #include "mme_app_ue_context.h"
 #include "mme_app_defs.h"
 #include "mme_app_statistics.h"
-#include "assertions.h"
-#include "msc.h"
+#include "common_defs.h"
+#include "mme_app_edns_emulation.h"
+#include "nas_proc.h"
 
 mme_app_desc_t                          mme_app_desc = {.rw_lock = PTHREAD_RWLOCK_INITIALIZER, 0} ;
 
 void     *mme_app_thread (void *args);
 
 
-void *mme_app_thread (
-  void *args)
+//------------------------------------------------------------------------------
+void *mme_app_thread (void *args)
 {
-  struct ue_context_s                    *ue_context_p = NULL;
+  struct ue_mm_context_s                    *ue_context_p = NULL;
   itti_mark_task_ready (TASK_MME_APP);
-  MSC_START_USE ();
 
   while (1) {
     MessageDef                             *received_message_p = NULL;
@@ -59,16 +76,84 @@ void *mme_app_thread (
 
     switch (ITTI_MSG_ID (received_message_p)) {
 
-    case S6A_UPDATE_LOCATION_ANS:{
-        /*
-         * We received the update location answer message from HSS -> Handle it
-         */
-        mme_app_handle_s6a_update_location_ans (&received_message_p->ittiMsg.s6a_update_location_ans);
+    case MESSAGE_TEST:{
+        OAI_FPRINTF_INFO("TASK_MME_APP received MESSAGE_TEST\n");
       }
+      break;
+
+    case MME_APP_INITIAL_CONTEXT_SETUP_RSP:{
+        mme_app_handle_initial_context_setup_rsp (&MME_APP_INITIAL_CONTEXT_SETUP_RSP (received_message_p));
+      }
+      break;
+
+    case MME_APP_CREATE_DEDICATED_BEARER_RSP:{
+      mme_app_handle_create_dedicated_bearer_rsp (&MME_APP_CREATE_DEDICATED_BEARER_RSP (received_message_p));
+    }
+    break;
+
+    case MME_APP_CREATE_DEDICATED_BEARER_REJ:{
+      mme_app_handle_create_dedicated_bearer_rej (&MME_APP_CREATE_DEDICATED_BEARER_REJ (received_message_p));
+    }
+    break;
+
+    case NAS_CONNECTION_ESTABLISHMENT_CNF:{
+        mme_app_handle_conn_est_cnf (&NAS_CONNECTION_ESTABLISHMENT_CNF (received_message_p));
+      }
+      break;
+
+    case NAS_DETACH_REQ: {
+        mme_app_handle_detach_req(&received_message_p->ittiMsg.nas_detach_req);
+      }
+      break;
+
+    case NAS_DOWNLINK_DATA_REQ: {
+        mme_app_handle_nas_dl_req (&received_message_p->ittiMsg.nas_dl_data_req);
+      }
+      break;
+
+    case NAS_ERAB_SETUP_REQ:{
+      mme_app_handle_erab_setup_req (&NAS_ERAB_SETUP_REQ (received_message_p));
+    }
+    break;
+
+    case NAS_PDN_CONFIG_REQ: {
+        struct ue_mm_context_s                    *ue_context_p = NULL;
+        ue_context_p = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, received_message_p->ittiMsg.nas_pdn_config_req.ue_id);
+        if (ue_context_p) {
+          mme_app_send_s6a_update_location_req(ue_context_p);
+          unlock_ue_contexts(ue_context_p);
+        }
+      }
+      break;
+
+    case NAS_PDN_CONNECTIVITY_REQ:{
+        mme_app_handle_nas_pdn_connectivity_req (&received_message_p->ittiMsg.nas_pdn_connectivity_req);
+      }
+      break;
+
+    case NAS_UPLINK_DATA_IND:{
+        ue_context_p = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, NAS_UL_DATA_IND (received_message_p).ue_id);
+        nas_proc_ul_transfer_ind (NAS_UL_DATA_IND (received_message_p).ue_id,
+            NAS_UL_DATA_IND (received_message_p).tai,
+            NAS_UL_DATA_IND (received_message_p).cgi,
+            &NAS_UL_DATA_IND (received_message_p).nas_msg);
+        if (ue_context_p) {
+         unlock_ue_contexts(ue_context_p);
+        }
+      }
+      break;
+
+    case S11_CREATE_BEARER_REQUEST:
+      mme_app_handle_s11_create_bearer_req (&received_message_p->ittiMsg.s11_create_bearer_request);
       break;
 
     case S11_CREATE_SESSION_RESPONSE:{
         mme_app_handle_create_sess_resp (&received_message_p->ittiMsg.s11_create_session_response);
+      }
+      break;
+
+    case S11_DELETE_SESSION_RESPONSE: {
+      mme_app_handle_delete_session_rsp (&received_message_p->ittiMsg.s11_delete_session_response);
       }
       break;
 
@@ -81,11 +166,12 @@ void *mme_app_thread (
           OAILOG_WARNING (LOG_MME_APP, "We didn't find this teid in list of UE: %08x\n", received_message_p->ittiMsg.s11_modify_bearer_response.teid);
         } else {
           MSC_LOG_RX_MESSAGE (MSC_MMEAPP_MME, MSC_S11_MME, NULL, 0, "0 MODIFY_BEARER_RESPONSE local S11 teid " TEID_FMT " IMSI " IMSI_64_FMT " ",
-            received_message_p->ittiMsg.s11_modify_bearer_response.teid, ue_context_p->imsi);
+            received_message_p->ittiMsg.s11_modify_bearer_response.teid, ue_context_p->emm_context._imsi64);
           /*
            * Updating statistics
            */
           update_mme_app_stats_s1u_bearer_add();
+          unlock_ue_contexts(ue_context_p);
         }
       }
       break;
@@ -95,34 +181,59 @@ void *mme_app_thread (
       }
       break;
 
-    case S11_DELETE_SESSION_RESPONSE: {
-        mme_app_handle_delete_session_rsp (&received_message_p->ittiMsg.s11_delete_session_response);
+    case S1AP_E_RAB_SETUP_RSP:{
+        mme_app_handle_e_rab_setup_rsp (&S1AP_E_RAB_SETUP_RSP (received_message_p));
       }
       break;
 
-    case NAS_PDN_CONNECTIVITY_REQ:{
-        mme_app_handle_nas_pdn_connectivity_req (&received_message_p->ittiMsg.nas_pdn_connectivity_req);
+    case S1AP_ENB_DEREGISTERED_IND: {
+        mme_app_handle_enb_deregister_ind(&received_message_p->ittiMsg.s1ap_eNB_deregistered_ind);
+    }
+    break;
+
+    case S1AP_ENB_INITIATED_RESET_REQ:{
+        mme_app_handle_enb_reset_req (&S1AP_ENB_INITIATED_RESET_REQ (received_message_p));
       }
       break;
 
-    case NAS_DETACH_REQ: {
-        mme_app_handle_detach_req(&received_message_p->ittiMsg.nas_detach_req);
+    case S1AP_INITIAL_UE_MESSAGE:{
+        mme_app_handle_initial_ue_message (&S1AP_INITIAL_UE_MESSAGE (received_message_p));
       }
       break;
 
-    case NAS_CONNECTION_ESTABLISHMENT_CNF:{
-        mme_app_handle_conn_est_cnf (&NAS_CONNECTION_ESTABLISHMENT_CNF (received_message_p));
+    case S1AP_UE_CAPABILITIES_IND:{
+        mme_app_handle_s1ap_ue_capabilities_ind (&received_message_p->ittiMsg.s1ap_ue_cap_ind);
       }
       break;
 
-      // From S1AP Initiating Message/EMM Attach Request
-    case MME_APP_INITIAL_UE_MESSAGE:{
-        mme_app_handle_initial_ue_message (&MME_APP_INITIAL_UE_MESSAGE (received_message_p));
+    case S1AP_UE_CONTEXT_RELEASE_COMPLETE:{
+        mme_app_handle_s1ap_ue_context_release_complete (&received_message_p->ittiMsg.s1ap_ue_context_release_complete);
       }
       break;
 
-    case MME_APP_INITIAL_CONTEXT_SETUP_RSP:{
-        mme_app_handle_initial_context_setup_rsp (&MME_APP_INITIAL_CONTEXT_SETUP_RSP (received_message_p));
+    case S1AP_UE_CONTEXT_RELEASE_REQ:{
+        mme_app_handle_s1ap_ue_context_release_req (&received_message_p->ittiMsg.s1ap_ue_context_release_req);
+      }
+      break;
+
+    case S6A_UPDATE_LOCATION_ANS:{
+        /*
+         * We received the update location answer message from HSS -> Handle it
+         */
+        mme_app_handle_s6a_update_location_ans (&received_message_p->ittiMsg.s6a_update_location_ans);
+      }
+      break;
+
+
+    case TERMINATE_MESSAGE:{
+        /*
+         * Termination message received TODO -> release any data allocated
+         */
+        mme_app_exit();
+        itti_free_msg_content(received_message_p);
+        itti_free (ITTI_MSG_ORIGIN_ID (received_message_p), received_message_p);
+        OAI_FPRINTF_INFO("TASK_MME_APP terminated\n");
+        itti_exit_task ();
       }
       break;
     
@@ -130,7 +241,7 @@ void *mme_app_thread (
         mme_app_handle_initial_context_setup_failure (&MME_APP_INITIAL_CONTEXT_SETUP_FAILURE (received_message_p));
       }
       break;
-
+    
     case TIMER_HAS_EXPIRED:{
         /*
          * Check statistic timer
@@ -141,7 +252,7 @@ void *mme_app_thread (
           mme_ue_s1ap_id_t mme_ue_s1ap_id = *((mme_ue_s1ap_id_t *)(received_message_p->ittiMsg.timer_has_expired.arg));
           ue_context_p = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, mme_ue_s1ap_id);
           if (ue_context_p == NULL) {
-            OAILOG_WARNING (LOG_MME_APP, "Timer expired but no assoicated UE context for UE id %d\n",mme_ue_s1ap_id);
+            OAILOG_WARNING (LOG_MME_APP, "Timer expired but no assoicated UE context for UE id " MME_UE_S1AP_ID_FMT "\n",mme_ue_s1ap_id);
             break;
           }
           if (received_message_p->ittiMsg.timer_has_expired.timer_id == ue_context_p->mobile_reachability_timer.id) {
@@ -154,58 +265,20 @@ void *mme_app_thread (
             // Initial Context Setup Rsp Timer expiry handler
             mme_app_handle_initial_context_setup_rsp_timer_expiry (ue_context_p);
           } else {
-            OAILOG_WARNING (LOG_MME_APP, "Timer expired but no assoicated timer_id for UE id %d\n",mme_ue_s1ap_id);
+            OAILOG_WARNING (LOG_MME_APP, "Timer expired but no associated timer_id for UE id " MME_UE_S1AP_ID_FMT "\n",mme_ue_s1ap_id);
           }
         }
       }
       break;
 
-    case TERMINATE_MESSAGE:{
-        /*
-         * Termination message received TODO -> release any data allocated
-         */
-        timer_remove(mme_app_desc.statistic_timer_id);
-        hashtable_ts_destroy (mme_app_desc.mme_ue_contexts.imsi_ue_context_htbl);
-        hashtable_ts_destroy (mme_app_desc.mme_ue_contexts.tun11_ue_context_htbl);
-        hashtable_ts_destroy (mme_app_desc.mme_ue_contexts.mme_ue_s1ap_id_ue_context_htbl);
-        hashtable_ts_destroy (mme_app_desc.mme_ue_contexts.enb_ue_s1ap_id_ue_context_htbl);
-        obj_hashtable_ts_destroy (mme_app_desc.mme_ue_contexts.guti_ue_context_htbl);
-        itti_exit_task ();
-      }
-      break;
-
-    case S1AP_UE_CAPABILITIES_IND:{
-        mme_app_handle_s1ap_ue_capabilities_ind (&received_message_p->ittiMsg.s1ap_ue_cap_ind);
-      }
-      break;
-
-    case S1AP_UE_CONTEXT_RELEASE_REQ:{
-        mme_app_handle_s1ap_ue_context_release_req (&received_message_p->ittiMsg.s1ap_ue_context_release_req);
-      }
-      break;
-
-    case S1AP_UE_CONTEXT_RELEASE_COMPLETE:{
-        mme_app_handle_s1ap_ue_context_release_complete (&received_message_p->ittiMsg.s1ap_ue_context_release_complete);
-      }
-      break;
-
-    case NAS_DOWNLINK_DATA_REQ: {
-        mme_app_handle_nas_dl_req (&received_message_p->ittiMsg.nas_dl_data_req);
-      }
-      break;
-
-    case S1AP_ENB_DEREGISTERED_IND: {
-        mme_app_handle_enb_deregister_ind(&received_message_p->ittiMsg.s1ap_eNB_deregistered_ind);
-    }
-    break;
-
-    default:{
-        OAILOG_DEBUG (LOG_MME_APP, "Unkwnon message ID %d:%s\n", ITTI_MSG_ID (received_message_p), ITTI_MSG_NAME (received_message_p));
+   default:{
+      OAILOG_DEBUG (LOG_MME_APP, "Unkwnon message ID %d:%s\n", ITTI_MSG_ID (received_message_p), ITTI_MSG_NAME (received_message_p));
         AssertFatal (0, "Unkwnon message ID %d:%s\n", ITTI_MSG_ID (received_message_p), ITTI_MSG_NAME (received_message_p));
       }
       break;
     }
 
+    itti_free_msg_content(received_message_p);
     itti_free (ITTI_MSG_ORIGIN_ID (received_message_p), received_message_p);
     received_message_p = NULL;
   }
@@ -213,30 +286,32 @@ void *mme_app_thread (
   return NULL;
 }
 
-int
-mme_app_init (
-  const mme_config_t * mme_config_p)
+//------------------------------------------------------------------------------
+int mme_app_init (const mme_config_t * mme_config_p)
 {
   OAILOG_FUNC_IN (LOG_MME_APP);
   memset (&mme_app_desc, 0, sizeof (mme_app_desc));
   pthread_rwlock_init (&mme_app_desc.rw_lock, NULL);
   bstring b = bfromcstr("mme_app_imsi_ue_context_htbl");
-  mme_app_desc.mme_ue_contexts.imsi_ue_context_htbl = hashtable_ts_create (mme_config.max_ues, NULL, hash_free_int_func, b);
+  mme_app_desc.mme_ue_contexts.imsi_ue_context_htbl = hashtable_uint64_ts_create (mme_config.max_ues, NULL, b);
   btrunc(b, 0);
   bassigncstr(b, "mme_app_tun11_ue_context_htbl");
-  mme_app_desc.mme_ue_contexts.tun11_ue_context_htbl = hashtable_ts_create (mme_config.max_ues, NULL, hash_free_int_func, b);
+  mme_app_desc.mme_ue_contexts.tun11_ue_context_htbl = hashtable_uint64_ts_create (mme_config.max_ues, NULL, b);
   AssertFatal(sizeof(uintptr_t) >= sizeof(uint64_t), "Problem with mme_ue_s1ap_id_ue_context_htbl in MME_APP");
   btrunc(b, 0);
   bassigncstr(b, "mme_app_mme_ue_s1ap_id_ue_context_htbl");
   mme_app_desc.mme_ue_contexts.mme_ue_s1ap_id_ue_context_htbl = hashtable_ts_create (mme_config.max_ues, NULL, NULL, b);
   btrunc(b, 0);
   bassigncstr(b, "mme_app_enb_ue_s1ap_id_ue_context_htbl");
-  mme_app_desc.mme_ue_contexts.enb_ue_s1ap_id_ue_context_htbl = hashtable_ts_create (mme_config.max_ues, NULL, hash_free_int_func, b);
+  mme_app_desc.mme_ue_contexts.enb_ue_s1ap_id_ue_context_htbl = hashtable_uint64_ts_create (mme_config.max_ues, NULL, b);
   btrunc(b, 0);
   bassigncstr(b, "mme_app_guti_ue_context_htbl");
-  mme_app_desc.mme_ue_contexts.guti_ue_context_htbl = obj_hashtable_ts_create (mme_config.max_ues, NULL, hash_free_int_func, hash_free_int_func, b);
-  bdestroy(b);
+  mme_app_desc.mme_ue_contexts.guti_ue_context_htbl = obj_hashtable_uint64_ts_create (mme_config.max_ues, NULL, NULL, b);
+  bdestroy_wrapper (&b);
 
+  if (mme_app_edns_init(mme_config_p)) {
+    OAILOG_FUNC_RETURN (LOG_MME_APP, RETURNerror);
+  }
   /*
    * Create the thread associated with MME applicative layer
    */
@@ -257,4 +332,17 @@ mme_app_init (
 
   OAILOG_DEBUG (LOG_MME_APP, "Initializing MME applicative layer: DONE\n");
   OAILOG_FUNC_RETURN (LOG_MME_APP, RETURNok);
+}
+
+//------------------------------------------------------------------------------
+void mme_app_exit (void)
+{
+  timer_remove(mme_app_desc.statistic_timer_id, NULL);
+  mme_app_edns_exit();
+  hashtable_uint64_ts_destroy (mme_app_desc.mme_ue_contexts.imsi_ue_context_htbl);
+  hashtable_uint64_ts_destroy (mme_app_desc.mme_ue_contexts.tun11_ue_context_htbl);
+  hashtable_ts_destroy (mme_app_desc.mme_ue_contexts.mme_ue_s1ap_id_ue_context_htbl);
+  hashtable_uint64_ts_destroy (mme_app_desc.mme_ue_contexts.enb_ue_s1ap_id_ue_context_htbl);
+  obj_hashtable_uint64_ts_destroy (mme_app_desc.mme_ue_contexts.guti_ue_context_htbl);
+  mme_config_exit();
 }

@@ -41,7 +41,6 @@ function help()
   echo_error "Mandatory arguments to long options are mandatory for short options too."
   echo_error "  -c, --clean                               Clean the build generated files: config, object, executable files (build from scratch)"
   echo_error "  -D, --daemon                              Build S/P-GW as a daemon."
-  echo_error "  -e, --enbrains                            Compile with ENBRAINS support."
   echo_error "  -f, --force                               No interactive script for installation of software packages."
   echo_error "  -h, --help                                Print this help."
   echo_error "  -i, --check-installed-software            Check installed software packages necessary to build and run S/P-GW (support $SUPPORTED_DISTRO)."
@@ -74,11 +73,6 @@ function main()
         echo "Build S/P-GW as a daemon"
         shift;
         ;;
-      -e | --enbrains)
-        cmake_args="$cmake_args -DENBRAINS=1"
-        echo "Compile with ENBRAINS support"
-        shift;
-        ;;        
       -f | --force)
         force=1
         echo "Force set (no interactive)"
@@ -156,7 +150,7 @@ function main()
   cd ./build
   $CMAKE $cmake_args .. > /dev/null
   
-  compilations spgw spgw spgw
+  compilations spgw spgw spgw $verbose
   if [ $daemon -ne 0 ]; then
     # TODO /usr/sbin ?
     $SUDO cp -upv $OPENAIRCN_DIR/build/spgw/build/spgw /usr/sbin/spgwd && echo_success "spgwd installed"

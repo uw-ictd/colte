@@ -19,20 +19,17 @@
  *      contact@openairinterface.org
  */
 
-#ifndef EPS_BEARER_CONTEXT_STATUS_H_
-#define EPS_BEARER_CONTEXT_STATUS_H_
-#include <stdint.h>
+#ifndef EPS_BEARER_CONTEXT_STATUS_SEEN
+#define EPS_BEARER_CONTEXT_STATUS_SEEN
 
 #define EPS_BEARER_CONTEXT_STATUS_MINIMUM_LENGTH 4
 #define EPS_BEARER_CONTEXT_STATUS_MAXIMUM_LENGTH 4
 
-typedef uint16_t EpsBearerContextStatus;
+typedef uint16_t eps_bearer_context_status_t;
 
-int encode_eps_bearer_context_status(EpsBearerContextStatus *epsbearercontextstatus, uint8_t iei, uint8_t *buffer, uint32_t len);
+int encode_eps_bearer_context_status(eps_bearer_context_status_t *epsbearercontextstatus, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-int decode_eps_bearer_context_status(EpsBearerContextStatus *epsbearercontextstatus, uint8_t iei, uint8_t *buffer, uint32_t len);
+int decode_eps_bearer_context_status(eps_bearer_context_status_t *epsbearercontextstatus, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_eps_bearer_context_status_xml(EpsBearerContextStatus *epsbearercontextstatus, uint8_t iei);
-
-#endif /* EPS BEARER CONTEXT STATUS_H_ */
+#endif /* EPS_BEARER_CONTEXT_STATUS_SEEN */
 

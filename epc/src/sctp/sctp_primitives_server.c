@@ -22,7 +22,7 @@
 
 /*! \file sctp_primitives_server.c
     \brief Main server primitives
-    \author Sebastien ROUX
+    \author Sebastien ROUX, Lionel GAUTHIER
     \date 2013
     \version 1.0
     @ingroup _sctp
@@ -45,6 +45,7 @@
 #include "log.h"
 #include "msc.h"
 #include "intertask_interface.h"
+#include "itti_free_defined_msg.h"
 #include "sctp_primitives_server.h"
 #include "conversions.h"
 #include "sctp_common.h"
@@ -324,11 +325,13 @@ static int sctp_create_new_listener (SctpInit * init_p)
     OAILOG_DEBUG (LOG_SCTP, "ipv4 addresses:\n");
 
     for (i = 0; i < init_p->nb_ipv4_addr; i++) {
-      OAILOG_DEBUG (LOG_SCTP, "\t- " IPV4_ADDR "\n", IPV4_ADDR_FORMAT (init_p->ipv4_address[i]));
       ip4_addr = (struct sockaddr_in *)&addr[i];
       ip4_addr->sin_family = AF_INET;
       ip4_addr->sin_port = htons (init_p->port);
-      ip4_addr->sin_addr.s_addr = init_p->ipv4_address[i];
+      ip4_addr->sin_addr.s_addr = init_p->ipv4_address[i].s_addr;
+      char ipv4[INET_ADDRSTRLEN];
+      inet_ntop (AF_INET, (void*)&ip4_addr->sin_addr.s_addr, ipv4, INET_ADDRSTRLEN);
+      OAILOG_DEBUG (LOG_SCTP, "\t- %s\n", ipv4);
     }
   }
 
@@ -338,14 +341,14 @@ static int sctp_create_new_listener (SctpInit * init_p)
     OAILOG_DEBUG (LOG_SCTP, "ipv6 addresses:\n");
 
     for (j = 0; j < init_p->nb_ipv6_addr; j++) {
-      OAILOG_DEBUG (LOG_SCTP, "\t- %s\n", init_p->ipv6_address[j]);
+      char ipv6[INET6_ADDRSTRLEN];
+      inet_ntop (AF_INET6, (void*)&init_p->ipv6_address[j], ipv6, INET6_ADDRSTRLEN);
+      OAILOG_DEBUG (LOG_SCTP, "\t- %s\n", ipv6);
       ip6_addr = (struct sockaddr_in6 *)&addr[i + j];
       ip6_addr->sin6_family = AF_INET6;
       ip6_addr->sin6_port = htons (init_p->port);
 
-      if (inet_pton (AF_INET6, init_p->ipv6_address[j], ip6_addr->sin6_addr.s6_addr) <= 0) {
-        OAILOG_WARNING (LOG_SCTP, "Provided ipv6 address %s is not valid\n", init_p->ipv6_address[j]);
-      }
+      ip6_addr->sin6_addr = init_p->ipv6_address[j];
     }
   }
 
@@ -539,7 +542,6 @@ void *sctp_receiver_thread (void *args_p)
   memcpy(&sctp_arg_p, args_p, sizeof sctp_arg_p);
   free_wrapper (&args_p);
 
-
   /*
    * clear the master and temp sets
    */
@@ -547,8 +549,6 @@ void *sctp_receiver_thread (void *args_p)
   FD_ZERO (&read_fds);
   FD_SET (sctp_arg_p.sd, &master);
   fdmax = sctp_arg_p.sd;       /* so far, it's this one */
-  OAILOG_START_USE ();
-  MSC_START_USE ();
 
   while (1) {
     memcpy (&read_fds, &master, sizeof (master));
@@ -556,6 +556,7 @@ void *sctp_receiver_thread (void *args_p)
     if (select (fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
       OAILOG_ERROR (LOG_SCTP, "[%d] Select() error: %s\n", sctp_arg_p.sd, strerror (errno));
       free_wrapper ((void**) &args_p);
+      close(sctp_arg_p.sd);
       args_p = NULL;
       pthread_exit (NULL);
     }
@@ -570,6 +571,7 @@ void *sctp_receiver_thread (void *args_p)
           if ((clientsock = accept (sctp_arg_p.sd, NULL, NULL)) < 0) {
             OAILOG_ERROR (LOG_SCTP, "[%d] accept: %s:%d\n", sctp_arg_p.sd, strerror (errno), errno);
             free_wrapper ((void**) &args_p);
+            close(sctp_arg_p.sd);
             args_p = NULL;
             pthread_exit (NULL);
           } else {
@@ -618,9 +620,8 @@ void *sctp_receiver_thread (void *args_p)
 static void * sctp_intertask_interface (
     __attribute__ ((unused)) void *args_p)
 {
+  int sctp_sd = -1;
   itti_mark_task_ready (TASK_SCTP);
-  OAILOG_START_USE ();
-  MSC_START_USE ();
 
   while (1) {
     MessageDef                             *received_message_p = NULL;
@@ -634,7 +635,7 @@ static void * sctp_intertask_interface (
         /*
          * We received a new connection request
          */
-        if (sctp_create_new_listener (&received_message_p->ittiMsg.sctpInit) < 0) {
+        if ((sctp_sd = sctp_create_new_listener (&received_message_p->ittiMsg.sctpInit)) < 0) {
           /*
            * SCTP socket creation or bind failed...
            * Die as this MME is not going to be useful.
@@ -671,13 +672,15 @@ static void * sctp_intertask_interface (
       break;
 
     case MESSAGE_TEST:{
-        //                 int i = 10000;
-        //                 while(i--);
+        OAI_FPRINTF_INFO("TASK_SCTP received MESSAGE_TEST\n");
       }
       break;
 
     case TERMINATE_MESSAGE:{
+        close(sctp_sd);
         sctp_exit();
+        itti_free_msg_content(received_message_p);
+        itti_free (ITTI_MSG_ORIGIN_ID (received_message_p), received_message_p);
         itti_exit_task ();
       }
       break;
@@ -688,6 +691,7 @@ static void * sctp_intertask_interface (
       break;
     }
 
+    itti_free_msg_content(received_message_p);
     itti_free (ITTI_MSG_ORIGIN_ID (received_message_p), received_message_p);
     received_message_p = NULL;
   }
@@ -778,10 +782,10 @@ int sctp_init (const mme_config_t * mme_config_p)
 //------------------------------------------------------------------------------
 static void sctp_exit (void)
 {
+
   int rv = pthread_cancel(assoc_thread);
   pthread_join(assoc_thread, NULL);
   if (rv) OAILOG_DEBUG (LOG_SCTP, "pthread_cancel(%08lX) failed: %d:%s\n", assoc_thread, rv, strerror(rv));;
-
 
   sctp_association_t              *sctp_assoc_p = sctp_desc.available_connections_head;
   sctp_association_t              *next_sctp_assoc_p = sctp_desc.available_connections_head;
@@ -789,10 +793,12 @@ static void sctp_exit (void)
   while (next_sctp_assoc_p) {
     next_sctp_assoc_p = sctp_assoc_p->next_assoc;
     if (sctp_assoc_p->peer_addresses) {
+      close(sctp_assoc_p->sd);
       rv = sctp_freepaddrs(sctp_assoc_p->peer_addresses);
       if (rv) OAILOG_DEBUG (LOG_SCTP, "sctp_freepaddrs(%p) failed\n", sctp_assoc_p->peer_addresses);
     }
     free_wrapper ((void**) &sctp_assoc_p);
     sctp_desc.number_of_connections--;
   }
+  OAI_FPRINTF_INFO("TASK_SCTP terminated\n");
 }

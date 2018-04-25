@@ -27,6 +27,12 @@
  * either expressed or implied, of the FreeBSD Project.
  */
 
+/*! \file pid_file.c
+   \brief
+   \author  Lionel GAUTHIER
+   \date 2016
+   \email: lionel.gauthier@eurecom.fr
+*/
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -35,6 +41,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <libgen.h>
+
+#include "bstrlib.h"
 
 #include "pid_file.h"
 #include "dynamic_memory_check.h"

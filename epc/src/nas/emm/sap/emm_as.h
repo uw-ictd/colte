@@ -60,6 +60,6 @@ Description Defines the EMMAS Service Access Point that provides
 
 void emm_as_initialize(void);
 
-int emm_as_send(const emm_as_t *msg);
+int emm_as_send(emm_as_t *msg);
 
 #endif /* FILE_EMM_AS_SEEN*/

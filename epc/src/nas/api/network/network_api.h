@@ -39,7 +39,7 @@ Description Implements the API used by the NAS layer to send/receive
 *****************************************************************************/
 #ifndef FILE_NETWORK_API_SEEN
 #define FILE_NETWORK_API_SEEN
-#include <stddef.h>
+
 /****************************************************************************/
 /*********************  G L O B A L    C O N S T A N T S  *******************/
 /****************************************************************************/

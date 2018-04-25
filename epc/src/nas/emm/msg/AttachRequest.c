@@ -23,8 +23,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "msc.h"
+#include "assertions.h"
+#include "conversions.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "AttachRequest.h"
@@ -35,7 +41,8 @@ decode_attach_request (
   uint8_t * buffer,
   uint32_t len)
 {
-  uint32_t                                decoded = 0;
+  OAILOG_FUNC_IN (LOG_NAS_EMM);
+  int                                     decoded = 0;
   int                                     decoded_result = 0;
 
   // Check if we got a NULL pointer and if buffer length is >= minimum length expected for the message.
@@ -50,23 +57,23 @@ decode_attach_request (
   }
 
   if ((decoded_result = decode_u8_nas_key_set_identifier (&attach_request->naskeysetidentifier, 0, *(buffer + decoded) >> 4, len - decoded)) < 0) {
-    return decoded_result;
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
   }
 
   decoded++;
 
   if ((decoded_result = decode_eps_mobile_identity (&attach_request->oldgutiorimsi, 0, buffer + decoded, len - decoded)) < 0) {
-    return decoded_result;
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
   } else
     decoded += decoded_result;
 
   if ((decoded_result = decode_ue_network_capability (&attach_request->uenetworkcapability, 0, buffer + decoded, len - decoded)) < 0) {
-    return decoded_result;
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
   } else
     decoded += decoded_result;
 
   if ((decoded_result = decode_esm_message_container (&attach_request->esmmessagecontainer, 0, buffer + decoded, len - decoded)) < 0) {
-    return decoded_result;
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
   } else
     decoded += decoded_result;
 
@@ -84,8 +91,8 @@ decode_attach_request (
 
     switch (ieiDecoded) {
     case ATTACH_REQUEST_OLD_PTMSI_SIGNATURE_IEI:
-      if ((decoded_result = decode_p_tmsi_signature (&attach_request->oldptmsisignature, ATTACH_REQUEST_OLD_PTMSI_SIGNATURE_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+      if ((decoded_result = decode_p_tmsi_signature_ie (&attach_request->oldptmsisignature, true, buffer + decoded, len - decoded)) <= 0) {
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -97,7 +104,7 @@ decode_attach_request (
 
     case ATTACH_REQUEST_ADDITIONAL_GUTI_IEI:
       if ((decoded_result = decode_eps_mobile_identity (&attach_request->additionalguti, ATTACH_REQUEST_ADDITIONAL_GUTI_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -109,7 +116,7 @@ decode_attach_request (
 
     case ATTACH_REQUEST_LAST_VISITED_REGISTERED_TAI_IEI:
       if ((decoded_result = decode_tracking_area_identity (&attach_request->lastvisitedregisteredtai, ATTACH_REQUEST_LAST_VISITED_REGISTERED_TAI_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -120,8 +127,8 @@ decode_attach_request (
       break;
 
     case ATTACH_REQUEST_DRX_PARAMETER_IEI:
-      if ((decoded_result = decode_drx_parameter (&attach_request->drxparameter, ATTACH_REQUEST_DRX_PARAMETER_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+      if ((decoded_result = decode_drx_parameter_ie (&attach_request->drxparameter, true, buffer + decoded, len - decoded)) <= 0) {
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -132,8 +139,8 @@ decode_attach_request (
       break;
 
     case ATTACH_REQUEST_MS_NETWORK_CAPABILITY_IEI:
-      if ((decoded_result = decode_ms_network_capability (&attach_request->msnetworkcapability, ATTACH_REQUEST_MS_NETWORK_CAPABILITY_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+      if ((decoded_result = decode_ms_network_capability_ie (&attach_request->msnetworkcapability, true, buffer + decoded, len - decoded)) <= 0) {
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -144,8 +151,8 @@ decode_attach_request (
       break;
 
     case ATTACH_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_IEI:
-      if ((decoded_result = decode_location_area_identification (&attach_request->oldlocationareaidentification, ATTACH_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+      if ((decoded_result = decode_location_area_identification_ie (&attach_request->oldlocationareaidentification, true, buffer + decoded, len - decoded)) <= 0) {
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -156,8 +163,8 @@ decode_attach_request (
       break;
 
     case ATTACH_REQUEST_TMSI_STATUS_IEI:
-      if ((decoded_result = decode_tmsi_status (&attach_request->tmsistatus, ATTACH_REQUEST_TMSI_STATUS_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+      if ((decoded_result = decode_tmsi_status (&attach_request->tmsistatus, true, buffer + decoded, len - decoded)) <= 0) {
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -168,8 +175,8 @@ decode_attach_request (
       break;
 
     case ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_2_IEI:
-      if ((decoded_result = decode_mobile_station_classmark_2 (&attach_request->mobilestationclassmark2, ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_2_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+      if ((decoded_result = decode_mobile_station_classmark_2_ie (&attach_request->mobilestationclassmark2, true, buffer + decoded, len - decoded)) <= 0) {
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -180,8 +187,8 @@ decode_attach_request (
       break;
 
     case ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_3_IEI:
-      if ((decoded_result = decode_mobile_station_classmark_3 (&attach_request->mobilestationclassmark3, ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_3_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+      if ((decoded_result = decode_mobile_station_classmark_3_ie (&attach_request->mobilestationclassmark3, true, buffer + decoded, len - decoded)) <= 0) {
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -192,8 +199,8 @@ decode_attach_request (
       break;
 
     case ATTACH_REQUEST_SUPPORTED_CODECS_IEI:
-      if ((decoded_result = decode_supported_codec_list (&attach_request->supportedcodecs, ATTACH_REQUEST_SUPPORTED_CODECS_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+      if ((decoded_result = decode_supported_codec_list (&attach_request->supportedcodecs, true, buffer + decoded, len - decoded)) <= 0) {
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -205,7 +212,7 @@ decode_attach_request (
 
     case ATTACH_REQUEST_ADDITIONAL_UPDATE_TYPE_IEI:
       if ((decoded_result = decode_additional_update_type (&attach_request->additionalupdatetype, ATTACH_REQUEST_ADDITIONAL_UPDATE_TYPE_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -217,7 +224,7 @@ decode_attach_request (
 
     case ATTACH_REQUEST_OLD_GUTI_TYPE_IEI:
       if ((decoded_result = decode_guti_type (&attach_request->oldgutitype, ATTACH_REQUEST_OLD_GUTI_TYPE_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -229,8 +236,8 @@ decode_attach_request (
 
     case ATTACH_REQUEST_VOICE_DOMAIN_PREFERENCE_AND_UE_USAGE_SETTING_IEI:
       if ((decoded_result =
-           decode_voice_domain_preference_and_ue_usage_setting (&attach_request->voicedomainpreferenceandueusagesetting, ATTACH_REQUEST_VOICE_DOMAIN_PREFERENCE_AND_UE_USAGE_SETTING_IEI, buffer + decoded, len - decoded)) <= 0) {
-        return decoded_result;
+           decode_voice_domain_preference_and_ue_usage_setting (&attach_request->voicedomainpreferenceandueusagesetting, true, buffer + decoded, len - decoded)) <= 0) {
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded_result);
       }
 
       decoded += decoded_result;
@@ -242,7 +249,7 @@ decode_attach_request (
 
     case ATTACH_REQUEST_MS_NETWORK_FEATURE_SUPPORT_IEI: 
       if ((decoded_result =
-        decode_ms_network_feature_support(&attach_request->msnetworkfeaturesupport,
+        decode_ms_network_feature_support_ie (&attach_request->msnetworkfeaturesupport,
             ATTACH_REQUEST_MS_NETWORK_FEATURE_SUPPORT_IEI,
             buffer + decoded, len - decoded)) <= 0) {
         //         return decoded_result;
@@ -256,12 +263,12 @@ decode_attach_request (
     default:
       errorCodeDecoder = TLV_UNEXPECTED_IEI;
       {
-        return TLV_UNEXPECTED_IEI;
+        OAILOG_FUNC_RETURN (LOG_NAS_EMM, TLV_UNEXPECTED_IEI);
       }
     }
   }
 
-  return decoded;
+  OAILOG_FUNC_RETURN (LOG_NAS_EMM, decoded);
 }
 
 int
@@ -297,7 +304,7 @@ encode_attach_request (
 
   if ((attach_request->presencemask & ATTACH_REQUEST_OLD_PTMSI_SIGNATURE_PRESENT)
       == ATTACH_REQUEST_OLD_PTMSI_SIGNATURE_PRESENT) {
-    if ((encode_result = encode_p_tmsi_signature (attach_request->oldptmsisignature, ATTACH_REQUEST_OLD_PTMSI_SIGNATURE_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_p_tmsi_signature_ie (attach_request->oldptmsisignature, ATTACH_REQUEST_OLD_PTMSI_SIGNATURE_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -324,7 +331,7 @@ encode_attach_request (
 
   if ((attach_request->presencemask & ATTACH_REQUEST_DRX_PARAMETER_PRESENT)
       == ATTACH_REQUEST_DRX_PARAMETER_PRESENT) {
-    if ((encode_result = encode_drx_parameter (&attach_request->drxparameter, ATTACH_REQUEST_DRX_PARAMETER_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_drx_parameter_ie (&attach_request->drxparameter, ATTACH_REQUEST_DRX_PARAMETER_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -333,7 +340,7 @@ encode_attach_request (
 
   if ((attach_request->presencemask & ATTACH_REQUEST_MS_NETWORK_CAPABILITY_PRESENT)
       == ATTACH_REQUEST_MS_NETWORK_CAPABILITY_PRESENT) {
-    if ((encode_result = encode_ms_network_capability (&attach_request->msnetworkcapability, ATTACH_REQUEST_MS_NETWORK_CAPABILITY_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_ms_network_capability_ie (&attach_request->msnetworkcapability, ATTACH_REQUEST_MS_NETWORK_CAPABILITY_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -342,7 +349,7 @@ encode_attach_request (
 
   if ((attach_request->presencemask & ATTACH_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_PRESENT)
       == ATTACH_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_PRESENT) {
-    if ((encode_result = encode_location_area_identification (&attach_request->oldlocationareaidentification, ATTACH_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_location_area_identification_ie (&attach_request->oldlocationareaidentification, ATTACH_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -361,7 +368,7 @@ encode_attach_request (
 
   if ((attach_request->presencemask & ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_2_PRESENT)
       == ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_2_PRESENT) {
-    if ((encode_result = encode_mobile_station_classmark_2 (&attach_request->mobilestationclassmark2, ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_2_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_mobile_station_classmark_2_ie (&attach_request->mobilestationclassmark2, ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_2_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -370,7 +377,7 @@ encode_attach_request (
 
   if ((attach_request->presencemask & ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_3_PRESENT)
       == ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_3_PRESENT) {
-    if ((encode_result = encode_mobile_station_classmark_3 (&attach_request->mobilestationclassmark3, ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_3_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_mobile_station_classmark_3_ie (&attach_request->mobilestationclassmark3, ATTACH_REQUEST_MOBILE_STATION_CLASSMARK_3_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -406,7 +413,7 @@ encode_attach_request (
 
   if ((attach_request->presencemask & ATTACH_REQUEST_VOICE_DOMAIN_PREFERENCE_AND_UE_USAGE_SETTING_PRESENT)
       == ATTACH_REQUEST_VOICE_DOMAIN_PREFERENCE_AND_UE_USAGE_SETTING_PRESENT) {
-    if ((encode_result = encode_voice_domain_preference_and_ue_usage_setting (&attach_request->voicedomainpreferenceandueusagesetting, ATTACH_REQUEST_VOICE_DOMAIN_PREFERENCE_AND_UE_USAGE_SETTING_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_voice_domain_preference_and_ue_usage_setting (&attach_request->voicedomainpreferenceandueusagesetting, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -416,7 +423,7 @@ encode_attach_request (
   if ((attach_request->presencemask & ATTACH_REQUEST_MS_NETWORK_FEATURE_SUPPORT_PRESENT)
       == ATTACH_REQUEST_MS_NETWORK_FEATURE_SUPPORT_PRESENT) {
     if ((encode_result =
-	 encode_ms_network_feature_support(&attach_request->msnetworkfeaturesupport,
+	 encode_ms_network_feature_support_ie (&attach_request->msnetworkfeaturesupport,
 					   ATTACH_REQUEST_MS_NETWORK_FEATURE_SUPPORT_IEI, 
 					   buffer + encoded, 
 					   len -  encoded)) < 0)

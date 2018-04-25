@@ -6,7 +6,7 @@ if [ -z "$COLTENV" ]; then
 fi
 
 if [ $COLTE_EPC == 1 ]; then
-	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/develop_epc/install_scripts/debian-9.4.yml
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/epc/install_scripts/debian-9.4.yml
 fi
 
 if [ $COLTE_ENBRAINS == 1 ]; then

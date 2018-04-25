@@ -27,18 +27,18 @@
 typedef struct {
   uint32_t        hSocket;
   NwEventT      ev;
-  NwGtpv2cStackHandleT hGtpv2cStack;
+  nw_gtpv2c_StackHandleT hGtpv2cStack;
 } NwGtpv2cNodeUdpT;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-NwRcT nwGtpv2cUdpInit(NwGtpv2cNodeUdpT* thiz, NwGtpv2cStackHandleT hGtpv2cStack, uint8_t* ipv4Addr);
+nw_rc_t nwGtpv2cUdpInit(NwGtpv2cNodeUdpT* thiz, nw_gtpv2c_StackHandleT hGtpv2cStack, uint8_t* ipv4Addr);
 
-NwRcT nwGtpv2cUdpDestroy(NwGtpv2cNodeUdpT* thiz);
+nw_rc_t nwGtpv2cUdpDestroy(NwGtpv2cNodeUdpT* thiz);
 
-NwRcT nwGtpv2cUdpDataReq(NwGtpv2cUdpHandleT udpHandle,
+nw_rc_t nwGtpv2cUdpDataReq(nw_gtpv2c_UdpHandleT udpHandle,
                          uint8_t* dataBuf,
                          uint32_t dataSize,
                          uint32_t peerIp,

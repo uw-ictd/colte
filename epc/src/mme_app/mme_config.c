@@ -28,6 +28,12 @@
  */
 
 
+/*! \file mme_config.c
+  \brief
+  \author Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 #if HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -38,17 +44,25 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
-#include <libconfig.h>
-
+#include <errno.h>
 #include <arpa/inet.h>          /* To provide inet_addr */
+#include <pthread.h>
+
+#include <libconfig.h>
 
 #include "assertions.h"
 #include "dynamic_memory_check.h"
 #include "log.h"
+#include "msc.h"
 #include "intertask_interface.h"
+#include "common_types.h"
+#include "common_defs.h"
+#include "mme_config.h"
 #include "spgw_config.h"
+#include "3gpp_33.401.h"
+#include "intertask_interface_conf.h"
 
-mme_config_t                            mme_config = {.rw_lock = PTHREAD_RWLOCK_INITIALIZER, 0};
+struct mme_config_s                       mme_config = {.rw_lock = PTHREAD_RWLOCK_INITIALIZER, 0};
 
 //------------------------------------------------------------------------------
 int mme_config_find_mnc_length (
@@ -104,14 +118,15 @@ static void mme_config_init (mme_config_t * config_pP)
   config_pP->log_config.spgw_app_log_level = MAX_LOG_LEVEL;
   config_pP->log_config.s11_log_level      = MAX_LOG_LEVEL;
   config_pP->log_config.s6a_log_level      = MAX_LOG_LEVEL;
+  config_pP->log_config.secu_log_level     = MAX_LOG_LEVEL;
   config_pP->log_config.util_log_level     = MAX_LOG_LEVEL;
   config_pP->log_config.msc_log_level      = MAX_LOG_LEVEL;
   config_pP->log_config.itti_log_level     = MAX_LOG_LEVEL;
 
   config_pP->log_config.asn1_verbosity_level = 0;
   config_pP->config_file = NULL;
-  config_pP->max_enbs = 2;
-  config_pP->max_ues = 2;
+  config_pP->max_enbs    = 2;
+  config_pP->max_ues     = 2;
   config_pP->unauthenticated_imsi_supported = 0;
   /*
    * EPS network feature support
@@ -126,11 +141,10 @@ static void mme_config_init (mme_config_t * config_pP)
    * IP configuration
    */
   config_pP->ipv4.if_name_s1_mme = NULL;
-  config_pP->ipv4.s1_mme = 0;
+  config_pP->ipv4.s1_mme.s_addr = INADDR_ANY;
   config_pP->ipv4.if_name_s11 = NULL;
-  config_pP->ipv4.s11 = 0;
+  config_pP->ipv4.s11.s_addr = INADDR_ANY;
   config_pP->ipv4.port_s11 = 2123;
-  config_pP->ipv4.sgw_s11 = 0;
   config_pP->s6a_config.conf_file = bfromcstr(S6A_CONF_FILE);
   config_pP->itti_config.queue_size = ITTI_QUEUE_MAX_ELEMENTS;
   config_pP->itti_config.log_file = NULL;
@@ -148,6 +162,19 @@ static void mme_config_init (mme_config_t * config_pP)
   config_pP->gummei.gummei[0].plmn.mcc_digit2 = 1;
   config_pP->gummei.gummei[0].plmn.mcc_digit3 = 0x0F;
 
+  config_pP->nas_config.t3402_min = T3402_DEFAULT_VALUE;
+  config_pP->nas_config.t3412_min = T3412_DEFAULT_VALUE;
+  config_pP->nas_config.t3422_sec = T3422_DEFAULT_VALUE;
+  config_pP->nas_config.t3450_sec = T3450_DEFAULT_VALUE;
+  config_pP->nas_config.t3460_sec = T3460_DEFAULT_VALUE;
+  config_pP->nas_config.t3470_sec = T3470_DEFAULT_VALUE;
+  config_pP->nas_config.t3485_sec = T3485_DEFAULT_VALUE;
+  config_pP->nas_config.t3486_sec = T3486_DEFAULT_VALUE;
+  config_pP->nas_config.t3489_sec = T3489_DEFAULT_VALUE;
+  config_pP->nas_config.t3495_sec = T3495_DEFAULT_VALUE;
+  config_pP->nas_config.force_reject_tau = true;
+  config_pP->nas_config.force_reject_sr  = true;
+  config_pP->nas_config.disable_esm_information = false;
   /*
    * Set the TAI
    */
@@ -163,7 +190,32 @@ static void mme_config_init (mme_config_t * config_pP)
   config_pP->s1ap_config.outcome_drop_timer_sec = S1AP_OUTCOME_TIMER_DEFAULT;
 }
 
+//------------------------------------------------------------------------------
+void mme_config_exit (void)
+{
+  pthread_rwlock_destroy (&mme_config.rw_lock);
+  bdestroy_wrapper(&mme_config.log_config.output);
+  bdestroy_wrapper(&mme_config.realm);
+  bdestroy_wrapper(&mme_config.config_file);
 
+  /*
+   * IP configuration
+   */
+  bdestroy_wrapper(&mme_config.ipv4.if_name_s1_mme);
+  bdestroy_wrapper(&mme_config.ipv4.if_name_s11);
+  bdestroy_wrapper(&mme_config.s6a_config.conf_file);
+  bdestroy_wrapper(&mme_config.s6a_config.hss_host_name);
+  bdestroy_wrapper(&mme_config.itti_config.log_file);
+
+  free_wrapper((void**)&mme_config.served_tai.plmn_mcc);
+  free_wrapper((void**)&mme_config.served_tai.plmn_mnc);
+  free_wrapper((void**)&mme_config.served_tai.plmn_mnc_len);
+  free_wrapper((void**)&mme_config.served_tai.tac);
+
+  for (int i = 0; i < mme_config.e_dns_emulation.nb_sgw_entries; i++) {
+    bdestroy_wrapper(&mme_config.e_dns_emulation.sgw_id[i]);
+  }
+}
 //------------------------------------------------------------------------------
 static int mme_config_parse_file (mme_config_t * config_pP)
 {
@@ -237,7 +289,7 @@ static int mme_config_parse_file (mme_config_t * config_pP)
       }
 
       if (config_setting_lookup_string (setting, LOG_CONFIG_STRING_COLOR, (const char **)&astring)) {
-        if (0 == strcasecmp("true", astring)) config_pP->log_config.color = true;
+        if (0 == strcasecmp("yes", astring)) config_pP->log_config.color = true;
         else config_pP->log_config.color = false;
       }
 
@@ -255,6 +307,8 @@ static int mme_config_parse_file (mme_config_t * config_pP)
 
       if (config_setting_lookup_string (setting, LOG_CONFIG_STRING_S6A_LOG_LEVEL, (const char **)&astring))
         config_pP->log_config.s6a_log_level = OAILOG_LEVEL_STR2INT (astring);
+      if (config_setting_lookup_string (setting, LOG_CONFIG_STRING_SECU_LOG_LEVEL, (const char **)&astring))
+        config_pP->log_config.secu_log_level = OAILOG_LEVEL_STR2INT (astring);
 
       if (config_setting_lookup_string (setting, LOG_CONFIG_STRING_GTPV2C_LOG_LEVEL, (const char **)&astring))
         config_pP->log_config.gtpv2c_log_level = OAILOG_LEVEL_STR2INT (astring);
@@ -287,13 +341,6 @@ static int mme_config_parse_file (mme_config_t * config_pP)
     }
 
     // GENERAL MME SETTINGS
-    if ((config_setting_lookup_string (setting_mme, MME_CONFIG_STRING_RUN_MODE, (const char **)&astring))) {
-      if (strcasecmp (astring, MME_CONFIG_STRING_RUN_MODE_TEST) == 0)
-        config_pP->run_mode = RUN_MODE_TEST;
-      else
-        config_pP->run_mode = RUN_MODE_OTHER;
-    }
-
     if ((config_setting_lookup_string (setting_mme, MME_CONFIG_STRING_REALM, (const char **)&astring))) {
       config_pP->realm = bfromcstr (astring);
     }
@@ -574,12 +621,13 @@ static int mme_config_parse_file (mme_config_t * config_pP)
         AssertFatal(2 == list->qty, "Bad CIDR address %s", bdata(cidr));
         address = list->entry[0];
         mask    = list->entry[1];
-        IPV4_STR_ADDR_TO_INT_NWBO (bdata(address), config_pP->ipv4.s1_mme, "BAD IP ADDRESS FORMAT FOR S1-MME !\n");
+        IPV4_STR_ADDR_TO_INADDR (bdata(address), config_pP->ipv4.s1_mme, "BAD IP ADDRESS FORMAT FOR S1-MME !\n");
         config_pP->ipv4.netmask_s1_mme = atoi ((const char*)mask->data);
         bstrListDestroy(list);
-        in_addr_var.s_addr = config_pP->ipv4.s1_mme;
+        in_addr_var.s_addr = config_pP->ipv4.s1_mme.s_addr;
         OAILOG_INFO (LOG_MME_APP, "Parsing configuration file found S1-MME: %s/%d on %s\n",
                        inet_ntoa (in_addr_var), config_pP->ipv4.netmask_s1_mme, bdata(config_pP->ipv4.if_name_s1_mme));
+        bdestroy_wrapper(&cidr);
 
         config_pP->ipv4.if_name_s11 = bfromcstr(if_name_s11);
         cidr = bfromcstr (s11);
@@ -587,10 +635,11 @@ static int mme_config_parse_file (mme_config_t * config_pP)
         AssertFatal(2 == list->qty, "Bad CIDR address %s", bdata(cidr));
         address = list->entry[0];
         mask    = list->entry[1];
-        IPV4_STR_ADDR_TO_INT_NWBO (bdata(address), config_pP->ipv4.s11, "BAD IP ADDRESS FORMAT FOR S11 !\n");
+        IPV4_STR_ADDR_TO_INADDR (bdata(address), config_pP->ipv4.s11, "BAD IP ADDRESS FORMAT FOR S11 !\n");
         config_pP->ipv4.netmask_s11 = atoi ((const char*)mask->data);
         bstrListDestroy(list);
-        in_addr_var.s_addr = config_pP->ipv4.s11;
+        bdestroy_wrapper(&cidr);
+        in_addr_var.s_addr = config_pP->ipv4.s11.s_addr;
         OAILOG_INFO (LOG_MME_APP, "Parsing configuration file found S11: %s/%d on %s\n",
                        inet_ntoa (in_addr_var), config_pP->ipv4.netmask_s11, bdata(config_pP->ipv4.if_name_s11));
       }
@@ -649,41 +698,90 @@ static int mme_config_parse_file (mme_config_t * config_pP)
         }
       }
       if ((config_setting_lookup_int (setting, MME_CONFIG_STRING_NAS_T3402_TIMER, &aint))) {
-        config_pP->nas_config.t3402_min = (uint8_t) aint;
+        config_pP->nas_config.t3402_min = (uint32_t) aint;
       }
       if ((config_setting_lookup_int (setting, MME_CONFIG_STRING_NAS_T3412_TIMER, &aint))) {
-        config_pP->nas_config.t3412_min = (uint8_t) aint;
+        config_pP->nas_config.t3412_min = (uint32_t) aint;
+      }
+      if ((config_setting_lookup_int (setting, MME_CONFIG_STRING_NAS_T3422_TIMER, &aint))) {
+        config_pP->nas_config.t3422_sec = (uint32_t) aint;
+      }
+      if ((config_setting_lookup_int (setting, MME_CONFIG_STRING_NAS_T3450_TIMER, &aint))) {
+        config_pP->nas_config.t3450_sec = (uint32_t) aint;
+      }
+      if ((config_setting_lookup_int (setting, MME_CONFIG_STRING_NAS_T3460_TIMER, &aint))) {
+        config_pP->nas_config.t3460_sec = (uint32_t) aint;
+      }
+      if ((config_setting_lookup_int (setting, MME_CONFIG_STRING_NAS_T3470_TIMER, &aint))) {
+        config_pP->nas_config.t3470_sec = (uint32_t) aint;
       }
       if ((config_setting_lookup_int (setting, MME_CONFIG_STRING_NAS_T3485_TIMER, &aint))) {
-        config_pP->nas_config.t3485_sec = (uint8_t) aint;
+        config_pP->nas_config.t3485_sec = (uint32_t) aint;
       }
       if ((config_setting_lookup_int (setting, MME_CONFIG_STRING_NAS_T3486_TIMER, &aint))) {
-        config_pP->nas_config.t3486_sec = (uint8_t) aint;
+        config_pP->nas_config.t3486_sec = (uint32_t) aint;
       }
       if ((config_setting_lookup_int (setting, MME_CONFIG_STRING_NAS_T3489_TIMER, &aint))) {
-        config_pP->nas_config.t3489_sec = (uint8_t) aint;
+        config_pP->nas_config.t3489_sec = (uint32_t) aint;
       }
       if ((config_setting_lookup_int (setting, MME_CONFIG_STRING_NAS_T3495_TIMER, &aint))) {
-        config_pP->nas_config.t3495_sec = (uint8_t) aint;
+        config_pP->nas_config.t3495_sec = (uint32_t) aint;
+      }
+      if ((config_setting_lookup_string (setting, MME_CONFIG_STRING_NAS_FORCE_REJECT_TAU, (const char **)&astring))) {
+        if (strcasecmp (astring, "yes") == 0)
+          config_pP->nas_config.force_reject_tau = true;
+        else
+          config_pP->nas_config.force_reject_tau = false;
+      }
+      if ((config_setting_lookup_string (setting, MME_CONFIG_STRING_NAS_FORCE_REJECT_SR, (const char **)&astring))) {
+        if (strcasecmp (astring, "yes") == 0)
+          config_pP->nas_config.force_reject_sr = true;
+        else
+          config_pP->nas_config.force_reject_sr = false;
+      }
+      if ((config_setting_lookup_string (setting, MME_CONFIG_STRING_NAS_DISABLE_ESM_INFORMATION_PROCEDURE, (const char **)&astring))) {
+        if (strcasecmp (astring, "yes") == 0)
+          config_pP->nas_config.disable_esm_information = true;
+        else
+          config_pP->nas_config.disable_esm_information = false;
       }
     }
   }
 
-  setting = config_lookup (&cfg, SGW_CONFIG_STRING_SGW_CONFIG);
 
+  setting = config_setting_get_member (setting_mme, MME_CONFIG_STRING_SGW_LIST_SELECTION);
   if (setting != NULL) {
-    if ((config_setting_lookup_string (setting, SGW_CONFIG_STRING_SGW_IPV4_ADDRESS_FOR_S11, (const char **)&sgw_ip_address_for_s11)
-        )
-      ) {
+    num = config_setting_length (setting);
 
-      cidr = bfromcstr (sgw_ip_address_for_s11);
-      struct bstrList *list = bsplit (cidr, '/');
-      AssertFatal(2 == list->qty, "Bad CIDR address %s", bdata(cidr));
-      address = list->entry[0];
-      IPV4_STR_ADDR_TO_INT_NWBO (bdata(address), config_pP->ipv4.sgw_s11, "BAD IP ADDRESS FORMAT FOR SGW S11 !\n");
-      bstrListDestroy(list);
-      in_addr_var.s_addr = config_pP->ipv4.sgw_s11;
-      OAILOG_INFO (LOG_SPGW_APP, "Parsing configuration file found S-GW S11: %s\n", inet_ntoa (in_addr_var));
+    AssertFatal(num <= MME_CONFIG_MAX_SGW, "Too many SGW entries defined (%d>%d)", num, MME_CONFIG_MAX_SGW);
+
+    config_pP->e_dns_emulation.nb_sgw_entries = 0;
+    for (i = 0; i < num; i++) {
+      sub2setting = config_setting_get_elem (setting, i);
+
+      if (sub2setting != NULL) {
+        const char                             *id = NULL;
+        if (!(config_setting_lookup_string (sub2setting, MME_CONFIG_STRING_ID, &id))) {
+          OAILOG_ERROR (LOG_SPGW_APP, "Could not get SGW ID item %d in %s\n", i, MME_CONFIG_STRING_SGW_LIST_SELECTION);
+          break;
+        }
+        config_pP->e_dns_emulation.sgw_id[i] = bfromcstr(id);
+
+        if ((config_setting_lookup_string (sub2setting, SGW_CONFIG_STRING_SGW_IPV4_ADDRESS_FOR_S11, (const char **)&sgw_ip_address_for_s11)
+            )
+          ) {
+
+          cidr = bfromcstr (sgw_ip_address_for_s11);
+          struct bstrList *list = bsplit (cidr, '/');
+          AssertFatal(2 == list->qty, "Bad CIDR address %s", bdata(cidr));
+          address = list->entry[0];
+          IPV4_STR_ADDR_TO_INADDR (bdata(address), config_pP->e_dns_emulation.sgw_ip_addr[i], "BAD IP ADDRESS FORMAT FOR SGW S11 !\n");
+          bstrListDestroy(list);
+          bdestroy_wrapper(&cidr);
+          OAILOG_INFO (LOG_SPGW_APP, "Parsing configuration file found S-GW S11: %s\n", inet_ntoa (config_pP->e_dns_emulation.sgw_ip_addr[i]));
+        }
+      }
+      config_pP->e_dns_emulation.nb_sgw_entries++;
     }
   }
 
@@ -699,10 +797,24 @@ static void mme_config_display (mme_config_t * config_pP)
   int                                     j;
 
   OAILOG_INFO (LOG_CONFIG, "==== EURECOM %s v%s ====\n", PACKAGE_NAME, PACKAGE_VERSION);
+#if DEBUG_IS_ON
+  OAILOG_DEBUG (LOG_CONFIG, "Built with CMAKE_BUILD_TYPE ................: %s\n", CMAKE_BUILD_TYPE);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with DISABLE_ITTI_DETECT_SUB_TASK_ID .: %d\n", DISABLE_ITTI_DETECT_SUB_TASK_ID);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with ITTI_TASK_STACK_SIZE ............: %d\n", ITTI_TASK_STACK_SIZE);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with LOG_OAI .........................: %d\n", LOG_OAI);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with LOG_OAI_CLEAN_HARD ..............: %d\n", LOG_OAI_CLEAN_HARD);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with MESSAGE_CHART_GENERATOR .........: %d\n", MESSAGE_CHART_GENERATOR);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with PACKAGE_NAME ....................: %s\n", PACKAGE_NAME);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with S1AP_DEBUG_LIST .................: %d\n", S1AP_DEBUG_LIST);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with SECU_DEBUG ......................: %d\n", SECU_DEBUG);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with SCTP_DUMP_LIST ..................: %d\n", SCTP_DUMP_LIST);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with TRACE_HASHTABLE .................: %d\n", TRACE_HASHTABLE);
+  OAILOG_DEBUG (LOG_CONFIG, "Built with TRACE_3GPP_SPEC .................: %d\n", TRACE_3GPP_SPEC);
+
+#endif
   OAILOG_INFO (LOG_CONFIG, "Configuration:\n");
   OAILOG_INFO (LOG_CONFIG, "- File .................................: %s\n", bdata(config_pP->config_file));
   OAILOG_INFO (LOG_CONFIG, "- Realm ................................: %s\n", bdata(config_pP->realm));
-  OAILOG_INFO (LOG_CONFIG, "- Run mode .............................: %s\n", (RUN_MODE_TEST == config_pP->run_mode) ? "TEST":"NORMAL");
   OAILOG_INFO (LOG_CONFIG, "- Max eNBs .............................: %u\n", config_pP->max_enbs);
   OAILOG_INFO (LOG_CONFIG, "- Max UEs ..............................: %u\n", config_pP->max_ues);
   OAILOG_INFO (LOG_CONFIG, "- IMS voice over PS session in S1 ......: %s\n", config_pP->eps_network_feature_support.ims_voice_over_ps_session_in_s1 == 0 ? "false" : "true");
@@ -752,21 +864,46 @@ static void mme_config_display (mme_config_t * config_pP)
           config_pP->served_tai.plmn_mcc[j], config_pP->served_tai.plmn_mnc[j], config_pP->served_tai.tac[j]);
     }
   }
+  OAILOG_INFO (LOG_CONFIG, "- NAS:\n");
+  OAILOG_INFO (LOG_CONFIG, "    Prefered Integrity Algorithms .: EIA%d EIA%d EIA%d EIA%d (decreasing priority)\n",
+      config_pP->nas_config.prefered_integrity_algorithm[0],
+      config_pP->nas_config.prefered_integrity_algorithm[1],
+      config_pP->nas_config.prefered_integrity_algorithm[2],
+      config_pP->nas_config.prefered_integrity_algorithm[3]);
+  OAILOG_INFO (LOG_CONFIG, "    Prefered Integrity Algorithms .: EEA%d EEA%d EEA%d EEA%d (decreasing priority)\n",
+      config_pP->nas_config.prefered_ciphering_algorithm[0],
+      config_pP->nas_config.prefered_ciphering_algorithm[1],
+      config_pP->nas_config.prefered_ciphering_algorithm[2],
+      config_pP->nas_config.prefered_ciphering_algorithm[3]);
+  OAILOG_INFO (LOG_CONFIG, "    T3402 ....: %d min\n", config_pP->nas_config.t3402_min);
+  OAILOG_INFO (LOG_CONFIG, "    T3412 ....: %d min\n", config_pP->nas_config.t3412_min);
+  OAILOG_INFO (LOG_CONFIG, "    T3422 ....: %d sec\n", config_pP->nas_config.t3422_sec);
+  OAILOG_INFO (LOG_CONFIG, "    T3450 ....: %d sec\n", config_pP->nas_config.t3450_sec);
+  OAILOG_INFO (LOG_CONFIG, "    T3460 ....: %d sec\n", config_pP->nas_config.t3460_sec);
+  OAILOG_INFO (LOG_CONFIG, "    T3470 ....: %d sec\n", config_pP->nas_config.t3470_sec);
+  OAILOG_INFO (LOG_CONFIG, "    T3485 ....: %d sec\n", config_pP->nas_config.t3485_sec);
+  OAILOG_INFO (LOG_CONFIG, "    T3486 ....: %d sec\n", config_pP->nas_config.t3486_sec);
+  OAILOG_INFO (LOG_CONFIG, "    T3489 ....: %d sec\n", config_pP->nas_config.t3489_sec);
+  OAILOG_INFO (LOG_CONFIG, "    T3470 ....: %d sec\n", config_pP->nas_config.t3470_sec);
+  OAILOG_INFO (LOG_CONFIG, "    T3495 ....: %d sec\n", config_pP->nas_config.t3495_sec);
+  OAILOG_INFO (LOG_CONFIG, "    NAS non standart features .:\n");
+  OAILOG_INFO (LOG_CONFIG, "      Force reject TAU ............: %s\n", (config_pP->nas_config.force_reject_tau) ? "true":"false");
+  OAILOG_INFO (LOG_CONFIG, "      Force reject SR .............: %s\n", (config_pP->nas_config.force_reject_sr) ? "true":"false");
+  OAILOG_INFO (LOG_CONFIG, "      Disable Esm information .....: %s\n", (config_pP->nas_config.disable_esm_information) ? "true":"false");
 
   OAILOG_INFO (LOG_CONFIG, "- S6A:\n");
   OAILOG_INFO (LOG_CONFIG, "    conf file ........: %s\n", bdata(config_pP->s6a_config.conf_file));
   OAILOG_INFO (LOG_CONFIG, "- Logging:\n");
   OAILOG_INFO (LOG_CONFIG, "    Output ..............: %s\n", bdata(config_pP->log_config.output));
   OAILOG_INFO (LOG_CONFIG, "    Output thread safe ..: %s\n", (config_pP->log_config.is_output_thread_safe) ? "true":"false");
+  OAILOG_INFO (LOG_CONFIG, "    Output with color ...: %s\n", (config_pP->log_config.color) ? "true":"false");
   OAILOG_INFO (LOG_CONFIG, "    UDP log level........: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.udp_log_level));
-  OAILOG_INFO (LOG_CONFIG, "    GTPV1-U log level....: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.gtpv1u_log_level));
   OAILOG_INFO (LOG_CONFIG, "    GTPV2-C log level....: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.gtpv2c_log_level));
   OAILOG_INFO (LOG_CONFIG, "    SCTP log level.......: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.sctp_log_level));
   OAILOG_INFO (LOG_CONFIG, "    S1AP log level.......: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.s1ap_log_level));
   OAILOG_INFO (LOG_CONFIG, "    ASN1 Verbosity level : %d\n", config_pP->log_config.asn1_verbosity_level);
   OAILOG_INFO (LOG_CONFIG, "    NAS log level........: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.nas_log_level));
   OAILOG_INFO (LOG_CONFIG, "    MME_APP log level....: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.mme_app_log_level));
-  OAILOG_INFO (LOG_CONFIG, "    S/P-GW APP log level.: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.spgw_app_log_level));
   OAILOG_INFO (LOG_CONFIG, "    S11 log level........: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.s11_log_level));
   OAILOG_INFO (LOG_CONFIG, "    S6a log level........: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.s6a_log_level));
   OAILOG_INFO (LOG_CONFIG, "    UTIL log level.......: %s\n", OAILOG_LEVEL_INT2STR(config_pP->log_config.util_log_level));
@@ -777,20 +914,18 @@ static void mme_config_display (mme_config_t * config_pP)
 //------------------------------------------------------------------------------
 static void usage (char *target)
 {
-  OAILOG_INFO (LOG_CONFIG, "==== EURECOM %s version: %s ====\n", PACKAGE_NAME, PACKAGE_VERSION);
-  OAILOG_INFO (LOG_CONFIG, "Please report any bug to: %s\n", PACKAGE_BUGREPORT);
-  OAILOG_INFO (LOG_CONFIG, "Usage: %s [options]\n", target);
-  OAILOG_INFO (LOG_CONFIG, "Available options:\n");
-  OAILOG_INFO (LOG_CONFIG, "-h      Print this help and return\n");
-  OAILOG_INFO (LOG_CONFIG, "-c<path>\n");
-  OAILOG_INFO (LOG_CONFIG, "        Set the configuration file for mme\n");
-  OAILOG_INFO (LOG_CONFIG, "        See template in UTILS/CONF\n");
-  OAILOG_INFO (LOG_CONFIG, "-K<file>\n");
-  OAILOG_INFO (LOG_CONFIG, "        Output intertask messages to provided file\n");
-  OAILOG_INFO (LOG_CONFIG, "-V      Print %s version and return\n", PACKAGE_NAME);
-  OAILOG_INFO (LOG_CONFIG, "-v[1-2] Debug level:\n");
-  OAILOG_INFO (LOG_CONFIG, "            1 -> ASN1 XER printf on and ASN1 debug off\n");
-  OAILOG_INFO (LOG_CONFIG, "            2 -> ASN1 XER printf on and ASN1 debug on\n");
+  OAI_FPRINTF_INFO( "==== EURECOM %s version: %s ====\n", PACKAGE_NAME, PACKAGE_VERSION);
+  OAI_FPRINTF_INFO( "Please report any bug to: %s\n", PACKAGE_BUGREPORT);
+  OAI_FPRINTF_INFO( "Usage: %s [options]\n", target);
+  OAI_FPRINTF_INFO( "Available options:\n");
+  OAI_FPRINTF_INFO( "-h      Print this help and return\n");
+  OAI_FPRINTF_INFO( "-c<path>\n");
+  OAI_FPRINTF_INFO( "        Set the configuration file for mme\n");
+  OAI_FPRINTF_INFO( "        See template in UTILS/CONF\n");
+  OAI_FPRINTF_INFO( "-V      Print %s version and return\n", PACKAGE_NAME);
+  OAI_FPRINTF_INFO( "-v[1-2] Debug level:\n");
+  OAI_FPRINTF_INFO( "            1 -> ASN1 XER printf on and ASN1 debug off\n");
+  OAI_FPRINTF_INFO( "            2 -> ASN1 XER printf on and ASN1 debug on\n");
 }
 
 //------------------------------------------------------------------------------
@@ -807,7 +942,7 @@ mme_config_parse_opt_line (
   /*
    * Parsing command line
    */
-  while ((c = getopt (argc, argv, "c:hi:K:v:V")) != -1) {
+  while ((c = getopt (argc, argv, "c:h:v:V")) != -1) {
     switch (c) {
     case 'c':{
         /*
@@ -815,7 +950,7 @@ mme_config_parse_opt_line (
          * * * * then the default values will be used.
          */
         config_pP->config_file = blk2bstr(optarg, strlen(optarg));
-        OAILOG_DEBUG (LOG_CONFIG, "%s mme_config.config_file %s\n", __FUNCTION__, bdata(config_pP->config_file));
+        OAI_FPRINTF_INFO ("%s mme_config.config_file %s\n", __FUNCTION__, bdata(config_pP->config_file));
       }
       break;
 
@@ -825,17 +960,14 @@ mme_config_parse_opt_line (
       break;
 
     case 'V':{
-        OAILOG_DEBUG (LOG_CONFIG, "==== EURECOM %s v%s ====" "Please report any bug to: %s\n", PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_BUGREPORT);
+      OAI_FPRINTF_INFO ("==== EURECOM %s v%s ====" "Please report any bug to: %s\n", PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_BUGREPORT);
       }
       break;
 
-    case 'K':
-      config_pP->itti_config.log_file = blk2bstr (optarg, strlen(optarg));;
-      OAILOG_DEBUG (LOG_CONFIG, "%s mme_config.itti_config.log_file %s\n", __FUNCTION__, bdata(config_pP->itti_config.log_file));
-      break;
 
     case 'h':                  /* Fall through */
     default:
+      OAI_FPRINTF_ERR ("Unknown command line option %c\n", c);
       usage (argv[0]);
       exit (0);
     }

@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "assertions.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "AuthenticationRequest.h"
@@ -49,12 +53,12 @@ decode_authentication_request (
 
   decoded++;
 
-  if ((decoded_result = decode_authentication_parameter_rand (&authentication_request->authenticationparameterrand, 0, buffer + decoded, len - decoded)) < 0)
+  if ((decoded_result = decode_authentication_parameter_rand_ie (&authentication_request->authenticationparameterrand, false, buffer + decoded, len - decoded)) < 0)
     return decoded_result;
   else
     decoded += decoded_result;
 
-  if ((decoded_result = decode_authentication_parameter_autn (&authentication_request->authenticationparameterautn, 0, buffer + decoded, len - decoded)) < 0)
+  if ((decoded_result = decode_authentication_parameter_autn_ie (&authentication_request->authenticationparameterautn, false, buffer + decoded, len - decoded)) < 0)
     return decoded_result;
   else
     decoded += decoded_result;
@@ -78,12 +82,12 @@ encode_authentication_request (
   *(buffer + encoded) = ((encode_u8_nas_key_set_identifier (&authentication_request->naskeysetidentifierasme) & 0x0f) << 4) | 0x00;
   encoded++;
 
-  if ((encode_result = encode_authentication_parameter_rand (authentication_request->authenticationparameterrand, 0, buffer + encoded, len - encoded)) < 0)    //Return in case of error
+  if ((encode_result = encode_authentication_parameter_rand_ie (authentication_request->authenticationparameterrand, 0, buffer + encoded, len - encoded)) < 0)    //Return in case of error
     return encode_result;
   else
     encoded += encode_result;
 
-  if ((encode_result = encode_authentication_parameter_autn (authentication_request->authenticationparameterautn, 0, buffer + encoded, len - encoded)) < 0)    //Return in case of error
+  if ((encode_result = encode_authentication_parameter_autn_ie (authentication_request->authenticationparameterautn, 0, buffer + encoded, len - encoded)) < 0)    //Return in case of error
     return encode_result;
   else
     encoded += encode_result;
