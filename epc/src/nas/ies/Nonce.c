@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "Nonce.h"
 
-int
-decode_nonce (
-  Nonce * nonce,
+//------------------------------------------------------------------------------
+int decode_nonce (
+  nonce_t * nonce,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -43,15 +45,13 @@ decode_nonce (
   }
   //IES_DECODE_U32(*nonce, *(buffer + decoded));
   IES_DECODE_U32 (buffer, decoded, *nonce);
-#if NAS_DEBUG
-  dump_nonce_xml (nonce, iei);
-#endif
+
   return decoded;
 }
 
-int
-encode_nonce (
-  Nonce * nonce,
+//------------------------------------------------------------------------------
+int encode_nonce (
+  nonce_t * nonce,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -62,9 +62,6 @@ encode_nonce (
    * Checking IEI and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, NONCE_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_nonce_xml (nonce, iei);
-#endif
 
   if (iei > 0) {
     *buffer = iei;
@@ -75,19 +72,3 @@ encode_nonce (
   return encoded;
 }
 
-void
-dump_nonce_xml (
-  Nonce * nonce,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Nonce>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <Nonce value>%u</Nonce value>\n", *nonce);
-  OAILOG_DEBUG (LOG_NAS, "</Nonce>\n");
-}

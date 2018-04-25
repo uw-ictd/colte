@@ -26,6 +26,12 @@
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the FreeBSD Project.
  */
+/*! \file s6a_messages_types.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 #ifndef FILE_S6A_MESSAGES_TYPES_SEEN
 #define FILE_S6A_MESSAGES_TYPES_SEEN
 
@@ -65,7 +71,7 @@ typedef struct s6a_update_location_ans_s {
   // Maximum Requested Bandwidth Uplink, downlink
   // access restriction data
   // msisdn
-  apn_config_profile_t  apn_config_profile;// APN configuration profile
+  //apn_config_profile_t  apn_config_profile;// APN configuration profile
 
   network_access_mode_t access_mode;
   rau_tau_timer_t       rau_tau_timer;

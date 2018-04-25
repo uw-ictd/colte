@@ -65,7 +65,7 @@ int timer_setup(
  *  @returns -1 on failure, 0 otherwise
  **/
 
-int timer_remove(long timer_id);
+int timer_remove (long timer_id, void ** arg);
 #define timer_stop timer_remove
 
 /** \brief Initialize timer task and its API

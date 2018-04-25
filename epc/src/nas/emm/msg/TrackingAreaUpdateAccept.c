@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "assertions.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "TrackingAreaUpdateAccept.h"
@@ -63,7 +67,7 @@ decode_tracking_area_update_accept (
 
     switch (ieiDecoded) {
     case TRACKING_AREA_UPDATE_ACCEPT_T3412_VALUE_IEI:
-      if ((decoded_result = decode_gprs_timer (&tracking_area_update_accept->t3412value, TRACKING_AREA_UPDATE_ACCEPT_T3412_VALUE_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_gprs_timer_ie (&tracking_area_update_accept->t3412value, TRACKING_AREA_UPDATE_ACCEPT_T3412_VALUE_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -106,8 +110,8 @@ decode_tracking_area_update_accept (
       tracking_area_update_accept->presencemask |= TRACKING_AREA_UPDATE_ACCEPT_EPS_BEARER_CONTEXT_STATUS_PRESENT;
       break;
 
-    case TRACKING_AREA_UPDATE_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI:
-      if ((decoded_result = decode_location_area_identification (&tracking_area_update_accept->locationareaidentification, TRACKING_AREA_UPDATE_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI, buffer + decoded, len - decoded)) <= 0)
+    case C_LOCATION_AREA_IDENTIFICATION_IEI:
+      if ((decoded_result = decode_location_area_identification_ie (&tracking_area_update_accept->locationareaidentification, C_LOCATION_AREA_IDENTIFICATION_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -118,7 +122,7 @@ decode_tracking_area_update_accept (
       break;
 
     case TRACKING_AREA_UPDATE_ACCEPT_MS_IDENTITY_IEI:
-      if ((decoded_result = decode_mobile_identity (&tracking_area_update_accept->msidentity, TRACKING_AREA_UPDATE_ACCEPT_MS_IDENTITY_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_mobile_identity_ie (&tracking_area_update_accept->msidentity, TRACKING_AREA_UPDATE_ACCEPT_MS_IDENTITY_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -140,7 +144,7 @@ decode_tracking_area_update_accept (
       break;
 
     case TRACKING_AREA_UPDATE_ACCEPT_T3402_VALUE_IEI:
-      if ((decoded_result = decode_gprs_timer (&tracking_area_update_accept->t3402value, TRACKING_AREA_UPDATE_ACCEPT_T3402_VALUE_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_gprs_timer_ie (&tracking_area_update_accept->t3402value, TRACKING_AREA_UPDATE_ACCEPT_T3402_VALUE_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -151,7 +155,7 @@ decode_tracking_area_update_accept (
       break;
 
     case TRACKING_AREA_UPDATE_ACCEPT_T3423_VALUE_IEI:
-      if ((decoded_result = decode_gprs_timer (&tracking_area_update_accept->t3423value, TRACKING_AREA_UPDATE_ACCEPT_T3423_VALUE_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_gprs_timer_ie (&tracking_area_update_accept->t3423value, TRACKING_AREA_UPDATE_ACCEPT_T3423_VALUE_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -162,7 +166,7 @@ decode_tracking_area_update_accept (
       break;
 
     case TRACKING_AREA_UPDATE_ACCEPT_EQUIVALENT_PLMNS_IEI:
-      if ((decoded_result = decode_plmn_list (&tracking_area_update_accept->equivalentplmns, TRACKING_AREA_UPDATE_ACCEPT_EQUIVALENT_PLMNS_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_plmn_list_ie (&tracking_area_update_accept->equivalentplmns, TRACKING_AREA_UPDATE_ACCEPT_EQUIVALENT_PLMNS_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -173,7 +177,7 @@ decode_tracking_area_update_accept (
       break;
 
     case TRACKING_AREA_UPDATE_ACCEPT_EMERGENCY_NUMBER_LIST_IEI:
-      if ((decoded_result = decode_emergency_number_list (&tracking_area_update_accept->emergencynumberlist, TRACKING_AREA_UPDATE_ACCEPT_EMERGENCY_NUMBER_LIST_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_emergency_number_list_ie (&tracking_area_update_accept->emergencynumberlist, TRACKING_AREA_UPDATE_ACCEPT_EMERGENCY_NUMBER_LIST_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -232,7 +236,7 @@ encode_tracking_area_update_accept (
 
   if ((tracking_area_update_accept->presencemask & TRACKING_AREA_UPDATE_ACCEPT_T3412_VALUE_PRESENT)
       == TRACKING_AREA_UPDATE_ACCEPT_T3412_VALUE_PRESENT) {
-    if ((encode_result = encode_gprs_timer (&tracking_area_update_accept->t3412value, TRACKING_AREA_UPDATE_ACCEPT_T3412_VALUE_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_gprs_timer_ie (&tracking_area_update_accept->t3412value, TRACKING_AREA_UPDATE_ACCEPT_T3412_VALUE_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -268,7 +272,7 @@ encode_tracking_area_update_accept (
 
   if ((tracking_area_update_accept->presencemask & TRACKING_AREA_UPDATE_ACCEPT_LOCATION_AREA_IDENTIFICATION_PRESENT)
       == TRACKING_AREA_UPDATE_ACCEPT_LOCATION_AREA_IDENTIFICATION_PRESENT) {
-    if ((encode_result = encode_location_area_identification (&tracking_area_update_accept->locationareaidentification, TRACKING_AREA_UPDATE_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_location_area_identification_ie (&tracking_area_update_accept->locationareaidentification, C_LOCATION_AREA_IDENTIFICATION_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -277,7 +281,7 @@ encode_tracking_area_update_accept (
 
   if ((tracking_area_update_accept->presencemask & TRACKING_AREA_UPDATE_ACCEPT_MS_IDENTITY_PRESENT)
       == TRACKING_AREA_UPDATE_ACCEPT_MS_IDENTITY_PRESENT) {
-    if ((encode_result = encode_mobile_identity (&tracking_area_update_accept->msidentity, TRACKING_AREA_UPDATE_ACCEPT_MS_IDENTITY_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_mobile_identity_ie (&tracking_area_update_accept->msidentity, TRACKING_AREA_UPDATE_ACCEPT_MS_IDENTITY_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -295,7 +299,7 @@ encode_tracking_area_update_accept (
 
   if ((tracking_area_update_accept->presencemask & TRACKING_AREA_UPDATE_ACCEPT_T3402_VALUE_PRESENT)
       == TRACKING_AREA_UPDATE_ACCEPT_T3402_VALUE_PRESENT) {
-    if ((encode_result = encode_gprs_timer (&tracking_area_update_accept->t3402value, TRACKING_AREA_UPDATE_ACCEPT_T3402_VALUE_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_gprs_timer_ie (&tracking_area_update_accept->t3402value, TRACKING_AREA_UPDATE_ACCEPT_T3402_VALUE_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -304,7 +308,7 @@ encode_tracking_area_update_accept (
 
   if ((tracking_area_update_accept->presencemask & TRACKING_AREA_UPDATE_ACCEPT_T3423_VALUE_PRESENT)
       == TRACKING_AREA_UPDATE_ACCEPT_T3423_VALUE_PRESENT) {
-    if ((encode_result = encode_gprs_timer (&tracking_area_update_accept->t3423value, TRACKING_AREA_UPDATE_ACCEPT_T3423_VALUE_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_gprs_timer_ie (&tracking_area_update_accept->t3423value, TRACKING_AREA_UPDATE_ACCEPT_T3423_VALUE_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -313,7 +317,7 @@ encode_tracking_area_update_accept (
 
   if ((tracking_area_update_accept->presencemask & TRACKING_AREA_UPDATE_ACCEPT_EQUIVALENT_PLMNS_PRESENT)
       == TRACKING_AREA_UPDATE_ACCEPT_EQUIVALENT_PLMNS_PRESENT) {
-    if ((encode_result = encode_plmn_list (&tracking_area_update_accept->equivalentplmns, TRACKING_AREA_UPDATE_ACCEPT_EQUIVALENT_PLMNS_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_plmn_list_ie (&tracking_area_update_accept->equivalentplmns, TRACKING_AREA_UPDATE_ACCEPT_EQUIVALENT_PLMNS_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -322,7 +326,7 @@ encode_tracking_area_update_accept (
 
   if ((tracking_area_update_accept->presencemask & TRACKING_AREA_UPDATE_ACCEPT_EMERGENCY_NUMBER_LIST_PRESENT)
       == TRACKING_AREA_UPDATE_ACCEPT_EMERGENCY_NUMBER_LIST_PRESENT) {
-    if ((encode_result = encode_emergency_number_list (&tracking_area_update_accept->emergencynumberlist, TRACKING_AREA_UPDATE_ACCEPT_EMERGENCY_NUMBER_LIST_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_emergency_number_list_ie (&tracking_area_update_accept->emergencynumberlist, TRACKING_AREA_UPDATE_ACCEPT_EMERGENCY_NUMBER_LIST_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

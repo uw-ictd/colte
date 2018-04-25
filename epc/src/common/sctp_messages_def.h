@@ -26,6 +26,13 @@
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the FreeBSD Project.
  */
+/*! \file sctp_messages_def.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
+
 //WARNING: Do not include this header directly. Use intertask_interface.h instead.
 
 MESSAGE_DEF(SCTP_INIT_MSG,          MESSAGE_PRIORITY_MED, SctpInit,                 sctpInit)

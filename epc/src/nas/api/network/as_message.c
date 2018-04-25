@@ -31,21 +31,26 @@
 
   Subsystem Application Programming Interface
 
-  Author    Frederic Maurel
+  Author    Frederic Maurel, Lionel GAUTHIER
 
   Description Defines the messages supported by the Access Stratum sublayer
     protocol (usually RRC and S1AP for E-UTRAN) and functions used
     to encode and decode
 
 *****************************************************************************/
-
-#include "as_message.h"
-#include "common_types.h"
-#include "log.h"
-#include "dynamic_memory_check.h"
-
 #include <string.h>             // memcpy
 #include <stdlib.h>             // free
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "bstrlib.h"
+
+#include "log.h"
+#include "as_message.h"
+#include "common_types.h"
+#include "dynamic_memory_check.h"
+#include "common_defs.h"
+
 
 /****************************************************************************/
 /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
@@ -158,17 +163,20 @@ as_message_decode (
     data = &msg->msg.dl_info_transfer_ind.nas_msg->data;
     break;
 
+  case AS_ACTIVATE_BEARER_CONTEXT_REQ:
+    bytes += sizeof (dl_info_transfer_req_t) - sizeof (uint8_t *);
+    data = &msg->msg.activate_bearer_context_req.nas_msg->data;
+    break;
+
   case AS_BROADCAST_INFO_IND:
   case AS_PAGING_REQ:
-  case AS_PAGING_IND:
   case AS_NAS_RELEASE_REQ:
   case AS_UL_INFO_TRANSFER_CNF:
   case AS_DL_INFO_TRANSFER_CNF:
   case AS_NAS_RELEASE_IND:
-  case AS_RAB_ESTABLISH_REQ:
-  case AS_RAB_ESTABLISH_IND:
-  case AS_RAB_ESTABLISH_RSP:
-  case AS_RAB_ESTABLISH_CNF:
+  case AS_ERAB_SETUP_IND:
+  case AS_ERAB_SETUP_RSP:
+  case AS_ERAB_SETUP_CNF:
   case AS_RAB_RELEASE_REQ:
   case AS_RAB_RELEASE_IND:
     /*
@@ -242,13 +250,6 @@ as_message_decode (
 //     * Paging information request
 //     */
 //    bytes += sizeof (paging_req_t);
-//    break;
-//
-//  case AS_PAGING_IND:
-//    /*
-//     * Paging information indication
-//     */
-//    bytes += sizeof (paging_ind_t);
 //    break;
 //
 //  case AS_NAS_ESTABLISH_REQ:

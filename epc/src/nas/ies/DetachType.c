@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "DetachType.h"
 
-int
-decode_detach_type (
-  DetachType * detachtype,
+//------------------------------------------------------------------------------
+int decode_detach_type (
+  detach_type_t * detachtype,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -49,9 +51,9 @@ decode_detach_type (
   return decoded;
 }
 
-int
-decode_u8_detach_type (
-  DetachType * detachtype,
+//------------------------------------------------------------------------------
+int decode_u8_detach_type (
+  detach_type_t * detachtype,
   uint8_t iei,
   uint8_t value,
   uint32_t len)
@@ -65,9 +67,9 @@ decode_u8_detach_type (
   return decoded;
 }
 
-int
-encode_detach_type (
-  DetachType * detachtype,
+//------------------------------------------------------------------------------
+int encode_detach_type (
+  detach_type_t * detachtype,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -83,9 +85,9 @@ encode_detach_type (
   return encoded;
 }
 
-uint8_t
-encode_u8_detach_type (
-  DetachType * detachtype)
+//------------------------------------------------------------------------------
+uint8_t encode_u8_detach_type (
+  detach_type_t * detachtype)
 {
   uint8_t                                 bufferReturn;
   uint8_t                                *buffer = &bufferReturn;
@@ -95,22 +97,4 @@ encode_u8_detach_type (
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | ((detachtype->switchoff & 0x1) << 3) | (detachtype->typeofdetach & 0x7);
   encoded++;
   return bufferReturn;
-}
-
-void
-dump_detach_type_xml (
-  DetachType * detachtype,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Detach Type>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <Switch off>%u</Switch off>\n", detachtype->switchoff);
-  OAILOG_DEBUG (LOG_NAS, "    <Type of detach>%u</Type of detach>\n", detachtype->typeofdetach);
-  OAILOG_DEBUG (LOG_NAS, "</Detach Type>\n");
 }

@@ -114,10 +114,6 @@ main (
 
   s6a_init (&hss_config);
 
-#if ENBRAINS
-  printf("Starting ENBRAINS module...\n");
-#endif
-
   while (1) {
     /*
      * TODO: handle signals here

@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "common_types.h"
 #include "3gpp_24.007.h"
 #include "3gpp_24.301.h"
 #include "TLVEncoder.h"
@@ -51,7 +55,7 @@ decode_bearer_resource_allocation_request (
 
   decoded++;
 
-  if ((decoded_result = decode_traffic_flow_aggregate_description (&bearer_resource_allocation_request->trafficflowaggregate, 0, buffer + decoded, len - decoded)) < 0)
+  if ((decoded_result = decode_traffic_flow_template_ie (&bearer_resource_allocation_request->trafficflowaggregate, 0, buffer + decoded, len - decoded)) < 0)
     return decoded_result;
   else
     decoded += decoded_result;
@@ -76,7 +80,7 @@ decode_bearer_resource_allocation_request (
     switch (ieiDecoded) {
     case BEARER_RESOURCE_ALLOCATION_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI:
       if ((decoded_result =
-           decode_ProtocolConfigurationOptions (&bearer_resource_allocation_request->protocolconfigurationoptions, BEARER_RESOURCE_ALLOCATION_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + decoded, len - decoded)) <= 0)
+           decode_protocol_configuration_options_ie (&bearer_resource_allocation_request->protocolconfigurationoptions, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -111,7 +115,7 @@ encode_bearer_resource_allocation_request (
   *(buffer + encoded) = ((encode_u8_linked_eps_bearer_identity (&bearer_resource_allocation_request->linkedepsbeareridentity) & 0x0f) << 4) | 0x00;
   encoded++;
 
-  if ((encode_result = encode_traffic_flow_aggregate_description (&bearer_resource_allocation_request->trafficflowaggregate, 0, buffer + encoded, len - encoded)) < 0)  //Return in case of error
+  if ((encode_result = encode_traffic_flow_template_ie (&bearer_resource_allocation_request->trafficflowaggregate, TFT_ENCODE_IEI_FALSE, buffer + encoded, len - encoded)) < 0)  //Return in case of error
     return encode_result;
   else
     encoded += encode_result;
@@ -123,7 +127,7 @@ encode_bearer_resource_allocation_request (
 
   if ((bearer_resource_allocation_request->presencemask & BEARER_RESOURCE_ALLOCATION_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT)
       == BEARER_RESOURCE_ALLOCATION_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
-    if ((encode_result = encode_ProtocolConfigurationOptions (&bearer_resource_allocation_request->protocolconfigurationoptions, BEARER_RESOURCE_ALLOCATION_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_protocol_configuration_options_ie (&bearer_resource_allocation_request->protocolconfigurationoptions, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

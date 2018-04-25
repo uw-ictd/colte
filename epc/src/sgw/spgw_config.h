@@ -42,12 +42,6 @@ typedef struct spgw_config_s {
 extern spgw_config_t spgw_config;
 #endif
 
-int spgw_system (
-  bstring command_pP,
-  bool is_abort_on_errorP,
-  const char *const file_nameP,
-  const int line_numberP);
-
 int spgw_config_parse_opt_line (
   int argc,
   char *argv[],

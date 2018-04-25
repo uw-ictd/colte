@@ -44,10 +44,24 @@
         sent by both the MME and the UE.
 
 *****************************************************************************/
+#include <pthread.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 
+#include "bstrlib.h"
+
+#include "common_types.h"
+#include "dynamic_memory_check.h"
 #include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
+#include "3gpp_29.274.h"
+#include "mme_app_ue_context.h"
 #include "esm_proc.h"
 #include "commonDef.h"
+#include "common_defs.h"
 #include "log.h"
 
 #include "esm_cause.h"
@@ -92,13 +106,13 @@
  ***************************************************************************/
 int
 esm_proc_status_ind (
-  emm_data_context_t * ctx,
-  int pti,
-  int ebi,
-  int *esm_cause)
+  emm_context_t * emm_context,
+  proc_tid_t pti,
+  ebi_t ebi,
+  esm_cause_t *esm_cause)
 {
   OAILOG_FUNC_IN (LOG_NAS_ESM);
-  int                                     rc;
+  int                                     rc = RETURNerror;
 
   OAILOG_INFO (LOG_NAS_ESM, "ESM-PROC  - ESM status procedure requested (cause=%d)\n", *esm_cause);
   OAILOG_DEBUG (LOG_NAS_ESM, "ESM-PROC  - To be implemented\n");
@@ -173,24 +187,27 @@ esm_proc_status_ind (
  ***************************************************************************/
 int
 esm_proc_status (
-  bool is_standalone,
-  emm_data_context_t * ctx,
-  int ebi,
-  bstring msg,
-  bool ue_triggered)
+  const bool is_standalone,
+  emm_context_t * const emm_context,
+  const ebi_t ebi,
+  STOLEN_REF bstring *msg,
+  const bool ue_triggered)
 {
   OAILOG_FUNC_IN (LOG_NAS_ESM);
-  int                                     rc;
+  int                                     rc = RETURNerror;
   emm_sap_t                               emm_sap = {0};
+  mme_ue_s1ap_id_t                        ue_id = PARENT_STRUCT(emm_context, struct ue_mm_context_s, emm_context)->mme_ue_s1ap_id;
 
   OAILOG_INFO (LOG_NAS_ESM, "ESM-PROC  - ESM status procedure requested\n");
   /*
    * Notity EMM that ESM PDU has to be forwarded to lower layers
    */
   emm_sap.primitive = EMMESM_UNITDATA_REQ;
-  emm_sap.u.emm_esm.ue_id = ctx->ue_id;
-  emm_sap.u.emm_esm.ctx = ctx;
-  emm_sap.u.emm_esm.u.data.msg = msg;
+  emm_sap.u.emm_esm.ue_id = ue_id;
+  emm_sap.u.emm_esm.ctx = emm_context;
+  emm_sap.u.emm_esm.u.data.msg = *msg;
+  *msg = NULL;
+  MSC_LOG_TX_MESSAGE (MSC_NAS_ESM_MME, MSC_NAS_EMM_MME, NULL, 0, "EMMESM_UNITDATA_REQ  (STATUS) ue id " MME_UE_S1AP_ID_FMT " ", ue_id);
   rc = emm_sap_send (&emm_sap);
   OAILOG_FUNC_RETURN (LOG_NAS_ESM, rc);
 }

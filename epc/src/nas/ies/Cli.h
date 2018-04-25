@@ -19,10 +19,8 @@
  *      contact@openairinterface.org
  */
 
-#ifndef CLI_H_
-#define CLI_H_
-#include <stdint.h>
-#include "bstrlib.h"
+#ifndef CLI_SEEN
+#define CLI_SEEN
 
 #define CLI_MINIMUM_LENGTH 3
 #define CLI_MAXIMUM_LENGTH 14
@@ -33,7 +31,6 @@ int encode_cli(Cli cli, uint8_t iei, uint8_t *buffer, uint32_t len);
 
 int decode_cli(Cli *cli, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_cli_xml(Cli cli, uint8_t iei);
 
-#endif /* CLI_H_ */
+#endif /* CLI_SEEN */
 

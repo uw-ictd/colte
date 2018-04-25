@@ -23,8 +23,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
 #include "3gpp_24.007.h"
 #include "3gpp_24.301.h"
 #include "TLVEncoder.h"
@@ -66,7 +69,7 @@ decode_bearer_resource_modification_reject (
     switch (ieiDecoded) {
     case BEARER_RESOURCE_MODIFICATION_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI:
       if ((decoded_result =
-           decode_ProtocolConfigurationOptions (&bearer_resource_modification_reject->protocolconfigurationoptions, BEARER_RESOURCE_MODIFICATION_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + decoded, len - decoded)) <= 0)
+           decode_protocol_configuration_options_ie (&bearer_resource_modification_reject->protocolconfigurationoptions, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -107,7 +110,7 @@ encode_bearer_resource_modification_reject (
   if ((bearer_resource_modification_reject->presencemask & BEARER_RESOURCE_MODIFICATION_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT)
       == BEARER_RESOURCE_MODIFICATION_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
     if ((encode_result =
-         encode_ProtocolConfigurationOptions (&bearer_resource_modification_reject->protocolconfigurationoptions, BEARER_RESOURCE_MODIFICATION_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + encoded, len - encoded)) < 0)
+         encode_protocol_configuration_options_ie (&bearer_resource_modification_reject->protocolconfigurationoptions, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

@@ -19,6 +19,13 @@
  *      contact@openairinterface.org
  */
 
+/*! \file sctp_itti_messaging.c
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
+
 #include <string.h>
 #include <stdbool.h>
 

@@ -36,7 +36,6 @@ Description Defines identifiers of the EPS Mobility Management messages.
 #ifndef FILE_EMM_MSGDEF_SEEN
 #define FILE_EMM_MSGDEF_SEEN
 
-#include <stdint.h>
 #include <asm/byteorder.h>
 
 /****************************************************************************/
@@ -69,7 +68,7 @@ Description Defines identifiers of the EPS Mobility Management messages.
  *  |     Message type       |
  *  +-----------------------+------------------------+
  */
-typedef struct {
+typedef struct emm_msg_header_s {
 #ifdef __LITTLE_ENDIAN_BITFIELD
   uint8_t protocol_discriminator:4;
   uint8_t security_header_type:4;

@@ -35,7 +35,7 @@
 #define TIMER_HAS_EXPIRED(mSGpTR)   (mSGpTR)->ittiMsg.timer_has_expired
 
 //-------------------------------------------------------------------------------------------//
-typedef struct {
+typedef struct timer_has_expired_s {
   void *arg;
   long  timer_id;
 } timer_has_expired_t;

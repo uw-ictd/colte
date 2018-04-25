@@ -42,16 +42,16 @@ main (
   int argc,
   char *argv[])
 {
-  NwRcT                                   rc;
+  nw_rc_t                                   rc;
   uint32_t                                logLevel;
   uint8_t                                *logLevelStr;
-  NwGtpv2cStackHandleT                    hGtpv2cStack = 0;
+  nw_gtpv2c_StackHandleT                    hGtpv2cStack = 0;
   NwGtpv2cNodeUlpT                        ulpObj;
   NwGtpv2cNodeUdpT                        udpObj;
-  NwGtpv2cUlpEntityT                      ulp;
-  NwGtpv2cUdpEntityT                      udp;
-  NwGtpv2cTimerMgrEntityT                 tmrMgr;
-  NwGtpv2cLogMgrEntityT                   logMgr;
+  nw_gtpv2c_ulp_entity_t                      ulp;
+  nw_gtpv2c_udp_entity_t                      udp;
+  nw_gtpv2c_timer_mgr_entity_t                 tmrMgr;
+  nw_gtpv2c_log_mgr_entity_t                   logMgr;
 
   if (argc != 3) {
     printf ("Usage: %s <local-ip> <peer-ip>\n", argv[0]);
@@ -106,7 +106,7 @@ main (
     --------------------------------------------------------------------------*/
   rc = nwGtpv2cUlpInit (&ulpObj, hGtpv2cStack, argv[2]);
   NW_ASSERT (NW_OK == rc);
-  ulp.hUlp = (NwGtpv2cUlpHandleT) & ulpObj;
+  ulp.hUlp = (nw_gtpv2c_UlpHandleT) & ulpObj;
   ulp.ulpReqCallback = nwGtpv2cUlpProcessStackReqCallback;
   rc = nwGtpv2cSetUlpEntity (hGtpv2cStack, &ulp);
   NW_ASSERT (NW_OK == rc);
@@ -115,7 +115,7 @@ main (
     --------------------------------------------------------------------------*/
   rc = nwGtpv2cUdpInit (&udpObj, hGtpv2cStack, (argv[1]));
   NW_ASSERT (NW_OK == rc);
-  udp.hUdp = (NwGtpv2cUdpHandleT) & udpObj;
+  udp.hUdp = (nw_gtpv2c_UdpHandleT) & udpObj;
   udp.udpDataReqCallback = nwGtpv2cUdpDataReq;
   rc = nwGtpv2cSetUdpEntity (hGtpv2cStack, &udp);
   NW_ASSERT (NW_OK == rc);
@@ -130,7 +130,7 @@ main (
   /*---------------------------------------------------------------------------
      Set up Log Entity
     --------------------------------------------------------------------------*/
-  logMgr.logMgrHandle = (NwGtpv2cLogMgrHandleT) nwMiniLogMgrGetInstance ();
+  logMgr.logMgrHandle = (nw_gtpv2c_LogMgrHandleT) nwMiniLogMgrGetInstance ();
   logMgr.logReqCallback = nwMiniLogMgrLogRequest;
   rc = nwGtpv2cSetLogMgrEntity (hGtpv2cStack, &logMgr);
   NW_ASSERT (NW_OK == rc);

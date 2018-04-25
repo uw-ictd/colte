@@ -49,9 +49,22 @@
 #define PGW_CONFIG_STRING_DEFAULT_DNS_IPV4_ADDRESS              "DEFAULT_DNS_IPV4_ADDRESS"
 #define PGW_CONFIG_STRING_DEFAULT_DNS_SEC_IPV4_ADDRESS          "DEFAULT_DNS_SEC_IPV4_ADDRESS"
 #define PGW_CONFIG_STRING_UE_MTU                                "UE_MTU"
+#define PGW_CONFIG_STRING_GTPV1U_REALIZATION                    "GTPV1U_REALIZATION"
+#define PGW_CONFIG_STRING_NO_GTP_KERNEL_AVAILABLE               "NO_GTP_KERNEL_AVAILABLE"
+#define PGW_CONFIG_STRING_GTP_KERNEL_MODULE                     "GTP_KERNEL_MODULE"
+#define PGW_CONFIG_STRING_GTP_KERNEL                            "GTP_KERNEL"
 
 #define PGW_CONFIG_STRING_INTERFACE_DISABLED                    "none"
 
+#define PGW_CONFIG_STRING_PCEF                                  "PCEF"
+#define PGW_CONFIG_STRING_PCEF_ENABLED                          "PCEF_ENABLED"
+#define PGW_CONFIG_STRING_TRAFFIC_SHAPPING_ENABLED              "TRAFFIC_SHAPPING_ENABLED"
+#define PGW_CONFIG_STRING_TCP_ECN_ENABLED                       "TCP_ECN_ENABLED"
+#define PGW_CONFIG_STRING_AUTOMATIC_PUSH_DEDICATED_BEARER_PCC_RULE  "AUTOMATIC_PUSH_DEDICATED_BEARER_PCC_RULE"
+#define PGW_CONFIG_STRING_DEFAULT_BEARER_STATIC_PCC_RULE        "DEFAULT_BEARER_STATIC_PCC_RULE"
+#define PGW_CONFIG_STRING_PUSH_STATIC_PCC_RULES                 "PUSH_STATIC_PCC_RULES"
+#define PGW_CONFIG_STRING_APN_AMBR_UL                           "APN_AMBR_UL"
+#define PGW_CONFIG_STRING_APN_AMBR_DL                           "APN_AMBR_DL"
 #define PGW_ABORT_ON_ERROR true
 #define PGW_WARN_ON_ERROR  false
 
@@ -67,6 +80,7 @@ typedef struct conf_ipv4_list_elm_s {
 
 
 
+#include "pgw_pcef_emulation.h"
 
 typedef struct pgw_config_s {
   /* Reader/writer lock for this configuration */
@@ -75,19 +89,19 @@ typedef struct pgw_config_s {
 
   struct {
     bstring        if_name_S5_S8;
-    ipv4_nbo_t     S5_S8;
+    struct in_addr S5_S8;
     uint32_t       mtu_S5_S8; // read from system
     struct in_addr addr_S5_S8;// read from system
     uint8_t        mask_S5_S8;// read from system
 
     bstring        if_name_SGI;
-    ipv4_nbo_t     SGI;
+    struct in_addr SGI;
     uint32_t       mtu_SGI; // read from system
     struct in_addr addr_sgi;// read from system
     uint8_t        mask_sgi;// read from system
 
-    ipv4_nbo_t     default_dns;
-    ipv4_nbo_t     default_dns_sec;
+    struct in_addr default_dns;
+    struct in_addr default_dns_sec;
   } ipv4;
 
   bool      ue_tcp_mss_clamp; // for UE TCP traffic
@@ -100,6 +114,19 @@ typedef struct pgw_config_s {
 
   bool      force_push_pco;
   uint16_t  ue_mtu;
+  bool      use_gtp_kernel_module;
+  bool      enable_loading_gtp_kernel_module;
+
+  struct {
+    bool      enabled;
+    bool      traffic_shaping_enabled;
+    bool      tcp_ecn_enabled;           // test for CoDel qdisc
+    sdf_id_t  default_bearer_sdf_identifier;
+    sdf_id_t  automatic_push_dedicated_bearer_sdf_identifier;
+    sdf_id_t  preload_static_sdf_identifiers[SDF_ID_MAX-1];
+    uint64_t  apn_ambr_ul;
+    uint64_t  apn_ambr_dl;
+  } pcef;
 
   STAILQ_HEAD(ipv4_pool_head_s, conf_ipv4_list_elm_s) ipv4_pool_list;
 } pgw_config_t;

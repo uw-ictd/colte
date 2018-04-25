@@ -26,64 +26,78 @@
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the FreeBSD Project.
  */
+/*! \file mme_app_messages_types.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 #ifndef FILE_MME_APP_MESSAGES_TYPES_SEEN
 #define FILE_MME_APP_MESSAGES_TYPES_SEEN
 
-#define MME_APP_INITIAL_UE_MESSAGE(mSGpTR)               (mSGpTR)->ittiMsg.mme_app_initial_ue_message
 #define MME_APP_CONNECTION_ESTABLISHMENT_CNF(mSGpTR)     (mSGpTR)->ittiMsg.mme_app_connection_establishment_cnf
 #define MME_APP_INITIAL_CONTEXT_SETUP_RSP(mSGpTR)        (mSGpTR)->ittiMsg.mme_app_initial_context_setup_rsp
 #define MME_APP_INITIAL_CONTEXT_SETUP_FAILURE(mSGpTR)    (mSGpTR)->ittiMsg.mme_app_initial_context_setup_failure
 #define MME_APP_S1AP_MME_UE_ID_NOTIFICATION(mSGpTR)      (mSGpTR)->ittiMsg.mme_app_s1ap_mme_ue_id_notification
-
-typedef struct itti_mme_app_initial_ue_message_s {
-  sctp_assoc_id_t     sctp_assoc_id; // key stored in MME_APP for MME_APP forward NAS response to S1AP
-  uint32_t            enb_id; 
-  mme_ue_s1ap_id_t    mme_ue_s1ap_id;
-  enb_ue_s1ap_id_t    enb_ue_s1ap_id;
-  bstring             nas;
-  tai_t               tai;               /* Indicating the Tracking Area from which the UE has sent the NAS message.                         */
-  ecgi_t              cgi;               /* Indicating the cell from which the UE has sent the NAS message.                         */
-  as_cause_t          as_cause;          /* Establishment cause                     */
-
-  bool                is_s_tmsi_valid;
-  bool                is_csg_id_valid;
-  bool                is_gummei_valid;
-  as_stmsi_t          opt_s_tmsi;
-  csg_id_t            opt_csg_id;
-  gummei_t            opt_gummei;
-  //void                opt_cell_access_mode;
-  //void                opt_cell_gw_transport_address;
-  //void                opt_relay_node_indicator;
-  /* Transparent message from s1ap to be forwarded to MME_APP or
-   * to S1AP if connection establishment is rejected by NAS.
-   */
-  itti_s1ap_initial_ue_message_t transparent;
-} itti_mme_app_initial_ue_message_t;
+#define MME_APP_CREATE_DEDICATED_BEARER_REQ(mSGpTR)      (mSGpTR)->ittiMsg.mme_app_create_dedicated_bearer_req
+#define MME_APP_CREATE_DEDICATED_BEARER_RSP(mSGpTR)      (mSGpTR)->ittiMsg.mme_app_create_dedicated_bearer_rsp
+#define MME_APP_CREATE_DEDICATED_BEARER_REJ(mSGpTR)      (mSGpTR)->ittiMsg.mme_app_create_dedicated_bearer_rej
 
 typedef struct itti_mme_app_connection_establishment_cnf_s {
-  ebi_t                   eps_bearer_id;
-  FTeid_t                 bearer_s1u_sgw_fteid;
-  qci_t                   bearer_qos_qci;
-  priority_level_t        bearer_qos_prio_level;
-  pre_emp_vulnerability_t bearer_qos_pre_emp_vulnerability;
-  pre_emp_capability_t    bearer_qos_pre_emp_capability;
-  ambr_t                  ambr;
+  mme_ue_s1ap_id_t        ue_id;
 
-  /* Key eNB */
-  uint8_t                 kenb[AUTH_KASME_SIZE];
-  uint16_t                security_capabilities_encryption_algorithms;
-  uint16_t                security_capabilities_integrity_algorithms;
+  ambr_t                  ue_ambr;
 
-  uint8_t                 *ue_radio_capabilities;
-  int                     ue_radio_cap_length;
+  // E-RAB to Be Setup List
+  uint8_t                 no_of_e_rabs; // spec says max 256, actually stay with BEARERS_PER_UE
+  //     >>E-RAB ID
+  ebi_t                   e_rab_id[BEARERS_PER_UE];
+  //     >>E-RAB Level QoS Parameters
+  qci_t                   e_rab_level_qos_qci[BEARERS_PER_UE];
+  //       >>>Allocation and Retention Priority
+  priority_level_t        e_rab_level_qos_priority_level[BEARERS_PER_UE];
+  //       >>>Pre-emption Capability
+  pre_emption_capability_t    e_rab_level_qos_preemption_capability[BEARERS_PER_UE];
+  //       >>>Pre-emption Vulnerability
+  pre_emption_vulnerability_t e_rab_level_qos_preemption_vulnerability[BEARERS_PER_UE];
+  //     >>Transport Layer Address
+  bstring                 transport_layer_address[BEARERS_PER_UE];
+  //     >>GTP-TEID
+  teid_t                  gtp_teid[BEARERS_PER_UE];
+  //     >>NAS-PDU (optional)
+  bstring                 nas_pdu[BEARERS_PER_UE];
+  //     >>Correlation ID TODO? later...
 
-  itti_nas_conn_est_cnf_t nas_conn_est_cnf;
+  // UE Security Capabilities
+  uint16_t                ue_security_capabilities_encryption_algorithms;
+  uint16_t                ue_security_capabilities_integrity_algorithms;
+
+  // Security key
+  uint8_t                 kenb[AUTH_KENB_SIZE];
+
+  bstring                 ue_radio_capability;
+
+  // Trace Activation (optional)
+  // Handover Restriction List (optional)
+  // UE Radio Capability (optional)
+  // Subscriber Profile ID for RAT/Frequency priority (optional)
+  // CS Fallback Indicator (optional)
+  // SRVCC Operation Possible (optional)
+  // CSG Membership Status (optional)
+  // Registered LAI (optional)
+  // GUMMEI ID (optional)
+  // MME UE S1AP ID 2  (optional)
+  // Management Based MDT Allowed (optional)
+
+  //itti_nas_conn_est_cnf_t nas_conn_est_cnf;
 } itti_mme_app_connection_establishment_cnf_t;
 
 typedef struct itti_mme_app_initial_context_setup_rsp_s {
-  uint32_t                mme_ue_s1ap_id;
-  ebi_t                   eps_bearer_id;
-  FTeid_t                 bearer_s1u_enb_fteid;
+  mme_ue_s1ap_id_t        ue_id;
+  uint8_t                 no_of_e_rabs;
+  ebi_t                   e_rab_id[BEARERS_PER_UE];
+  bstring                 transport_layer_address[BEARERS_PER_UE];
+  s1u_teid_t              gtp_teid[BEARERS_PER_UE];
 } itti_mme_app_initial_context_setup_rsp_t;
 
 typedef struct itti_mme_app_initial_context_setup_failure_s {
@@ -92,8 +106,31 @@ typedef struct itti_mme_app_initial_context_setup_failure_s {
 
 typedef struct itti_mme_app_delete_session_rsp_s {
   /* UE identifier */
-  mme_ue_s1ap_id_t	  ue_id;
+  mme_ue_s1ap_id_t    ue_id;
 } itti_mme_app_delete_session_rsp_t;
+
+typedef struct itti_mme_app_create_dedicated_bearer_req_s {
+  /* UE identifier */
+  mme_ue_s1ap_id_t                  ue_id;
+  pdn_cid_t                         cid;
+  ebi_t                             ebi;
+  ebi_t                             linked_ebi;
+  bearer_qos_t                      bearer_qos;
+  traffic_flow_template_t           *tft;
+  protocol_configuration_options_t  *pco;
+} itti_mme_app_create_dedicated_bearer_req_t;
+
+typedef struct itti_mme_app_create_dedicated_bearer_rsp_s {
+  /* UE identifier */
+  mme_ue_s1ap_id_t                  ue_id;
+  ebi_t                             ebi;
+} itti_mme_app_create_dedicated_bearer_rsp_t;
+
+typedef struct itti_mme_app_create_dedicated_bearer_rej_s {
+  /* UE identifier */
+  mme_ue_s1ap_id_t                  ue_id;
+  ebi_t                             ebi;
+} itti_mme_app_create_dedicated_bearer_rej_t;
 
 typedef struct itti_mme_app_s1ap_mme_ue_id_notification_s {
   enb_ue_s1ap_id_t	    enb_ue_s1ap_id;

@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "EmmCause.h"
 
-int
-decode_emm_cause (
-  EmmCause * emmcause,
+//------------------------------------------------------------------------------
+int decode_emm_cause (
+  emm_cause_t * emmcause,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -47,9 +49,9 @@ decode_emm_cause (
   return decoded;
 }
 
-int
-encode_emm_cause (
-  EmmCause * emmcause,
+//------------------------------------------------------------------------------
+int encode_emm_cause (
+  emm_cause_t * emmcause,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -69,21 +71,4 @@ encode_emm_cause (
   *(buffer + encoded) = *emmcause;
   encoded++;
   return encoded;
-}
-
-void
-dump_emm_cause_xml (
-  EmmCause * emmcause,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Emm Cause>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <Cause value>%u</Cause value>\n", *emmcause);
-  OAILOG_DEBUG (LOG_NAS, "</Emm Cause>\n");
 }

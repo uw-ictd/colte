@@ -19,13 +19,27 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s6a_error.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
+#include <string.h>
+#include <stdbool.h>
 #include <stdint.h>
 
+#include "bstrlib.h"
+
+#include "3gpp_23.003.h"
+#include "3gpp_24.008.h"
+#include "3gpp_33.401.h"
+#include "security_types.h"
+#include "common_types.h"
+#include "common_defs.h"
 #include "assertions.h"
 #include "log.h"
-#include "common_defs.h"
-#include "common_types.h"
 #include "s6a_defs.h"
 
 int

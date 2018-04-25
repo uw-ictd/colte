@@ -209,25 +209,31 @@ include(CheckLibraryExists)
 include(CheckSymbolExists)
 include(CheckTypeSize)
 
+###############################################################################
+# Split repository for licensing reasons
+###############################################################################
+add_boolean_option( MOBILITY_REPO                   False    "Split repository for licensing reasons, values: False or path to local mounted folder ex /tmp/openair-cn-mobility")
+
 
 ###############################################################################
 # Debug and build related options
 ###############################################################################
 add_boolean_option( DAEMONIZE                       False    "Fork executable if true")
-add_boolean_option( ENBRAINS                        False    "If true, compile with the ENBRAINS module")  
+add_boolean_option( DEBUG_MUTEX                     False    "Trace mutex lock/unlock")
+add_boolean_option( ASSERT_MUTEX                    False    "Raise segfault if can't lock mutex")
 
 add_boolean_option( DISABLE_ITTI_DETECT_SUB_TASK_ID False    " ")
 add_boolean_option( DISPLAY_LICENCE_INFO            False    "If a module has a licence banner to show")
 add_boolean_option( ENABLE_ITTI                     True     "ITTI is internal messaging, should remain enabled for most targets")
-add_boolean_option( ENABLE_ITTI_ANALYZER            False    "ITTI Analyzer is a GUI based on GTK that displays the ITTI messages exchanged between tasks")
 add_integer_option( ITTI_TASK_STACK_SIZE            0        "pthread allocated stack size in bytes of an ITTI task, if 0, use default stack size ") 
-add_integer_option( ITTI_LITE                       0        "Do not use ITTI systematically for each message exchanged between layer modules") 
+add_boolean_option( ITTI_LITE                       False    "Do not use ITTI systematically for each message exchanged between layer modules") 
 add_boolean_option( MESSAGE_CHART_GENERATOR         False    "For generating sequence diagrams")
 add_boolean_option( DISABLE_EXECUTE_SHELL_COMMAND   False    "disable execution of C int system(const char *command);")
 # NAS LAYER OPTIONS
 ##########################
 add_boolean_option( EPC_BUILD                       False    "BUILD MME-xGW executable")
 add_boolean_option( GTPV1U_LINEAR_TEID_ALLOCATION   False    "Teid allocation id mode versus pseudo random")
+add_boolean_option( ENABLE_SDF_MARKING              False    "Should be set to true if you want to use patched GTP kernel module (old iptables/netfilter based design with marking)")
 # S1AP LAYER OPTIONS
 ##########################
 add_boolean_option(S1AP_DEBUG_LIST                  False    "Traces, option to be removed soon")
@@ -240,11 +246,17 @@ add_boolean_option( LOG_OAI                         False    "Thread safe loggin
 add_boolean_option( LOG_OAI_CLEAN_HARD              False    "Thread safe logging utility option for cleaning inner structs")
 add_boolean_option( SECU_DEBUG                      False    "Traces, option to be removed soon")
 
-add_boolean_option( NAS_FORCE_REJECT_SR             True     "TEMP, TO be disabled for community after development and test: Force the EMM NAS layer to respond to any SR by reject")
-add_boolean_option( NAS_FORCE_REJECT_TAU            True     "TEMP, TO be disabled for community after development and test: Force the EMM NAS layer to respond to any TAU Request by reject")
 
 add_boolean_option( TRACE_3GPP_SPEC                 True     "Log hits of 3GPP specifications requirements")
 
+###############################################################################
+# Split repository for licensing reasons
+###############################################################################
+if(${MOBILITY_REPO})
+  message ("Extra mobility repo configured")
+else (${MOBILITY_REPO})
+  message ("No mobility extra repo configured")
+endif (${MOBILITY_REPO})
 
 set (ITTI_DIR ${OPENAIRCN_DIR}/src/common/itti)
 if (${ENABLE_ITTI})
@@ -258,20 +270,20 @@ if (${ENABLE_ITTI})
     ${ITTI_DIR}/signals.c
     ${ITTI_DIR}/timer.c
     )
-  if (${ENABLE_ITTI_ANALYZER})
-    set(ITTI_FILES
-    ${ITTI_FILES}
-    ${ITTI_DIR}/intertask_interface_dump.c 
-    ${OPENAIRCN_BIN_DIR}/messages_xml.h )
-    
-    include_directories ("${OPENAIRCN_BIN_DIR}")
-  endif (${ENABLE_ITTI_ANALYZER})
     
   add_library(ITTI ${ITTI_FILES})
     
   set(ITTI_LIB ITTI)
 endif (${ENABLE_ITTI})
 
+add_library(3GPP_TYPES
+  ${OPENAIRCN_DIR}/src/common/3gpp_24.008_cc_ies.c
+  ${OPENAIRCN_DIR}/src/common/3gpp_24.008_common_ies.c
+  ${OPENAIRCN_DIR}/src/common/3gpp_24.008_mm_ies.c
+  ${OPENAIRCN_DIR}/src/common/3gpp_24.008_gmm_ies.c
+  ${OPENAIRCN_DIR}/src/common/3gpp_24.008_gprs_common_ies.c
+  ${OPENAIRCN_DIR}/src/common/3gpp_24.008_sm_ies.c)
+set(3GPP_TYPES_LIB 3GPP_TYPES)
 
 ###############################################################################
 # ASN.1 grammar C code generation & dependancies
@@ -333,18 +345,34 @@ add_library(S1AP_LIB
 include_directories ("${S1AP_C_DIR}")
 include_directories ("${S1AP_DIR}")
 
-
-add_library(S1AP_EPC
-  ${S1AP_C_DIR}/s1ap_ies_defs.h
-  ${S1AP_DIR}/s1ap_mme_encoder.c
-  ${S1AP_DIR}/s1ap_mme_decoder.c
-  ${S1AP_DIR}/s1ap_mme_handlers.c
-  ${S1AP_DIR}/s1ap_mme_nas_procedures.c
-  ${S1AP_DIR}/s1ap_mme.c
-  ${S1AP_DIR}/s1ap_mme_itti_messaging.c
-  ${S1AP_DIR}/s1ap_mme_retransmission.c
-  ${S1AP_DIR}/s1ap_mme_ta.c
+if(${MOBILITY_REPO})
+  include_directories ("${MOBILITY_REPO_SRC}/src/s1ap/")
+  add_library(S1AP_EPC
+    ${S1AP_C_DIR}/s1ap_ies_defs.h
+    ${MOBILITY_REPO_SRC}/src/s1ap/s1ap_mobility_handover_signaling_handler.c
+    ${S1AP_DIR}/s1ap_mme_encoder.c
+    ${S1AP_DIR}/s1ap_mme_decoder.c
+    ${S1AP_DIR}/s1ap_mme_handlers.c
+    ${S1AP_DIR}/s1ap_mme_nas_procedures.c
+    ${S1AP_DIR}/s1ap_mme.c
+    ${S1AP_DIR}/s1ap_mme_itti_messaging.c
+    ${S1AP_DIR}/s1ap_mme_retransmission.c
+    ${S1AP_DIR}/s1ap_mme_ta.c
+  ) 
+else (${MOBILITY_REPO})
+  add_library(S1AP_EPC
+    ${S1AP_C_DIR}/s1ap_ies_defs.h
+    ${S1AP_DIR}/s1ap_handover_signaling_handler.c
+    ${S1AP_DIR}/s1ap_mme_encoder.c
+    ${S1AP_DIR}/s1ap_mme_decoder.c
+    ${S1AP_DIR}/s1ap_mme_handlers.c
+    ${S1AP_DIR}/s1ap_mme_nas_procedures.c
+    ${S1AP_DIR}/s1ap_mme.c
+    ${S1AP_DIR}/s1ap_mme_itti_messaging.c
+    ${S1AP_DIR}/s1ap_mme_retransmission.c
+    ${S1AP_DIR}/s1ap_mme_ta.c
   )
+endif ()
 
 
 
@@ -365,6 +393,7 @@ include_directories("${OPENAIRCN_BIN_DIR}")
 #find_path (include_dirs_all *.h PATHS /usr/include NO_CMAKE_PATH)
 #include_directories("${include_dirs_all}")
 ###############################################################################
+
 
 include_directories("${OPENAIRCN_DIR}/src/common")
 include_directories("${OPENAIRCN_DIR}/src/utils")
@@ -389,7 +418,8 @@ include_directories("${OPENAIRCN_DIR}/src/utils/bstr")
 include_directories("${OPENAIRCN_DIR}/src/sgw")
 include_directories("${OPENAIRCN_DIR}/src/mme_app")
 include_directories("${OPENAIRCN_DIR}/src/s6a")
-include_directories("${OPENAIRCN_DIR}/SRC")
+include_directories("${OPENAIRCN_DIR}/src")
+
 
 ###############################################################################
 # Utilities Library
@@ -403,6 +433,10 @@ add_library(BSTR
 include_directories(${OPENAIRCN_DIR}/src/utils/bstr)
 
 add_library(HASHTABLE
+  ${OPENAIRCN_DIR}/src/utils/hashtable/hashtable.c
+  ${OPENAIRCN_DIR}/src/utils/hashtable/hashtable_uint64.c
+  ${OPENAIRCN_DIR}/src/utils/hashtable/obj_hashtable.c
+  ${OPENAIRCN_DIR}/src/utils/hashtable/obj_hashtable_uint64.c
   ${OPENAIRCN_DIR}/src/utils/hashtable/hashtable.c
   ${OPENAIRCN_DIR}/src/utils/hashtable/obj_hashtable.c
 )
@@ -439,13 +473,16 @@ add_library(SECU_CN ${SECU_CN_SRC})
 ###############################################################################
 
 set(CN_UTILS_SRC
+  ${OPENAIRCN_DIR}/src/utils/async_system.c
   ${OPENAIRCN_DIR}/src/utils/conversions.c
+  ${OPENAIRCN_DIR}/src/utils/digest.c
+  ${OPENAIRCN_DIR}/src/utils/dynamic_memory_check.c
   ${OPENAIRCN_DIR}/src/utils/enum_string.c
   ${OPENAIRCN_DIR}/src/utils/mcc_mnc_itu.c
-  ${OPENAIRCN_DIR}/src/utils/dynamic_memory_check.c
   ${OPENAIRCN_DIR}/src/utils/pid_file.c
+  ${OPENAIRCN_DIR}/src/utils/shared_ts_log.c
   ${OPENAIRCN_DIR}/src/utils/TLVEncoder.c
-  ${OPENAIRCN_DIR}/src/utils/TLVDecoder.c  
+  ${OPENAIRCN_DIR}/src/utils/TLVDecoder.c
   )
 
 if (LOG_OAI)
@@ -461,7 +498,7 @@ set(GTPV1U_DIR ${OPENAIRCN_DIR}/src/gtpv1-u)
 set (GTPV1U_SRC
   ${GTPV1U_DIR}/gtpv1u_task.c
   ${GTPV1U_DIR}/gtpv1u_teid_pool.c
-  ${GTPV1U_DIR}/gtp_mod_kernel.c
+  ${GTPV1U_DIR}/gtp_tunnel_libgtpnl.c
 )
 add_library(GTPV1U ${GTPV1U_SRC})
 
@@ -518,38 +555,45 @@ add_library(S6A
 
 set(SGW_DIR ${OPENAIRCN_DIR}/src/sgw)
 add_library (SGW
-  ${SGW_DIR}/spgw_config.c
   ${SGW_DIR}/pgw_config.c
-  ${SGW_DIR}/sgw_config.c
-  ${SGW_DIR}/s11_causes.c
-  ${SGW_DIR}/sgw_task.c
-  ${SGW_DIR}/sgw_handlers.c
-  ${SGW_DIR}/sgw_context_manager.c
   ${SGW_DIR}/pgw_lite_paa.c
+  ${SGW_DIR}/pgw_pcef_emulation.c
   ${SGW_DIR}/pgw_pco.c
+  ${SGW_DIR}/pgw_procedures.c
+  ${SGW_DIR}/pgw_ue_ip_address_alloc.c
+  ${SGW_DIR}/s11_causes.c
+  ${SGW_DIR}/sgw_config.c
+  ${SGW_DIR}/sgw_context_manager.c
+  ${SGW_DIR}/sgw_handlers.c
+  ${SGW_DIR}/sgw_task.c
+  ${SGW_DIR}/spgw_config.c
   )
 
 set(MME_DIR ${OPENAIRCN_DIR}/src/mme_app)
 add_library(MME_APP
+  ${MME_DIR}/mme_app_apn_selection.c
+  ${MME_DIR}/mme_app_authentication.c
+  ${MME_DIR}/mme_app_bearer.c
+  ${MME_DIR}/mme_app_bearer_context.c
   ${MME_DIR}/mme_app_capabilities.c
   ${MME_DIR}/mme_app_context.c
-  ${MME_DIR}/mme_app_if_nas_transport.c
-  ${MME_DIR}/mme_app_main.c
-  ${MME_DIR}/mme_app_bearer.c
-  ${MME_DIR}/mme_app_authentication.c
   ${MME_DIR}/mme_app_detach.c
+  ${MME_DIR}/mme_app_edns_emulation.c
+  ${MME_DIR}/mme_app_itti_messaging.c
   ${MME_DIR}/mme_app_location.c
+  ${MME_DIR}/mme_app_main.c
+  ${MME_DIR}/mme_app_pdn_context.c
+  ${MME_DIR}/mme_app_procedures.c
+  ${MME_DIR}/mme_app_sgw_selection.c
+  ${MME_DIR}/mme_app_statistics.c
   ${MME_DIR}/mme_app_transport.c
   ${MME_DIR}/mme_app_ue_context.c
-  ${MME_DIR}/mme_app_statistics.c
   ${MME_DIR}/mme_config.c
-  ${MME_DIR}/s6a_2_nas_cause.c
   )
 
 
 set(NAS_SRC ${OPENAIRCN_DIR}/src/nas/)
 set(libnas_api_OBJS
-  ${NAS_SRC}api/network/as_message.c
   ${NAS_SRC}api/network/nas_message.c
   )
   
@@ -613,26 +657,16 @@ set(libnas_esm_msg_OBJS
 )
 
 set(libnas_ies_OBJS
-  ${NAS_SRC}ies/AccessPointName.c
   ${NAS_SRC}ies/AdditionalUpdateResult.c
   ${NAS_SRC}ies/AdditionalUpdateType.c
   ${NAS_SRC}ies/ApnAggregateMaximumBitRate.c
-  ${NAS_SRC}ies/AuthenticationFailureParameter.c
-  ${NAS_SRC}ies/AuthenticationParameterAutn.c
-  ${NAS_SRC}ies/AuthenticationParameterRand.c
-  ${NAS_SRC}ies/AuthenticationResponseParameter.c
-  ${NAS_SRC}ies/CipheringKeySequenceNumber.c
   ${NAS_SRC}ies/Cli.c
   ${NAS_SRC}ies/CsfbResponse.c
-  ${NAS_SRC}ies/DaylightSavingTime.c
   ${NAS_SRC}ies/DetachType.c
-  ${NAS_SRC}ies/DrxParameter.c
-  ${NAS_SRC}ies/EmergencyNumberList.c
   ${NAS_SRC}ies/EmmCause.c
   ${NAS_SRC}ies/EpsAttachResult.c
   ${NAS_SRC}ies/EpsAttachType.c
   ${NAS_SRC}ies/EpsBearerContextStatus.c
-  ${NAS_SRC}ies/EpsBearerIdentity.c
   ${NAS_SRC}ies/EpsMobileIdentity.c
   ${NAS_SRC}ies/EpsNetworkFeatureSupport.c
   ${NAS_SRC}ies/EpsQualityOfService.c
@@ -641,56 +675,30 @@ set(libnas_ies_OBJS
   ${NAS_SRC}ies/EsmCause.c
   ${NAS_SRC}ies/EsmInformationTransferFlag.c
   ${NAS_SRC}ies/EsmMessageContainer.c
-  ${NAS_SRC}ies/GprsTimer.c
   ${NAS_SRC}ies/GutiType.c
-  ${NAS_SRC}ies/IdentityType2.c
-  ${NAS_SRC}ies/ImeisvRequest.c
   ${NAS_SRC}ies/KsiAndSequenceNumber.c
   ${NAS_SRC}ies/LcsClientIdentity.c
   ${NAS_SRC}ies/LcsIndicator.c
   ${NAS_SRC}ies/LinkedEpsBearerIdentity.c
-  ${NAS_SRC}ies/LlcServiceAccessPointIdentifier.c
-  ${NAS_SRC}ies/LocationAreaIdentification.c
   ${NAS_SRC}ies/MessageType.c
-  ${NAS_SRC}ies/MobileIdentity.c
-  ${NAS_SRC}ies/MobileStationClassmark2.c
-  ${NAS_SRC}ies/MobileStationClassmark3.c
-  ${NAS_SRC}ies/MsNetworkCapability.c
-  ${NAS_SRC}ies/MsNetworkFeatureSupport.c
   ${NAS_SRC}ies/NasKeySetIdentifier.c
   ${NAS_SRC}ies/NasMessageContainer.c
   ${NAS_SRC}ies/NasRequestType.c
   ${NAS_SRC}ies/NasSecurityAlgorithms.c
-  ${NAS_SRC}ies/NetworkName.c
   ${NAS_SRC}ies/Nonce.c
-  ${NAS_SRC}ies/PacketFlowIdentifier.c
   ${NAS_SRC}ies/PagingIdentity.c
   ${NAS_SRC}ies/PdnAddress.c
   ${NAS_SRC}ies/PdnType.c
-  ${NAS_SRC}ies/PlmnList.c
-  ${NAS_SRC}ies/ProcedureTransactionIdentity.c
-  ${NAS_SRC}ies/ProtocolConfigurationOptions.c
-  ${NAS_SRC}ies/ProtocolDiscriminator.c
-  ${NAS_SRC}ies/PTmsiSignature.c
-  ${NAS_SRC}ies/QualityOfService.c
   ${NAS_SRC}ies/RadioPriority.c
   ${NAS_SRC}ies/SecurityHeaderType.c
   ${NAS_SRC}ies/ServiceType.c
   ${NAS_SRC}ies/ShortMac.c
   ${NAS_SRC}ies/SsCode.c
-  ${NAS_SRC}ies/SupportedCodecList.c
-  ${NAS_SRC}ies/TimeZoneAndTime.c
-  ${NAS_SRC}ies/TimeZone.c
-  ${NAS_SRC}ies/TmsiStatus.c
   ${NAS_SRC}ies/TrackingAreaIdentity.c
   ${NAS_SRC}ies/TrackingAreaIdentityList.c
-  ${NAS_SRC}ies/TrafficFlowAggregateDescription.c
-  ${NAS_SRC}ies/TrafficFlowTemplate.c
-  ${NAS_SRC}ies/TransactionIdentifier.c
   ${NAS_SRC}ies/UeNetworkCapability.c
   ${NAS_SRC}ies/UeRadioCapabilityInformationUpdateNeeded.c
   ${NAS_SRC}ies/UeSecurityCapability.c
-  ${NAS_SRC}ies/VoiceDomainPreferenceAndUeUsageSetting.c
 )
 
 set (libnas_utils_OBJS
@@ -706,7 +714,6 @@ set(libnas_mme_emm_OBJS
   ${NAS_SRC}emm/Attach.c
   ${NAS_SRC}emm/Authentication.c
   ${NAS_SRC}emm/Detach.c
-  ${NAS_SRC}emm/EmmCommon.c
   ${NAS_SRC}emm/emm_data_ctx.c
   ${NAS_SRC}emm/emm_main.c
   ${NAS_SRC}emm/EmmStatusHdl.c
@@ -716,6 +723,20 @@ set(libnas_mme_emm_OBJS
   ${NAS_SRC}emm/ServiceRequestHdl.c
   ${NAS_SRC}emm/TrackingAreaUpdate.c
 )
+  
+if(${MOBILITY_REPO})
+  include_directories ("${MOBILITY_REPO_SRC}/src/nas/emm")
+  set(libnas_mme_emm_OBJS
+    ${libnas_mme_emm_OBJS}
+    ${MOBILITY_REPO_SRC}/src/nas/emm/TrackingAreaUpdateMobility.c
+  ) 
+else (${MOBILITY_REPO})
+  set(libnas_mme_emm_OBJS
+    ${libnas_mme_emm_OBJS}
+    ${NAS_SRC}/emm/TrackingAreaUpdateMobility.c
+  ) 
+endif ()
+
   
 set(libnas_mme_emm_sap_OBJS
   ${NAS_SRC}emm/sap/emm_as.c
@@ -739,6 +760,7 @@ set (libnas_mme_esm_OBJS
   ${NAS_SRC}esm/esm_data_context.c
   ${NAS_SRC}esm/esm_ebr.c
   ${NAS_SRC}esm/esm_ebr_context.c
+  ${NAS_SRC}esm/esm_information.c
   ${NAS_SRC}esm/esm_ip.c
   ${NAS_SRC}esm/esm_main.c
   ${NAS_SRC}esm/esm_pt.c
@@ -755,10 +777,9 @@ set(libnas_mme_esm_sap_OBJS
   
 add_library(LIB_NAS_MME
   ${NAS_SRC}nas_itti_messaging.c
-  ${NAS_SRC}nas_if_s1.c
-  ${NAS_SRC}nas_if_s6a.c
   ${NAS_SRC}nas_network.c
   ${NAS_SRC}nas_proc.c
+  ${NAS_SRC}nas_procedures.c
   ${libnas_api_OBJS}
   ${libnas_mme_api_OBJS}
   ${libnas_emm_msg_OBJS}
@@ -778,26 +799,6 @@ include_directories(${NAS_SRC}/emm/sap)
 include_directories(${NAS_SRC}/esm)
 include_directories(${NAS_SRC}/esm/sap)
 
-
-# Make lfds as a own source code (even if it is a outside library)
-# For better intergration with compilation flags & structure of cmake
-###################################################################
-set(lfds ${OPENAIRCN_DIR}/src/utils/lfds/liblfds6.1.1/liblfds611/src/)
-file(GLOB lfds_queue ${lfds}/lfds611_queue/*.c)
-file(GLOB lfds_ring ${lfds}/lfds611_ringbuffer/*.c)
-file(GLOB lfds_slist ${lfds}/lfds611_slist/*.c)
-file(GLOB lfds_stack ${lfds}/lfds611_stack/*.c)
-file(GLOB lfds_freelist ${lfds}/lfds611_freelist/*.c)
-
-include_directories(${lfds})
-add_library(LFDS
-  ${lfds_queue} ${lfds_ring} ${lfds_slist} ${lfds_stack} ${lfds_freelist}
-  ${lfds}/lfds611_liblfds/lfds611_liblfds_abstraction_test_helpers.c
-  ${lfds}/lfds611_liblfds/lfds611_liblfds_aligned_free.c
-  ${lfds}/lfds611_liblfds/lfds611_liblfds_aligned_malloc.c
-  ${lfds}/lfds611_abstraction/lfds611_abstraction_free.c
-  ${lfds}/lfds611_abstraction/lfds611_abstraction_malloc.c
-)
 
 
 # System packages that are required
@@ -821,19 +822,6 @@ pkg_search_module(CRYPTO libcrypto REQUIRED)
 include_directories(${CRYPTO_INCLUDE_DIRS})
 
 
-pkg_search_module(OPENPGM openpgm-5.1)
-if(NOT ${OPENPGM_FOUND})
-  message("PACKAGE openpgm-5.1 is required by binaries such as oaisim: will fail later if this target is built")
-else()
-  include_directories(${OPENPGM_INCLUDE_DIRS})
-endif()
-
-pkg_search_module(NETTLE nettle)
-if(NOT ${NETTLE_FOUND})
-  message("PACKAGE nettle not found: some targets will fail")
-else()
-  include_directories(${NETTLE_INCLUDE_DIRS})
-endif()
 
 pkg_search_module(NETTLE nettle)
 if(NOT ${NETTLE_FOUND})
@@ -856,6 +844,11 @@ endif()
 add_definitions("-DNETTLE_VERSION_MAJOR=${NETTLE_VERSION_MAJOR}")
 add_definitions("-DNETTLE_VERSION_MINOR=${NETTLE_VERSION_MINOR}")
 
+find_library(LFDS lfds710 PATHS /usr/local/lib /usr/lib )
+
+if ("${LFDS}" STREQUAL "LFDS-NOTFOUND")
+  message(FATAL_ERROR "LIB LFDS not found, please install it" )
+endif()
 
 pkg_search_module(XPM xpm)
 if(NOT ${XPM_FOUND})
@@ -869,28 +862,6 @@ endif()
 # Hack on a test of asn1c version (already dirty)
 add_definitions(-DASN1_MINIMUM_VERSION=924)
 
-##################################################################
-# ENBRAINS LIBRARY
-##################################################################
-if( ENBRAINS )
-include_directories("${OPENAIRCN_DIR}/src/enbrains")
-
-set(ENBRAINS_SRC
-    ${OPENAIRCN_DIR}/src/enbrains/enbrains.c
-    ${OPENAIRCN_DIR}/src/enbrains/enbrains_mme.c
-    ${OPENAIRCN_DIR}/src/enbrains/enbrains_spgw.c
-)
-set(ENBRAINS_HDR
-    ${OPENAIRCN_DIR}/src/enbrains/enbrains.h
-)
-add_library(enbrains ${ENBRAINS_SRC} ${ENBRAINS_HDR})
-set(enbrains_lib enbrains)
-
-endif( ENBRAINS )
-##################################################################
-
-
-
 #################################
 # add executables for operation
 #################################
@@ -902,49 +873,30 @@ add_executable(mme
   ${OPENAIRCN_DIR}/src/oai_mme/oai_mme_log.c
   ${OPENAIRCN_DIR}/src/oai_mme/oai_mme.c
   ${OPENAIRCN_DIR}/src/common/common_types.c
-  ${OPENAIRCN_DIR}/src/common/3gpp_24.008.c
+  ${OPENAIRCN_DIR}/src/common/itti_free_defined_msg.c
   ${OPENAIRCN_DIR}/src/nas/nas_mme_task.c
   )
-if( ITTI_ANALYZER )
-  add_executable(mme ${OPENAIRCN_BIN_DIR}/messages_xml.h )
-endif( ITTI_ANALYZER )
 
 target_link_libraries (mme
   -Wl,--start-group
-   LIB_NAS_MME S1AP_LIB S1AP_EPC S11_MME GTPV2C SCTP_SERVER UDP_SERVER SECU_CN  S6A MME_APP LFDS ${MSC_LIB} ${ITTI_LIB} CN_UTILS HASHTABLE BSTR ${enbrains_lib}
+   LIB_NAS_MME S1AP_LIB S1AP_EPC S11_MME GTPV2C SCTP_SERVER UDP_SERVER SECU_CN  S6A MME_APP ${MSC_LIB} ${ITTI_LIB}  ${3GPP_TYPES_LIB} CN_UTILS HASHTABLE BSTR
   -Wl,--end-group
-  pthread m sctp  rt crypt ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} gnutls fdproto fdcore
+  pthread m sctp  rt crypt ${LFDS} ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} gnutls fdproto fdcore
   )
 
-# spgw is S+P-GW  node implementation
+
+# spgw is S-GW +P-GW  nodes all in one implementation
 ################################
 add_executable(spgw
   ${OPENAIRCN_DIR}/src/oai_sgw/oai_sgw.c
-  ${OPENAIRCN_DIR}/src/common/3gpp_24.008.c
+  ${OPENAIRCN_DIR}/src/common/common_types.c
+  ${OPENAIRCN_DIR}/src/common/itti_free_defined_msg.c
   )
-if( ITTI_ANALYZER )
-  add_executable(spgw ${OPENAIRCN_BIN_DIR}/messages_xml.h )
-endif( ITTI_ANALYZER )
-
 target_link_libraries (spgw
   -Wl,--start-group
-  GTPV1U SGW S11_SGW GTPV2C UDP_SERVER LFDS ${MSC_LIB} ${ITTI_LIB} CN_UTILS HASHTABLE BSTR ${enbrains_lib}
+  GTPV1U SGW S11_SGW GTPV2C UDP_SERVER ${MSC_LIB} ${ITTI_LIB} ${3GPP_TYPES_LIB} CN_UTILS HASHTABLE BSTR
   -Wl,--end-group
-  pthread m rt gtpnl ${CONFIG_LIBRARIES}  
-  )
-
-# auth_request is a helper for scenario builder
-################################
-add_executable(auth_request
-  ${OPENAIRCN_DIR}/src/test/auth_request.c
-  ${OPENAIRCN_DIR}/src/common/itti/backtrace.c
-  ${OPENAIRCN_DIR}/src/secu/key_nas_deriver.c
-  ${OPENAIRCN_DIR}/src/secu/kdf.c
-  ${OPENAIRCN_DIR}/src/utils/mcc_mnc_itu.c
-  ${OPENAIRCN_DIR}/src/utils/dynamic_memory_check.c
-  )
-target_link_libraries (auth_request
-  pthread m rt crypt ${NETTLE_LIBRARIES} gnutls fdproto fdcore
+  pthread m rt gtpnl ${LFDS} ${CONFIG_LIBRARIES}  
   )
 
 
@@ -989,43 +941,8 @@ add_test(NAME test_imsi_convert COMMAND test_mme_app_ue_context_imsi)
 #    ${OPENAIRCN_DIR}/src/test/test_${myExe}.c
 #    )
 #  target_link_libraries (test_${myExe}
-#    -Wl,--start-group SECU_CN UTIL LFDS -Wl,--end-group m rt crypt ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} fdproto fdcore
+#    -Wl,--start-group SECU_CN UTIL -Wl,--end-group ${LFDS}  m rt crypt ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} ${NETTLE_LIBRARIES} ${CONFIG_LIBRARIES} fdproto fdcore
 #    )
 #endforeach(myExe)
-
-
-##################################################
-# Generated specific cases is not regular code
-##################################################
-
-#######################################################################
-# itti symbolic debug print require to generate a specific include file
-#######################################################################
-
-  if( ENABLE_ITTI_ANALYZER )
-  # retrieve the compiler options to send it to gccxml
-    get_directory_property( DirDefs COMPILE_DEFINITIONS )
-    foreach( d ${DirDefs} )
-      list(APPEND itti_compiler_options "-D${d}")
-    endforeach()
-    get_directory_property( DirDefs INCLUDE_DIRECTORIES )
-    foreach( d ${DirDefs} )
-      list(APPEND itti_compiler_options "-I${d}")
-    endforeach()
-
-    set (ITTI_H ${ITTI_DIR}/intertask_interface_types.h)
-    add_custom_command (
-    OUTPUT ${OPENAIRCN_BIN_DIR}/messages.xml
-      COMMAND gccxml ${itti_compiler_options} -fxml=${OPENAIRCN_BIN_DIR}/messages.xml ${ITTI_H}
-      DEPENDS ${S1AP_OAI_generated} 
-    )
-
-    add_custom_command (
-      OUTPUT ${OPENAIRCN_BIN_DIR}/messages_xml.h
-      COMMAND sed -e 's/ *//'   -e 's/\"/\\\\\"/g' -e 's/^/\"/' -e 's/$$/\\\\n\"/' ${OPENAIRCN_BIN_DIR}/messages.xml  > ${OPENAIRCN_BIN_DIR}/messages_xml.h
-      DEPENDS ${OPENAIRCN_BIN_DIR}/messages.xml 
-    )
-  endif(ENABLE_ITTI_ANALYZER)
-
 
 

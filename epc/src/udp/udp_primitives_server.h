@@ -34,5 +34,6 @@
  @returns -1 on error, 0 otherwise.
  **/
 int udp_init(void);
+void udp_exit (void);
 
 #endif /* UDP_PRIMITIVES_SERVER_H_ */

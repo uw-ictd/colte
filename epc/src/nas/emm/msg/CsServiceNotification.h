@@ -21,9 +21,7 @@
 
 #ifndef FILE_CS_SERVICE_NOTIFICATION_SEEN
 #define FILE_CS_SERVICE_NOTIFICATION_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "PagingIdentity.h"
@@ -31,6 +29,9 @@
 #include "SsCode.h"
 #include "LcsIndicator.h"
 #include "LcsClientIdentity.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
@@ -69,15 +70,15 @@ typedef enum cs_service_notification_iei_tag {
 
 typedef struct cs_service_notification_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                protocoldiscriminator:4;
-  SecurityHeaderType                   securityheadertype:4;
-  MessageType                          messagetype;
-  PagingIdentity                       pagingidentity;
+  eps_protocol_discriminator_t         protocoldiscriminator:4;
+  security_header_type_t               securityheadertype:4;
+  message_type_t                       messagetype;
+  paging_identity_t                    pagingidentity;
   /* Optional fields */
   uint32_t                             presencemask;
   Cli                                  cli;
-  SsCode                               sscode;
-  LcsIndicator                         lcsindicator;
+  ss_code_t                            sscode;
+  lcs_indicator_t                      lcsindicator;
   LcsClientIdentity                    lcsclientidentity;
 } cs_service_notification_msg;
 

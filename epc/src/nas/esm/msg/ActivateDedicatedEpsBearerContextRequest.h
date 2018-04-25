@@ -19,26 +19,16 @@
  *      contact@openairinterface.org
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
+#ifndef ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_H_
+#define ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_H_
 
-#include "ProtocolDiscriminator.h"
-#include "EpsBearerIdentity.h"
-#include "ProcedureTransactionIdentity.h"
 #include "MessageType.h"
 #include "LinkedEpsBearerIdentity.h"
 #include "EpsQualityOfService.h"
-#include "TrafficFlowTemplate.h"
-#include "TransactionIdentifier.h"
-#include "QualityOfService.h"
-#include "LlcServiceAccessPointIdentifier.h"
 #include "RadioPriority.h"
-#include "PacketFlowIdentifier.h"
-#include "ProtocolConfigurationOptions.h"
-
-#ifndef ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_H_
-#define ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_H_
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_MINIMUM_LENGTH ( \
@@ -50,11 +40,11 @@
     EPS_QUALITY_OF_SERVICE_MAXIMUM_LENGTH + \
     TRAFFIC_FLOW_TEMPLATE_MAXIMUM_LENGTH + \
     TRANSACTION_IDENTIFIER_MAXIMUM_LENGTH + \
-    QUALITY_OF_SERVICE_MAXIMUM_LENGTH + \
-    LLC_SERVICE_ACCESS_POINT_IDENTIFIER_MAXIMUM_LENGTH + \
+    QUALITY_OF_SERVICE_IE_MAX_LENGTH + \
+    LLC_SERVICE_ACCESS_POINT_IDENTIFIER_IE_MAX_LENGTH + \
     RADIO_PRIORITY_MAXIMUM_LENGTH + \
-    PACKET_FLOW_IDENTIFIER_MAXIMUM_LENGTH + \
-    PROTOCOL_CONFIGURATION_OPTIONS_MAXIMUM_LENGTH)
+    PACKET_FLOW_IDENTIFIER_IE_MAX_LENGTH + \
+    PROTOCOL_CONFIGURATION_OPTIONS_IE_MAX_LENGTH)
 
 /* If an optional value is present and should be encoded, the corresponding
  * Bit mask should be set to 1.
@@ -67,12 +57,12 @@
 # define ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT (1<<5)
 
 typedef enum activate_dedicated_eps_bearer_context_request_iei_tag {
-  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_TRANSACTION_IDENTIFIER_IEI          = 0x5D, /* 0x5D = 93 */
-  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_QOS_IEI                  = 0x30, /* 0x30 = 48 */
-  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI             = 0x32, /* 0x32 = 50 */
+  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_TRANSACTION_IDENTIFIER_IEI          = SM_LINKED_TI_IEI,
+  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_QOS_IEI                  = SM_QUALITY_OF_SERVICE_IEI,
+  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI             = SM_LLC_SERVICE_ACCESS_POINT_IDENTIFIER_IEI,
   ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_RADIO_PRIORITY_IEI                  = 0x80, /* 0x80 = 128 */
-  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI          = 0x34, /* 0x34 = 52 */
-  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = 0x27, /* 0x27 = 39 */
+  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI          = SM_PACKET_FLOW_IDENTIFIER_IEI,
+  ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = SM_PROTOCOL_CONFIGURATION_OPTIONS_IEI,
 } activate_dedicated_eps_bearer_context_request_iei;
 
 /*
@@ -84,21 +74,21 @@ typedef enum activate_dedicated_eps_bearer_context_request_iei_tag {
 
 typedef struct activate_dedicated_eps_bearer_context_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                                   protocoldiscriminator:4;
-  EpsBearerIdentity                                       epsbeareridentity:4;
-  ProcedureTransactionIdentity                            proceduretransactionidentity;
-  MessageType                                             messagetype;
-  LinkedEpsBearerIdentity                                 linkedepsbeareridentity;
-  EpsQualityOfService                                     epsqos;
-  TrafficFlowTemplate                                     tft;
+  eps_protocol_discriminator_t                           protocoldiscriminator:4;
+  ebi_t                                                  epsbeareridentity:4;
+  pti_t                                                  proceduretransactionidentity;
+  message_type_t                                         messagetype;
+  linked_eps_bearer_identity_t                                linkedepsbeareridentity;
+  EpsQualityOfService                                    epsqos;
+  traffic_flow_template_t                                tft;
   /* Optional fields */
-  uint32_t                                                presencemask;
-  TransactionIdentifier                                   transactionidentifier;
-  QualityOfService                                        negotiatedqos;
-  LlcServiceAccessPointIdentifier                         negotiatedllcsapi;
-  RadioPriority                                           radiopriority;
-  PacketFlowIdentifier                                    packetflowidentifier;
-  ProtocolConfigurationOptions                            protocolconfigurationoptions;
+  uint32_t                                               presencemask;
+  linked_ti_t                                            transactionidentifier;
+  quality_of_service_t                                   negotiatedqos;
+  llc_service_access_point_identifier_t                  negotiatedllcsapi;
+  radio_priority_t                                          radiopriority;
+  packet_flow_identifier_t                               packetflowidentifier;
+  protocol_configuration_options_t                       protocolconfigurationoptions;
 } activate_dedicated_eps_bearer_context_request_msg;
 
 int decode_activate_dedicated_eps_bearer_context_request(activate_dedicated_eps_bearer_context_request_msg *activatededicatedepsbearercontextrequest, uint8_t *buffer, uint32_t len);

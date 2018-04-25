@@ -45,17 +45,30 @@
         network has user data pending and the UE is in EMM-IDLE mode.
 
 *****************************************************************************/
+#include <pthread.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 
-#include <string.h>             // memcmp, memcpy
-#include <stdlib.h>             // malloc, free_wrapper
+#include "bstrlib.h"
 
-#include "emm_proc.h"
 #include "log.h"
+#include "msc.h"
+#include "dynamic_memory_check.h"
+#include "common_types.h"
+#include "common_defs.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
+#include "3gpp_29.274.h"
+#include "mme_app_ue_context.h"
+#include "emm_proc.h"
 #include "nas_timer.h"
-#include "emmData.h"
+#include "emm_data.h"
 #include "emm_sap.h"
 #include "emm_cause.h"
-#include "msc.h"
+#include "mme_app_defs.h"
 
 /****************************************************************************/
 /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
@@ -81,21 +94,6 @@ static int _emm_service_reject (mme_ue_s1ap_id_t ue_id, int emm_cause);
 /****************************************************************************/
 /******************  E X P O R T E D    F U N C T I O N S  ******************/
 /****************************************************************************/
-/****************************************************************************
- **                                                                        **
- ** Name:        emm_proc_tracking_area_update_reject()                    **
- **                                                                        **
- ** Description:                                                           **
- **                                                                        **
- ** Inputs:  ue_id:              UE lower layer identifier                  **
- **                  emm_cause: EMM cause code to be reported              **
- **                  Others:    None                                       **
- **                                                                        **
- ** Outputs:     None                                                      **
- **                  Return:    RETURNok, RETURNerror                      **
- **                  Others:    _emm_data                                  **
- **                                                                        **
- ***************************************************************************/
 int
 emm_proc_service_reject (
  const mme_ue_s1ap_id_t ue_id,
@@ -120,7 +118,8 @@ _emm_service_reject (mme_ue_s1ap_id_t ue_id, int emm_cause)
 {
   int rc = RETURNerror;
   OAILOG_FUNC_IN (LOG_NAS_EMM);
-  emm_data_context_t                     *emm_ctx = emm_data_context_get (&_emm_data, ue_id);
+
+  emm_context_t                          *emm_ctx = emm_context_get (&_emm_data, ue_id);
   emm_sap_t                               emm_sap = {0};
 
   OAILOG_DEBUG (LOG_NAS_EMM, "EMM-PROC- Sending Service Reject. ue_id=" MME_UE_S1AP_ID_FMT ", cause=%d)\n",
@@ -153,5 +152,6 @@ _emm_service_reject (mme_ue_s1ap_id_t ue_id, int emm_cause)
     }
   }
 
+  emm_context_unlock(emm_ctx);
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
 }

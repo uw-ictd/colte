@@ -19,14 +19,25 @@
  *      contact@openairinterface.org
  */
 
+/*! \file TLVDecoder.c
+  \brief
+  \author Philippe MOREL, Sebastien ROUX, Lionel GAUTHIER
+  \company Eurecom
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "bstrlib.h"
 
 #include "TLVDecoder.h"
 
 int                                     errorCodeDecoder = 0;
 
+//------------------------------------------------------------------------------
 int decode_bstring (
   bstring * bstr,
   const uint16_t pdulen,
@@ -46,6 +57,7 @@ int decode_bstring (
   }
 }
 
+//------------------------------------------------------------------------------
 bstring dump_bstring_xml (const bstring  const bstr)
 {
   if (bstr) {

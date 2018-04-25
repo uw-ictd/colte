@@ -28,11 +28,15 @@
  */
 
 
+/*! \file common_dim.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #ifndef FILE_COMMON_DIM_SEEN
 #define FILE_COMMON_DIM_SEEN
-
-#define MAX_GUMMEI                2
 
 
 

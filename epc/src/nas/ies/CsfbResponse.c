@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "CsfbResponse.h"
 
-int
-decode_csfb_response (
-  CsfbResponse * csfbresponse,
+//------------------------------------------------------------------------------
+int decode_csfb_response (
+  csfb_response_t * csfbresponse,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -48,9 +50,9 @@ decode_csfb_response (
   return decoded;
 }
 
-int
-decode_u8_csfb_response (
-  CsfbResponse * csfbresponse,
+//------------------------------------------------------------------------------
+int decode_u8_csfb_response (
+  csfb_response_t * csfbresponse,
   uint8_t iei,
   uint8_t value,
   uint32_t len)
@@ -63,9 +65,9 @@ decode_u8_csfb_response (
   return decoded;
 }
 
-int
-encode_csfb_response (
-  CsfbResponse * csfbresponse,
+//------------------------------------------------------------------------------
+int encode_csfb_response (
+  csfb_response_t * csfbresponse,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -81,34 +83,18 @@ encode_csfb_response (
   return encoded;
 }
 
-uint8_t
-encode_u8_csfb_response (
-  CsfbResponse * csfbresponse)
+//------------------------------------------------------------------------------
+uint8_t encode_u8_csfb_response (
+  csfb_response_t * csfbresponse)
 {
   uint8_t                                 bufferReturn;
   uint8_t                                *buffer = &bufferReturn;
   uint8_t                                 encoded = 0;
   uint8_t                                 iei = 0;
 
-  dump_csfb_response_xml (csfbresponse, 0);
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*csfbresponse & 0x7);
   encoded++;
   return bufferReturn;
 }
 
-void
-dump_csfb_response_xml (
-  CsfbResponse * csfbresponse,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Csfb Response>\n");
 
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <CSFB response value>%u</CSFB response value>\n", *csfbresponse);
-  OAILOG_DEBUG (LOG_NAS, "</Csfb Response>\n");
-}

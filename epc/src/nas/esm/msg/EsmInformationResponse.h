@@ -19,19 +19,13 @@
  *      contact@openairinterface.org
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
-#include "ProtocolDiscriminator.h"
-#include "EpsBearerIdentity.h"
-#include "ProcedureTransactionIdentity.h"
-#include "MessageType.h"
-#include "AccessPointName.h"
-#include "ProtocolConfigurationOptions.h"
-
 #ifndef ESM_INFORMATION_RESPONSE_H_
 #define ESM_INFORMATION_RESPONSE_H_
+
+#include "MessageType.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define ESM_INFORMATION_RESPONSE_MINIMUM_LENGTH (0)
@@ -48,8 +42,8 @@
 # define ESM_INFORMATION_RESPONSE_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT (1<<1)
 
 typedef enum esm_information_response_iei_tag {
-  ESM_INFORMATION_RESPONSE_ACCESS_POINT_NAME_IEI               = 0x28, /* 0x28 = 40 */
-  ESM_INFORMATION_RESPONSE_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = 0x27, /* 0x27 = 39 */
+  ESM_INFORMATION_RESPONSE_ACCESS_POINT_NAME_IEI               = SM_ACCESS_POINT_NAME_IEI,
+  ESM_INFORMATION_RESPONSE_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = SM_PROTOCOL_CONFIGURATION_OPTIONS_IEI,
 } esm_information_response_iei;
 
 /*
@@ -61,14 +55,14 @@ typedef enum esm_information_response_iei_tag {
 
 typedef struct esm_information_response_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                 protocoldiscriminator:4;
-  EpsBearerIdentity                     epsbeareridentity:4;
-  ProcedureTransactionIdentity          proceduretransactionidentity;
-  MessageType                           messagetype;
+  eps_protocol_discriminator_t                           protocoldiscriminator:4;
+  ebi_t                                                  epsbeareridentity:4;
+  pti_t                                                  proceduretransactionidentity;
+  message_type_t                                         messagetype;
   /* Optional fields */
-  uint32_t                              presencemask;
-  AccessPointName                       accesspointname;
-  ProtocolConfigurationOptions          protocolconfigurationoptions;
+  uint32_t                                               presencemask;
+  access_point_name_t                                    accesspointname;
+  protocol_configuration_options_t                       protocolconfigurationoptions;
 } esm_information_response_msg;
 
 int decode_esm_information_response(esm_information_response_msg *esminformationresponse, uint8_t *buffer, uint32_t len);

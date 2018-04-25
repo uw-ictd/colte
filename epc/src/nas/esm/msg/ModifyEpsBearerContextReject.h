@@ -19,19 +19,12 @@
  *      contact@openairinterface.org
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
-#include "ProtocolDiscriminator.h"
-#include "EpsBearerIdentity.h"
-#include "ProcedureTransactionIdentity.h"
-#include "MessageType.h"
-#include "EsmCause.h"
-#include "ProtocolConfigurationOptions.h"
-
 #ifndef MODIFY_EPS_BEARER_CONTEXT_REJECT_H_
 #define MODIFY_EPS_BEARER_CONTEXT_REJECT_H_
+#include "MessageType.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define MODIFY_EPS_BEARER_CONTEXT_REJECT_MINIMUM_LENGTH ( \
@@ -48,7 +41,7 @@
 # define MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT (1<<0)
 
 typedef enum modify_eps_bearer_context_reject_iei_tag {
-  MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = 0x27, /* 0x27 = 39 */
+  MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = SM_PROTOCOL_CONFIGURATION_OPTIONS_IEI,
 } modify_eps_bearer_context_reject_iei;
 
 /*
@@ -60,14 +53,14 @@ typedef enum modify_eps_bearer_context_reject_iei_tag {
 
 typedef struct modify_eps_bearer_context_reject_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                       protocoldiscriminator:4;
-  EpsBearerIdentity                           epsbeareridentity:4;
-  ProcedureTransactionIdentity                proceduretransactionidentity;
-  MessageType                                 messagetype;
-  EsmCause                                    esmcause;
+  eps_protocol_discriminator_t                           protocoldiscriminator:4;
+  ebi_t                                                  epsbeareridentity:4;
+  pti_t                                                  proceduretransactionidentity;
+  message_type_t                                         messagetype;
+  esm_cause_t                                               esmcause;
   /* Optional fields */
-  uint32_t                                    presencemask;
-  ProtocolConfigurationOptions                protocolconfigurationoptions;
+  uint32_t                                               presencemask;
+  protocol_configuration_options_t                       protocolconfigurationoptions;
 } modify_eps_bearer_context_reject_msg;
 
 int decode_modify_eps_bearer_context_reject(modify_eps_bearer_context_reject_msg *modifyepsbearercontextreject, uint8_t *buffer, uint32_t len);

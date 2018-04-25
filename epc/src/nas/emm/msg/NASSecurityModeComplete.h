@@ -21,12 +21,12 @@
 
 #ifndef FILE_SECURITY_MODE_COMPLETE_SEEN
 #define FILE_SECURITY_MODE_COMPLETE_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
-#include "MobileIdentity.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
@@ -42,7 +42,7 @@
 # define SECURITY_MODE_COMPLETE_IMEISV_PRESENT (1<<0)
 
 typedef enum security_mode_complete_iei_tag {
-  SECURITY_MODE_COMPLETE_IMEISV_IEI  = 0x23, /* 0x23 = 35 */
+  SECURITY_MODE_COMPLETE_IMEISV_IEI  = C_MOBILE_IDENTITY_IEI,
 } security_mode_complete_iei;
 
 /*
@@ -54,12 +54,12 @@ typedef enum security_mode_complete_iei_tag {
 
 typedef struct security_mode_complete_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator               protocoldiscriminator:4;
-  SecurityHeaderType                  securityheadertype:4;
-  MessageType                         messagetype;
+  eps_protocol_discriminator_t        protocoldiscriminator:4;
+  security_header_type_t              securityheadertype:4;
+  message_type_t                      messagetype;
   /* Optional fields */
   uint32_t                            presencemask;
-  MobileIdentity                      imeisv;
+  mobile_identity_t                   imeisv;
 } security_mode_complete_msg;
 
 int decode_security_mode_complete(security_mode_complete_msg *securitymodecomplete, uint8_t *buffer, uint32_t len);

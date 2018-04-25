@@ -27,23 +27,12 @@
  * either expressed or implied, of the FreeBSD Project.
  */
 
-/*****************************************************************************
-
-Source      mcc_mnc_itu.h
-
-Version     0.1
-
-Date        {2014/10/02
-
-Product
-
-Subsystem
-
-Author      Lionel GAUTHIER
-
-Description Defines the MCC/MNC list delivered by the ITU
-
-*****************************************************************************/
+/*! \file mcc_mnc_itu.h
+  \brief  Defines the MCC/MNC list delivered by the ITU
+  \author Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 #ifndef FILE_MCC_MNC_SEEN
 #define FILE_MCC_MNC_SEEN
 

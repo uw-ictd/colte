@@ -22,15 +22,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "AdditionalUpdateResult.h"
 
-int
-decode_additional_update_result (
-  AdditionalUpdateResult * additionalupdateresult,
+//------------------------------------------------------------------------------
+int decode_additional_update_result (
+  additional_update_result_t * additionalupdateresult,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -49,9 +52,9 @@ decode_additional_update_result (
   return decoded;
 }
 
-int
-decode_u8_additional_update_result (
-  AdditionalUpdateResult * additionalupdateresult,
+//------------------------------------------------------------------------------
+int decode_u8_additional_update_result (
+  additional_update_result_t * additionalupdateresult,
   uint8_t iei,
   uint8_t value,
   uint32_t len)
@@ -64,9 +67,9 @@ decode_u8_additional_update_result (
   return decoded;
 }
 
-int
-encode_additional_update_result (
-  AdditionalUpdateResult * additionalupdateresult,
+//------------------------------------------------------------------------------
+int encode_additional_update_result (
+  additional_update_result_t * additionalupdateresult,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -82,34 +85,16 @@ encode_additional_update_result (
   return encoded;
 }
 
-uint8_t
-encode_u8_additional_update_result (
-  AdditionalUpdateResult * additionalupdateresult)
+//------------------------------------------------------------------------------
+uint8_t encode_u8_additional_update_result (additional_update_result_t * additionalupdateresult)
 {
   uint8_t                                 bufferReturn;
   uint8_t                                *buffer = &bufferReturn;
   uint8_t                                 encoded = 0;
   uint8_t                                 iei = 0;
 
-  dump_additional_update_result_xml (additionalupdateresult, 0);
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*additionalupdateresult & 0x3);
   encoded++;
   return bufferReturn;
 }
 
-void
-dump_additional_update_result_xml (
-  AdditionalUpdateResult * additionalupdateresult,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Additional Update Result>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <Additional update result value>%u</Additional update result value>\n", *additionalupdateresult);
-  OAILOG_DEBUG (LOG_NAS, "</Additional Update Result>\n");
-}

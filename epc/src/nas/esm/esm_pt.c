@@ -35,6 +35,7 @@
   Description Defines functions used to handle ESM procedure transactions.
 
 *****************************************************************************/
+#include <stdint.h>
 
 #include "3gpp_24.007.h"
 #include "esm_pt.h"

@@ -21,13 +21,13 @@
 
 #ifndef FILE_AUTHENTICATION_FAILURE_SEEN
 #define FILE_AUTHENTICATION_FAILURE_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "EmmCause.h"
-#include "AuthenticationFailureParameter.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
@@ -37,7 +37,7 @@
 /* Maximum length macro. Formed by maximum length of each field */
 #define AUTHENTICATION_FAILURE_MAXIMUM_LENGTH ( \
     EMM_CAUSE_MAXIMUM_LENGTH + \
-    AUTHENTICATION_FAILURE_PARAMETER_MAXIMUM_LENGTH )
+    AUTHENTICATION_FAILURE_PARAMETER_IE_MAX_LENGTH )
 
 /* If an optional value is present and should be encoded, the corresponding
  * Bit mask should be set to 1.
@@ -57,13 +57,13 @@ typedef enum authentication_failure_iei_tag {
 
 typedef struct authentication_failure_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator            protocoldiscriminator:4;
-  SecurityHeaderType               securityheadertype:4;
-  MessageType                      messagetype;
-  EmmCause                         emmcause;
+  eps_protocol_discriminator_t       protocoldiscriminator:4;
+  security_header_type_t             securityheadertype:4;
+  message_type_t                     messagetype;
+  emm_cause_t                           emmcause;
   /* Optional fields */
-  uint32_t                         presencemask;
-  AuthenticationFailureParameter   authenticationfailureparameter;
+  uint32_t                           presencemask;
+  authentication_failure_parameter_t authenticationfailureparameter;
 } authentication_failure_msg;
 
 int decode_authentication_failure(authentication_failure_msg *authenticationfailure, uint8_t *buffer, uint32_t len);
