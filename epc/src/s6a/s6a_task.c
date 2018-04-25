@@ -19,27 +19,37 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s6a_task.c
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-#include "dynamic_memory_check.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <pthread.h>
 
+#include "bstrlib.h"
 #if HAVE_CONFIG_H
 #  include "config.h"
 #endif
 #include <freeDiameter/freeDiameter-host.h>
 #include <freeDiameter/libfdcore.h>
+#include "log.h"
+#include "assertions.h"
 #include "intertask_interface.h"
+#include "itti_free_defined_msg.h"
+#include "common_defs.h"
 #include "s6a_defs.h"
 #include "s6a_messages.h"
-#include "common_types.h"
-#include "assertions.h"
-#include "msc.h"
-#include "log.h"
+#include "mme_config.h"
 #include "timer.h"
+#include "dynamic_memory_check.h"
 
 #define S6A_PEER_CONNECT_TIMEOUT_MICRO_SEC  (0)
 #define S6A_PEER_CONNECT_TIMEOUT_SEC        (1)
@@ -77,15 +87,13 @@ static void oai_fd_logger(int loglevel, const char * format, va_list args)
   if ((0 > rv) || ((FD_LOG_MAX_MESSAGE_LENGTH) < rv)) {
     return;
   }
-  OAILOG_EXTERNAL (loglevel, LOG_S6A, "%s\n", buffer);
+  OAILOG_EXTERNAL (OAILOG_LEVEL_TRACE - loglevel, LOG_S6A, "%s\n", buffer);
 }
 
 //------------------------------------------------------------------------------
 void *s6a_thread (void *args)
 {
   itti_mark_task_ready (TASK_S6A);
-  OAILOG_START_USE ();
-  MSC_START_USE ();
 
   while (1) {
     MessageDef                             *received_message_p = NULL;
@@ -99,12 +107,16 @@ void *s6a_thread (void *args)
     DevAssert (received_message_p );
 
     switch (ITTI_MSG_ID (received_message_p)) {
-    case S6A_UPDATE_LOCATION_REQ:{
-        s6a_generate_update_location (&received_message_p->ittiMsg.s6a_update_location_req);
+    case MESSAGE_TEST:{
+        OAI_FPRINTF_INFO("TASK_S6A received MESSAGE_TEST\n");
       }
       break;
     case S6A_AUTH_INFO_REQ:{
         s6a_generate_authentication_info_req (&received_message_p->ittiMsg.s6a_auth_info_req);
+      }
+      break;
+    case S6A_UPDATE_LOCATION_REQ:{
+        s6a_generate_update_location (&received_message_p->ittiMsg.s6a_update_location_req);
       }
       break;
     case TIMER_HAS_EXPIRED:{
@@ -129,6 +141,9 @@ void *s6a_thread (void *args)
       break;
     case TERMINATE_MESSAGE:{
         s6a_exit();
+        itti_free_msg_content(received_message_p);
+        itti_free (ITTI_MSG_ORIGIN_ID (received_message_p), received_message_p);
+        OAI_FPRINTF_INFO("TASK_S6A terminated\n");
         itti_exit_task ();
       }
       break;
@@ -137,6 +152,7 @@ void *s6a_thread (void *args)
       }
       break;
     }
+    itti_free_msg_content(received_message_p);
     itti_free (ITTI_MSG_ORIGIN_ID (received_message_p), received_message_p);
     received_message_p = NULL;
   }
@@ -253,7 +269,7 @@ int s6a_init (
 static void s6a_exit(void)
 {
   if (timer_id) {
-    timer_remove(timer_id);
+    timer_remove(timer_id, NULL);
   }
   // Release all resources
   free_wrapper((void **) &fd_g_config->cnf_diamid);

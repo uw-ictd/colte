@@ -19,24 +19,39 @@
  *      contact@openairinterface.org
  */
 
+/*! \file s11_sgw_bearer_manager.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
+
+
 #ifndef FILE_S11_SGW_BEARER_MANAGER_SEEN
 #define FILE_S11_SGW_BEARER_MANAGER_SEEN
 
 int s11_sgw_handle_modify_bearer_request(
-  NwGtpv2cStackHandleT *stack_p,
-  NwGtpv2cUlpApiT      *pUlpApi);
+  nw_gtpv2c_stack_handle_t *stack_p,
+  nw_gtpv2c_ulp_api_t      *pUlpApi);
 
 int s11_sgw_handle_modify_bearer_response(
-  NwGtpv2cStackHandleT    *stack_p,
+  nw_gtpv2c_stack_handle_t    *stack_p,
   itti_s11_modify_bearer_response_t *modify_bearer_response_p);
 
-int
-s11_sgw_handle_release_access_bearers_request (
-  NwGtpv2cStackHandleT * stack_p,
-  NwGtpv2cUlpApiT * pUlpApi);
+int s11_sgw_handle_release_access_bearers_request (
+  nw_gtpv2c_stack_handle_t * stack_p,
+  nw_gtpv2c_ulp_api_t * pUlpApi);
 
 int s11_sgw_handle_release_access_bearers_response (
-  NwGtpv2cStackHandleT * stack_p,
+  nw_gtpv2c_stack_handle_t * stack_p,
   itti_s11_release_access_bearers_response_t * response_p);
+
+int s11_sgw_handle_create_bearer_request (
+  nw_gtpv2c_stack_handle_t * stack_p,
+  itti_s11_create_bearer_request_t * request_p);
+
+int s11_sgw_handle_create_bearer_response (
+  nw_gtpv2c_stack_handle_t * stack_p,
+  nw_gtpv2c_ulp_api_t * pUlpApi);
 
 #endif /* FILE_S11_SGW_BEARER_MANAGER_SEEN */

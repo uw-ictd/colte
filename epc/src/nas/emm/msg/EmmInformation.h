@@ -22,15 +22,12 @@
 
 #ifndef FILE_EMM_INFORMATION_SEEN
 #define FILE_EMM_INFORMATION_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
-#include "NetworkName.h"
-#include "TimeZone.h"
-#include "TimeZoneAndTime.h"
-#include "DaylightSavingTime.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define EMM_INFORMATION_MINIMUM_LENGTH (0)
@@ -53,11 +50,10 @@
 # define EMM_INFORMATION_NETWORK_DAYLIGHT_SAVING_TIME_PRESENT       (1<<4)
 
 typedef enum emm_information_iei_tag {
-  EMM_INFORMATION_FULL_NAME_FOR_NETWORK_IEI               = 0x43, /* 0x43 = 67 */
-  EMM_INFORMATION_SHORT_NAME_FOR_NETWORK_IEI              = 0x45, /* 0x45 = 69 */
-  EMM_INFORMATION_LOCAL_TIME_ZONE_IEI                     = 0x46, /* 0x46 = 70 */
-  EMM_INFORMATION_UNIVERSAL_TIME_AND_LOCAL_TIME_ZONE_IEI  = 0x47, /* 0x47 = 71 */
-  EMM_INFORMATION_NETWORK_DAYLIGHT_SAVING_TIME_IEI        = 0x49, /* 0x49 = 73 */
+  EMM_INFORMATION_FULL_NAME_FOR_NETWORK_IEI               = MM_FULL_NETWORK_NAME_IEI,
+  EMM_INFORMATION_SHORT_NAME_FOR_NETWORK_IEI              = MM_SHORT_NETWORK_NAME_IEI,
+  EMM_INFORMATION_LOCAL_TIME_ZONE_IEI                     = MM_TIME_ZONE_IEI,
+  EMM_INFORMATION_UNIVERSAL_TIME_AND_LOCAL_TIME_ZONE_IEI  = MM_TIME_ZONE_AND_TIME_IEI,
 } emm_information_iei;
 
 /*
@@ -69,16 +65,16 @@ typedef enum emm_information_iei_tag {
 
 typedef struct emm_information_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator         protocoldiscriminator:4;
-  SecurityHeaderType            securityheadertype:4;
-  MessageType                   messagetype;
+  eps_protocol_discriminator_t  protocoldiscriminator:4;
+  security_header_type_t        securityheadertype:4;
+  message_type_t                messagetype;
   /* Optional fields */
   uint32_t                      presencemask;
-  NetworkName                   fullnamefornetwork;
-  NetworkName                   shortnamefornetwork;
-  TimeZone                      localtimezone;
-  TimeZoneAndTime               universaltimeandlocaltimezone;
-  DaylightSavingTime            networkdaylightsavingtime;
+  network_name_t                fullnamefornetwork;
+  network_name_t                shortnamefornetwork;
+  time_zone_t                   localtimezone;
+  time_zone_and_time_t          universaltimeandlocaltimezone;
+  daylight_saving_time_t        networkdaylightsavingtime;
 } emm_information_msg;
 
 int decode_emm_information(emm_information_msg *emminformation, uint8_t *buffer, uint32_t len);

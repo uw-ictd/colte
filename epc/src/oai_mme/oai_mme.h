@@ -44,6 +44,12 @@
 
  */
 
+/*! \file oai_mme.h
+  \brief
+  \author Sebastien ROUX
+  \company Eurecom
+*/
+
 #ifndef FILE_OAISIM_MME_SEEN
 #define FILE_OAISIM_MME_SEEN
 

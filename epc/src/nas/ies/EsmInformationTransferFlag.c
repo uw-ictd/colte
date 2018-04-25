@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "EsmInformationTransferFlag.h"
 
-int
-decode_esm_information_transfer_flag (
-  EsmInformationTransferFlag * esminformationtransferflag,
+//------------------------------------------------------------------------------
+int decode_esm_information_transfer_flag (
+  esm_information_transfer_flag_t * esminformationtransferflag,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -45,15 +47,12 @@ decode_esm_information_transfer_flag (
 
   *esminformationtransferflag = *buffer & 0x1;
   decoded++;
-#if NAS_DEBUG
-  dump_esm_information_transfer_flag_xml (esminformationtransferflag, iei);
-#endif
   return decoded;
 }
 
-int
-decode_u8_esm_information_transfer_flag (
-  EsmInformationTransferFlag * esminformationtransferflag,
+//------------------------------------------------------------------------------
+int decode_u8_esm_information_transfer_flag (
+  esm_information_transfer_flag_t * esminformationtransferflag,
   uint8_t iei,
   uint8_t value,
   uint32_t len)
@@ -63,15 +62,12 @@ decode_u8_esm_information_transfer_flag (
 
   *esminformationtransferflag = *buffer & 0x1;
   decoded++;
-#if NAS_DEBUG
-  dump_esm_information_transfer_flag_xml (esminformationtransferflag, iei);
-#endif
   return decoded;
 }
 
-int
-encode_esm_information_transfer_flag (
-  EsmInformationTransferFlag * esminformationtransferflag,
+//------------------------------------------------------------------------------
+int encode_esm_information_transfer_flag (
+  esm_information_transfer_flag_t * esminformationtransferflag,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -82,42 +78,21 @@ encode_esm_information_transfer_flag (
    * Checking length and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, ESM_INFORMATION_TRANSFER_FLAG_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_esm_information_transfer_flag_xml (esminformationtransferflag, iei);
-#endif
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*esminformationtransferflag & 0x1);
   encoded++;
   return encoded;
 }
 
-uint8_t
-encode_u8_esm_information_transfer_flag (
-  EsmInformationTransferFlag * esminformationtransferflag)
+//------------------------------------------------------------------------------
+uint8_t encode_u8_esm_information_transfer_flag (esm_information_transfer_flag_t * esminformationtransferflag)
 {
   uint8_t                                 bufferReturn;
   uint8_t                                *buffer = &bufferReturn;
   uint8_t                                 encoded = 0;
   uint8_t                                 iei = 0;
 
-  dump_esm_information_transfer_flag_xml (esminformationtransferflag, 0);
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*esminformationtransferflag & 0x1);
   encoded++;
   return bufferReturn;
 }
 
-void
-dump_esm_information_transfer_flag_xml (
-  EsmInformationTransferFlag * esminformationtransferflag,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Esm Information Transfer Flag>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <EIT value>%u</EIT value>\n", *esminformationtransferflag);
-  OAILOG_DEBUG (LOG_NAS, "</Esm Information Transfer Flag>\n");
-}

@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "assertions.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "EmmInformation.h"
@@ -58,7 +62,7 @@ decode_emm_information (
 
     switch (ieiDecoded) {
     case EMM_INFORMATION_FULL_NAME_FOR_NETWORK_IEI:
-      if ((decoded_result = decode_network_name (&emm_information->fullnamefornetwork, EMM_INFORMATION_FULL_NAME_FOR_NETWORK_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_network_name_ie (&emm_information->fullnamefornetwork, EMM_INFORMATION_FULL_NAME_FOR_NETWORK_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -69,7 +73,7 @@ decode_emm_information (
       break;
 
     case EMM_INFORMATION_SHORT_NAME_FOR_NETWORK_IEI:
-      if ((decoded_result = decode_network_name (&emm_information->shortnamefornetwork, EMM_INFORMATION_SHORT_NAME_FOR_NETWORK_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_network_name_ie (&emm_information->shortnamefornetwork, EMM_INFORMATION_SHORT_NAME_FOR_NETWORK_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -101,8 +105,8 @@ decode_emm_information (
       emm_information->presencemask |= EMM_INFORMATION_UNIVERSAL_TIME_AND_LOCAL_TIME_ZONE_PRESENT;
       break;
 
-    case EMM_INFORMATION_NETWORK_DAYLIGHT_SAVING_TIME_IEI:
-      if ((decoded_result = decode_daylight_saving_time (&emm_information->networkdaylightsavingtime, EMM_INFORMATION_NETWORK_DAYLIGHT_SAVING_TIME_IEI, buffer + decoded, len - decoded)) <= 0)
+    case MM_DAYLIGHT_SAVING_TIME_IEI:
+      if ((decoded_result = decode_daylight_saving_time_ie (&emm_information->networkdaylightsavingtime, MM_DAYLIGHT_SAVING_TIME_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -137,7 +141,7 @@ encode_emm_information (
 
   if ((emm_information->presencemask & EMM_INFORMATION_FULL_NAME_FOR_NETWORK_PRESENT)
       == EMM_INFORMATION_FULL_NAME_FOR_NETWORK_PRESENT) {
-    if ((encode_result = encode_network_name (&emm_information->fullnamefornetwork, EMM_INFORMATION_FULL_NAME_FOR_NETWORK_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_network_name_ie (&emm_information->fullnamefornetwork, EMM_INFORMATION_FULL_NAME_FOR_NETWORK_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -146,7 +150,7 @@ encode_emm_information (
 
   if ((emm_information->presencemask & EMM_INFORMATION_SHORT_NAME_FOR_NETWORK_PRESENT)
       == EMM_INFORMATION_SHORT_NAME_FOR_NETWORK_PRESENT) {
-    if ((encode_result = encode_network_name (&emm_information->shortnamefornetwork, EMM_INFORMATION_SHORT_NAME_FOR_NETWORK_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_network_name_ie (&emm_information->shortnamefornetwork, EMM_INFORMATION_SHORT_NAME_FOR_NETWORK_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -173,7 +177,7 @@ encode_emm_information (
 
   if ((emm_information->presencemask & EMM_INFORMATION_NETWORK_DAYLIGHT_SAVING_TIME_PRESENT)
       == EMM_INFORMATION_NETWORK_DAYLIGHT_SAVING_TIME_PRESENT) {
-    if ((encode_result = encode_daylight_saving_time (&emm_information->networkdaylightsavingtime, EMM_INFORMATION_NETWORK_DAYLIGHT_SAVING_TIME_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_daylight_saving_time_ie (&emm_information->networkdaylightsavingtime, MM_DAYLIGHT_SAVING_TIME_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

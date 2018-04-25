@@ -19,18 +19,13 @@
  *      contact@openairinterface.org
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
-#include "ProtocolDiscriminator.h"
-#include "EpsBearerIdentity.h"
-#include "ProcedureTransactionIdentity.h"
-#include "MessageType.h"
-
 #ifndef ESM_INFORMATION_REQUEST_H_
 #define ESM_INFORMATION_REQUEST_H_
 
+#include "MessageType.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define ESM_INFORMATION_REQUEST_MINIMUM_LENGTH (0)
 
@@ -46,10 +41,10 @@
 
 typedef struct esm_information_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                protocoldiscriminator:4;
-  EpsBearerIdentity                    epsbeareridentity:4;
-  ProcedureTransactionIdentity         proceduretransactionidentity;
-  MessageType                          messagetype;
+  eps_protocol_discriminator_t                           protocoldiscriminator:4;
+  ebi_t                                                  epsbeareridentity:4;
+  pti_t                                                  proceduretransactionidentity;
+  message_type_t                                         messagetype;
 } esm_information_request_msg;
 
 int decode_esm_information_request(esm_information_request_msg *esminformationrequest, uint8_t *buffer, uint32_t len);

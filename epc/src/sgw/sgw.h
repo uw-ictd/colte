@@ -30,23 +30,26 @@
 #define FILE_SGW_SEEN
 #include <stdint.h>
 #include <netinet/in.h>
+
 #include "bstrlib.h"
-#include "hashtable.h"
 #include "queue.h"
+#include "hashtable.h"
+
 #include "commonDef.h"
 #include "common_types.h"
 #include "sgw_context_manager.h"
 #include "gtpv1u_sgw_defs.h"
+#include "pgw_pcef_emulation.h"
 
 typedef struct sgw_app_s {
 
-  bstring    sgw_if_name_S1u_S12_S4_up;
-  ipv4_nbo_t sgw_ip_address_S1u_S12_S4_up;
+  bstring        sgw_if_name_S1u_S12_S4_up;
+  struct in_addr sgw_ip_address_S1u_S12_S4_up;
 
-  bstring    sgw_if_name_S11_S4;
-  ipv4_nbo_t sgw_ip_address_S11_S4;
+  bstring        sgw_if_name_S11_S4;
+  struct in_addr sgw_ip_address_S11_S4;
 
-  ipv4_nbo_t sgw_ip_address_S5_S8_up; // unused now
+  struct in_addr sgw_ip_address_S5_S8_up; // unused now
 
   // key is S11 S-GW local teid
   hash_table_ts_t *s11teid2mme_hashtable;
@@ -68,8 +71,10 @@ struct ipv4_list_elm_s {
 
 
 typedef struct pgw_app_s {
-  STAILQ_HEAD(ipv4_list_free_head_s,     ipv4_list_elm_s) ipv4_list_free;
-  STAILQ_HEAD(pv4_list_allocated_head_s, ipv4_list_elm_s) ipv4_list_allocated;
+  STAILQ_HEAD(ipv4_list_free_head_s,     ipv4_list_elm_s)  ipv4_list_free;
+  STAILQ_HEAD(ipv4_list_allocated_head_s, ipv4_list_elm_s) ipv4_list_allocated;
+  hash_table_ts_t                                         *deactivated_predefined_pcc_rules;
+  hash_table_ts_t                                         *predefined_pcc_rules;
 } pgw_app_t;
 
 #endif

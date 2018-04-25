@@ -19,8 +19,8 @@
  *      contact@openairinterface.org
  */
 
-#ifndef NAS_SECURITY_ALGORITHMS_H_
-#define NAS_SECURITY_ALGORITHMS_H_
+#ifndef NAS_SECURITY_ALGORITHMS_SEEN
+#define NAS_SECURITY_ALGORITHMS_SEEN
 #include <stdint.h>
 
 #define NAS_SECURITY_ALGORITHMS_MINIMUM_LENGTH 1
@@ -49,9 +49,7 @@ typedef struct NasSecurityAlgorithms_tag {
 
 int encode_nas_security_algorithms(NasSecurityAlgorithms *nassecurityalgorithms, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_nas_security_algorithms_xml(NasSecurityAlgorithms *nassecurityalgorithms, uint8_t iei);
-
 int decode_nas_security_algorithms(NasSecurityAlgorithms *nassecurityalgorithms, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-#endif /* NAS SECURITY ALGORITHMS_H_ */
+#endif /* NAS SECURITY ALGORITHMS_SEEN */
 

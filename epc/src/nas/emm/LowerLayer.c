@@ -30,7 +30,7 @@
 
   Subsystem   EPS Mobility Management
 
-  Author      Frederic Maurel
+  Author      Frederic Maurel, Lionel GAUTHIER
 
   Description Defines EMM procedures executed by the Non-Access Stratum
         upon receiving notifications from lower layers so that data
@@ -39,18 +39,31 @@
         and to request ESM unit data transfer to under layer.
 
 *****************************************************************************/
+#include <pthread.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 
-#include "commonDef.h"
-#include "LowerLayer.h"
+#include "bstrlib.h"
+
 #include "log.h"
-
-#include "emmData.h"
-
+#include "msc.h"
+#include "gcc_diag.h"
+#include "commonDef.h"
+#include "common_defs.h"
+#include "common_types.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
+#include "3gpp_29.274.h"
+#include "mme_app_ue_context.h"
+#include "emm_data.h"
 #include "emm_sap.h"
 #include "esm_sap.h"
 #include "log.h"
-
-#include <string.h>             // memset
+#include "LowerLayer.h"
+#include "mme_app_defs.h"
 
 /****************************************************************************/
 /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
@@ -86,9 +99,7 @@
  **      Others:    None                                       **
  **                                                                        **
  ***************************************************************************/
-int
-lowerlayer_success (
-  mme_ue_s1ap_id_t ue_id)
+int lowerlayer_success (mme_ue_s1ap_id_t ue_id, bstring *nas_msg)
 {
   OAILOG_FUNC_IN (LOG_NAS_EMM);
   emm_sap_t                               emm_sap = {0};
@@ -97,8 +108,27 @@ lowerlayer_success (
   emm_sap.primitive = EMMREG_LOWERLAYER_SUCCESS;
   emm_sap.u.emm_reg.ue_id = ue_id;
   emm_sap.u.emm_reg.ctx = NULL;
-  rc = emm_sap_send (&emm_sap);
-  OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
+  ue_mm_context_t *ue_mm_context = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, ue_id);
+
+  if (ue_mm_context) {
+    emm_sap.u.emm_reg.ctx = &ue_mm_context->emm_context;
+    emm_sap.u.emm_reg.notify = true;
+    emm_sap.u.emm_reg.free_proc = false;
+
+    if (*nas_msg) {
+      emm_sap.u.emm_reg.u.ll_success.msg_len = blength(*nas_msg);
+      emm_sap.u.emm_reg.u.ll_success.digest_len = EMM_REG_MSG_DIGEST_SIZE;
+      nas_digest_msg((const unsigned char * const)bdata(*nas_msg), blength(*nas_msg),
+          (char * const)emm_sap.u.emm_reg.u.ll_success.msg_digest, &emm_sap.u.emm_reg.u.ll_success.digest_len);
+    }
+    MSC_LOG_TX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_MME, NULL, 0, "EMMREG_LOWERLAYER_SUCCESS ue id " MME_UE_S1AP_ID_FMT " ", ue_id);
+    rc = emm_sap_send (&emm_sap);
+    unlock_ue_contexts(ue_mm_context);
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
+  } else {
+    OAILOG_INFO (LOG_NAS_EMM, "Unknown ue id " MME_UE_S1AP_ID_FMT "\n",ue_id);
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, RETURNerror);
+  }
 }
 
 /****************************************************************************
@@ -116,9 +146,7 @@ lowerlayer_success (
  **      Others:    None                                       **
  **                                                                        **
  ***************************************************************************/
-int
-lowerlayer_failure (
-  mme_ue_s1ap_id_t ue_id)
+int lowerlayer_failure (mme_ue_s1ap_id_t ue_id, STOLEN_REF bstring *nas_msg)
 {
   OAILOG_FUNC_IN (LOG_NAS_EMM);
   emm_sap_t                               emm_sap = {0};
@@ -126,15 +154,27 @@ lowerlayer_failure (
 
   emm_sap.primitive = EMMREG_LOWERLAYER_FAILURE;
   emm_sap.u.emm_reg.ue_id = ue_id;
-  emm_data_context_t                     *emm_ctx = NULL;
+  ue_mm_context_t *ue_mm_context = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, ue_id);
 
-  if (ue_id > 0) {
-    emm_ctx = emm_data_context_get (&_emm_data, ue_id);
+  if (ue_mm_context) {
+    emm_sap.u.emm_reg.ctx = &ue_mm_context->emm_context;
+    emm_sap.u.emm_reg.notify    = true;
+    emm_sap.u.emm_reg.free_proc = false;
+
+    if (*nas_msg) {
+      emm_sap.u.emm_reg.u.ll_failure.msg_len = blength(*nas_msg);
+      emm_sap.u.emm_reg.u.ll_failure.digest_len = EMM_REG_MSG_DIGEST_SIZE;
+      nas_digest_msg((const unsigned char * const)bdata(*nas_msg), blength(*nas_msg),
+          (char * const)emm_sap.u.emm_reg.u.ll_failure.msg_digest, &emm_sap.u.emm_reg.u.ll_failure.digest_len);
+    }
+    MSC_LOG_TX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_MME, NULL, 0, "EMMREG_LOWERLAYER_FAILURE ue id " MME_UE_S1AP_ID_FMT " ", ue_id);
+    rc = emm_sap_send (&emm_sap);
+    unlock_ue_contexts(ue_mm_context);
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
+  } else {
+    OAILOG_INFO (LOG_NAS_EMM, "Unknown ue id " MME_UE_S1AP_ID_FMT "\n",ue_id);
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, RETURNerror);
   }
-
-  emm_sap.u.emm_reg.ctx = emm_ctx;
-  rc = emm_sap_send (&emm_sap);
-  OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
 }
 
 /****************************************************************************
@@ -152,9 +192,7 @@ lowerlayer_failure (
  **      Others:    None                                                   **
  **                                                                        **
  ***************************************************************************/
-int
-lowerlayer_non_delivery_indication (
-  mme_ue_s1ap_id_t ue_id)
+int lowerlayer_non_delivery_indication (mme_ue_s1ap_id_t ue_id, STOLEN_REF bstring *nas_msg)
 {
   OAILOG_FUNC_IN (LOG_NAS_EMM);
   emm_sap_t                               emm_sap = {0};
@@ -162,15 +200,24 @@ lowerlayer_non_delivery_indication (
 
   emm_sap.primitive = EMMREG_LOWERLAYER_NON_DELIVERY;
   emm_sap.u.emm_reg.ue_id = ue_id;
-  emm_data_context_t                     *emm_ctx = NULL;
+  ue_mm_context_t *ue_mm_context = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, ue_id);
 
-  if (ue_id > 0) {
-    emm_ctx = emm_data_context_get (&_emm_data, ue_id);
+  if (ue_mm_context) {
+    emm_sap.u.emm_reg.ctx = &ue_mm_context->emm_context;
+    if (*nas_msg) {
+      emm_sap.u.emm_reg.u.non_delivery_ho.msg_len = blength(*nas_msg);
+      emm_sap.u.emm_reg.u.non_delivery_ho.digest_len = EMM_REG_MSG_DIGEST_SIZE;
+      nas_digest_msg((const unsigned char * const)bdata(*nas_msg), blength(*nas_msg),
+          (char * const)emm_sap.u.emm_reg.u.non_delivery_ho.msg_digest, &emm_sap.u.emm_reg.u.non_delivery_ho.digest_len);
+    }
+    MSC_LOG_TX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_MME, NULL, 0, "EMMREG_LOWERLAYER_NON_DELIVERY ue id " MME_UE_S1AP_ID_FMT " ", ue_id);
+    rc = emm_sap_send (&emm_sap);
+    unlock_ue_contexts(ue_mm_context);
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
+  } else {
+    OAILOG_INFO (LOG_NAS_EMM, "Unknown ue id " MME_UE_S1AP_ID_FMT "\n",ue_id);
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, RETURNerror);
   }
-
-  emm_sap.u.emm_reg.ctx = emm_ctx;
-  rc = emm_sap_send (&emm_sap);
-  OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
 }
 
 /****************************************************************************
@@ -189,9 +236,7 @@ lowerlayer_non_delivery_indication (
  **      Others:    None                                       **
  **                                                                        **
  ***************************************************************************/
-int
-lowerlayer_establish (
-  void)
+int lowerlayer_establish (void)
 {
   OAILOG_FUNC_IN (LOG_NAS_EMM);
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, RETURNok);
@@ -212,9 +257,7 @@ lowerlayer_establish (
  **      Others:    None                                       **
  **                                                                        **
  ***************************************************************************/
-int
-lowerlayer_release (
-  int cause)
+int lowerlayer_release (mme_ue_s1ap_id_t ue_id, int cause)
 {
   OAILOG_FUNC_IN (LOG_NAS_EMM);
   emm_sap_t                               emm_sap = {0};
@@ -222,8 +265,16 @@ lowerlayer_release (
 
   emm_sap.primitive = EMMREG_LOWERLAYER_RELEASE;
   emm_sap.u.emm_reg.ue_id = 0;
-  emm_sap.u.emm_reg.ctx = NULL;
+  ue_mm_context_t *ue_mm_context = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, ue_id);
+  if (ue_mm_context) {
+    emm_sap.u.emm_reg.ctx = &ue_mm_context->emm_context;
+  } else {
+    OAILOG_INFO (LOG_NAS_EMM, "Unknown ue id " MME_UE_S1AP_ID_FMT "\n",ue_id);
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, RETURNerror);
+  }
+  MSC_LOG_TX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_MME, NULL, 0, "EMMREG_LOWERLAYER_RELEASE ue id " MME_UE_S1AP_ID_FMT " ", emm_sap.u.emm_reg.ue_id);
   rc = emm_sap_send (&emm_sap);
+  unlock_ue_contexts(ue_mm_context);
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
 }
 
@@ -243,27 +294,22 @@ lowerlayer_release (
  **      Others:    None                                       **
  **                                                                        **
  ***************************************************************************/
-int
-lowerlayer_data_ind (
-  mme_ue_s1ap_id_t ue_id,
-  const_bstring    data)
+int lowerlayer_data_ind (mme_ue_s1ap_id_t ue_id, const_bstring    data)
 {
   esm_sap_t                               esm_sap = {0};
   int                                     rc = RETURNok;
-  emm_data_context_t                     *emm_ctx = NULL;
 
   OAILOG_FUNC_IN (LOG_NAS_EMM);
 
-  if (ue_id > 0) {
-    emm_ctx = emm_data_context_get (&_emm_data, ue_id);
-  }
+  ue_mm_context_t *ue_mm_context = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, ue_id);
   esm_sap.primitive = ESM_UNITDATA_IND;
   esm_sap.is_standalone = true;
   esm_sap.ue_id = ue_id;
-  esm_sap.ctx = emm_ctx;
+  esm_sap.ctx = &ue_mm_context->emm_context;
   esm_sap.recv = data;
   data = NULL;
   rc = esm_sap_send (&esm_sap);
+  unlock_ue_contexts(ue_mm_context);
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
 }
 
@@ -283,27 +329,21 @@ lowerlayer_data_ind (
  **      Others:    None                                       **
  **                                                                        **
  ***************************************************************************/
-int
-lowerlayer_data_req (
-  mme_ue_s1ap_id_t ue_id,
-  bstring data)
+int lowerlayer_data_req (mme_ue_s1ap_id_t ue_id, bstring data)
 {
   OAILOG_FUNC_IN (LOG_NAS_EMM);
   int                                     rc = RETURNok;
   emm_sap_t                               emm_sap = {0};
   emm_security_context_t                 *sctx = NULL;
-  struct emm_data_context_s              *ctx = NULL;
+  ue_mm_context_t                        *ue_mm_context = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, ue_id);
 
   emm_sap.primitive = EMMAS_DATA_REQ;
   emm_sap.u.emm_as.u.data.guti = NULL;
   emm_sap.u.emm_as.u.data.ue_id = ue_id;
 
-  if (ue_id > 0) {
-    ctx = emm_data_context_get (&_emm_data, ue_id);
-  }
 
-  if (ctx) {
-    sctx = &ctx->_security;
+  if (ue_mm_context) {
+    sctx = &ue_mm_context->emm_context._security;
   }
 
   emm_sap.u.emm_as.u.data.nas_info = 0;
@@ -313,7 +353,51 @@ lowerlayer_data_req (
    * Setup EPS NAS security data
    */
   emm_as_set_security_data (&emm_sap.u.emm_as.u.data.sctx, sctx, false, true);
+  MSC_LOG_TX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_MME, NULL, 0, "EMMAS_DATA_REQ  (STATUS) ue id " MME_UE_S1AP_ID_FMT " ", ue_id);
   rc = emm_sap_send (&emm_sap);
+  unlock_ue_contexts(ue_mm_context);
+  OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
+}
+
+//------------------------------------------------------------------------------
+int lowerlayer_activate_bearer_req (
+    const mme_ue_s1ap_id_t ue_id,
+    const ebi_t            ebi,
+    const bitrate_t        mbr_dl,
+    const bitrate_t        mbr_ul,
+    const bitrate_t        gbr_dl,
+    const bitrate_t        gbr_ul,
+    bstring data)
+{
+  OAILOG_FUNC_IN (LOG_NAS_EMM);
+  int                                     rc = RETURNok;
+  emm_sap_t                               emm_sap = {0};
+  emm_security_context_t                 *sctx = NULL;
+  ue_mm_context_t                        *ue_mm_context = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, ue_id);
+
+  emm_sap.primitive = EMMAS_ERAB_SETUP_REQ;
+  emm_sap.u.emm_as.u.activate_bearer_context_req.ebi    = ebi;
+  emm_sap.u.emm_as.u.activate_bearer_context_req.ue_id  = ue_id;
+  emm_sap.u.emm_as.u.activate_bearer_context_req.mbr_dl = mbr_dl;
+  emm_sap.u.emm_as.u.activate_bearer_context_req.mbr_ul = mbr_ul;
+  emm_sap.u.emm_as.u.activate_bearer_context_req.gbr_dl = gbr_dl;
+  emm_sap.u.emm_as.u.activate_bearer_context_req.gbr_ul = gbr_ul;
+
+
+  if (ue_mm_context) {
+    sctx = &ue_mm_context->emm_context._security;
+  }
+
+  emm_sap.u.emm_as.u.activate_bearer_context_req.nas_msg = data;
+  data = NULL;
+  /*
+   * Setup EPS NAS security data
+   */
+  emm_as_set_security_data (&emm_sap.u.emm_as.u.activate_bearer_context_req.sctx, sctx, false, true);
+  MSC_LOG_TX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_MME, NULL, 0, "EMMAS_ERAB_SETUP_REQ  (STATUS) ue id " MME_UE_S1AP_ID_FMT " ebi %u gbr_dl %" PRIu64 " gbr_ul %" PRIu64 " ",
+      ue_id, ebi, emm_sap.u.emm_as.u.activate_bearer_context_req.gbr_dl, emm_sap.u.emm_as.u.activate_bearer_context_req.gbr_ul);
+  rc = emm_sap_send (&emm_sap);
+  unlock_ue_contexts(ue_mm_context);
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
 }
 
@@ -342,8 +426,7 @@ lowerlayer_data_req (
  **      Others:    None                                       **
  **                                                                        **
  ***************************************************************************/
-void
-emm_as_set_security_data (
+void emm_as_set_security_data (
   emm_as_security_data_t * data,
   const void *args,
   bool is_new,
@@ -390,7 +473,7 @@ emm_as_set_security_data (
        * * * * The MME shall send the SECURITY MODE COMMAND message integrity
        * * * * protected and unciphered
        */
-      OAILOG_WARNING (LOG_NAS_EMM, "EPS security context exists knas_enc\n");
+      OAILOG_DEBUG (LOG_NAS_EMM, "EPS security context exists knas_enc\n");
       data->is_knas_enc_present = true;
       memcpy(data->knas_enc, context->knas_enc, sizeof(data->knas_enc));
     }

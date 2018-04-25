@@ -19,10 +19,8 @@
  *      contact@openairinterface.org
  */
 
-#ifndef LCS_CLIENT_IDENTITY_H_
-#define LCS_CLIENT_IDENTITY_H_
-#include <stdint.h>
-#include "bstrlib.h"
+#ifndef LCS_CLIENT_IDENTITY_SEEN
+#define LCS_CLIENT_IDENTITY_SEEN
 
 #define LCS_CLIENT_IDENTITY_MINIMUM_LENGTH 3
 #define LCS_CLIENT_IDENTITY_MAXIMUM_LENGTH 257
@@ -33,7 +31,5 @@ int encode_lcs_client_identity(LcsClientIdentity lcsclientidentity, uint8_t iei,
 
 int decode_lcs_client_identity(LcsClientIdentity *lcsclientidentity, uint8_t iei, uint8_t *buffer, uint32_t len);
 
-void dump_lcs_client_identity_xml(LcsClientIdentity lcsclientidentity, uint8_t iei);
-
-#endif /* LCS CLIENT IDENTITY_H_ */
+#endif /* LCS_CLIENT_IDENTITY_SEEN */
 

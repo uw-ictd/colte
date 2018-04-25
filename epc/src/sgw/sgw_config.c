@@ -28,21 +28,26 @@
 #define PGW
 #define PGW_CONFIG_C
 
+#include <pthread.h>
 #include <string.h>
-#include <libconfig.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <netdb.h>
+
+#include <libconfig.h>
+#include "bstrlib.h"
 
 #include "assertions.h"
 #include "dynamic_memory_check.h"
 #include "log.h"
 #include "intertask_interface.h"
+#include "common_defs.h"
 #include "sgw_config.h"
 
 #ifdef LIBCONFIG_LONG
@@ -128,6 +133,7 @@ int sgw_config_parse_file (sgw_config_t * config_pP)
     config_pP->log_config.util_log_level     = MAX_LOG_LEVEL;
     config_pP->log_config.msc_log_level      = MAX_LOG_LEVEL;
     config_pP->log_config.itti_log_level     = MAX_LOG_LEVEL;
+    config_pP->log_config.async_system_log_level = MAX_LOG_LEVEL;
     if (subsetting) {
       if (config_setting_lookup_string (subsetting, LOG_CONFIG_STRING_OUTPUT, (const char **)&astring)) {
         if (astring != NULL) {
@@ -150,7 +156,7 @@ int sgw_config_parse_file (sgw_config_t * config_pP)
       }
 
       if (config_setting_lookup_string (subsetting, LOG_CONFIG_STRING_COLOR, (const char **)&astring)) {
-        if (!strcasecmp("true", astring)) config_pP->log_config.color = true;
+        if (!strcasecmp("yes", astring)) config_pP->log_config.color = true;
         else config_pP->log_config.color = false;
       }
       if (config_setting_lookup_string (subsetting, LOG_CONFIG_STRING_UDP_LOG_LEVEL, (const char **)&astring)) {
@@ -184,6 +190,10 @@ int sgw_config_parse_file (sgw_config_t * config_pP)
       if (config_setting_lookup_string (subsetting, LOG_CONFIG_STRING_ITTI_LOG_LEVEL, (const char **)&astring)) {
         config_pP->log_config.itti_log_level = OAILOG_LEVEL_STR2INT (astring);
       }
+
+      if (config_setting_lookup_string (subsetting, LOG_CONFIG_STRING_ASYNC_SYSTEM_LOG_LEVEL, (const char **)&astring)) {
+        config_pP->log_config.async_system_log_level = OAILOG_LEVEL_STR2INT (astring);
+      }
     }
     OAILOG_SET_CONFIG(&config_pP->log_config);
 
@@ -204,10 +214,10 @@ int sgw_config_parse_file (sgw_config_t * config_pP)
         AssertFatal(2 == list->qty, "Bad CIDR address %s", bdata(cidr));
         address = list->entry[0];
         mask    = list->entry[1];
-        IPV4_STR_ADDR_TO_INT_NWBO (bdata(address), config_pP->ipv4.S1u_S12_S4_up, "BAD IP ADDRESS FORMAT FOR S1u_S12_S4 !\n");
+        IPV4_STR_ADDR_TO_INADDR (bdata(address), config_pP->ipv4.S1u_S12_S4_up, "BAD IP ADDRESS FORMAT FOR S1u_S12_S4 !\n");
         config_pP->ipv4.netmask_S1u_S12_S4_up = atoi ((const char*)mask->data);
         bstrListDestroy(list);
-        in_addr_var.s_addr = config_pP->ipv4.S1u_S12_S4_up;
+        in_addr_var.s_addr = config_pP->ipv4.S1u_S12_S4_up.s_addr;
         OAILOG_INFO (LOG_SPGW_APP, "Parsing configuration file found S1u_S12_S4_up: %s/%d on %s\n",
                        inet_ntoa (in_addr_var), config_pP->ipv4.netmask_S1u_S12_S4_up, bdata(config_pP->ipv4.if_name_S1u_S12_S4_up));
 
@@ -217,10 +227,10 @@ int sgw_config_parse_file (sgw_config_t * config_pP)
         AssertFatal(2 == list->qty, "Bad CIDR address %s", bdata(cidr));
         address = list->entry[0];
         mask    = list->entry[1];
-        IPV4_STR_ADDR_TO_INT_NWBO (bdata(address), config_pP->ipv4.S5_S8_up, "BAD IP ADDRESS FORMAT FOR S5_S8 !\n");
+        IPV4_STR_ADDR_TO_INADDR (bdata(address), config_pP->ipv4.S5_S8_up, "BAD IP ADDRESS FORMAT FOR S5_S8 !\n");
         config_pP->ipv4.netmask_S5_S8_up = atoi ((const char*)mask->data);
         bstrListDestroy(list);
-        in_addr_var.s_addr = config_pP->ipv4.S5_S8_up;
+        in_addr_var.s_addr = config_pP->ipv4.S5_S8_up.s_addr;
         OAILOG_INFO (LOG_SPGW_APP, "Parsing configuration file found S5_S8_up: %s/%d on %s\n",
                        inet_ntoa (in_addr_var), config_pP->ipv4.netmask_S5_S8_up, bdata(config_pP->ipv4.if_name_S5_S8_up));
 
@@ -230,10 +240,10 @@ int sgw_config_parse_file (sgw_config_t * config_pP)
         AssertFatal(2 == list->qty, "Bad CIDR address %s", bdata(cidr));
         address = list->entry[0];
         mask    = list->entry[1];
-        IPV4_STR_ADDR_TO_INT_NWBO (bdata(address), config_pP->ipv4.S11, "BAD IP ADDRESS FORMAT FOR S11 !\n");
+        IPV4_STR_ADDR_TO_INADDR (bdata(address), config_pP->ipv4.S11, "BAD IP ADDRESS FORMAT FOR S11 !\n");
         config_pP->ipv4.netmask_S11 = atoi ((const char*)mask->data);
         bstrListDestroy(list);
-        in_addr_var.s_addr = config_pP->ipv4.S11;
+        in_addr_var.s_addr = config_pP->ipv4.S11.s_addr;
         OAILOG_INFO (LOG_SPGW_APP, "Parsing configuration file found S11: %s/%d on %s\n",
             inet_ntoa (in_addr_var), config_pP->ipv4.netmask_S11, bdata(config_pP->ipv4.if_name_S11));
       }
@@ -263,13 +273,13 @@ void sgw_config_display (sgw_config_t * config_p)
   OAILOG_INFO (LOG_SPGW_APP, "- S1-U:\n");
   OAILOG_INFO (LOG_SPGW_APP, "    port number ......: %d\n", config_p->udp_port_S1u_S12_S4_up);
   OAILOG_INFO (LOG_SPGW_APP, "    S1u_S12_S4 iface .....: %s\n", bdata(config_p->ipv4.if_name_S1u_S12_S4_up));
-  OAILOG_INFO (LOG_SPGW_APP, "    S1u_S12_S4 ip ........: %s/%u\n", inet_ntoa (*((struct in_addr *)&config_p->ipv4.S1u_S12_S4_up)), config_p->ipv4.netmask_S1u_S12_S4_up);
+  OAILOG_INFO (LOG_SPGW_APP, "    S1u_S12_S4 ip ........: %s/%u\n", inet_ntoa (config_p->ipv4.S1u_S12_S4_up), config_p->ipv4.netmask_S1u_S12_S4_up);
   OAILOG_INFO (LOG_SPGW_APP, "- S5-S8:\n");
   OAILOG_INFO (LOG_SPGW_APP, "    S5_S8 iface ..........: %s\n", bdata(config_p->ipv4.if_name_S5_S8_up));
-  OAILOG_INFO (LOG_SPGW_APP, "    S5_S8 ip .............: %s/%u\n", inet_ntoa (*((struct in_addr *)&config_p->ipv4.S5_S8_up)), config_p->ipv4.netmask_S5_S8_up);
+  OAILOG_INFO (LOG_SPGW_APP, "    S5_S8 ip .............: %s/%u\n", inet_ntoa (config_p->ipv4.S5_S8_up), config_p->ipv4.netmask_S5_S8_up);
   OAILOG_INFO (LOG_SPGW_APP, "- S11:\n");
   OAILOG_INFO (LOG_SPGW_APP, "    S11 iface ............: %s\n", bdata(config_p->ipv4.if_name_S11));
-  OAILOG_INFO (LOG_SPGW_APP, "    S11 ip ...............: %s/%u\n", inet_ntoa (*((struct in_addr *)&config_p->ipv4.S11)), config_p->ipv4.netmask_S11);
+  OAILOG_INFO (LOG_SPGW_APP, "    S11 ip ...............: %s/%u\n", inet_ntoa (config_p->ipv4.S11), config_p->ipv4.netmask_S11);
   OAILOG_INFO (LOG_SPGW_APP, "- ITTI:\n");
   OAILOG_INFO (LOG_SPGW_APP, "    queue size .......: %u (bytes)\n", config_p->itti_config.queue_size);
   OAILOG_INFO (LOG_SPGW_APP, "    log file .........: %s\n", bdata(config_p->itti_config.log_file));

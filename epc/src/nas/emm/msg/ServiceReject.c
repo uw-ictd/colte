@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "assertions.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "ServiceReject.h"
@@ -72,7 +76,7 @@ encode_service_reject (
     encoded += encode_result;
   }
   /* Just wait a litle bit for CS...
-  if ((encode_result = encode_gprs_timer (&service_reject->t3442value, 0, buffer + encoded, len - encoded)) < 0) {       //Return in case of error
+  if ((encode_result = encode_gprs_timer_ie (&service_reject->t3442value, 0, buffer + encoded, len - encoded)) < 0) {       //Return in case of error
     OAILOG_FUNC_RETURN (LOG_NAS_EMM, encode_result);
   } else {
     encoded += encode_result;

@@ -40,7 +40,6 @@ Description Defines the EPS Mobility Management procedures executed at
 #ifndef FILE_EMM_FSM_SEEN
 #define FILE_EMM_FSM_SEEN
 
-#include "emm_regDef.h"
 
 /****************************************************************************/
 /*********************  G L O B A L    C O N S T A N T S  *******************/
@@ -66,6 +65,7 @@ typedef enum {
   EMM_STATE_MAX
 } emm_fsm_state_t;
 
+#include "emm_regDef.h"
 /****************************************************************************/
 /********************  G L O B A L    V A R I A B L E S  ********************/
 /****************************************************************************/
@@ -76,10 +76,12 @@ typedef enum {
 
 void emm_fsm_initialize(void);
 
-//LG 2015-03-13 struct emm_data_context_t;
-int emm_fsm_set_status(mme_ue_s1ap_id_t ueid, void *ctx, emm_fsm_state_t status);
-emm_fsm_state_t emm_fsm_get_status(mme_ue_s1ap_id_t ueid, void *ctx);
+struct emm_context_s;
+struct emm_reg_s;
 
-int emm_fsm_process(const emm_reg_t *evt);
+int emm_fsm_set_state(const mme_ue_s1ap_id_t ueid, struct emm_context_s * const emm_context, const emm_fsm_state_t status);
+emm_fsm_state_t emm_fsm_get_state(const struct emm_context_s * const emm_context);
+const char *emm_fsm_get_state_str (const struct emm_context_s * const emm_context);
+int emm_fsm_process(struct emm_reg_s * const evt);
 
 #endif /* FILE_EMM_FSM_SEEN*/

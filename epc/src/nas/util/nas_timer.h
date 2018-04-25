@@ -53,13 +53,18 @@ Description Timer utilities
 /****************************************************************************/
 
 /* Timer structure */
-struct nas_timer_t {
-  int id;         /* The timer identifier                 */
-  long sec;       /* The timer interval value in seconds  */
-};
+typedef struct nas_timer_s {
+  long int id;     /* The timer identifier                 */
+  long sec;        /* The timer interval value in seconds  */
+} nas_timer_t;
 
 /* Type of the callback executed when the timer expired */
-typedef void *(*nas_timer_callback_t)(void *);
+typedef void (*nas_timer_callback_t)(void *);
+
+typedef struct nas_itti_timer_arg_s {
+  nas_timer_callback_t  nas_timer_callback;
+  void                 *nas_timer_callback_arg;
+}nas_itti_timer_arg_t;
 
 /****************************************************************************/
 /********************  G L O B A L    V A R I A B L E S  ********************/
@@ -70,10 +75,9 @@ typedef void *(*nas_timer_callback_t)(void *);
 /****************************************************************************/
 
 int nas_timer_init(void);
-int nas_timer_start(long sec, nas_timer_callback_t cb, void *args);
-int nas_timer_stop(int id);
-int nas_timer_restart(int id);
-
-void nas_timer_handle_signal_expiry(long timer_id, void *arg_p);
+void nas_timer_cleanup (void);
+long int nas_timer_start (long sec, long usec, nas_timer_callback_t nas_timer_callback, void *nas_timer_callback_args);
+long int nas_timer_stop (long int timer_id, void **nas_timer_callback_arg);
+void nas_timer_handle_signal_expiry (long timer_id, nas_itti_timer_arg_t *nas_itti_timer_arg);
 
 #endif /* FILE_NAS_TIMER_SEEN */

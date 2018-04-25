@@ -74,6 +74,11 @@ function _create_mme_certs()
 #$1 if output path
 #$2 is fqdn
 function main() {
+  EXPECTED_ARGS=2
+  if [ $# -lt $EXPECTED_ARGS ]; then
+    echo_error "Usage: check_mme_s6a_certificate output_path fqdn"
+    return 1
+  fi
   local output_path=$1
   local fqdn=$2
   if [ -d $output_path ]; then

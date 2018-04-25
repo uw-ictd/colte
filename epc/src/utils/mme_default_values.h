@@ -53,7 +53,7 @@
  * S6A Constants
  ******************************************************************************/
 
-#define S6A_CONF_FILE "../s6a/freediameter/s6a.conf"
+#define S6A_CONF_FILE "../S6A/freediameter/s6a.conf"
 
 /*******************************************************************************
  * SCTP Constants

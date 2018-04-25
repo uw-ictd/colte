@@ -19,25 +19,12 @@
  *      contact@openairinterface.org
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
-#include "ProtocolDiscriminator.h"
-#include "EpsBearerIdentity.h"
-#include "ProcedureTransactionIdentity.h"
-#include "MessageType.h"
-#include "EpsQualityOfService.h"
-#include "TrafficFlowTemplate.h"
-#include "QualityOfService.h"
-#include "LlcServiceAccessPointIdentifier.h"
-#include "RadioPriority.h"
-#include "PacketFlowIdentifier.h"
-#include "ApnAggregateMaximumBitRate.h"
-#include "ProtocolConfigurationOptions.h"
-
 #ifndef MODIFY_EPS_BEARER_CONTEXT_REQUEST_H_
 #define MODIFY_EPS_BEARER_CONTEXT_REQUEST_H_
+#include "MessageType.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define MODIFY_EPS_BEARER_CONTEXT_REQUEST_MINIMUM_LENGTH (0)
@@ -50,8 +37,8 @@
     LLC_SERVICE_ACCESS_POINT_IDENTIFIER_MAXIMUM_LENGTH + \
     RADIO_PRIORITY_MAXIMUM_LENGTH + \
     PACKET_FLOW_IDENTIFIER_MAXIMUM_LENGTH + \
-    APN_AGGREGATE_MAXIMUM_BIT_RATE_MAXIMUM_LENGTH + \
-    PROTOCOL_CONFIGURATION_OPTIONS_MAXIMUM_LENGTH )
+    APN_AGGREGATE_MAXIMUM_BIT_RATE_IE_MAX_LENGTH + \
+    PROTOCOL_CONFIGURATION_OPTIONS_IE_MAX_LENGTH )
 
 /* If an optional value is present and should be encoded, the corresponding
  * Bit mask should be set to 1.
@@ -67,13 +54,13 @@
 
 typedef enum modify_eps_bearer_context_request_iei_tag {
   MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEW_EPS_QOS_IEI                     = 0x5B, /* 0x5B = 91 */
-  MODIFY_EPS_BEARER_CONTEXT_REQUEST_TFT_IEI                             = 0x36, /* 0x36 = 54 */
-  MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEW_QOS_IEI                         = 0x30, /* 0x30 = 48 */
-  MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI             = 0x32, /* 0x32 = 50 */
+  MODIFY_EPS_BEARER_CONTEXT_REQUEST_TFT_IEI                             = SM_TRAFFIC_FLOW_TEMPLATE_IEI,
+  MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEW_QOS_IEI                         = SM_QUALITY_OF_SERVICE_IEI,
+  MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI             = SM_LLC_SERVICE_ACCESS_POINT_IDENTIFIER_IEI,
   MODIFY_EPS_BEARER_CONTEXT_REQUEST_RADIO_PRIORITY_IEI                  = 0x80, /* 0x80 = 128 */
-  MODIFY_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI          = 0x34, /* 0x34 = 52 */
+  MODIFY_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI          = SM_PACKET_FLOW_IDENTIFIER_IEI,
   MODIFY_EPS_BEARER_CONTEXT_REQUEST_APNAMBR_IEI                         = 0x5E, /* 0x5E = 94 */
-  MODIFY_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = 0x27, /* 0x27 = 39 */
+  MODIFY_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI  = SM_PROTOCOL_CONFIGURATION_OPTIONS_IEI,
 } modify_eps_bearer_context_request_iei;
 
 /*
@@ -85,20 +72,20 @@ typedef enum modify_eps_bearer_context_request_iei_tag {
 
 typedef struct modify_eps_bearer_context_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                        protocoldiscriminator:4;
-  EpsBearerIdentity                            epsbeareridentity:4;
-  ProcedureTransactionIdentity                 proceduretransactionidentity;
-  MessageType                                  messagetype;
+  eps_protocol_discriminator_t                           protocoldiscriminator:4;
+  ebi_t                                                  epsbeareridentity:4;
+  pti_t                                                  proceduretransactionidentity;
+  message_type_t                                         messagetype;
   /* Optional fields */
-  uint32_t                                     presencemask;
-  EpsQualityOfService                          newepsqos;
-  TrafficFlowTemplate                          tft;
-  QualityOfService                             newqos;
-  LlcServiceAccessPointIdentifier              negotiatedllcsapi;
-  RadioPriority                                radiopriority;
-  PacketFlowIdentifier                         packetflowidentifier;
-  ApnAggregateMaximumBitRate                   apnambr;
-  ProtocolConfigurationOptions                 protocolconfigurationoptions;
+  uint32_t                                               presencemask;
+  EpsQualityOfService                                    newepsqos;
+  traffic_flow_template_t                                tft;
+  quality_of_service_t                                   newqos;
+  llc_service_access_point_identifier_t                  negotiatedllcsapi;
+  radio_priority_t                                          radiopriority;
+  packet_flow_identifier_t                               packetflowidentifier;
+  ApnAggregateMaximumBitRate                             apnambr;
+  protocol_configuration_options_t                       protocolconfigurationoptions;
 } modify_eps_bearer_context_request_msg;
 
 int decode_modify_eps_bearer_context_request(modify_eps_bearer_context_request_msg *modifyepsbearercontextrequest, uint8_t *buffer, uint32_t len);

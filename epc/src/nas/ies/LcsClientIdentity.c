@@ -22,14 +22,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "LcsClientIdentity.h"
 
-int
-decode_lcs_client_identity (
+//------------------------------------------------------------------------------
+int decode_lcs_client_identity (
   LcsClientIdentity  *lcsclientidentity,
   uint8_t iei,
   uint8_t * buffer,
@@ -56,8 +58,8 @@ decode_lcs_client_identity (
   return decoded;
 }
 
-int
-encode_lcs_client_identity (
+//------------------------------------------------------------------------------
+int encode_lcs_client_identity (
   LcsClientIdentity  lcsclientidentity,
   uint8_t iei,
   uint8_t * buffer,
@@ -71,9 +73,6 @@ encode_lcs_client_identity (
    * Checking IEI and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, LCS_CLIENT_IDENTITY_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_lcs_client_identity_xml (lcsclientidentity, iei);
-#endif
 
   if (iei > 0) {
     *buffer = iei;
@@ -92,21 +91,3 @@ encode_lcs_client_identity (
   return encoded;
 }
 
-void
-dump_lcs_client_identity_xml (
-  LcsClientIdentity  lcsclientidentity,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Lcs Client Identity>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  bstring b = dump_bstring_xml (lcsclientidentity);
-  OAILOG_DEBUG (LOG_NAS, "%s", bdata(b));
-  bdestroy(b);
-  OAILOG_DEBUG (LOG_NAS, "</Lcs Client Identity>\n");
-}

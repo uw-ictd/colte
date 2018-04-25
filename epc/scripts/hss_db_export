@@ -21,7 +21,7 @@
 ################################################################################
 
 # file hss_db_export
-# brief
+# brief Export the content of a database in a SQL file. 
 # author Lionel Gauthier
 # company Eurecom
 # email: lionel.gauthier@eurecom.fr

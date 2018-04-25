@@ -48,10 +48,12 @@ function help()
   echo_error "  -c, --config-file  filename     Config file to be used by HSS if you don't want to use the default one: $g_hss_default_config_file"
   echo_error "  -e, --export-db    filename     Export current database to a SQL file, file prefix is $OPENAIRCN_DIR/src/OAI_hss/db. (useful for replaying test scenarios)"
   echo_error "  -D, --daemon                    Run the daemon."
+  echo_error "  -g, --gdb                       Run with GDB."
+  echo_error "  -G, --gdb-cmd     cmd cmd_arg   Append this GDB cmd to GDB command file (ex1: break s6a_fd.c:243, ex2: watch 0xffee0002)."
+  echo_error "                                  All repetitions of this argument are valid."
+  echo_error "  -h, --help                      Print this help."
   echo_error "  -i, --import-db    filename     Import SQL file to current database, file prefix is $OPENAIRCN_DIR/src/OAI_hss/db. (useful for replaying test scenarios or restoring original database content)"
   echo_error "  -I, --install-hss-files         Install HSS config files (NOT RECOMMENDED. See gitlab tutorial, https://gitlab.eurecom.fr/oai/openairinterface5g/wikis/OpenAirUsage or docs/EPC_User_Guide.pdf )"
-  echo_error "  -g, --gdb                       Run with GDB."
-  echo_error "  -h, --help                      Print this help."
   echo_error "  -k, --kill                      Kill the running local HSS."
 }
 
@@ -70,6 +72,8 @@ function main()
   local -i var_check_install_hss_files=0
   local    hss_config_file=$g_hss_default_config_file
   local    exe_arguments=" "
+  local -a gdb_args
+  local -i gdb_index=0
 
   until [ -z "$1" ]
     do
@@ -90,6 +94,22 @@ function main()
         echo "Run HSS as a daemon"
         shift;
         ;;
+      -G | --gdb-arg)
+        run_gdb=1
+        gdb_args[$gdb_index]="$2 $3"
+        echo "Appending gdb args: ${gdb_args[$gdb_index]}"
+        gdb_index=$((gdb_index + 1))
+        shift 3;
+        ;;
+      -g | --gdb)
+        run_gdb=1
+        echo "setting GDB flag to: $GDB"
+        shift;
+        ;;
+      -h | --help)
+        help
+        exit 0
+        ;;
       -i | --import-db)
         import_db=1
         echo "setting import DB flag to: $import_db"
@@ -100,15 +120,6 @@ function main()
         echo "Install HSS files: .conf files."
         var_check_install_hss_files=1
         shift;
-        ;;
-      -g | --gdb)
-        run_gdb=1
-        echo "setting GDB flag to: $GDB"
-        shift;
-        ;;
-      -h | --help)
-        help
-        exit 0
         ;;
       -k | --kill)
         $SUDO killall -q oai_hss
@@ -245,6 +256,9 @@ function main()
     $SUDO chmod 777  ~/.gdb_hss
     $SUDO echo "file oai_hss" > ~/.gdb_hss
     $SUDO echo "set args $exe_arguments   " >> ~/.gdb_hss
+    for i in `seq 0 $gdb_index`; do
+      $SUDO echo "${gdb_args[$i]}"               >> ~/.gdb_hss
+    done
     $SUDO echo "run"                        >> ~/.gdb_hss
     $SUDO cat ~/.gdb_hss
     $SUDO gdb -n -x ~/.gdb_hss 2>&1

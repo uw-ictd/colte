@@ -28,57 +28,38 @@
 #define SGW
 #define SPGW_CONFIG_C
 
-#include <string.h>
-#include <libconfig.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 
+#include <libconfig.h>
+#include "bstrlib.h"
+#include "queue.h"
+
+#include "hashtable.h"
+#include "obj_hashtable.h"
 #include "log.h"
 #include "assertions.h"
+#include "common_defs.h"
+#include "common_types.h"
+#include "3gpp_24.008.h"
+#include "3gpp_29.274.h"
+#include "pgw_pcef_emulation.h"
 #include "spgw_config.h"
 #include "sgw_defs.h"
 #include "intertask_interface.h"
 #include "dynamic_memory_check.h"
+#include "async_system.h"
 
 static void spgw_config_display (spgw_config_t * config_p);
-
-//------------------------------------------------------------------------------
-int spgw_system (
-  bstring command_pP,
-  bool is_abort_on_errorP,
-  const char *const file_nameP,
-  const int line_numberP)
-{
-  int                                     ret = RETURNerror;
-
-  if (command_pP) {
-#if DISABLE_EXECUTE_SHELL_COMMAND
-    ret = 0;
-    OAILOG_WARNING (LOG_SPGW_APP, "Not executing system command: %s\n", bdata(command_pP));
-#else
-    OAILOG_DEBUG (LOG_SPGW_APP, "system command: %s\n", bdata(command_pP));
-    // The value returned is -1 on error (e.g., fork(2) failed), and the return status of the command otherwise.
-    // This latter return status is in the format specified in wait(2).  Thus, the exit code
-    // of the command will be WEXITSTATUS(status).
-    // In case /bin/sh could not be executed, the exit status will be that of a command that does exit(127).
-    ret = system (bdata(command_pP));
-    if (ret != 0) {
-      OAILOG_ERROR (LOG_SPGW_APP, "ERROR in system command %s: %d at %s:%u\n", bdata(command_pP), ret, file_nameP, line_numberP);
-
-      if (is_abort_on_errorP) {
-        exit (-1);              // may be not exit
-      }
-    }
-#endif
-  }
-  return ret;
-}
 
 //------------------------------------------------------------------------------
 static void spgw_config_init (spgw_config_t * config_pP)
@@ -90,17 +71,8 @@ static void spgw_config_init (spgw_config_t * config_pP)
 //------------------------------------------------------------------------------
 static int spgw_config_process (spgw_config_t * config_pP)
 {
-  bstring                                 system_cmd = NULL;
-
-  system_cmd = bfromcstr("");
-
-  bassignformat (system_cmd, "sysctl -w net.ipv4.ip_forward=1");
-  spgw_system (system_cmd, SPGW_WARN_ON_ERROR, __FILE__, __LINE__);
-  btrunc(system_cmd, 0);
-
-  bassignformat (system_cmd, "sync");
-  spgw_system (system_cmd, SPGW_WARN_ON_ERROR, __FILE__, __LINE__);
-  bdestroy(system_cmd);
+  async_system_command (TASK_ASYNC_SYSTEM, SPGW_WARN_ON_ERROR, "sysctl -w net.ipv4.ip_forward=1");
+  async_system_command (TASK_ASYNC_SYSTEM, SPGW_WARN_ON_ERROR, "sync");
 
   if (RETURNok != sgw_config_process (&config_pP->sgw_config)) {
     return RETURNerror;
@@ -154,8 +126,6 @@ static int spgw_config_parse_file (spgw_config_t * config_pP)
   if (spgw_config_process (config_pP) != 0) {
     return RETURNerror;
   }
-
-  spgw_config_display(config_pP);
 
   config_destroy (&cfg);
   return RETURNok;

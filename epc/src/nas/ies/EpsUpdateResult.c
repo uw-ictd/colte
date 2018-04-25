@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "EpsUpdateResult.h"
 
-int
-decode_eps_update_result (
-  EpsUpdateResult * epsupdateresult,
+//------------------------------------------------------------------------------
+int decode_eps_update_result (
+  eps_update_result_t * epsupdateresult,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -45,15 +47,12 @@ decode_eps_update_result (
 
   *epsupdateresult = *buffer & 0x7;
   decoded++;
-#if NAS_DEBUG
-  dump_eps_update_result_xml (epsupdateresult, iei);
-#endif
   return decoded;
 }
 
-int
-decode_u8_eps_update_result (
-  EpsUpdateResult * epsupdateresult,
+//------------------------------------------------------------------------------
+int decode_u8_eps_update_result (
+  eps_update_result_t * epsupdateresult,
   uint8_t iei,
   uint8_t value,
   uint32_t len)
@@ -63,15 +62,12 @@ decode_u8_eps_update_result (
 
   *epsupdateresult = *buffer & 0x7;
   decoded++;
-#if NAS_DEBUG
-  dump_eps_update_result_xml (epsupdateresult, iei);
-#endif
   return decoded;
 }
 
-int
-encode_eps_update_result (
-  EpsUpdateResult * epsupdateresult,
+//------------------------------------------------------------------------------
+int encode_eps_update_result (
+  eps_update_result_t * epsupdateresult,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -82,42 +78,22 @@ encode_eps_update_result (
    * Checking length and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, EPS_UPDATE_RESULT_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_eps_update_result_xml (epsupdateresult, iei);
-#endif
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*epsupdateresult & 0x7);
   encoded++;
   return encoded;
 }
 
-uint8_t
-encode_u8_eps_update_result (
-  EpsUpdateResult * epsupdateresult)
+//------------------------------------------------------------------------------
+uint8_t encode_u8_eps_update_result (
+  eps_update_result_t * epsupdateresult)
 {
   uint8_t                                 bufferReturn;
   uint8_t                                *buffer = &bufferReturn;
   uint8_t                                 encoded = 0;
   uint8_t                                 iei = 0;
 
-  dump_eps_update_result_xml (epsupdateresult, 0);
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*epsupdateresult & 0x7);
   encoded++;
   return bufferReturn;
 }
 
-void
-dump_eps_update_result_xml (
-  EpsUpdateResult * epsupdateresult,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Eps Update Result>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <EPS update result value>%u</EPS update result value>\n", *epsupdateresult);
-  OAILOG_DEBUG (LOG_NAS, "</Eps Update Result>\n");
-}

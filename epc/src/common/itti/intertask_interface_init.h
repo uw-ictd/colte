@@ -49,11 +49,6 @@
 
 #ifndef CHECK_PROTOTYPE_ONLY
 
-#if ENABLE_ITTI_ANALYZER
-const char * const messages_definition_xml = {
-#include "messages_xml.h"
-};
-#endif
 
 /* Map task id to printable name. */
 const task_info_t tasks_info[] = {

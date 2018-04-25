@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "UeRadioCapabilityInformationUpdateNeeded.h"
 
-int
-decode_ue_radio_capability_information_update_needed (
-  UeRadioCapabilityInformationUpdateNeeded * ueradiocapabilityinformationupdateneeded,
+//------------------------------------------------------------------------------
+int decode_ue_radio_capability_information_update_needed (
+  ue_radio_capability_information_update_needed_t * ueradiocapabilityinformationupdateneeded,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -45,15 +47,12 @@ decode_ue_radio_capability_information_update_needed (
 
   *ueradiocapabilityinformationupdateneeded = *buffer & 0x1;
   decoded++;
-#if NAS_DEBUG
-  dump_ue_radio_capability_information_update_needed_xml (ueradiocapabilityinformationupdateneeded, iei);
-#endif
   return decoded;
 }
 
-int
-decode_u8_ue_radio_capability_information_update_needed (
-  UeRadioCapabilityInformationUpdateNeeded * ueradiocapabilityinformationupdateneeded,
+//------------------------------------------------------------------------------
+int decode_u8_ue_radio_capability_information_update_needed (
+  ue_radio_capability_information_update_needed_t * ueradiocapabilityinformationupdateneeded,
   uint8_t iei,
   uint8_t value,
   uint32_t len)
@@ -63,15 +62,12 @@ decode_u8_ue_radio_capability_information_update_needed (
 
   *ueradiocapabilityinformationupdateneeded = *buffer & 0x1;
   decoded++;
-#if NAS_DEBUG
-  dump_ue_radio_capability_information_update_needed_xml (ueradiocapabilityinformationupdateneeded, iei);
-#endif
   return decoded;
 }
 
-int
-encode_ue_radio_capability_information_update_needed (
-  UeRadioCapabilityInformationUpdateNeeded * ueradiocapabilityinformationupdateneeded,
+//------------------------------------------------------------------------------
+int encode_ue_radio_capability_information_update_needed (
+  ue_radio_capability_information_update_needed_t * ueradiocapabilityinformationupdateneeded,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -82,42 +78,21 @@ encode_ue_radio_capability_information_update_needed (
    * Checking length and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, UE_RADIO_CAPABILITY_INFORMATION_UPDATE_NEEDED_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_ue_radio_capability_information_update_needed_xml (ueradiocapabilityinformationupdateneeded, iei);
-#endif
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*ueradiocapabilityinformationupdateneeded & 0x1);
   encoded++;
   return encoded;
 }
 
-uint8_t
-encode_u8_ue_radio_capability_information_update_needed (
-  UeRadioCapabilityInformationUpdateNeeded * ueradiocapabilityinformationupdateneeded)
+//------------------------------------------------------------------------------
+uint8_t encode_u8_ue_radio_capability_information_update_needed (
+  ue_radio_capability_information_update_needed_t * ueradiocapabilityinformationupdateneeded)
 {
   uint8_t                                 bufferReturn;
   uint8_t                                *buffer = &bufferReturn;
   uint8_t                                 encoded = 0;
   uint8_t                                 iei = 0;
 
-  dump_ue_radio_capability_information_update_needed_xml (ueradiocapabilityinformationupdateneeded, 0);
   *(buffer + encoded) = 0x00 | (iei & 0xf0) | (*ueradiocapabilityinformationupdateneeded & 0x1);
   encoded++;
   return bufferReturn;
-}
-
-void
-dump_ue_radio_capability_information_update_needed_xml (
-  UeRadioCapabilityInformationUpdateNeeded * ueradiocapabilityinformationupdateneeded,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Ue Radio Capability Information Update Needed>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <URC upd>%u</URC upd>\n", *ueradiocapabilityinformationupdateneeded);
-  OAILOG_DEBUG (LOG_NAS, "</Ue Radio Capability Information Update Needed>\n");
 }

@@ -31,9 +31,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+
+#include "bstrlib.h"
 
 #include "s11_causes.h"
 #include "common_types.h"
+#include "common_defs.h"
 #include "sgw_ie_defs.h"
 
 static const SGWCauseMapping_t          causes[] = {

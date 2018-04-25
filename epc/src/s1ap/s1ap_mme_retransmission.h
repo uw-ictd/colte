@@ -20,10 +20,16 @@
  */
 
 
-#include "tree.h"
+/*! \file s1ap_mme_retransmission.h
+  \brief
+  \author Sebastien ROUX
+  \company Eurecom
+*/
 
 #ifndef FILE_S1AP_MME_RETRANSMISSION_SEEN
 #define FILE_S1AP_MME_RETRANSMISSION_SEEN
+
+#include "tree.h"
 
 typedef struct s1ap_timer_map_s {
   long             timer_id;

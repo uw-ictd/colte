@@ -22,12 +22,13 @@
 
 #ifndef FILE_ATTACH_COMPLETE_SEEN
 #define FILE_ATTACH_COMPLETE_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "EsmMessageContainer.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define ATTACH_COMPLETE_MINIMUM_LENGTH ( \
@@ -47,9 +48,9 @@
 
 typedef struct attach_complete_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator         protocoldiscriminator:4;
-  SecurityHeaderType            securityheadertype:4;
-  MessageType                   messagetype;
+  eps_protocol_discriminator_t  protocoldiscriminator:4;
+  security_header_type_t        securityheadertype:4;
+  message_type_t                messagetype;
   EsmMessageContainer           esmmessagecontainer;
 } attach_complete_msg;
 

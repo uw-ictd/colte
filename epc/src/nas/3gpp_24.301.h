@@ -27,12 +27,14 @@
  * either expressed or implied, of the FreeBSD Project.
  */
 
+/*! \file 3gpp_24.301.h
+   \brief
+   \author  Philippe MOREL, Lionel GAUTHIER
+   \date
+   \email: lionel.gauthier@eurecom.fr
+*/
 #ifndef FILE_3GPP_24_301_SEEN
 #define FILE_3GPP_24_301_SEEN
-
-#include <stdint.h>
-#include <stdbool.h>
-
 
 //==============================================================================
 // 9 General message format and information elements coding

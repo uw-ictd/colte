@@ -21,21 +21,21 @@
 
 #ifndef FILE_IDENTITY_REQUEST_SEEN
 #define FILE_IDENTITY_REQUEST_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
-#include "IdentityType2.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define IDENTITY_REQUEST_MINIMUM_LENGTH ( \
-    IDENTITY_TYPE_2_MINIMUM_LENGTH )
+    IDENTITY_TYPE_2_IE_MIN_LENGTH )
 
 /* Maximum length macro. Formed by maximum length of each field */
 #define IDENTITY_REQUEST_MAXIMUM_LENGTH ( \
-    IDENTITY_TYPE_2_MAXIMUM_LENGTH )
+    IDENTITY_TYPE_2_IE_MAX_LENGTH )
 
 
 /*
@@ -47,10 +47,10 @@
 
 typedef struct identity_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator          protocoldiscriminator:4;
-  SecurityHeaderType             securityheadertype:4;
-  MessageType                    messagetype;
-  IdentityType2                  identitytype;
+  eps_protocol_discriminator_t   protocoldiscriminator:4;
+  security_header_type_t         securityheadertype:4;
+  message_type_t                 messagetype;
+  identity_type2_t               identitytype;
 } identity_request_msg;
 
 int decode_identity_request(identity_request_msg *identityrequest, uint8_t *buffer, uint32_t len);
