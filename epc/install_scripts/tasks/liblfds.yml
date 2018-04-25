@@ -1,0 +1,27 @@
+
+    - name: libgtpnl - apt-get update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    - name: libgtpnl - apt-get necessary packages
+      apt:
+        name: "{{ item }}"            
+      with_items:
+      - build-essential
+      become: yes
+
+#    git clone https://github.com/liblfds/liblfds.git
+    - name: liblfds - clone friom github
+      git:
+        repo: https://github.com/liblfds/liblfds.git
+        dest: "{{ packages_dir }}/liblfds"
+
+    - name: liblfds - build SHELL SCRIPT
+      shell: |
+        make so_dbg
+        sudo rm -f /usr/local/lib/liblfds710.so
+        sudo make so_install
+      args:
+        chdir: "{{packages_dir }}/liblfds/liblfds/liblfds7.1.0/liblfds710/build/gcc_gnumake"
