@@ -21,16 +21,16 @@
 
 #ifndef FILE_NAS_SECURITY_MODE_COMMAND_SEEN
 #define FILE_NAS_SECURITY_MODE_COMMAND_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "NasSecurityAlgorithms.h"
 #include "NasKeySetIdentifier.h"
 #include "UeSecurityCapability.h"
-#include "ImeisvRequest.h"
 #include "Nonce.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define SECURITY_MODE_COMMAND_MINIMUM_LENGTH ( \
@@ -43,7 +43,7 @@
     NAS_SECURITY_ALGORITHMS_MAXIMUM_LENGTH + \
     NAS_KEY_SET_IDENTIFIER_MAXIMUM_LENGTH + \
     UE_SECURITY_CAPABILITY_MAXIMUM_LENGTH + \
-    IMEISV_REQUEST_MAXIMUM_LENGTH + \
+    IMEISV_REQUEST_IE_MAX_LENGTH + \
     NONCE_MAXIMUM_LENGTH + \
     NONCE_MAXIMUM_LENGTH )
 
@@ -55,7 +55,7 @@
 # define SECURITY_MODE_COMMAND_NONCEMME_PRESENT         (1<<2)
 
 typedef enum security_mode_command_iei_tag {
-  SECURITY_MODE_COMMAND_IMEISV_REQUEST_IEI    = 0xC0, /* 0xC0 = 192 */
+  SECURITY_MODE_COMMAND_IMEISV_REQUEST_IEI    = GMM_IMEISV_REQUEST_IEI, /* 0xC0 = 192 */
   SECURITY_MODE_COMMAND_REPLAYED_NONCEUE_IEI  = 0x55, /* 0x55 = 85 */
   SECURITY_MODE_COMMAND_NONCEMME_IEI          = 0x56, /* 0x56 = 86 */
 } security_mode_command_iei;
@@ -69,17 +69,17 @@ typedef enum security_mode_command_iei_tag {
 
 typedef struct security_mode_command_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator              protocoldiscriminator:4;
-  SecurityHeaderType                 securityheadertype:4;
-  MessageType                        messagetype;
+  eps_protocol_discriminator_t       protocoldiscriminator:4;
+  security_header_type_t             securityheadertype:4;
+  message_type_t                     messagetype;
   NasSecurityAlgorithms              selectednassecurityalgorithms;
   NasKeySetIdentifier                naskeysetidentifier;
-  UeSecurityCapability               replayeduesecuritycapabilities;
+  ue_security_capability_t           replayeduesecuritycapabilities;
   /* Optional fields */
   uint32_t                           presencemask;
-  ImeisvRequest                      imeisvrequest;
-  Nonce                              replayednonceue;
-  Nonce                              noncemme;
+  imeisv_request_t                   imeisvrequest;
+  nonce_t                            replayednonceue;
+  nonce_t                            noncemme;
 } security_mode_command_msg;
 
 int decode_security_mode_command(security_mode_command_msg *securitymodecommand, uint8_t *buffer, uint32_t len);

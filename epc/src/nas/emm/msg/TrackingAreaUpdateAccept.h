@@ -21,23 +21,20 @@
 
 #ifndef FILE_TRACKING_AREA_UPDATE_ACCEPT_SEEN
 #define FILE_TRACKING_AREA_UPDATE_ACCEPT_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "EpsUpdateResult.h"
-#include "GprsTimer.h"
 #include "EpsMobileIdentity.h"
 #include "TrackingAreaIdentityList.h"
 #include "EpsBearerContextStatus.h"
-#include "LocationAreaIdentification.h"
-#include "MobileIdentity.h"
 #include "EmmCause.h"
-#include "PlmnList.h"
-#include "EmergencyNumberList.h"
 #include "EpsNetworkFeatureSupport.h"
 #include "AdditionalUpdateResult.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
+
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define TRACKING_AREA_UPDATE_ACCEPT_MINIMUM_LENGTH ( \
@@ -78,17 +75,16 @@
 # define TRACKING_AREA_UPDATE_ACCEPT_ADDITIONAL_UPDATE_RESULT_PRESENT     (1<<12)
 
 typedef enum tracking_area_update_accept_iei_tag {
-  TRACKING_AREA_UPDATE_ACCEPT_T3412_VALUE_IEI                   = 0x5A, /* 0x5A = 90 */
+  TRACKING_AREA_UPDATE_ACCEPT_T3412_VALUE_IEI                   = GPRS_C_TIMER_3412_VALUE_IEI,
   TRACKING_AREA_UPDATE_ACCEPT_GUTI_IEI                          = 0x50, /* 0x50 = 80 */
   TRACKING_AREA_UPDATE_ACCEPT_TAI_LIST_IEI                      = 0x54, /* 0x54 = 84 */
   TRACKING_AREA_UPDATE_ACCEPT_EPS_BEARER_CONTEXT_STATUS_IEI     = 0x57, /* 0x57 = 87 */
-  TRACKING_AREA_UPDATE_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI  = 0x13, /* 0x13 = 19 */
-  TRACKING_AREA_UPDATE_ACCEPT_MS_IDENTITY_IEI                   = 0x23, /* 0x23 = 35 */
+  TRACKING_AREA_UPDATE_ACCEPT_MS_IDENTITY_IEI                   = C_MOBILE_IDENTITY_IEI,
   TRACKING_AREA_UPDATE_ACCEPT_EMM_CAUSE_IEI                     = 0x53, /* 0x53 = 83 */
-  TRACKING_AREA_UPDATE_ACCEPT_T3402_VALUE_IEI                   = 0x17, /* 0x17 = 23 */
-  TRACKING_AREA_UPDATE_ACCEPT_T3423_VALUE_IEI                   = 0x59, /* 0x59 = 89 */
-  TRACKING_AREA_UPDATE_ACCEPT_EQUIVALENT_PLMNS_IEI              = 0x4A, /* 0x4A = 74 */
-  TRACKING_AREA_UPDATE_ACCEPT_EMERGENCY_NUMBER_LIST_IEI         = 0x34, /* 0x34 = 52 */
+  TRACKING_AREA_UPDATE_ACCEPT_T3402_VALUE_IEI                   = GPRS_C_TIMER_3402_VALUE_IEI,
+  TRACKING_AREA_UPDATE_ACCEPT_T3423_VALUE_IEI                   = GPRS_C_TIMER_3423_VALUE_IEI,
+  TRACKING_AREA_UPDATE_ACCEPT_EQUIVALENT_PLMNS_IEI              = C_PLMN_LIST_IEI,
+  TRACKING_AREA_UPDATE_ACCEPT_EMERGENCY_NUMBER_LIST_IEI         = MM_EMERGENCY_NUMBER_LIST_IEI,
   TRACKING_AREA_UPDATE_ACCEPT_EPS_NETWORK_FEATURE_SUPPORT_IEI   = 0x64, /* 0x64 = 100 */
   TRACKING_AREA_UPDATE_ACCEPT_ADDITIONAL_UPDATE_RESULT_IEI      = 0xF0, /* 0xF0 = 240 */
 } tracking_area_update_accept_iei;
@@ -102,25 +98,25 @@ typedef enum tracking_area_update_accept_iei_tag {
 
 typedef struct tracking_area_update_accept_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator                   protocoldiscriminator:4;
-  SecurityHeaderType                      securityheadertype:4;
-  MessageType                             messagetype;
-  EpsUpdateResult                         epsupdateresult;
+  eps_protocol_discriminator_t            protocoldiscriminator:4;
+  security_header_type_t                  securityheadertype:4;
+  message_type_t                          messagetype;
+  eps_update_result_t                         epsupdateresult;
   /* Optional fields */
   uint32_t                                presencemask;
-  GprsTimer                               t3412value;
-  EpsMobileIdentity                       guti;
-  TrackingAreaIdentityList                tailist;
-  EpsBearerContextStatus                  epsbearercontextstatus;
-  LocationAreaIdentification              locationareaidentification;
-  MobileIdentity                          msidentity;
-  EmmCause                                emmcause;
-  GprsTimer                               t3402value;
-  GprsTimer                               t3423value;
-  PlmnList                                equivalentplmns;
-  EmergencyNumberList                     emergencynumberlist;
-  EpsNetworkFeatureSupport                epsnetworkfeaturesupport;
-  AdditionalUpdateResult                  additionalupdateresult;
+  gprs_timer_t                            t3412value;
+  eps_mobile_identity_t                   guti;
+  tai_list_t                              tailist;
+  eps_bearer_context_status_t                  epsbearercontextstatus;
+  location_area_identification_t          locationareaidentification;
+  mobile_identity_t                       msidentity;
+  emm_cause_t                                emmcause;
+  gprs_timer_t                            t3402value;
+  gprs_timer_t                            t3423value;
+  plmn_list_t                             equivalentplmns;
+  emergency_number_list_t                 emergencynumberlist;
+  eps_network_feature_support_t                epsnetworkfeaturesupport;
+  additional_update_result_t                  additionalupdateresult;
 } tracking_area_update_accept_msg;
 
 int decode_tracking_area_update_accept(tracking_area_update_accept_msg *trackingareaupdateaccept, uint8_t *buffer, uint32_t len);

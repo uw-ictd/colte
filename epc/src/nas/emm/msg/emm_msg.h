@@ -39,38 +39,71 @@ Description Defines EPS Mobility Management messages and functions used
 #ifndef FILE_EMM_MSG_SEEN
 #define FILE_EMM_MSG_SEEN
 
-#include <stdint.h>
 #include "emm_msgDef.h"
 
-#include "AttachRequest.h"
+#include "AdditionalUpdateResult.h"
+#include "AdditionalUpdateType.h"
+#include "Cli.h"
+#include "CsfbResponse.h"
+#include "DetachType.h"
+#include "EmmCause.h"
+#include "EpsAttachResult.h"
+#include "EpsAttachType.h"
+#include "EpsBearerContextStatus.h"
+#include "EpsMobileIdentity.h"
+#include "EpsNetworkFeatureSupport.h"
+#include "EpsUpdateResult.h"
+#include "EpsUpdateType.h"
+#include "EsmMessageContainer.h"
+#include "GutiType.h"
+#include "KsiAndSequenceNumber.h"
+#include "LcsClientIdentity.h"
+#include "LcsIndicator.h"
+#include "MessageType.h"
+#include "NasKeySetIdentifier.h"
+#include "NasMessageContainer.h"
+#include "NasSecurityAlgorithms.h"
+#include "Nonce.h"
+#include "PagingIdentity.h"
+#include "SecurityHeaderType.h"
+#include "ServiceType.h"
+#include "ShortMac.h"
+#include "SsCode.h"
+#include "TrackingAreaIdentity.h"
+#include "TrackingAreaIdentityList.h"
+#include "3gpp_24.301.h"
+#include "UeNetworkCapability.h"
+#include "UeRadioCapabilityInformationUpdateNeeded.h"
+#include "UeSecurityCapability.h"
 #include "AttachAccept.h"
 #include "AttachComplete.h"
 #include "AttachReject.h"
-#include "DetachRequest.h"
-#include "DetachAccept.h"
-#include "TrackingAreaUpdateRequest.h"
-#include "TrackingAreaUpdateAccept.h"
-#include "TrackingAreaUpdateComplete.h"
-#include "TrackingAreaUpdateReject.h"
-#include "ExtendedServiceRequest.h"
-#include "ServiceRequest.h"
-#include "ServiceReject.h"
-#include "GutiReallocationCommand.h"
-#include "GutiReallocationComplete.h"
+#include "AttachRequest.h"
+#include "AuthenticationFailure.h"
+#include "AuthenticationReject.h"
 #include "AuthenticationRequest.h"
 #include "AuthenticationResponse.h"
-#include "AuthenticationReject.h"
-#include "AuthenticationFailure.h"
+#include "CsServiceNotification.h"
+#include "DetachAccept.h"
+#include "DetachRequest.h"
+#include "DownlinkNasTransport.h"
+#include "EmmInformation.h"
+#include "EmmStatus.h"
+#include "ExtendedServiceRequest.h"
+#include "GutiReallocationCommand.h"
+#include "GutiReallocationComplete.h"
 #include "IdentityRequest.h"
 #include "IdentityResponse.h"
 #include "NASSecurityModeCommand.h"
 #include "NASSecurityModeComplete.h"
 #include "SecurityModeReject.h"
-#include "EmmStatus.h"
-#include "EmmInformation.h"
-#include "DownlinkNasTransport.h"
+#include "ServiceReject.h"
+#include "ServiceRequest.h"
+#include "TrackingAreaUpdateAccept.h"
+#include "TrackingAreaUpdateComplete.h"
+#include "TrackingAreaUpdateReject.h"
+#include "TrackingAreaUpdateRequest.h"
 #include "UplinkNasTransport.h"
-#include "CsServiceNotification.h"
 
 
 /****************************************************************************/
@@ -126,9 +159,12 @@ typedef union {
 /****************************************************************************/
 /******************  E X P O R T E D    F U N C T I O N S  ******************/
 /****************************************************************************/
+int emm_msg_decode_header (emm_msg_header_t * header, const uint8_t * buffer, uint32_t len);
 
 int emm_msg_decode(EMM_msg *msg, uint8_t *buffer, uint32_t len);
 
 int emm_msg_encode(EMM_msg *msg, uint8_t *buffer, uint32_t len);
+
+int emm_msg_encode_header (const emm_msg_header_t * header, uint8_t * buffer, uint32_t len);
 
 #endif /* FILE_EMM_MSG_SEEN */

@@ -26,6 +26,12 @@
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the FreeBSD Project.
  */
+/*! \file security_types.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 #if HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -34,13 +40,6 @@
 # include <gmp.h>
 #endif
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <inttypes.h>
-
-#if 0
-#include "queue.h"
-#endif
 
 #ifndef FILE_SECURITY_TYPES_SEEN
 #define FILE_SECURITY_TYPES_SEEN
@@ -97,6 +96,7 @@ typedef struct {
 } res_t;
 
 #define FORMAT_128BITS "%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x"
+#define XRES_FORMAT  FORMAT_128BITS
 #define RAND_FORMAT  FORMAT_128BITS
 #define AUTN_FORMAT  FORMAT_128BITS
 #define KASME_FORMAT FORMAT_128BITS
@@ -108,6 +108,7 @@ bUFFER[8], bUFFER[9], bUFFER[10], bUFFER[11], bUFFER[12], bUFFER[13], bUFFER[14]
 bUFFER[16], bUFFER[17], bUFFER[18], bUFFER[19], bUFFER[20], bUFFER[21], bUFFER[22], bUFFER[23],  \
 bUFFER[24], bUFFER[25], bUFFER[26], bUFFER[27], bUFFER[28], bUFFER[29], bUFFER[30], bUFFER[31]
 
+#define XRES_DISPLAY(bUFFER) DISPLAY_128BITS(bUFFER)
 #define RAND_DISPLAY(bUFFER) DISPLAY_128BITS(bUFFER)
 #define AUTN_DISPLAY(bUFFER) DISPLAY_128BITS(bUFFER)
 /* Display only first 128 bits of KASME */

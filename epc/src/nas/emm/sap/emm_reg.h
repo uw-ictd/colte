@@ -61,6 +61,6 @@ Description Defines the EMMREG Service Access Point that provides
 
 void emm_reg_initialize(void);
 
-int emm_reg_send(const emm_reg_t *msg);
+int emm_reg_send(emm_reg_t * const msg);
 
 #endif /* FILE_EMM_REG_SEEN*/

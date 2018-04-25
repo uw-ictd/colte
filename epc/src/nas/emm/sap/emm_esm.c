@@ -38,12 +38,22 @@
         connections.
 
 *****************************************************************************/
+#include <pthread.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+
+#include "bstrlib.h"
 
 #include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 #include "emm_esm.h"
 #include "commonDef.h"
+#include "common_defs.h"
 #include "log.h"
-
 #include "LowerLayer.h"
 
 
@@ -61,6 +71,7 @@
 static const char                      *_emm_esm_primitive_str[] = {
   "EMMESM_RELEASE_IND",
   "EMMESM_UNITDATA_REQ",
+  "EMMESM_ACTIVATE_BEARER_REQ",
   "EMMESM_UNITDATA_IND",
 };
 
@@ -119,10 +130,21 @@ emm_esm_send (
 
   switch (primitive) {
   case _EMMESM_UNITDATA_REQ:
+    MSC_LOG_RX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_ESM_MME, NULL, 0, "_EMMESM_UNITDATA_REQ ue id " MME_UE_S1AP_ID_FMT " ", msg->ue_id);
     /*
      * ESM requests EMM to transfer ESM data unit to lower layer
      */
     rc = lowerlayer_data_req (msg->ue_id, msg->u.data.msg);
+    break;
+
+  case _EMMESM_ACTIVATE_BEARER_REQ:
+    MSC_LOG_RX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_ESM_MME, NULL, 0, "_EMMESM_ACTIVATE_BEARER_REQ ue id " MME_UE_S1AP_ID_FMT " ", msg->ue_id);
+    rc = lowerlayer_activate_bearer_req (msg->ue_id, msg->u.activate_bearer.ebi,
+        msg->u.activate_bearer.mbr_dl,
+        msg->u.activate_bearer.mbr_ul,
+        msg->u.activate_bearer.gbr_dl,
+        msg->u.activate_bearer.gbr_ul,
+        msg->u.activate_bearer.msg);
     break;
 
   default:
@@ -130,6 +152,7 @@ emm_esm_send (
   }
 
   if (rc != RETURNok) {
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMESM_UNKNOWN(primitive id %d) ue id " MME_UE_S1AP_ID_FMT " ", primitive, msg->ue_id);
     OAILOG_WARNING (LOG_NAS_EMM, "EMMESM-SAP - Failed to process primitive %s (%d)\n", _emm_esm_primitive_str[primitive - _EMMESM_START - 1], primitive);
   }
 

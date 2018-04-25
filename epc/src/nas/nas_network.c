@@ -30,16 +30,23 @@
 
   Subsystem   NAS main process
 
-  Author      Frederic Maurel
+  Author      Frederic Maurel, Lionel GAUTHIER
 
   Description NAS procedure functions triggered by the network
 
 *****************************************************************************/
+#include <stdbool.h>
+#include <stdint.h>
+#include <pthread.h>
 
+#include "bstrlib.h"
+
+#include "log.h"
+#include "mme_config.h"
 #include "nas_network.h"
 #include "common_types.h"
-#include "log.h"
 #include "nas_timer.h"
+#include "TrackingAreaIdentity.h"
 #include "as_message.h"
 #include "nas_proc.h"
 
@@ -69,9 +76,7 @@
  **          Others:    None                                       **
  **                                                                        **
  ***************************************************************************/
-void
-nas_network_initialize (
-  mme_config_t * mme_config_p)
+void nas_network_initialize (mme_config_t * mme_config_p)
 {
   OAILOG_FUNC_IN (LOG_NAS);
   /*
@@ -96,98 +101,14 @@ nas_network_initialize (
  **          Others:    None                                       **
  **                                                                        **
  ***************************************************************************/
-void
-nas_network_cleanup (
-  void)
+void nas_network_cleanup (void)
 {
   OAILOG_FUNC_IN (LOG_NAS);
   nas_proc_cleanup ();
+  nas_timer_cleanup ();
   OAILOG_FUNC_OUT (LOG_NAS);
 }
 
-/****************************************************************************
- **                                                                        **
- ** Name:    nas_network_process_data()                                **
- **                                                                        **
- ** Description: Process Access Stratum messages received from the network **
- **      and call applicable NAS procedure function.               **
- **                                                                        **
- ** Inputs:  msg_id:    AS message identifier                      **
- **          data:      Generic pointer to data structure that has **
- **             to be processed                            **
- **          Others:    None                                       **
- **                                                                        **
- ** Outputs:     None                                                      **
- **      Return:    RETURNok if the message has been success-  **
- **             fully processed; RETURNerror otherwise     **
- **          Others:    None                                       **
- **                                                                        **
- ***************************************************************************/
-//int
-//nas_network_process_data (
-//  int msg_id,
-//  const void *data)
-//{
-//  OAILOG_FUNC_IN (LOG_NAS);
-//  const as_message_t                     *msg = (as_message_t *) (data);
-//  int                                     rc = RETURNok;
-//
-//  /*
-//   * Sanity check
-//   */
-//  if (msg_id != msg->msg_id) {
-//    OAILOG_ERROR (LOG_NAS, "NET-MAIN  - Message identifier 0x%x to process " "is different from that of the network data (0x%x)", msg_id, msg->msg_id);
-//    OAILOG_FUNC_RETURN (LOG_NAS, RETURNerror);
-//  }
-//
-//  switch (msg_id) {
-//  case AS_NAS_ESTABLISH_IND:{
-//      /*
-//       * Received NAS signalling connection establishment indication
-//       */
-//      const nas_establish_ind_t              *indication = &msg->msg.nas_establish_ind;
-//
-//      rc = nas_proc_establish_ind (indication->ue_id, indication->plmn, indication->tac, indication->initial_nas_msg.data, indication->initial_nas_msg.length);
-//      break;
-//    }
-//
-//  case AS_DL_INFO_TRANSFER_CNF:{
-//      const dl_info_transfer_cnf_t           *info = &msg->msg.dl_info_transfer_cnf;
-//
-//      /*
-//       * Received downlink data transfer confirm
-//       */
-//      if (info->err_code != AS_SUCCESS) {
-//        OAILOG_WARNING (LOG_NAS, "NET-MAIN  - " "Downlink NAS message not delivered");
-//        rc = nas_proc_dl_transfer_rej (info->ue_id);
-//      } else {
-//        rc = nas_proc_dl_transfer_cnf (info->ue_id);
-//      }
-//
-//      break;
-//    }
-//
-//  case AS_UL_INFO_TRANSFER_IND:{
-//      const ul_info_transfer_ind_t           *info = &msg->msg.ul_info_transfer_ind;
-//
-//      /*
-//       * Received uplink data transfer indication
-//       */
-//      rc = nas_proc_ul_transfer_ind (info->ue_id, info->nas_msg.data, info->nas_msg.length);
-//      break;
-//    }
-//
-//  case AS_RAB_ESTABLISH_CNF:
-//    break;
-//
-//  default:
-//    OAILOG_ERROR (LOG_NAS, "NET-MAIN  - Unexpected AS message type: 0x%x", msg_id);
-//    rc = RETURNerror;
-//    break;
-//  }
-//
-//  OAILOG_FUNC_RETURN ( OAILOG_NAS, rc);
-//}
 
 /****************************************************************************/
 /*********************  L O C A L    F U N C T I O N S  *********************/

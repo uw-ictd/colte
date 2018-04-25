@@ -27,23 +27,28 @@
  * either expressed or implied, of the FreeBSD Project.
  */
 
+/*! \file mme_config.h
+  \brief
+  \author Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
 
 #ifndef FILE_MME_CONFIG_SEEN
 #define FILE_MME_CONFIG_SEEN
-#include <pthread.h>
-#include <stdint.h>
+#include <arpa/inet.h>
 
 #include "mme_default_values.h"
 #include "3gpp_23.003.h"
 #include "common_dim.h"
 #include "common_types.h"
-#include "log.h"
 #include "bstrlib.h"
+#include "log.h"
+
+#define MAX_GUMMEI                2
 
 #define MME_CONFIG_STRING_MME_CONFIG                     "MME"
 #define MME_CONFIG_STRING_PID_DIRECTORY                  "PID_DIRECTORY"
-#define MME_CONFIG_STRING_RUN_MODE                       "RUN_MODE"
-#define MME_CONFIG_STRING_RUN_MODE_TEST                  "TEST"
 #define MME_CONFIG_STRING_REALM                          "REALM"
 #define MME_CONFIG_STRING_MAXENB                         "MAXENB"
 #define MME_CONFIG_STRING_MAXUE                          "MAXUE"
@@ -97,20 +102,26 @@
 
 #define MME_CONFIG_STRING_NAS_T3402_TIMER                "T3402"
 #define MME_CONFIG_STRING_NAS_T3412_TIMER                "T3412"
+#define MME_CONFIG_STRING_NAS_T3422_TIMER                "T3422"
+#define MME_CONFIG_STRING_NAS_T3450_TIMER                "T3450"
+#define MME_CONFIG_STRING_NAS_T3460_TIMER                "T3460"
+#define MME_CONFIG_STRING_NAS_T3470_TIMER                "T3470"
 #define MME_CONFIG_STRING_NAS_T3485_TIMER                "T3485"
 #define MME_CONFIG_STRING_NAS_T3486_TIMER                "T3486"
 #define MME_CONFIG_STRING_NAS_T3489_TIMER                "T3489"
 #define MME_CONFIG_STRING_NAS_T3495_TIMER                "T3495"
+#define MME_CONFIG_STRING_NAS_FORCE_REJECT_TAU           "FORCE_REJECT_TAU"
+#define MME_CONFIG_STRING_NAS_FORCE_REJECT_SR            "FORCE_REJECT_SR"
+#define MME_CONFIG_STRING_NAS_DISABLE_ESM_INFORMATION_PROCEDURE    "DISABLE_ESM_INFORMATION_PROCEDURE"
+#define MME_CONFIG_STRING_NAS_FORCE_PUSH_DEDICATED_BEARER "FORCE_PUSH_DEDICATED_BEARER"
 
 #define MME_CONFIG_STRING_ASN1_VERBOSITY                 "ASN1_VERBOSITY"
 #define MME_CONFIG_STRING_ASN1_VERBOSITY_NONE            "none"
 #define MME_CONFIG_STRING_ASN1_VERBOSITY_ANNOYING        "annoying"
 #define MME_CONFIG_STRING_ASN1_VERBOSITY_INFO            "info"
+#define MME_CONFIG_STRING_SGW_LIST_SELECTION             "S-GW_LIST_SELECTION"
+#define MME_CONFIG_STRING_ID                             "ID"
 
-typedef enum {
-  RUN_MODE_TEST = 0,
-  RUN_MODE_OTHER
-} run_mode_t;
 
 typedef struct mme_config_s {
   /* Reader/writer lock for this configuration */
@@ -121,7 +132,6 @@ typedef struct mme_config_s {
   bstring pid_dir;
   bstring realm;
 
-  run_mode_t  run_mode;
 
   uint32_t max_enbs;
   uint32_t max_ues;
@@ -168,15 +178,14 @@ typedef struct mme_config_s {
 
   struct {
     bstring    if_name_s1_mme;
-    ipv4_nbo_t s1_mme;
+    struct in_addr s1_mme;
     int        netmask_s1_mme;
 
     bstring    if_name_s11;
-    ipv4_nbo_t s11;
+    struct in_addr s11;
     int        netmask_s11;
     uint16_t   port_s11;
 
-    ipv4_nbo_t sgw_s11;
   } ipv4;
 
   struct {
@@ -193,11 +202,25 @@ typedef struct mme_config_s {
     uint8_t  prefered_ciphering_algorithm[8];
     uint32_t t3402_min;
     uint32_t t3412_min;
+    uint32_t t3422_sec;
+    uint32_t t3450_sec;
+    uint32_t t3460_sec;
+    uint32_t t3470_sec;
     uint32_t t3485_sec;
     uint32_t t3486_sec;
     uint32_t t3489_sec;
     uint32_t t3495_sec;
+    // non standart features
+    bool     force_reject_tau;
+    bool     force_reject_sr;
+    bool     disable_esm_information;
   } nas_config;
+  struct {
+    int            nb_sgw_entries;
+#define MME_CONFIG_MAX_SGW 16
+    bstring        sgw_id[MME_CONFIG_MAX_SGW];
+    struct in_addr sgw_ip_addr[MME_CONFIG_MAX_SGW];
+  } e_dns_emulation;
 
   log_config_t log_config;
 } mme_config_t;
@@ -211,6 +234,8 @@ int mme_config_find_mnc_length(const char mcc_digit1P,
                                const char mnc_digit2P,
                                const char mnc_digit3P);
 int mme_config_parse_opt_line(int argc, char *argv[], mme_config_t *mme_config);
+
+void mme_config_exit (void);
 
 #define mme_config_read_lock(mMEcONFIG)  pthread_rwlock_rdlock(&(mMEcONFIG)->rw_lock)
 #define mme_config_write_lock(mMEcONFIG) pthread_rwlock_wrlock(&(mMEcONFIG)->rw_lock)

@@ -30,7 +30,7 @@
 
   Subsystem   EPS Mobility Management
 
-  Author      Frederic Maurel
+  Author      Frederic Maurel, Lionel GAUTHIER
 
   Description Implements the EPS Mobility Management procedures executed
         when the EMM-SAP is in EMM-DEREGISTERED-INITIATED state.
@@ -42,15 +42,28 @@
         response from the UE.
 
 *****************************************************************************/
+#include <pthread.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <assert.h>
 
+#include "bstrlib.h"
+
+#include "log.h"
 #include "common_defs.h"
 #include "emm_fsm.h"
 #include "commonDef.h"
-#include "log.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
+#include "3gpp_29.274.h"
+#include "emm_fsm.h"
 
 #include "emm_proc.h"
 
-#include <assert.h>
 
 /****************************************************************************/
 /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
@@ -85,34 +98,150 @@ EmmDeregisteredInitiated (
 {
   OAILOG_FUNC_IN (LOG_NAS_EMM);
   int                                     rc = RETURNerror;
+  emm_context_t                          *emm_ctx = evt->ctx;
 
-  assert (emm_fsm_get_status (evt->ue_id, evt->ctx) == EMM_DEREGISTERED_INITIATED);
+  assert (emm_fsm_get_state (emm_ctx) == EMM_DEREGISTERED_INITIATED);
 
   switch (evt->primitive) {
 
-    case _EMMREG_DETACH_CNF:
-      rc = emm_fsm_set_status (evt->ue_id, evt->ctx, EMM_DEREGISTERED);
-      break;
+  case _EMMREG_COMMON_PROC_REQ:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_COMMON_PROC_REQ is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_COMMON_PROC_REQ ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
 
-    case _EMMREG_LOWERLAYER_FAILURE:
-      /*
-       * Transmission failure occurred before the EMM common
-       * procedure being completed
-       */
-      rc = emm_fsm_set_status (evt->ue_id, evt->ctx, EMM_DEREGISTERED);
-      break;
+  case _EMMREG_COMMON_PROC_CNF:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_COMMON_PROC_CNF is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_COMMON_PROC_CNF ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
 
-    case _EMMREG_LOWERLAYER_NON_DELIVERY:
-      rc = emm_fsm_set_status (evt->ue_id, evt->ctx, EMM_DEREGISTERED);
-      break;
-    
-    case _EMMREG_DETACH_REQ:
-      rc = emm_fsm_set_status (evt->ue_id, evt->ctx, EMM_DEREGISTERED);
-      break;
+  case _EMMREG_COMMON_PROC_REJ:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_COMMON_PROC_REJ is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_COMMON_PROC_REJ ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
 
-    default:
-      OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM   - Primitive is not valid (%d)\n", evt->primitive);
-      break;
+  case _EMMREG_COMMON_PROC_ABORT:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_COMMON_PROC_ABORT is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_COMMON_PROC_ABORT ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_ATTACH_CNF:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_ATTACH_CNF is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_ATTACH_CNF ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_ATTACH_REJ:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_ATTACH_REJ is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_ATTACH_REJ ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_ATTACH_ABORT:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_ATTACH_ABORT is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_ATTACH_ABORT ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_DETACH_INIT:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_DETACH_INIT is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_DETACH_INIT ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_DETACH_REQ:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_DETACH_REQ is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_DETACH_REQ ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_DETACH_FAILED:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_DETACH_FAILED is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_DETACH_FAILED ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_DETACH_CNF:
+    MSC_LOG_RX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_DETACH_CNF ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    rc = emm_fsm_set_state (evt->ue_id, evt->ctx, EMM_DEREGISTERED);
+
+    //if ((emm_ctx) && (evt->notify) && (evt->u.detach.proc) && (evt->u.detach.proc->emm_spec_proc.emm_proc.base_proc.success_notif)) {
+    //  rc = (*evt->u.detach.proc->emm_spec_proc.emm_proc.base_proc.success_notif)(emm_ctx);
+    //}
+    if (evt->free_proc) {
+      nas_delete_detach_procedure(emm_ctx);
+    }
+    break;
+
+  case _EMMREG_TAU_REQ:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_TAU_REQ is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_TAU_REQ ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_TAU_CNF:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_TAU_CNF is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_TAU_CNF ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_TAU_REJ:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_TAU_REJ is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_TAU_REJ ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_SERVICE_REQ:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_SERVICE_REQ is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_SERVICE_REQ ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_SERVICE_CNF:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_SERVICE_CNF is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_SERVICE_CNF ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_SERVICE_REJ:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive _EMMREG_SERVICE_REJ is not valid\n");
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_SERVICE_REJ ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    break;
+
+  case _EMMREG_LOWERLAYER_SUCCESS:
+    MSC_LOG_RX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_LOWERLAYER_SUCCESS ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    /*
+     * Data successfully delivered to the network
+     */
+    rc = RETURNok;
+    break;
+
+  case _EMMREG_LOWERLAYER_FAILURE:
+    MSC_LOG_RX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_LOWERLAYER_FAILURE ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+
+    if (emm_ctx) {
+      nas_emm_proc_t * emm_proc = nas_emm_find_procedure_by_msg_digest(emm_ctx, (const char *)evt->u.ll_failure.msg_digest,
+          evt->u.ll_failure.digest_len, evt->u.ll_failure.msg_len);
+      if (emm_proc) {
+        if ((evt->notify) && (emm_proc->not_delivered)) {
+          rc = (*emm_proc->not_delivered)(emm_ctx, emm_proc);
+        }
+      }
+      rc = emm_fsm_set_state (evt->ue_id, emm_ctx, EMM_DEREGISTERED);
+    }
+    break;
+
+  case _EMMREG_LOWERLAYER_RELEASE:
+    MSC_LOG_RX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_LOWERLAYER_RELEASE ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    nas_delete_all_emm_procedures(emm_ctx);
+    rc = RETURNok;
+    break;
+
+  case  _EMMREG_LOWERLAYER_NON_DELIVERY:
+    MSC_LOG_RX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_LOWERLAYER_NON_DELIVERY ue id " MME_UE_S1AP_ID_FMT " ", evt->ue_id);
+    if (emm_ctx) {
+      nas_emm_proc_t * emm_proc = nas_emm_find_procedure_by_msg_digest(emm_ctx, (const char *)evt->u.non_delivery_ho.msg_digest,
+          evt->u.non_delivery_ho.digest_len, evt->u.non_delivery_ho.msg_len);
+      if (emm_proc) {
+        if ((evt->notify) && (emm_proc->not_delivered)) {
+          rc = (*emm_proc->not_delivered_ho)(emm_ctx, emm_proc);
+        }
+      }
+      rc = emm_fsm_set_state (evt->ue_id, emm_ctx, EMM_DEREGISTERED);
+    }
+    break;
+
+  default:
+    OAILOG_ERROR (LOG_NAS_EMM, "EMM-FSM state EMM_DEREGISTERED_INITIATED - Primitive is not valid (%d)\n", evt->primitive);
+    MSC_LOG_RX_DISCARDED_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "_EMMREG_UNKNOWN(primitive id %d) ue id " MME_UE_S1AP_ID_FMT " ", evt->primitive, evt->ue_id);
   }
 
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);

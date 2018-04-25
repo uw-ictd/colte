@@ -27,10 +27,15 @@
  * either expressed or implied, of the FreeBSD Project.
  */
 
+/*! \file rfc_1877.h
+  \brief
+  \author Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
+
 #ifndef FILE_RFC_1877_SEEN
 #define FILE_RFC_1877_SEEN
-#include <stdint.h>
-#include "bstrlib.h"
 
 #define IPCP_OPTION_PRIMARY_DNS_SERVER_IP_ADDRESS                       (0x81)
 #define IPCP_OPTION_PRIMARY_NBNS_SERVER_IP_ADDRESS                      (0x82)

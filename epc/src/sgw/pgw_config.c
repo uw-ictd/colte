@@ -30,7 +30,6 @@
 
 #include <errno.h>
 #include <string.h>
-#include <libconfig.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -41,14 +40,19 @@
 #include <netdb.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
+#include <pthread.h>
 
+#include "bstrlib.h"
+#include <libconfig.h>
 
 #include "assertions.h"
 #include "dynamic_memory_check.h"
 #include "log.h"
 #include "intertask_interface.h"
-#include "sgw_config.h"
-#include "pgw_config.h"
+#include "async_system.h"
+#include "common_defs.h"
+#include "pgw_pcef_emulation.h"
+#include "spgw_config.h"
 
 #ifdef LIBCONFIG_LONG
 #  define libconfig_int long
@@ -57,35 +61,6 @@
 #endif
 
 #define SYSTEM_CMD_MAX_STR_SIZE 512
-
-//------------------------------------------------------------------------------
-static int pgw_system (
-  bstring command_pP,
-  bool    is_abort_on_errorP,
-  const char *const file_nameP,
-  const int line_numberP)
-{
-  int                                     ret = RETURNerror;
-
-  if (command_pP) {
-#if DISABLE_EXECUTE_SHELL_COMMAND
-    ret = 0;
-    OAILOG_WARNING (LOG_SPGW_APP, "Not executing system command: %s\n", bdata(command_pP));
-#else
-    OAILOG_DEBUG (LOG_SPGW_APP, "system command: %s\n", bdata(command_pP));
-    ret = system (bdata(command_pP));
-
-    if (ret != 0) {
-      OAILOG_ERROR (LOG_SPGW_APP, "ERROR in system command %s: %d at %s:%u\n", bdata(command_pP), ret, file_nameP, line_numberP);
-
-      if (is_abort_on_errorP) {
-        exit (-1);              // may be not exit
-      }
-    }
-#endif
-  }
-  return ret;
-}
 
 //------------------------------------------------------------------------------
 void pgw_config_init (pgw_config_t * config_pP)
@@ -98,19 +73,15 @@ void pgw_config_init (pgw_config_t * config_pP)
 //------------------------------------------------------------------------------
 int pgw_config_process (pgw_config_t * config_pP)
 {
-  bstring                                 system_cmd = NULL;
   struct in_addr                          addr_start, addr_mask;
   uint64_t                                counter64 = 0;
   conf_ipv4_list_elm_t                   *ip4_ref = NULL;
 
-  system_cmd = bformat ("iptables -t mangle -F FORWARD");
-  pgw_system (system_cmd, PGW_ABORT_ON_ERROR, __FILE__, __LINE__);
-  bdestroy(system_cmd);
+  async_system_command (TASK_ASYNC_SYSTEM, PGW_ABORT_ON_ERROR, "iptables -t mangle -F OUTPUT");
+  async_system_command (TASK_ASYNC_SYSTEM, PGW_ABORT_ON_ERROR, "iptables -t mangle -F POSTROUTING");
 
   if (config_pP->masquerade_SGI) {
-    system_cmd = bformat ("iptables -t nat -F POSTROUTING");
-    pgw_system (system_cmd, PGW_ABORT_ON_ERROR, __FILE__, __LINE__);
-    bdestroy(system_cmd);
+    async_system_command (TASK_ASYNC_SYSTEM, PGW_ABORT_ON_ERROR, "iptables -t nat -F PREROUTING");
   }
 
   // Get ipv4 address
@@ -133,7 +104,7 @@ int pgw_config_process (pgw_config_t * config_pP)
       OAILOG_ERROR (LOG_SPGW_APP, "inet_ntop");
       return RETURNerror;
     }
-    config_pP->ipv4.SGI = ipaddr->sin_addr.s_addr;
+    config_pP->ipv4.SGI.s_addr = ipaddr->sin_addr.s_addr;
 
     ifr.ifr_addr.sa_family = AF_INET;
     strncpy(ifr.ifr_name, (const char *)config_pP->ipv4.if_name_SGI->data, IFNAMSIZ-1);
@@ -158,7 +129,7 @@ int pgw_config_process (pgw_config_t * config_pP)
       OAILOG_ERROR (LOG_SPGW_APP, "inet_ntop");
       return RETURNerror;
     }
-    config_pP->ipv4.S5_S8 = ipaddr->sin_addr.s_addr;
+    config_pP->ipv4.S5_S8.s_addr = ipaddr->sin_addr.s_addr;
 
     ifr.ifr_addr.sa_family = AF_INET;
     strncpy(ifr.ifr_name, (const char *)config_pP->ipv4.if_name_S5_S8->data, IFNAMSIZ-1);
@@ -180,23 +151,26 @@ int pgw_config_process (pgw_config_t * config_pP)
     }
 
     counter64 = 0x00000000FFFFFFFF >> config_pP->ue_pool_mask[i];  // address Prefix_mask/0..0 not valid
+    /* .1 reserved for gateway
+     * the last address is reserved traditionally (.255 in the case of mask 24)
+     */
     counter64 = counter64 - 2;
 
+    //Any math should be applied onto host byte order i.e. ntohl()
+    addr_start.s_addr = htonl( ntohl(addr_start.s_addr) + 2 );
     do {
-      addr_start.s_addr = addr_start.s_addr + htonl (2);
       ip4_ref = calloc (1, sizeof (conf_ipv4_list_elm_t));
-      ip4_ref->addr = addr_start;
+      ip4_ref->addr.s_addr = addr_start.s_addr;
       STAILQ_INSERT_TAIL (&config_pP->ipv4_pool_list, ip4_ref, ipv4_entries);
       counter64 = counter64 - 1;
+      addr_start.s_addr = htonl( ntohl(addr_start.s_addr) + 1 );
     } while (counter64 > 0);
 
     //---------------
     if (config_pP->masquerade_SGI) {
-      system_cmd = bformat ("iptables -t nat -I POSTROUTING -s %s/%d -o %s  ! --protocol sctp -j SNAT --to-source %s",
+      async_system_command (TASK_ASYNC_SYSTEM, PGW_ABORT_ON_ERROR, "iptables -t nat -I POSTROUTING -s %s/%d -o %s  ! --protocol sctp -j SNAT --to-source %s",
           inet_ntoa(config_pP->ue_pool_addr[i]), config_pP->ue_pool_mask[i],
           bdata(config_pP->ipv4.if_name_SGI), str_sgi);
-      pgw_system (system_cmd, PGW_ABORT_ON_ERROR, __FILE__, __LINE__);
-      bdestroy(system_cmd);
     }
 
     uint32_t min_mtu = config_pP->ipv4.mtu_SGI;
@@ -205,15 +179,21 @@ int pgw_config_process (pgw_config_t * config_pP)
       min_mtu = config_pP->ipv4.mtu_S5_S8 - 36;
     }
     if (config_pP->ue_tcp_mss_clamp) {
-      system_cmd = bformat ("iptables -t mangle -I FORWARD -s %s/%d   -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss %u",
+      async_system_command (TASK_ASYNC_SYSTEM, PGW_ABORT_ON_ERROR, "iptables -t mangle -I FORWARD -s %s/%d   -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss %u",
           inet_ntoa(config_pP->ue_pool_addr[i]), config_pP->ue_pool_mask[i], min_mtu - 40);
-      pgw_system (system_cmd, PGW_ABORT_ON_ERROR, __FILE__, __LINE__);
-      btrunc(system_cmd, 0);
 
-      bassignformat (system_cmd, "iptables -t mangle -I FORWARD -d %s/%d -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss %u",
+      async_system_command (TASK_ASYNC_SYSTEM, PGW_ABORT_ON_ERROR, "iptables -t mangle -I FORWARD -d %s/%d -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss %u",
           inet_ntoa(config_pP->ue_pool_addr[i]), config_pP->ue_pool_mask[i], min_mtu - 40);
-      pgw_system (system_cmd, PGW_ABORT_ON_ERROR, __FILE__, __LINE__);
-      bdestroy(system_cmd);
+    }
+
+    if (config_pP->pcef.enabled) {
+      if (config_pP->pcef.tcp_ecn_enabled) {
+        async_system_command (TASK_ASYNC_SYSTEM, PGW_ABORT_ON_ERROR, "sysctl -w net.ipv4.tcp_ecn=1");
+      }
+      if (config_pP->pcef.traffic_shaping_enabled) {
+        async_system_command (TASK_ASYNC_SYSTEM, PGW_WARN_ON_ERROR, "tc qdisc del root dev %s", bdata(config_pP->ipv4.if_name_SGI));
+        async_system_command (TASK_ASYNC_SYSTEM, PGW_ABORT_ON_ERROR, "tc qdisc add dev %s root handle 1: htb default 0xFFFFFFFF", bdata(config_pP->ipv4.if_name_SGI));
+      }
     }
   }
   return 0;
@@ -347,10 +327,10 @@ int pgw_config_parse_file (pgw_config_t * config_pP)
       if (config_setting_lookup_string (setting_pgw, PGW_CONFIG_STRING_DEFAULT_DNS_IPV4_ADDRESS, (const char **)&default_dns)
           && config_setting_lookup_string (setting_pgw, PGW_CONFIG_STRING_DEFAULT_DNS_SEC_IPV4_ADDRESS, (const char **)&default_dns_sec)) {
         config_pP->ipv4.if_name_S5_S8 = bfromcstr (if_S5_S8);
-        IPV4_STR_ADDR_TO_INT_NWBO (default_dns, config_pP->ipv4.default_dns, "BAD IPv4 ADDRESS FORMAT FOR DEFAULT DNS !\n");
-        IPV4_STR_ADDR_TO_INT_NWBO (default_dns_sec, config_pP->ipv4.default_dns_sec, "BAD IPv4 ADDRESS FORMAT FOR DEFAULT DNS SEC!\n");
-        OAILOG_DEBUG (LOG_SPGW_APP, "Parsing configuration file default primary DNS IPv4 address: %x\n", config_pP->ipv4.default_dns);
-        OAILOG_DEBUG (LOG_SPGW_APP, "Parsing configuration file default secondary DNS IPv4 address: %x\n", config_pP->ipv4.default_dns_sec);
+        IPV4_STR_ADDR_TO_INADDR (default_dns, config_pP->ipv4.default_dns, "BAD IPv4 ADDRESS FORMAT FOR DEFAULT DNS !\n");
+        IPV4_STR_ADDR_TO_INADDR (default_dns_sec, config_pP->ipv4.default_dns_sec, "BAD IPv4 ADDRESS FORMAT FOR DEFAULT DNS SEC!\n");
+        OAILOG_DEBUG (LOG_SPGW_APP, "Parsing configuration file default primary DNS IPv4 address: %s\n", default_dns);
+        OAILOG_DEBUG (LOG_SPGW_APP, "Parsing configuration file default secondary DNS IPv4 address: %s\n", default_dns_sec);
       } else {
         OAILOG_WARNING (LOG_SPGW_APP, "NO DNS CONFIGURATION FOUND\n");
       }
@@ -369,10 +349,94 @@ int pgw_config_parse_file (pgw_config_t * config_pP)
       config_pP->ue_mtu = 1463;
     }
     OAILOG_DEBUG (LOG_SPGW_APP, "UE MTU : %u\n", config_pP->ue_mtu);
+    if (config_setting_lookup_string (setting_pgw, PGW_CONFIG_STRING_GTPV1U_REALIZATION, (const char **)&astring)) {
+      if (strcasecmp (astring, PGW_CONFIG_STRING_NO_GTP_KERNEL_AVAILABLE) == 0) {
+        config_pP->use_gtp_kernel_module = false;
+        config_pP->enable_loading_gtp_kernel_module = false;
+        OAILOG_DEBUG (LOG_SPGW_APP, "Protocol configuration options: push MTU, push DNS, IP address allocation via NAS signalling\n");
+      } else if (strcasecmp (astring, PGW_CONFIG_STRING_GTP_KERNEL_MODULE) == 0) {
+        config_pP->use_gtp_kernel_module = true;
+        config_pP->enable_loading_gtp_kernel_module = true;
+      } else if (strcasecmp (astring, PGW_CONFIG_STRING_GTP_KERNEL) == 0) {
+        config_pP->use_gtp_kernel_module = true;
+        config_pP->enable_loading_gtp_kernel_module = false;
+      }
+    }
+
+
+    subsetting = config_setting_get_member (setting_pgw, PGW_CONFIG_STRING_PCEF);
+    if (subsetting) {
+      if ((config_setting_lookup_string (subsetting, PGW_CONFIG_STRING_PCEF_ENABLED, (const char **)&astring))) {
+        if (strcasecmp (astring, "yes") == 0) {
+          config_pP->pcef.enabled = true;
+
+          if (config_setting_lookup_string (subsetting, PGW_CONFIG_STRING_TRAFFIC_SHAPPING_ENABLED, (const char **)&astring)) {
+            if (strcasecmp (astring, "yes") == 0) {
+              config_pP->pcef.traffic_shaping_enabled = true;
+              OAILOG_DEBUG (LOG_SPGW_APP, "Traffic shapping enabled\n");
+            } else {
+              config_pP->pcef.traffic_shaping_enabled = false;
+            }
+          }
+
+          if (config_setting_lookup_string (subsetting, PGW_CONFIG_STRING_TCP_ECN_ENABLED, (const char **)&astring)) {
+            if (strcasecmp (astring, "yes") == 0) {
+              config_pP->pcef.tcp_ecn_enabled = true;
+              OAILOG_DEBUG (LOG_SPGW_APP, "TCP ECN enabled\n");
+            } else {
+              config_pP->pcef.tcp_ecn_enabled = false;
+            }
+          }
+
+          libconfig_int sdf_id = 0;
+          if (config_setting_lookup_int (subsetting, PGW_CONFIG_STRING_AUTOMATIC_PUSH_DEDICATED_BEARER_PCC_RULE, &sdf_id)) {
+            AssertFatal((sdf_id < SDF_ID_MAX) && (sdf_id >= 0), "Bad SDF identifier value %d for dedicated bearer", sdf_id);
+            config_pP->pcef.automatic_push_dedicated_bearer_sdf_identifier = sdf_id;
+          }
+
+          if (config_setting_lookup_int (subsetting, PGW_CONFIG_STRING_DEFAULT_BEARER_STATIC_PCC_RULE, &sdf_id)) {
+            AssertFatal((sdf_id < SDF_ID_MAX) && (sdf_id >= 0), "Bad SDF identifier value %d for default bearer", sdf_id);
+            config_pP->pcef.default_bearer_sdf_identifier = sdf_id;
+          }
+
+          sub2setting = config_setting_get_member (subsetting, PGW_CONFIG_STRING_PUSH_STATIC_PCC_RULES);
+          if (sub2setting != NULL) {
+            num = config_setting_length (sub2setting);
+
+            AssertFatal(num <= (SDF_ID_MAX - 1), "Too many PCC rules defined (%d>%d)", num, SDF_ID_MAX);
+
+            for (i = 0; i < num; i++) {
+              config_pP->pcef.preload_static_sdf_identifiers[i] = config_setting_get_int_elem(sub2setting, i);
+            }
+          }
+
+          libconfig_int apn_ambr_ul = 0;
+          if (config_setting_lookup_int (subsetting, PGW_CONFIG_STRING_APN_AMBR_UL, &apn_ambr_ul)) {
+            AssertFatal((0 < apn_ambr_ul), "Bad APN AMBR UL value %d", apn_ambr_ul);
+            config_pP->pcef.apn_ambr_ul = apn_ambr_ul;
+          } else {
+            config_pP->pcef.apn_ambr_ul = 50000;
+          }
+          libconfig_int apn_ambr_dl = 0;
+          if (config_setting_lookup_int (subsetting, PGW_CONFIG_STRING_APN_AMBR_DL, &apn_ambr_dl)) {
+            AssertFatal((0 < apn_ambr_dl), "Bad APN AMBR DL value %d", apn_ambr_dl);
+            config_pP->pcef.apn_ambr_dl = apn_ambr_dl;
+          } else {
+            config_pP->pcef.apn_ambr_dl = 50000;
+          }
+        } else {
+          config_pP->pcef.enabled = false;
+        }
+      } else {
+        OAILOG_WARNING (LOG_SPGW_APP, "CONFIG P-GW / %s parsing failed\n", PGW_CONFIG_STRING_PCEF);
+      }
+    } else {
+      OAILOG_WARNING (LOG_SPGW_APP, "CONFIG P-GW / %s not found\n", PGW_CONFIG_STRING_PCEF);
+    }
   } else {
     OAILOG_WARNING (LOG_SPGW_APP, "CONFIG P-GW not found\n");
   }
-  bdestroy(system_cmd);
+  bdestroy_wrapper (&system_cmd);
   config_destroy (&cfg);
   return RETURNok;
 }
@@ -392,8 +456,45 @@ void pgw_config_display (pgw_config_t * config_p)
   OAILOG_INFO (LOG_SPGW_APP, "    SGi iface ............: %s\n", bdata(config_p->ipv4.if_name_SGI));
   OAILOG_INFO (LOG_SPGW_APP, "    SGi ip  (read)........: %s\n", inet_ntoa (*((struct in_addr *)&config_p->ipv4.SGI)));
   OAILOG_INFO (LOG_SPGW_APP, "    SGi MTU (read)........: %u\n", config_p->ipv4.mtu_SGI);
+  OAILOG_INFO (LOG_SPGW_APP, "    User TCP MSS clamping : %s\n", config_p->ue_tcp_mss_clamp == 0 ? "false" : "true");
+  OAILOG_INFO (LOG_SPGW_APP, "    User IP masquerading  : %s\n", config_p->masquerade_SGI == 0 ? "false" : "true");
+  if (config_p->use_gtp_kernel_module) {
+    OAILOG_INFO (LOG_SPGW_APP, "- GTPv1U .................: Enabled (Linux kernel module)\n");
+    OAILOG_INFO (LOG_SPGW_APP, "    Load/unload module....: %s\n", (config_p->enable_loading_gtp_kernel_module) ? "enabled" : "disabled");
+  } else {
+    OAILOG_INFO (LOG_SPGW_APP, "- GTPv1U .................: Disabled\n");
+  }
 
-  OAILOG_INFO (LOG_SPGW_APP, "- MSS clamping: ..........: %d\n", config_p->ue_tcp_mss_clamp);
-  OAILOG_INFO (LOG_SPGW_APP, "- Masquerading: ..........: %d\n", config_p->masquerade_SGI);
-  OAILOG_INFO (LOG_SPGW_APP, "- Push PCO: ..............: %d\n", config_p->force_push_pco);
+  OAILOG_INFO (LOG_SPGW_APP, "- PCEF support ...........: %s (in development)\n", config_p->pcef.enabled == 0 ? "false" : "true");
+  if (config_p->pcef.enabled) {
+    OAILOG_INFO (LOG_SPGW_APP, "    Traffic shaping ......: %s (TODO it soon)\n",
+        config_p->pcef.traffic_shaping_enabled == 0 ? "false" : "true");
+    OAILOG_INFO (LOG_SPGW_APP, "    TCP ECN  .............: %s\n", config_p->pcef.tcp_ecn_enabled == 0 ? "false" : "true");
+    OAILOG_INFO (LOG_SPGW_APP, "    Push dedicated bearer SDF ID: %d (testing dedicated bearer functionality down to OAI UE/COSTS UE)\n",
+        config_p->pcef.automatic_push_dedicated_bearer_sdf_identifier);
+    OAILOG_INFO (LOG_SPGW_APP, "    Default bearer SDF ID.: %d\n",config_p->pcef.default_bearer_sdf_identifier);
+    bstring pcc_rules= bfromcstralloc(64, "(");
+    for (int i = 0; i < (SDF_ID_MAX-1); i++) {
+      if (i == 0) {
+        bformata(pcc_rules, " %u", config_p->pcef.preload_static_sdf_identifiers[i]);
+        if (!config_p->pcef.preload_static_sdf_identifiers[i]) {
+          break;
+        }
+      } else {
+        if (config_p->pcef.preload_static_sdf_identifiers[i]) {
+          bformata(pcc_rules, ", %u", config_p->pcef.preload_static_sdf_identifiers[i]);
+        } else
+          break;
+      }
+    }
+    bcatcstr(pcc_rules, " )");
+    OAILOG_INFO (LOG_SPGW_APP, "    Preloaded static PCC Rules.: %s\n", bdata(pcc_rules));
+    bdestroy_wrapper(&pcc_rules);
+
+
+    OAILOG_INFO (LOG_SPGW_APP, "    APN AMBR UL ..........: %"PRIu64" (Kilo bits/s)\n", config_p->pcef.apn_ambr_ul);
+    OAILOG_INFO (LOG_SPGW_APP, "    APN AMBR DL ..........: %"PRIu64" (Kilo bits/s)\n", config_p->pcef.apn_ambr_dl);
+  }
+  OAILOG_INFO (LOG_SPGW_APP, "- Helpers:\n");
+  OAILOG_INFO (LOG_SPGW_APP, "    Push PCO (DNS+MTU) ........: %s\n", config_p->force_push_pco == 0 ? "false" : "true");
 }

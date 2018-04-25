@@ -26,6 +26,13 @@
  * of the authors and should not be interpreted as representing official policies,
  * either expressed or implied, of the FreeBSD Project.
  */
+/*! \file udp_messages_def.h
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
+
 MESSAGE_DEF(UDP_INIT,     MESSAGE_PRIORITY_MED, udp_init_t,     udp_init)
 MESSAGE_DEF(UDP_DATA_REQ, MESSAGE_PRIORITY_MED, udp_data_req_t, udp_data_req)
 MESSAGE_DEF(UDP_DATA_IND, MESSAGE_PRIORITY_MED, udp_data_ind_t, udp_data_ind)

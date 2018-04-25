@@ -54,7 +54,7 @@
 #include <sys/eventfd.h>
 
 #include "assertions.h"
-#include "liblfds611.h"
+#include "liblfds710.h"
 
 #include "itti_types.h"
 #include "intertask_interface.h"

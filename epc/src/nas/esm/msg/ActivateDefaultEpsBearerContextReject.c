@@ -23,8 +23,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
 #include "3gpp_24.007.h"
 #include "3gpp_24.301.h"
 #include "TLVEncoder.h"
@@ -66,8 +69,8 @@ decode_activate_default_eps_bearer_context_reject (
     switch (ieiDecoded) {
     case ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI:
       if ((decoded_result =
-           decode_ProtocolConfigurationOptions (&activate_default_eps_bearer_context_reject->protocolconfigurationoptions,
-                                                  ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + decoded, len - decoded)) <= 0)
+           decode_protocol_configuration_options_ie (&activate_default_eps_bearer_context_reject->protocolconfigurationoptions,
+                                                  true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -108,7 +111,7 @@ encode_activate_default_eps_bearer_context_reject (
   if ((activate_default_eps_bearer_context_reject->presencemask & ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT)
       == ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
     if ((encode_result =
-         encode_ProtocolConfigurationOptions (&activate_default_eps_bearer_context_reject->protocolconfigurationoptions, ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + encoded, len - encoded)) < 0)
+           encode_protocol_configuration_options_ie (&activate_default_eps_bearer_context_reject->protocolconfigurationoptions, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

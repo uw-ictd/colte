@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "EpsAttachType.h"
 
-int
-decode_eps_attach_type (
-  EpsAttachType * epsattachtype,
+//------------------------------------------------------------------------------
+int decode_eps_attach_type (
+  eps_attach_type_t * epsattachtype,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -48,9 +50,9 @@ decode_eps_attach_type (
   return decoded;
 }
 
-int
-decode_u8_eps_attach_type (
-  EpsAttachType * epsattachtype,
+//------------------------------------------------------------------------------
+int decode_u8_eps_attach_type (
+  eps_attach_type_t * epsattachtype,
   uint8_t iei,
   uint8_t value,
   uint32_t len)
@@ -63,9 +65,9 @@ decode_u8_eps_attach_type (
   return decoded;
 }
 
-int
-encode_eps_attach_type (
-  EpsAttachType * epsattachtype,
+//------------------------------------------------------------------------------
+int encode_eps_attach_type (
+  eps_attach_type_t * epsattachtype,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -81,9 +83,9 @@ encode_eps_attach_type (
   return encoded;
 }
 
-uint8_t
-encode_u8_eps_attach_type (
-  EpsAttachType * epsattachtype)
+//------------------------------------------------------------------------------
+uint8_t encode_u8_eps_attach_type (
+  eps_attach_type_t * epsattachtype)
 {
   uint8_t                                 bufferReturn;
   uint8_t                                *buffer = &bufferReturn;
@@ -95,19 +97,3 @@ encode_u8_eps_attach_type (
   return bufferReturn;
 }
 
-void
-dump_eps_attach_type_xml (
-  EpsAttachType * epsattachtype,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Eps Attach Type>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <EPS attach type value>%u</EPS attach type value>\n", *epsattachtype);
-  OAILOG_DEBUG (LOG_NAS, "</Eps Attach Type>\n");
-}

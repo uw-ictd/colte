@@ -38,18 +38,18 @@ extern                                  "C" {
    Public Functions
   --------------------------------------------------------------------------*/
 
-  NwRcT                                   nwGtpv2cUlpInit (
+  nw_rc_t                                   nwGtpv2cUlpInit (
   NwGtpv2cNodeUlpT * thiz,
-  NwGtpv2cStackHandleT hGtpv2cStack,
+  nw_gtpv2c_StackHandleT hGtpv2cStack,
   char *peerIpStr) {
-    NwRcT                                   rc;
+    nw_rc_t                                   rc;
 
     thiz->hGtpv2cStack = hGtpv2cStack;
     strcpy (thiz->peerIpStr, peerIpStr);
     return NW_OK;
   }
 
-  NwRcT                                   nwGtpv2cUlpDestroy (
+  nw_rc_t                                   nwGtpv2cUlpDestroy (
   NwGtpv2cNodeUlpT * thiz) {
     NW_ASSERT (thiz);
     memset (thiz, 0, sizeof (NwGtpv2cNodeUlpT));
@@ -64,14 +64,14 @@ extern                                  "C" {
     uint32_t                                n3Count;
 
     uint32_t                                sendTimeStamp;
-    NwGtpv2cTunnelHandleT                   hTunnel;
+    nw_gtpv2c_TunnelHandleT                   hTunnel;
   } NwGtpv2cPeerT;
 
   NwGtpv2cPeerT                          *nwGtpv2cUlpCreatePeerContext (
   NwGtpv2cNodeUlpT * thiz,
   uint32_t peerIp) {
-    NwRcT                                   rc;
-    NwGtpv2cUlpApiT                         ulpReq;
+    nw_rc_t                                   rc;
+    nw_gtpv2c_ulp_api_t                         ulpReq;
     NwGtpv2cPeerT                          *pPeer = (NwGtpv2cPeerT *) malloc (sizeof (NwGtpv2cPeerT));
 
     if (pPeer) {
@@ -80,32 +80,32 @@ extern                                  "C" {
        * Send Message Request to Gtpv2c Stack Instance
        */
       ulpReq.apiType = NW_GTPV2C_ULP_CREATE_LOCAL_TUNNEL;
-      ulpReq.apiInfo.createLocalTunnelInfo.hTunnel = 0;
-      ulpReq.apiInfo.createLocalTunnelInfo.hUlpTunnel = (NwGtpv2cUlpTrxnHandleT) thiz;
-      ulpReq.apiInfo.createLocalTunnelInfo.teidLocal = (NwGtpv2cUlpTrxnHandleT) 0;
-      ulpReq.apiInfo.createLocalTunnelInfo.peerIp = htonl (peerIp);
+      ulpReq.u_api_info.createLocalTunnelInfo.hTunnel = 0;
+      ulpReq.u_api_info.createLocalTunnelInfo.hUlpTunnel = (nw_gtpv2c_ulp_trxn_handle_t) thiz;
+      ulpReq.u_api_info.createLocalTunnelInfo.teidLocal = (nw_gtpv2c_ulp_trxn_handle_t) 0;
+      ulpReq.u_api_info.createLocalTunnelInfo.peerIp = htonl (peerIp);
       rc = nwGtpv2cProcessUlpReq (thiz->hGtpv2cStack, &ulpReq);
       NW_ASSERT (NW_OK == rc);
-      pPeer->hTunnel = ulpReq.apiInfo.createLocalTunnelInfo.hTunnel;
+      pPeer->hTunnel = ulpReq.u_api_info.createLocalTunnelInfo.hTunnel;
     }
 
     return pPeer;
   }
 
-  NwRcT                                   nwGtpv2cUlpSendEchoRequestToPeer (
+  nw_rc_t                                   nwGtpv2cUlpSendEchoRequestToPeer (
   NwGtpv2cNodeUlpT * thiz,
   NwGtpv2cPeerT * pPeer) {
-    NwRcT                                   rc;
+    nw_rc_t                                   rc;
     struct timeval                          tv;
-    NwGtpv2cUlpApiT                         ulpReq;
+    nw_gtpv2c_ulp_api_t                         ulpReq;
 
     /*
      * Send Message Request to Gtpv2c Stack Instance
      */
     ulpReq.apiType = NW_GTPV2C_ULP_API_INITIAL_REQ;
-    ulpReq.apiInfo.initialReqInfo.hTunnel = pPeer->hTunnel;
-    ulpReq.apiInfo.initialReqInfo.hUlpTrxn = (NwGtpv2cUlpTrxnHandleT) pPeer;
-    ulpReq.apiInfo.initialReqInfo.hUlpTunnel = (NwGtpv2cUlpTunnelHandleT) pPeer;
+    ulpReq.u_api_info.initialReqInfo.hTunnel = pPeer->hTunnel;
+    ulpReq.u_api_info.initialReqInfo.hUlpTrxn = (nw_gtpv2c_ulp_trxn_handle_t) pPeer;
+    ulpReq.u_api_info.initialReqInfo.hUlpTunnel = (nw_gtpv2c_ulp_tunnel_handle_t) pPeer;
     rc = nwGtpv2cMsgNew (thiz->hGtpv2cStack, NW_FALSE, NW_GTP_ECHO_REQ, 0, 0, &(ulpReq.hMsg));
     NW_ASSERT (NW_OK == rc);
     rc = nwGtpv2cMsgAddIeTV1 ((ulpReq.hMsg), NW_GTPV2C_IE_RECOVERY, 0, thiz->restartCounter);
@@ -117,16 +117,16 @@ extern                                  "C" {
     return NW_OK;
   }
 
-  NwRcT                                   nwGtpv2cUlpPing (
+  nw_rc_t                                   nwGtpv2cUlpPing (
   NwGtpv2cNodeUlpT * thiz,
   uint32_t peerIp,
   uint32_t pingCount,
   uint32_t pingInterval,
   uint32_t t3Time,
   uint32_t n3Count) {
-    NwRcT                                   rc;
+    nw_rc_t                                   rc;
     NwGtpv2cPeerT                          *pPeer;
-    NwGtpv2cUlpApiT                         ulpReq;
+    nw_gtpv2c_ulp_api_t                         ulpReq;
 
     pPeer = nwGtpv2cUlpCreatePeerContext (thiz, peerIp);
     pPeer->pingCount = pingCount;
@@ -140,10 +140,10 @@ extern                                  "C" {
     return rc;
   }
 
-  NwRcT                                   nwGtpv2cUlpProcessStackReqCallback (
-  NwGtpv2cUlpHandleT hUlp,
-  NwGtpv2cUlpApiT * pUlpApi) {
-    NwRcT                                   rc;
+  nw_rc_t                                   nwGtpv2cUlpProcessStackReqCallback (
+  nw_gtpv2c_UlpHandleT hUlp,
+  nw_gtpv2c_ulp_api_t * pUlpApi) {
+    nw_rc_t                                   rc;
     uint32_t                                seqNum;
     uint32_t                                len;
     uint32_t                                recvTimeStamp;
@@ -156,9 +156,9 @@ extern                                  "C" {
 
     switch (pUlpApi->apiType) {
     case NW_GTPV2C_ULP_API_TRIGGERED_RSP_IND:{
-        pPeer = (NwGtpv2cPeerT *) pUlpApi->apiInfo.triggeredRspIndInfo.hUlpTrxn;
+        pPeer = (NwGtpv2cPeerT *) pUlpApi->u_api_info.triggeredRspIndInfo.hUlpTrxn;
 
-        if (pUlpApi->apiInfo.triggeredRspIndInfo.msgType == NW_GTP_ECHO_RSP) {
+        if (pUlpApi->u_api_info.triggeredRspIndInfo.msgType == NW_GTP_ECHO_RSP) {
           seqNum = nwGtpv2cMsgGetSeqNumber (pUlpApi->hMsg);
           len = nwGtpv2cMsgGetLength (pUlpApi->hMsg);
           NW_ASSERT (gettimeofday (&tv, NULL) == 0);
@@ -177,7 +177,7 @@ extern                                  "C" {
       break;
 
     case NW_GTPV2C_ULP_API_RSP_FAILURE_IND:{
-        pPeer = (NwGtpv2cPeerT *) pUlpApi->apiInfo.rspFailureInfo.hUlpTrxn;
+        pPeer = (NwGtpv2cPeerT *) pUlpApi->u_api_info.rspFailureInfo.hUlpTrxn;
         NW_LOG (NW_LOG_LEVEL_DEBG, "No response from " NW_IPV4_ADDR " (2123)!", NW_IPV4_ADDR_FORMAT (pPeer->ipv4Addr));
         rc = nwGtpv2cUlpSendEchoRequestToPeer (thiz, pPeer);
       }

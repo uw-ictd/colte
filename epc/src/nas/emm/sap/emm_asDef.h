@@ -40,13 +40,12 @@ Description Defines the EMM primitives available at the EMMAS Service
 *****************************************************************************/
 #ifndef FILE_EMM_ASDEF_SEEN
 #define FILE_EMM_ASDEF_SEEN
-#include <stdint.h>
-#include <stdbool.h>
-
 #include "common_types.h"
 #include "commonDef.h"
 #include "securityDef.h"
-#include "bstrlib.h"
+#include "TrackingAreaIdentityList.h"
+#include "3gpp_36.401.h"
+#include "3gpp_23.003.h"
 
 /****************************************************************************/
 /*********************  G L O B A L    C O N S T A N T S  *******************/
@@ -66,6 +65,9 @@ typedef enum emm_as_primitive_u {
   _EMMAS_ESTABLISH_REJ, /* AS->EMM: Connection establish reject   */
   _EMMAS_RELEASE_REQ,   /* EMM->AS: Connection release request    */
   _EMMAS_RELEASE_IND,   /* AS->EMM: Connection release indication */
+  _EMMAS_ERAB_SETUP_REQ, /* EMM->AS: ERAB setup request  */
+  _EMMAS_ERAB_SETUP_CNF, /* AS->EMM  */
+  _EMMAS_ERAB_SETUP_REJ, /* AS->EMM  */
   _EMMAS_DATA_REQ,      /* EMM->AS: Data transfer request     */
   _EMMAS_DATA_IND,      /* AS->EMM: Data transfer indication      */
   _EMMAS_PAGE_IND,      /* AS->EMM: Paging data indication        */
@@ -98,6 +100,7 @@ typedef struct emm_as_security_s {
   const guti_t          *guti;     /* GUTI temporary mobile identity   */
   emm_as_security_data_t sctx;     /* EPS NAS security context     */
   int                    emm_cause;/* EMM failure cause code       */
+  uint64_t               puid;     // linked to procedure UID
   /*
    * Identity request/response
    */
@@ -124,6 +127,7 @@ typedef struct emm_as_security_s {
   uint8_t gea;        /* Replayed GPRS encryption algorithms   */
   bool    umts_present;
   bool    gprs_present;
+  bool    imeisv_request;
 
   // Added by LG
   uint8_t selected_eea; /* Selected EPS encryption algorithms   */
@@ -149,13 +153,16 @@ typedef struct emm_as_EPS_identity_s {
 
 typedef struct emm_as_establish_s {
   mme_ue_s1ap_id_t       ue_id;                       /* UE lower layer identifier         */
+  uint64_t               puid;                        /* linked to procedure UID */
   emm_as_EPS_identity_t  eps_id;                      /* UE's EPS mobile identity      */
   emm_as_security_data_t sctx;                        /* EPS NAS security context      */
   bool                   switch_off;                  /* true if the UE is switched off    */
+  bool                   is_initial;                  /* true if contained in initial message    */
+  bool                   is_mm_ctx_new;
   uint8_t                type;                        /* Network attach/detach type        */
   uint8_t                rrc_cause;                   /* Connection establishment cause    */
   uint8_t                rrc_type;                    /* Associated call type          */
-  const plmn_t          *plmn_id;                     /* Identifier of the selected PLMN   */
+  //const plmn_t          *plmn_id;                     /* Identifier of the selected PLMN   */
   ksi_t                  ksi;                         /* NAS key set identifier        */
   uint8_t                encryption:4;                /* Ciphering algorithm           */
   uint8_t                integrity:4;                 /* Integrity protection algorithm    */
@@ -163,8 +170,9 @@ typedef struct emm_as_establish_s {
   const guti_t          *new_guti;                    /* New GUTI, if re-allocated         */
   int                    n_tacs;                      /* Number of consecutive tracking areas
                                                        * the UE is registered to       */
-  tac_t                  tac;                         /* Code of the first tracking area the UE
-                                                       * is registered to          */
+  const tai_t           *tai;                         /* The first tracking area the UE is registered to */
+  //tac_t                  tac;                         /* Code of the first tracking area the UE
+  //                                                     * is registered to          */
   ecgi_t                 ecgi;                        /* E-UTRAN CGI This information element is used to globally identify a cell */
 #define EMM_AS_NAS_INFO_ATTACH  0x01                  /* Attach request        */
 #define EMM_AS_NAS_INFO_DETACH  0x02                  /* Detach request        */
@@ -179,7 +187,7 @@ typedef struct emm_as_establish_s {
   uint8_t                eps_update_result;           /* TAU EPS update result   */
   uint32_t              *t3412;                       /* GPRS T3412 timer   */
   guti_t                *guti;                        /* TAU GUTI   */
-  TAI_LIST_T(16)         tai_list;                    /* Valid field if num tai > 0 */
+  tai_list_t             tai_list;                    /* Valid field if num tai > 0 */
   uint16_t              *eps_bearer_context_status;   /* TAU EPS bearer context status   */
   void                  *location_area_identification;/* TAU Location area identification */
   //void                *ms_identity;                 /* TAU 8.2.26.7   MS identity This IE may be included to assign or unassign a new TMSI to a UE during a combined TA/LA update. */
@@ -219,15 +227,14 @@ typedef struct emm_as_data_s {
   uint8_t                integrity:4;   /* Integrity protection algorithm   */
   const plmn_t          *plmn_id;       /* Identifier of the selected PLMN  */
   ecgi_t                 ecgi;          /* E-UTRAN CGI This information element is used to globally identify a cell */
-  TAI_LIST_T(16)         tai_list;      /* Valid field if num tai > 0       */
-  tac_t                  tac;           /* Code of the first tracking area the UE
-                                         * is registered to                 */
+  const tai_t           *tai;         /* Code of the first tracking area identity the UE is registered to          */
+  tai_list_t             tai_list;                    /* Valid field if num tai > 0 */
   uint8_t               *eps_network_feature_support; /* TAU Network feature support */
-  bool                   switch_off;    /* true if the UE is switched off   */
-  uint8_t                type;          /* Network detach type          */
+  bool                   switch_off;  /* true if the UE is switched off   */
+  uint8_t                type;        /* Network detach type          */
 #define EMM_AS_DATA_DELIVERED_LOWER_LAYER_FAILURE                  0
 #define EMM_AS_DATA_DELIVERED_TRUE                                 1
-#define EMM_AS_DATA_DELIVERED_LOWER_LAYER_NON_DELIVERY_INDICATION  2
+#define EMM_AS_DATA_DELIVERED_LOWER_LAYER_NON_DELIVERY_INDICATION_DUE_TO_HO  2
   uint8_t                delivered;   /* Data message delivery indicator  */
 #define EMM_AS_NAS_DATA_ATTACH          0x01  /* Attach complete      */
 #define EMM_AS_NAS_DATA_DETACH          0x02  /* Detach request       */
@@ -242,6 +249,17 @@ typedef struct emm_as_data_s {
  * --------------------------
  */
 typedef struct emm_as_page_s {} emm_as_page_t;
+
+typedef struct emm_as_activate_bearer_context_req_s {
+  mme_ue_s1ap_id_t       ue_id;       /* UE lower layer identifier        */
+  ebi_t                  ebi;         /* EPS rab id                       */
+  bitrate_t              mbr_dl;
+  bitrate_t              mbr_ul;
+  bitrate_t              gbr_dl;
+  bitrate_t              gbr_ul;
+  emm_as_security_data_t sctx;        /* EPS NAS security context         */
+  bstring                nas_msg;     /* NAS message to be transfered     */
+} emm_as_activate_bearer_context_req_t;
 
 /*
  * EMMAS primitive for status indication
@@ -263,9 +281,9 @@ typedef struct emm_as_cell_info_s {
 #define EMM_AS_PLMN_LIST_SIZE   6
   PLMN_LIST_T(EMM_AS_PLMN_LIST_SIZE) plmn_ids;
   /* List of identifiers of available PLMNs   */
-  uint8_t                             rat;      /* Bitmap of Radio Access Technologies      */
+  uint8_t                            rat;      /* Bitmap of Radio Access Technologies      */
   tac_t                              tac;      /* Tracking Area Code               */
-  eci_t                               cell_id;  /* cell identity                */
+  eci_t                              cell_id;  /* cell identity                */
 } emm_as_cell_info_t;
 
 /*
@@ -276,13 +294,14 @@ typedef struct emm_as_cell_info_s {
 typedef struct emm_as_s {
   emm_as_primitive_t primitive;
   union {
-    emm_as_security_t  security;
-    emm_as_establish_t establish;
-    emm_as_release_t   release;
-    emm_as_data_t      data;
-    emm_as_page_t      page;
-    emm_as_status_t    status;
-    emm_as_cell_info_t cell_info;
+    emm_as_security_t   security;
+    emm_as_establish_t  establish;
+    emm_as_release_t    release;
+    emm_as_data_t       data;
+    emm_as_activate_bearer_context_req_t activate_bearer_context_req;
+    emm_as_page_t       page;
+    emm_as_status_t     status;
+    emm_as_cell_info_t  cell_info;
   } u;
 } emm_as_t;
 

@@ -37,23 +37,23 @@
 #ifndef ASSERTIONS_H_
 #define ASSERTIONS_H_
 
-#define _Assert_Exit_                           \
-{                                               \
-  fprintf(stderr, "\nExiting execution\n");   \
-  display_backtrace();                        \
-  fflush(stdout);                             \
-  fflush(stderr);                             \
-  exit(EXIT_FAILURE);                         \
+#define _Assert_Exit_                                    \
+{                                                        \
+  fprintf(stderr, "\nExiting execution\n");              \
+  display_backtrace();                                   \
+  fflush(stdout);                                        \
+  fflush(stderr);                                        \
+  exit(EXIT_FAILURE);                                    \
 }
 
-#define _Assert_SegFault_                       \
-{                                               \
+#define _Assert_SegFault_                                \
+{                                                        \
   fprintf(stderr, "\n Will Intentionaly raise SEGFAULT to be catched by GDB!\n");  \
-  display_backtrace();                        \
-  fflush(stdout);                             \
-  fflush(stderr);                             \
-  *(int*)0=0;                                 \
-  exit(EXIT_FAILURE);                         \
+  display_backtrace();                                   \
+  fflush(stdout);                                        \
+  fflush(stderr);                                        \
+  *(int*)0=0;                                            \
+  exit(EXIT_FAILURE);                                    \
 }
 
 #define _Assert_(cOND, aCTION, fORMAT, aRGS...)             \

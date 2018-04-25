@@ -41,13 +41,28 @@ function help()
   echo_error "Mandatory arguments to long options are mandatory for short options too."
   echo_error "  -c, --clean                               Clean the build generated files: config, object, executable files (build from scratch)"
   echo_error "  -D, --daemon                              Build MME as a daemon."
-  echo_error "  -e, --enbrains                            Compile with ENBRAINS support."
   echo_error "  -f, --force                               No interactive script for installation of software packages."
   echo_error "  -h, --help                                Print this help."
   echo_error "  -i, --check-installed-software            Check installed software packages necessary to build and run MME (support $SUPPORTED_DISTRO)."
+  echo_error "  -s, --split-mob-git-repo  git_url         mobility git repository"
+  echo_error "  -S, --split-mob-lfs-repo  directory       mobility repository accessible through a local directory path"
   echo_error "  -u, --unit-tests                          Trigger unit tests."
-  echo_error "  -v, --verbose                             Build process verbose."
+  echo_error "  -v, --verbose                             Make build process verbose."
+  echo_error "  -V, --Verbose                             CMake only build process verbose."
   echo_error " "
+}
+
+# arg1 is git URL
+# global var for return value of function get_git_mobility_repo
+OPENAIR_CN_MOBILITY_DIR=/tmp/openair-cn-mobility
+function get_git_mobility_repo()
+{
+  # hardcoded path
+  rm -Rf $OPENAIR_CN_MOBILITY_DIR
+  git clone $1 $OPENAIR_CN_MOBILITY_DIR
+  if [ $? -ne 0 ]; then
+    echo_fatal "Failed to clone git URL $1, abort"
+  fi
 }
 
 
@@ -82,11 +97,6 @@ function main()
         echo "Build MME as a daemon"
         shift;
         ;;
-      -e | --enbrains)
-        cmake_args="$cmake_args -DENBRAINS=1"
-        echo "Compile with ENBRAINS support"
-        shift;
-        ;;
       -f | --force)
         force=1
         echo "Force set (no interactive)"
@@ -103,6 +113,19 @@ function main()
         var_check_install_oai_software=1
         shift;
         ;;
+      -s | --split-mob-git-repo)
+        get_git_mobility_repo $2
+        cmake_args="$cmake_args -DMOBILITY_REPO=True -DMOBILITY_REPO_SRC=$OPENAIR_CN_MOBILITY_DIR"
+        shift 2;
+        ;;
+      -S | --split-mob-lfs-repo)
+        if [ ! -d $2 ]; then
+          echo_fatal "\"$2\" is not a known directory on this local file system, abort"
+        fi
+        
+        cmake_args="$cmake_args -DMOBILITY_REPO=True -DMOBILITY_REPO_SRC=$2"
+        shift 2;
+        ;;
       -u | --unit-tests)
         echo "Unit tests triggered"
         unit_tests=1
@@ -112,6 +135,11 @@ function main()
         echo "Make build process verbose"
         cmake_args="$cmake_args -DCMAKE_VERBOSE_MAKEFILE=ON"
         make_args="VERBOSE=1 $make_args"
+        verbose=1
+        shift;
+        ;;
+      -V | --Verbose)
+        echo "CMake build process verbose"
         verbose=1
         shift;
         ;;
@@ -183,7 +211,8 @@ function main()
   cd ./build
   $CMAKE $cmake_args .. > /dev/null 
   
-  compilations mme mme mme
+
+  compilations mme mme mme $verbose
 
   if [ $unit_tests -ne 0 ]; then
     make_test mme mme mme $verbose
@@ -197,10 +226,6 @@ function main()
     $SUDO killall -q mme
     $SUDO cp -upv $OPENAIRCN_DIR/build/mme/build/mme /usr/local/bin && echo_success "mme installed" 
   fi 
-  
-  compilations mme auth_request auth_request 
-  $SUDO cp -upv $OPENAIRCN_DIR/build/mme/build/auth_request /usr/local/bin/ && echo_success "auth_request installed"
-
 }
 
 

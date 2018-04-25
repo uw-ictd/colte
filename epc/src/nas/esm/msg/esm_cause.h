@@ -48,6 +48,6 @@ Description Defines error cause code returned upon receiving unknown,
  * Cause code used to notify that the EPS session management procedure
  * has been successfully processed
  */
-#define ESM_CAUSE_SUCCESS     (-1)
+#define ESM_CAUSE_SUCCESS     (esm_cause_t)(-1)
 
 #endif /* FILE_ESM_CAUSE_SEEN*/

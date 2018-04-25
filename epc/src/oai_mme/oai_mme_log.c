@@ -19,9 +19,24 @@
  *      contact@openairinterface.org
  */
 
+/*! \file oai_mme_log.c
+  \brief
+  \author Sebastien ROUX, Lionel Gauthier
+  \company Eurecom
+  \email: lionel.gauthier@eurecom.fr
+*/
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "bstrlib.h"
+
+#include "obj_hashtable.h"
+#include "log.h"
 
 #include "oai_mme.h"
-#include "log.h"
+
 
 #include <freeDiameter/freeDiameter-host.h>
 #include <freeDiameter/libfdcore.h>

@@ -21,26 +21,26 @@
 
 #ifndef FILE_AUTHENTICATION_REQUEST_SEEN
 #define FILE_AUTHENTICATION_REQUEST_SEEN
-#include <stdint.h>
-#include "ProtocolDiscriminator.h"
+
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "NasKeySetIdentifier.h"
-#include "AuthenticationParameterRand.h"
-#include "AuthenticationParameterAutn.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define AUTHENTICATION_REQUEST_MINIMUM_LENGTH ( \
     NAS_KEY_SET_IDENTIFIER_MINIMUM_LENGTH + \
-    AUTHENTICATION_PARAMETER_RAND_MINIMUM_LENGTH + \
-    AUTHENTICATION_PARAMETER_AUTN_MINIMUM_LENGTH )
+    AUTHENTICATION_PARAMETER_RAND_IE_MIN_LENGTH -1 + \
+    AUTHENTICATION_PARAMETER_AUTN_IE_MIN_LENGTH -2 )
 
 /* Maximum length macro. Formed by maximum length of each field */
 #define AUTHENTICATION_REQUEST_MAXIMUM_LENGTH ( \
     NAS_KEY_SET_IDENTIFIER_MAXIMUM_LENGTH + \
-    AUTHENTICATION_PARAMETER_RAND_MAXIMUM_LENGTH + \
-    AUTHENTICATION_PARAMETER_AUTN_MAXIMUM_LENGTH )
+    AUTHENTICATION_PARAMETER_RAND_IE_MAX_LENGTH + \
+    AUTHENTICATION_PARAMETER_AUTN_IE_MAX_LENGTH )
 
 
 /*
@@ -52,12 +52,12 @@
 
 typedef struct authentication_request_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator            protocoldiscriminator:4;
-  SecurityHeaderType               securityheadertype:4;
-  MessageType                      messagetype;
+  eps_protocol_discriminator_t     protocoldiscriminator:4;
+  security_header_type_t           securityheadertype:4;
+  message_type_t                   messagetype;
   NasKeySetIdentifier              naskeysetidentifierasme;
-  AuthenticationParameterRand      authenticationparameterrand;
-  AuthenticationParameterAutn      authenticationparameterautn;
+  authentication_parameter_rand_t  authenticationparameterrand;
+  authentication_parameter_autn_t  authenticationparameterautn;
 } authentication_request_msg;
 
 int decode_authentication_request(authentication_request_msg *authenticationrequest, uint8_t *buffer, uint32_t len);

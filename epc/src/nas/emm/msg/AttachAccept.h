@@ -22,35 +22,31 @@
 
 #ifndef FILE_ATTACH_ACCEPT_SEEN
 #define FILE_ATTACH_ACCEPT_SEEN
-#include <stdint.h>
 
-#include "ProtocolDiscriminator.h"
 #include "SecurityHeaderType.h"
 #include "MessageType.h"
 #include "EpsAttachResult.h"
-#include "GprsTimer.h"
 #include "TrackingAreaIdentityList.h"
 #include "EsmMessageContainer.h"
 #include "EpsMobileIdentity.h"
-#include "LocationAreaIdentification.h"
-#include "MobileIdentity.h"
 #include "EmmCause.h"
-#include "PlmnList.h"
-#include "EmergencyNumberList.h"
 #include "EpsNetworkFeatureSupport.h"
 #include "AdditionalUpdateResult.h"
+#include "3gpp_23.003.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define ATTACH_ACCEPT_MINIMUM_LENGTH ( \
     EPS_ATTACH_RESULT_MINIMUM_LENGTH + \
-    GPRS_TIMER_MINIMUM_LENGTH + \
+    GPRS_TIMER_IE_MIN_LENGTH + \
     TRACKING_AREA_IDENTITY_LIST_MINIMUM_LENGTH + \
     ESM_MESSAGE_CONTAINER_MINIMUM_LENGTH )
 
 /* Maximum length macro. Formed by maximum length of each field */
 #define ATTACH_ACCEPT_MAXIMUM_LENGTH ( \
     EPS_ATTACH_RESULT_MAXIMUM_LENGTH + \
-    GPRS_TIMER_MAXIMUM_LENGTH + \
+    GPRS_TIMER_IE_MAX_LENGTH + \
     TRACKING_AREA_IDENTITY_LIST_MAXIMUM_LENGTH + \
     ESM_MESSAGE_CONTAINER_MAXIMUM_LENGTH + \
     EPS_MOBILE_IDENTITY_MAXIMUM_LENGTH + \
@@ -80,13 +76,13 @@
 
 typedef enum attach_accept_iei_tag {
   ATTACH_ACCEPT_GUTI_IEI                          = 0x50, /* 0x50 = 80 */
-  ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI  = 0x13, /* 0x13 = 19 */
-  ATTACH_ACCEPT_MS_IDENTITY_IEI                   = 0x23, /* 0x23 = 35 */
+  ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI  = C_LOCATION_AREA_IDENTIFICATION_IEI,
+  ATTACH_ACCEPT_MS_IDENTITY_IEI                   = C_MOBILE_IDENTITY_IEI,
   ATTACH_ACCEPT_EMM_CAUSE_IEI                     = 0x53, /* 0x53 = 83 */
-  ATTACH_ACCEPT_T3402_VALUE_IEI                   = 0x17, /* 0x17 = 23 */
-  ATTACH_ACCEPT_T3423_VALUE_IEI                   = 0x59, /* 0x59 = 89 */
-  ATTACH_ACCEPT_EQUIVALENT_PLMNS_IEI              = 0x4A, /* 0x4A = 74 */
-  ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_IEI         = 0x34, /* 0x34 = 52 */
+  ATTACH_ACCEPT_T3402_VALUE_IEI                   = GPRS_C_TIMER_3402_VALUE_IEI,
+  ATTACH_ACCEPT_T3423_VALUE_IEI                   = GPRS_C_TIMER_3423_VALUE_IEI,
+  ATTACH_ACCEPT_EQUIVALENT_PLMNS_IEI              = C_PLMN_LIST_IEI,
+  ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_IEI         = MM_EMERGENCY_NUMBER_LIST_IEI,
   ATTACH_ACCEPT_EPS_NETWORK_FEATURE_SUPPORT_IEI   = 0x64, /* 0x64 = 100 */
   ATTACH_ACCEPT_ADDITIONAL_UPDATE_RESULT_IEI      = 0xF0, /* 0xF0 = 240 */
 } attach_accept_iei;
@@ -100,25 +96,25 @@ typedef enum attach_accept_iei_tag {
 
 typedef struct attach_accept_msg_tag {
   /* Mandatory fields */
-  ProtocolDiscriminator       protocoldiscriminator:4;
-  SecurityHeaderType          securityheadertype:4;
-  MessageType                 messagetype;
-  EpsAttachResult             epsattachresult;
-  GprsTimer                   t3412value;
-  TrackingAreaIdentityList    tailist;
-  EsmMessageContainer         esmmessagecontainer;
+  eps_protocol_discriminator_t    protocoldiscriminator:4;
+  security_header_type_t          securityheadertype:4;
+  message_type_t                  messagetype;
+  eps_attach_result_t             epsattachresult;
+  gprs_timer_t                    t3412value;
+  tai_list_t                      tailist;
+  EsmMessageContainer             esmmessagecontainer;
   /* Optional fields */
-  uint32_t                    presencemask;
-  EpsMobileIdentity           guti;
-  LocationAreaIdentification  locationareaidentification;
-  MobileIdentity              msidentity;
-  EmmCause                    emmcause;
-  GprsTimer                   t3402value;
-  GprsTimer                   t3423value;
-  PlmnList                    equivalentplmns;
-  EmergencyNumberList         emergencynumberlist;
-  EpsNetworkFeatureSupport    epsnetworkfeaturesupport;
-  AdditionalUpdateResult      additionalupdateresult;
+  uint32_t                        presencemask;
+  eps_mobile_identity_t           guti;
+  location_area_identification_t  locationareaidentification;
+  mobile_identity_t               msidentity;
+  emm_cause_t                     emmcause;
+  gprs_timer_t                    t3402value;
+  gprs_timer_t                    t3423value;
+  plmn_list_t                     equivalentplmns;
+  emergency_number_list_t         emergencynumberlist;
+  eps_network_feature_support_t   epsnetworkfeaturesupport;
+  additional_update_result_t      additionalupdateresult;
 } attach_accept_msg;
 
 int decode_attach_accept(attach_accept_msg *attachaccept, uint8_t *buffer, uint32_t len);

@@ -23,12 +23,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "common_types.h"
 #include "3gpp_24.007.h"
 #include "3gpp_24.301.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
+#include "EpsQualityOfService.h"
+#include "RadioPriority.h"
+#include "ApnAggregateMaximumBitRate.h"
 #include "ModifyEpsBearerContextRequest.h"
 
 int
@@ -71,7 +78,7 @@ decode_modify_eps_bearer_context_request (
       break;
 
     case MODIFY_EPS_BEARER_CONTEXT_REQUEST_TFT_IEI:
-      if ((decoded_result = decode_traffic_flow_template (&modify_eps_bearer_context_request->tft, MODIFY_EPS_BEARER_CONTEXT_REQUEST_TFT_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_traffic_flow_template_ie (&modify_eps_bearer_context_request->tft, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -82,7 +89,7 @@ decode_modify_eps_bearer_context_request (
       break;
 
     case MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEW_QOS_IEI:
-      if ((decoded_result = decode_quality_of_service (&modify_eps_bearer_context_request->newqos, MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEW_QOS_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_quality_of_service_ie (&modify_eps_bearer_context_request->newqos, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -93,7 +100,7 @@ decode_modify_eps_bearer_context_request (
       break;
 
     case MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI:
-      if ((decoded_result = decode_llc_service_access_point_identifier (&modify_eps_bearer_context_request->negotiatedllcsapi, MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_llc_service_access_point_identifier_ie (&modify_eps_bearer_context_request->negotiatedllcsapi, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -115,7 +122,7 @@ decode_modify_eps_bearer_context_request (
       break;
 
     case MODIFY_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI:
-      if ((decoded_result = decode_packet_flow_identifier (&modify_eps_bearer_context_request->packetflowidentifier, MODIFY_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_packet_flow_identifier_ie (&modify_eps_bearer_context_request->packetflowidentifier, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -138,7 +145,7 @@ decode_modify_eps_bearer_context_request (
 
     case MODIFY_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI:
       if ((decoded_result =
-           decode_ProtocolConfigurationOptions (&modify_eps_bearer_context_request->protocolconfigurationoptions, MODIFY_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + decoded, len - decoded)) <= 0)
+           decode_protocol_configuration_options_ie (&modify_eps_bearer_context_request->protocolconfigurationoptions, true, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -182,7 +189,7 @@ encode_modify_eps_bearer_context_request (
 
   if ((modify_eps_bearer_context_request->presencemask & MODIFY_EPS_BEARER_CONTEXT_REQUEST_TFT_PRESENT)
       == MODIFY_EPS_BEARER_CONTEXT_REQUEST_TFT_PRESENT) {
-    if ((encode_result = encode_traffic_flow_template (&modify_eps_bearer_context_request->tft, MODIFY_EPS_BEARER_CONTEXT_REQUEST_TFT_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_traffic_flow_template_ie (&modify_eps_bearer_context_request->tft, TFT_ENCODE_IEI_TRUE, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -191,7 +198,7 @@ encode_modify_eps_bearer_context_request (
 
   if ((modify_eps_bearer_context_request->presencemask & MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEW_QOS_PRESENT)
       == MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEW_QOS_PRESENT) {
-    if ((encode_result = encode_quality_of_service (&modify_eps_bearer_context_request->newqos, MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEW_QOS_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_quality_of_service_ie (&modify_eps_bearer_context_request->newqos, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -200,7 +207,7 @@ encode_modify_eps_bearer_context_request (
 
   if ((modify_eps_bearer_context_request->presencemask & MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_PRESENT)
       == MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_PRESENT) {
-    if ((encode_result = encode_llc_service_access_point_identifier (&modify_eps_bearer_context_request->negotiatedllcsapi, MODIFY_EPS_BEARER_CONTEXT_REQUEST_NEGOTIATED_LLC_SAPI_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_llc_service_access_point_identifier_ie (&modify_eps_bearer_context_request->negotiatedllcsapi, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -218,7 +225,7 @@ encode_modify_eps_bearer_context_request (
 
   if ((modify_eps_bearer_context_request->presencemask & MODIFY_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_PRESENT)
       == MODIFY_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_PRESENT) {
-    if ((encode_result = encode_packet_flow_identifier (&modify_eps_bearer_context_request->packetflowidentifier, MODIFY_EPS_BEARER_CONTEXT_REQUEST_PACKET_FLOW_IDENTIFIER_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_packet_flow_identifier_ie (&modify_eps_bearer_context_request->packetflowidentifier, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -236,7 +243,7 @@ encode_modify_eps_bearer_context_request (
 
   if ((modify_eps_bearer_context_request->presencemask & MODIFY_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT)
       == MODIFY_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
-    if ((encode_result = encode_ProtocolConfigurationOptions (&modify_eps_bearer_context_request->protocolconfigurationoptions, MODIFY_EPS_BEARER_CONTEXT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_protocol_configuration_options_ie (&modify_eps_bearer_context_request->protocolconfigurationoptions, true, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

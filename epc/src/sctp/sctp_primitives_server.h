@@ -22,7 +22,7 @@
 
 /*! \file sctp_primitives_server.c
  *  \brief Main server primitives
- *  \author Sebastien ROUX
+ *  \author Sebastien ROUX, Lionel GAUTHIER
  *  \date 2013
  *  \version 1.0
  *  @ingroup _sctp

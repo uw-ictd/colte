@@ -43,15 +43,32 @@
         to the network and re-establish all PDN connections.
 
 *****************************************************************************/
+#include <pthread.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "bstrlib.h"
 
 #include "log.h"
 #include "msc.h"
+#include "gcc_diag.h"
 #include "dynamic_memory_check.h"
-#include "emmData.h"
+#include "assertions.h"
+#include "common_types.h"
+#include "nas_timer.h"
+#include "3gpp_24.007.h"
+#include "3gpp_24.008.h"
+#include "3gpp_29.274.h"
+#include "emm_data.h"
+#include "mme_app_ue_context.h"
 #include "emm_proc.h"
 #include "emm_sap.h"
 #include "esm_sap.h"
-#include "nas_itti_messaging.h"
+#include "nas_itti_messaging.h" 
+#include "mme_app_defs.h"
 
 
 /****************************************************************************/
@@ -70,13 +87,14 @@ static const char                      *_emm_detach_type_str[] = {
 
 
 void
-_clear_emm_ctxt(emm_data_context_t *emm_ctx) {
+_clear_emm_ctxt(emm_context_t *emm_context) {
   
-  if (!emm_ctx) {
+  if (!emm_context) {
     return;
   }
+  mme_ue_s1ap_id_t  ue_id = PARENT_STRUCT(emm_context, struct ue_mm_context_s, emm_context)->mme_ue_s1ap_id;
 
-  emm_data_context_stop_all_timers(emm_ctx);
+  nas_delete_all_emm_procedures(emm_context);
   
   esm_sap_t                               esm_sap = {0};
   /* 
@@ -84,25 +102,27 @@ _clear_emm_ctxt(emm_data_context_t *emm_ctx) {
    */
 
   esm_sap.primitive = ESM_EPS_BEARER_CONTEXT_DEACTIVATE_REQ;
-  esm_sap.ue_id = emm_ctx->ue_id;
-  esm_sap.ctx = emm_ctx;
+  esm_sap.ue_id = ue_id;
+  esm_sap.ctx = emm_context;
   esm_sap.data.eps_bearer_context_deactivate.ebi = ESM_SAP_ALL_EBI;
   esm_sap_send (&esm_sap);
   
-  if (emm_ctx->esm_msg) {
-    bdestroy(emm_ctx->esm_msg);
+  if (emm_context->esm_msg) {
+    bdestroy(emm_context->esm_msg);
   }
 
   // Change the FSM state to Deregistered
-  if (emm_fsm_get_status (emm_ctx->ue_id, emm_ctx) != EMM_DEREGISTERED) {
-    emm_fsm_set_status (emm_ctx->ue_id, emm_ctx, EMM_DEREGISTERED); 
+  if (emm_fsm_get_state (emm_context) != EMM_DEREGISTERED) {
+    emm_fsm_set_state (ue_id, emm_context, EMM_DEREGISTERED);
   }
 
-  /*
-   * Release the EMM context
-   */
-  emm_data_context_remove(&_emm_data, emm_ctx);
-  free_wrapper((void **) &emm_ctx);
+  emm_ctx_clear_old_guti(emm_context);
+  emm_ctx_clear_guti(emm_context);
+  emm_ctx_clear_imsi(emm_context);
+  emm_ctx_clear_imei(emm_context);
+  emm_ctx_clear_auth_vectors(emm_context);
+  emm_ctx_clear_security(emm_context);
+  emm_ctx_clear_non_current_security(emm_context);
 }
 
 
@@ -213,32 +233,28 @@ emm_proc_detach (
 int
 emm_proc_detach_request (
   mme_ue_s1ap_id_t ue_id,
-  emm_proc_detach_type_t type,
-  int switch_off,
-  ksi_t native_ksi,
-  ksi_t ksi,
-  guti_t * guti,
-  imsi_t * imsi,
-  imei_t * imei)
+  emm_detach_request_ies_t * params)
+
 {
   OAILOG_FUNC_IN (LOG_NAS_EMM);
   int                                     rc;
-  emm_data_context_t                     *emm_ctx = NULL;
 
-  OAILOG_INFO (LOG_NAS_EMM, "EMM-PROC  - Detach type = %s (%d) requested (ue_id=" MME_UE_S1AP_ID_FMT ")", _emm_detach_type_str[type], type, ue_id);
+  OAILOG_INFO (LOG_NAS_EMM, "EMM-PROC  - Detach type = %s (%d) requested (ue_id=" MME_UE_S1AP_ID_FMT ")\n", _emm_detach_type_str[params->type], params->type, ue_id);
   /*
    * Get the UE context
    */
-  emm_ctx = emm_data_context_get (&_emm_data, ue_id);
+  ue_mm_context_t *ue_mm_context = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, ue_id);
 
-  if (emm_ctx == NULL) {
-    OAILOG_WARNING (LOG_NAS_EMM, "No EMM context exists for the UE (ue_id=" MME_UE_S1AP_ID_FMT ")", ue_id);
+  if (ue_mm_context == NULL) {
+    OAILOG_WARNING (LOG_NAS_EMM, "No EMM context exists for the UE (ue_id=" MME_UE_S1AP_ID_FMT ")\n", ue_id);
     // There may be MME APP Context. Trigger clean up in MME APP 
     nas_itti_detach_req(ue_id);
     OAILOG_FUNC_RETURN (LOG_NAS_EMM, RETURNok);
   }
 
-  if (switch_off) {
+  emm_context_t *emm_ctx = &ue_mm_context->emm_context;
+
+  if (params->switch_off) {
     MSC_LOG_EVENT (MSC_NAS_EMM_MME, "0 Removing UE context ue id " MME_UE_S1AP_ID_FMT " ", ue_id);
     rc = RETURNok;
   } else {
@@ -288,7 +304,23 @@ emm_proc_detach_request (
   // Release emm and esm context  
   _clear_emm_ctxt(emm_ctx);
 
+  unlock_ue_contexts(ue_mm_context);
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, RETURNok);
+}
+
+//------------------------------------------------------------------------------
+void free_emm_detach_request_ies(emm_detach_request_ies_t ** const ies)
+{
+  if ((*ies)->guti) {
+    free_wrapper((void**)&(*ies)->guti);
+  }
+  if ((*ies)->imsi) {
+    free_wrapper((void**)&(*ies)->imsi);
+  }
+  if ((*ies)->imei) {
+    free_wrapper((void**)&(*ies)->imei);
+  }
+  free_wrapper((void**)ies);
 }
 
 /****************************************************************************/

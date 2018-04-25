@@ -23,8 +23,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "msc.h"
+#include "assertions.h"
+#include "conversions.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "AuthenticationFailure.h"
@@ -63,7 +69,7 @@ decode_authentication_failure (
 
     switch (ieiDecoded) {
     case AUTHENTICATION_FAILURE_AUTHENTICATION_FAILURE_PARAMETER_IEI:
-      if ((decoded_result = decode_authentication_failure_parameter (&authentication_failure->authenticationfailureparameter, AUTHENTICATION_FAILURE_AUTHENTICATION_FAILURE_PARAMETER_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_authentication_failure_parameter_ie (&authentication_failure->authenticationfailureparameter, AUTHENTICATION_FAILURE_AUTHENTICATION_FAILURE_PARAMETER_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -103,7 +109,7 @@ encode_authentication_failure (
 
   if ((authentication_failure->presencemask & AUTHENTICATION_FAILURE_AUTHENTICATION_FAILURE_PARAMETER_PRESENT)
       == AUTHENTICATION_FAILURE_AUTHENTICATION_FAILURE_PARAMETER_PRESENT) {
-    if ((encode_result = encode_authentication_failure_parameter (authentication_failure->authenticationfailureparameter, AUTHENTICATION_FAILURE_AUTHENTICATION_FAILURE_PARAMETER_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_authentication_failure_parameter_ie (authentication_failure->authenticationfailureparameter, AUTHENTICATION_FAILURE_AUTHENTICATION_FAILURE_PARAMETER_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

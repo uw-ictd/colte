@@ -26,11 +26,14 @@
   \email: lionel.gauthier@eurecom.fr
 */
 #include <stdint.h>
+#include <stdbool.h>
 #include <errno.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+#include "bstrlib.h"
 
 #include "queue.h"
 #include "dynamic_memory_check.h"
@@ -38,6 +41,7 @@
 #include "conversions.h"
 #include "hashtable.h"
 #include "obj_hashtable.h"
+#include "common_defs.h"
 #include "intertask_interface.h"
 #include "msc.h"
 #include "log.h"
@@ -69,7 +73,7 @@ pgw_load_pool_ip_addresses (
   STAILQ_INIT (&pgw_app.ipv4_list_allocated);
   STAILQ_FOREACH (conf_ipv4_p, &spgw_config.pgw_config.ipv4_pool_list, ipv4_entries) {
     ipv4_p = calloc (1, sizeof (struct ipv4_list_elm_s));
-    ipv4_p->addr.s_addr = ntohl (conf_ipv4_p->addr.s_addr);
+    ipv4_p->addr.s_addr = conf_ipv4_p->addr.s_addr;
     STAILQ_INSERT_TAIL (&pgw_app.ipv4_list_free, ipv4_p, ipv4_entries);
     //SPGW_APP_DEBUG("Loaded IPv4 PAA address in pool: %s\n",
     //        inet_ntoa(conf_ipv4_p->addr));
@@ -128,7 +132,7 @@ pgw_release_free_ipv4_paa_address (
   STAILQ_FOREACH (ipv4_p, &pgw_app.ipv4_list_allocated, ipv4_entries) {
     if (ipv4_p->addr.s_addr == addr_pP->s_addr) {
       STAILQ_REMOVE (&pgw_app.ipv4_list_allocated, ipv4_p, ipv4_list_elm_s, ipv4_entries);
-      STAILQ_INSERT_TAIL (&pgw_app.ipv4_list_free, ipv4_p, ipv4_entries);
+      STAILQ_INSERT_HEAD (&pgw_app.ipv4_list_free, ipv4_p, ipv4_entries);
       return RETURNok;
     }
   }

@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "PagingIdentity.h"
 
-int
-decode_paging_identity (
-  PagingIdentity * pagingidentity,
+//------------------------------------------------------------------------------
+int decode_paging_identity (
+  paging_identity_t * pagingidentity,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -44,15 +46,12 @@ decode_paging_identity (
 
   *pagingidentity = *buffer & 0x1;
   decoded++;
-#if NAS_DEBUG
-  dump_paging_identity_xml (pagingidentity, iei);
-#endif
   return decoded;
 }
 
-int
-encode_paging_identity (
-  PagingIdentity * pagingidentity,
+//------------------------------------------------------------------------------
+int encode_paging_identity (
+  paging_identity_t * pagingidentity,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -63,9 +62,6 @@ encode_paging_identity (
    * Checking IEI and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, PAGING_IDENTITY_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_paging_identity_xml (pagingidentity, iei);
-#endif
 
   if (iei > 0) {
     *buffer = iei;
@@ -77,19 +73,3 @@ encode_paging_identity (
   return encoded;
 }
 
-void
-dump_paging_identity_xml (
-  PagingIdentity * pagingidentity,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Paging Identity>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <Paging identity value>%u</Paging identity value>\n", *pagingidentity);
-  OAILOG_DEBUG (LOG_NAS, "</Paging Identity>\n");
-}

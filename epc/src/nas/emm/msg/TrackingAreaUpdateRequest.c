@@ -23,8 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
+#include "log.h"
+#include "assertions.h"
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "TrackingAreaUpdateRequest.h"
@@ -83,7 +87,7 @@ decode_tracking_area_update_request (
       break;
 
     case TRACKING_AREA_UPDATE_REQUEST_GPRS_CIPHERING_KEY_SEQUENCE_NUMBER_IEI:
-      if ((decoded_result = decode_ciphering_key_sequence_number (&tracking_area_update_request->gprscipheringkeysequencenumber, TRACKING_AREA_UPDATE_REQUEST_GPRS_CIPHERING_KEY_SEQUENCE_NUMBER_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_ciphering_key_sequence_number_ie (&tracking_area_update_request->gprscipheringkeysequencenumber, TRACKING_AREA_UPDATE_REQUEST_GPRS_CIPHERING_KEY_SEQUENCE_NUMBER_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -94,7 +98,7 @@ decode_tracking_area_update_request (
       break;
 
     case TRACKING_AREA_UPDATE_REQUEST_OLD_PTMSI_SIGNATURE_IEI:
-      if ((decoded_result = decode_p_tmsi_signature (&tracking_area_update_request->oldptmsisignature, TRACKING_AREA_UPDATE_REQUEST_OLD_PTMSI_SIGNATURE_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_p_tmsi_signature_ie (&tracking_area_update_request->oldptmsisignature, TRACKING_AREA_UPDATE_REQUEST_OLD_PTMSI_SIGNATURE_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -149,7 +153,7 @@ decode_tracking_area_update_request (
       break;
 
     case TRACKING_AREA_UPDATE_REQUEST_DRX_PARAMETER_IEI:
-      if ((decoded_result = decode_drx_parameter (&tracking_area_update_request->drxparameter, TRACKING_AREA_UPDATE_REQUEST_DRX_PARAMETER_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_drx_parameter_ie (&tracking_area_update_request->drxparameter, TRACKING_AREA_UPDATE_REQUEST_DRX_PARAMETER_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -184,7 +188,7 @@ decode_tracking_area_update_request (
       break;
 
     case TRACKING_AREA_UPDATE_REQUEST_MS_NETWORK_CAPABILITY_IEI:
-      if ((decoded_result = decode_ms_network_capability (&tracking_area_update_request->msnetworkcapability, TRACKING_AREA_UPDATE_REQUEST_MS_NETWORK_CAPABILITY_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_ms_network_capability_ie (&tracking_area_update_request->msnetworkcapability, TRACKING_AREA_UPDATE_REQUEST_MS_NETWORK_CAPABILITY_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -195,7 +199,7 @@ decode_tracking_area_update_request (
       break;
 
     case TRACKING_AREA_UPDATE_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_IEI:
-      if ((decoded_result = decode_location_area_identification (&tracking_area_update_request->oldlocationareaidentification, TRACKING_AREA_UPDATE_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_location_area_identification_ie (&tracking_area_update_request->oldlocationareaidentification, TRACKING_AREA_UPDATE_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -217,7 +221,7 @@ decode_tracking_area_update_request (
       break;
 
     case TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_2_IEI:
-      if ((decoded_result = decode_mobile_station_classmark_2 (&tracking_area_update_request->mobilestationclassmark2, TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_2_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_mobile_station_classmark_2_ie (&tracking_area_update_request->mobilestationclassmark2, TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_2_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -228,7 +232,7 @@ decode_tracking_area_update_request (
       break;
 
     case TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_3_IEI:
-      if ((decoded_result = decode_mobile_station_classmark_3 (&tracking_area_update_request->mobilestationclassmark3, TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_3_IEI, buffer + decoded, len - decoded)) <= 0)
+      if ((decoded_result = decode_mobile_station_classmark_3_ie (&tracking_area_update_request->mobilestationclassmark3, TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_3_IEI, buffer + decoded, len - decoded)) <= 0)
         return decoded_result;
 
       decoded += decoded_result;
@@ -312,7 +316,7 @@ encode_tracking_area_update_request (
 
   if ((tracking_area_update_request->presencemask & TRACKING_AREA_UPDATE_REQUEST_GPRS_CIPHERING_KEY_SEQUENCE_NUMBER_PRESENT)
       == TRACKING_AREA_UPDATE_REQUEST_GPRS_CIPHERING_KEY_SEQUENCE_NUMBER_PRESENT) {
-    if ((encode_result = encode_ciphering_key_sequence_number (&tracking_area_update_request->gprscipheringkeysequencenumber, TRACKING_AREA_UPDATE_REQUEST_GPRS_CIPHERING_KEY_SEQUENCE_NUMBER_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_ciphering_key_sequence_number_ie (&tracking_area_update_request->gprscipheringkeysequencenumber, TRACKING_AREA_UPDATE_REQUEST_GPRS_CIPHERING_KEY_SEQUENCE_NUMBER_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -321,7 +325,7 @@ encode_tracking_area_update_request (
 
   if ((tracking_area_update_request->presencemask & TRACKING_AREA_UPDATE_REQUEST_OLD_PTMSI_SIGNATURE_PRESENT)
       == TRACKING_AREA_UPDATE_REQUEST_OLD_PTMSI_SIGNATURE_PRESENT) {
-    if ((encode_result = encode_p_tmsi_signature (tracking_area_update_request->oldptmsisignature, TRACKING_AREA_UPDATE_REQUEST_OLD_PTMSI_SIGNATURE_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_p_tmsi_signature_ie (tracking_area_update_request->oldptmsisignature, TRACKING_AREA_UPDATE_REQUEST_OLD_PTMSI_SIGNATURE_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -366,7 +370,7 @@ encode_tracking_area_update_request (
 
   if ((tracking_area_update_request->presencemask & TRACKING_AREA_UPDATE_REQUEST_DRX_PARAMETER_PRESENT)
       == TRACKING_AREA_UPDATE_REQUEST_DRX_PARAMETER_PRESENT) {
-    if ((encode_result = encode_drx_parameter (&tracking_area_update_request->drxparameter, TRACKING_AREA_UPDATE_REQUEST_DRX_PARAMETER_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_drx_parameter_ie (&tracking_area_update_request->drxparameter, TRACKING_AREA_UPDATE_REQUEST_DRX_PARAMETER_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -395,7 +399,7 @@ encode_tracking_area_update_request (
 
   if ((tracking_area_update_request->presencemask & TRACKING_AREA_UPDATE_REQUEST_MS_NETWORK_CAPABILITY_PRESENT)
       == TRACKING_AREA_UPDATE_REQUEST_MS_NETWORK_CAPABILITY_PRESENT) {
-    if ((encode_result = encode_ms_network_capability (&tracking_area_update_request->msnetworkcapability, TRACKING_AREA_UPDATE_REQUEST_MS_NETWORK_CAPABILITY_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_ms_network_capability_ie (&tracking_area_update_request->msnetworkcapability, TRACKING_AREA_UPDATE_REQUEST_MS_NETWORK_CAPABILITY_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -404,7 +408,7 @@ encode_tracking_area_update_request (
 
   if ((tracking_area_update_request->presencemask & TRACKING_AREA_UPDATE_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_PRESENT)
       == TRACKING_AREA_UPDATE_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_PRESENT) {
-    if ((encode_result = encode_location_area_identification (&tracking_area_update_request->oldlocationareaidentification, TRACKING_AREA_UPDATE_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_location_area_identification_ie (&tracking_area_update_request->oldlocationareaidentification, TRACKING_AREA_UPDATE_REQUEST_OLD_LOCATION_AREA_IDENTIFICATION_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -422,7 +426,7 @@ encode_tracking_area_update_request (
 
   if ((tracking_area_update_request->presencemask & TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_2_PRESENT)
       == TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_2_PRESENT) {
-    if ((encode_result = encode_mobile_station_classmark_2 (&tracking_area_update_request->mobilestationclassmark2, TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_2_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_mobile_station_classmark_2_ie (&tracking_area_update_request->mobilestationclassmark2, TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_2_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else
@@ -431,7 +435,7 @@ encode_tracking_area_update_request (
 
   if ((tracking_area_update_request->presencemask & TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_3_PRESENT)
       == TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_3_PRESENT) {
-    if ((encode_result = encode_mobile_station_classmark_3 (&tracking_area_update_request->mobilestationclassmark3, TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_3_IEI, buffer + encoded, len - encoded)) < 0)
+    if ((encode_result = encode_mobile_station_classmark_3_ie (&tracking_area_update_request->mobilestationclassmark3, TRACKING_AREA_UPDATE_REQUEST_MOBILE_STATION_CLASSMARK_3_IEI, buffer + encoded, len - encoded)) < 0)
       // Return in case of error
       return encode_result;
     else

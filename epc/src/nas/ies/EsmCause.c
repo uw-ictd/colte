@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "EsmCause.h"
 
-int
-decode_esm_cause (
-  EsmCause * esmcause,
+//------------------------------------------------------------------------------
+int decode_esm_cause (
+  esm_cause_t * esmcause,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -42,17 +44,14 @@ decode_esm_cause (
     decoded++;
   }
 
-  *esmcause = *(buffer + decoded);
+  *esmcause = (esm_cause_t)*(buffer + decoded);
   decoded++;
-#if NAS_DEBUG
-  dump_esm_cause_xml (esmcause, iei);
-#endif
   return decoded;
 }
 
-int
-encode_esm_cause (
-  EsmCause * esmcause,
+//------------------------------------------------------------------------------
+int encode_esm_cause (
+  esm_cause_t * esmcause,
   uint8_t iei,
   uint8_t * buffer,
   uint32_t len)
@@ -63,33 +62,14 @@ encode_esm_cause (
    * Checking IEI and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, ESM_CAUSE_MINIMUM_LENGTH, len);
-#if NAS_DEBUG
-  dump_esm_cause_xml (esmcause, iei);
-#endif
 
   if (iei > 0) {
     *buffer = iei;
     encoded++;
   }
 
-  *(buffer + encoded) = *esmcause;
+  *(buffer + encoded) = (uint8_t)*esmcause;
   encoded++;
   return encoded;
 }
 
-void
-dump_esm_cause_xml (
-  EsmCause * esmcause,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Esm Cause>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  OAILOG_DEBUG (LOG_NAS, "    <Cause value>%u</Cause value>\n", *esmcause);
-  OAILOG_DEBUG (LOG_NAS, "</Esm Cause>\n");
-}

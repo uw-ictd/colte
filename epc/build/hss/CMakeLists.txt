@@ -283,5 +283,5 @@ target_link_libraries (oai_hss
 
 # Default parameters
 # Does not work on simple install (fqdn in /etc/hosts 127.0.1.1)
-add_boolean_option(DAEMONIZE         false          "If true, HSS execute like a daemon (fork).")
-add_boolean_option(ENBRAINS         false          "If true, compile in the ENBRAINS module")  
+add_boolean_option(DAEMONIZE         false          "If true, HSS execute like a daemon (fork).")  
+

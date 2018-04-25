@@ -27,6 +27,12 @@
  * either expressed or implied, of the FreeBSD Project.
  */
 
+/*! \file pid_file.h
+   \brief
+   \author  Lionel GAUTHIER
+   \date 2016
+   \email: lionel.gauthier@eurecom.fr
+*/
 #ifndef FILE_PID_FILE_SEEN
 #define FILE_PID_FILE_SEEN
 #include <stdbool.h>

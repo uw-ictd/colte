@@ -22,14 +22,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "bstrlib.h"
 
 #include "TLVEncoder.h"
 #include "TLVDecoder.h"
 #include "Cli.h"
 
-int
-decode_cli (
+//------------------------------------------------------------------------------
+int decode_cli (
   Cli *cli,
   uint8_t iei,
   uint8_t * buffer,
@@ -56,8 +58,8 @@ decode_cli (
   return decoded;
 }
 
-int
-encode_cli (
+//------------------------------------------------------------------------------
+int encode_cli (
   Cli cli,
   uint8_t iei,
   uint8_t * buffer,
@@ -89,21 +91,3 @@ encode_cli (
   return encoded;
 }
 
-void
-dump_cli_xml (
-  Cli cli,
-  uint8_t iei)
-{
-  OAILOG_DEBUG (LOG_NAS, "<Cli>\n");
-
-  if (iei > 0)
-    /*
-     * Don't display IEI if = 0
-     */
-    OAILOG_DEBUG (LOG_NAS, "    <IEI>0x%X</IEI>\n", iei);
-
-  bstring b = dump_bstring_xml (cli);
-  OAILOG_DEBUG (LOG_NAS, "%s", bdata(b));
-  bdestroy(b);
-  OAILOG_DEBUG (LOG_NAS, "</Cli>\n");
-}

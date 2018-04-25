@@ -35,6 +35,7 @@
 #include "hss_config.h"
 #include "db_proto.h"
 #include "log.h"
+#include "s6a_proto.h"
 
 extern void                             ComputeOPc (
   const uint8_t const kP[16],
@@ -564,6 +565,8 @@ hss_mysql_auth_info (
       memcpy (auth_info_resp->opc, row[3], KEY_LENGTH);
     }
 
+  } else {
+    ret =  DIAMETER_ERROR_USER_UNKNOWN;
   }
 
   mysql_free_result (res);

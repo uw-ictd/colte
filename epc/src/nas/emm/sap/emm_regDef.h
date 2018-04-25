@@ -43,6 +43,8 @@ Description Defines the EMMREG Service Access Point that provides
 
 #include "common_types.h"
 #include "commonDef.h"
+#include "3gpp_36.401.h"
+#include "emm_fsm.h"
 #include <stdbool.h>
 
 /****************************************************************************/
@@ -56,10 +58,11 @@ typedef enum {
   _EMMREG_START = 0,
   _EMMREG_COMMON_PROC_REQ,    /* EMM common procedure requested   */
   _EMMREG_COMMON_PROC_CNF,    /* EMM common procedure successful  */
-  _EMMREG_COMMON_PROC_REJ,    /* EMM common procedure failed      */
-  _EMMREG_PROC_ABORT,         /* EMM procedure aborted            */
+  _EMMREG_COMMON_PROC_REJ,    /* EMM common procedure failed, CN send REJECT */
+  _EMMREG_COMMON_PROC_ABORT,  /* EMM common procedure aborted     */
   _EMMREG_ATTACH_CNF,         /* EPS network attach accepted      */
   _EMMREG_ATTACH_REJ,         /* EPS network attach rejected      */
+  _EMMREG_ATTACH_ABORT,       /* EPS network attach aborted      */
   _EMMREG_DETACH_INIT,        /* Network detach initiated         */
   _EMMREG_DETACH_REQ,         /* Network detach requested         */
   _EMMREG_DETACH_FAILED,      /* Network detach attempt failed    */
@@ -86,40 +89,100 @@ typedef enum {
  * EMMREG primitive for attach procedure
  * -------------------------------------
  */
-typedef struct {
+typedef struct emm_reg_attach_s {
   bool is_emergency;   /* true if the UE was attempting to register to
              * the network for emergency services only  */
+  struct nas_emm_attach_proc_s *proc;
 } emm_reg_attach_t;
+
+/*
+ * EMMREG primitive for attach procedure
+ * -------------------------------------
+ */
+typedef struct emm_reg_tau_s {
+  struct nas_emm_tau_proc_s *proc;
+} emm_reg_tau_t;
 
 /*
  * EMMREG primitive for detach procedure
  * -------------------------------------
  */
-typedef struct {
+typedef struct emm_reg_detach_s {
   bool switch_off; /* true if the UE is switched off       */
   int type;       /* Network detach type              */
 } emm_reg_detach_t;
+/*
+ * EMMREG primitive for service request procedure
+ * -------------------------------------
+ */
+typedef struct emm_reg_sr_s {
+  bool is_emergency;   /* true if the UE was attempting to register to
+             * the network for emergency services only  */
+  struct nas_sr_proc_s *proc;
+} emm_reg_sr_t;
 
 /*
  * EMMREG primitive for EMM common procedures
  * ------------------------------------------
  */
-typedef struct {
-  bool is_attached;    /* UE context attach indicator          */
+struct nas_emm_common_proc_s;
+typedef struct emm_reg_common_s {
+  emm_fsm_state_t               previous_emm_fsm_state;
+  struct nas_emm_common_proc_s *common_proc;
 } emm_reg_common_t;
+/*
+ * EMMREG primitive for Lower Layer success
+ * ------------------------------------------
+ */
+typedef struct emm_reg_ll_success_s {
+  uint64_t                      puid;
+  uint16_t                      msg_len;
+#define EMM_REG_MSG_DIGEST_SIZE 16
+  size_t                        digest_len;
+  uint8_t                       msg_digest[EMM_REG_MSG_DIGEST_SIZE];
+} emm_reg_ll_sucess_t;
+
+/*
+ * EMMREG primitive for Lower Layer failure
+ * ------------------------------------------
+ */
+typedef struct emm_reg_ll_failure_s {
+  emm_fsm_state_t               previous_emm_fsm_state;
+  size_t                        msg_len;
+  size_t                        digest_len;
+  uint8_t                       msg_digest[EMM_REG_MSG_DIGEST_SIZE];
+} emm_reg_ll_failure_t;
+
+/*
+ * EMMREG primitive for SDU non delivery due to HO
+ * ------------------------------------------
+ */
+typedef struct emm_reg_sdu_non_delivery_ho_s {
+  emm_fsm_state_t               previous_emm_fsm_state;
+  size_t                        msg_len;
+  size_t                        digest_len;
+  uint8_t                       msg_digest[EMM_REG_MSG_DIGEST_SIZE];
+} emm_reg_sdu_non_delivery_ho_t;
 
 /*
  * Structure of EMMREG-SAP primitive
  */
-typedef struct {
-  emm_reg_primitive_t primitive;
-  mme_ue_s1ap_id_t    ue_id;
-  void               *ctx;
+typedef struct emm_reg_s {
+  emm_reg_primitive_t    primitive;
+  mme_ue_s1ap_id_t       ue_id;
+  struct emm_context_s  *ctx;
+  bool                   notify; // notify through call-backs
+  bool                   free_proc;
 
   union {
-    emm_reg_attach_t    attach;
-    emm_reg_detach_t    detach;
-    emm_reg_common_t    common;
+    emm_reg_attach_t     attach;
+    emm_reg_detach_t     detach;
+    emm_reg_tau_t        tau;
+    emm_reg_sr_t         sr;
+    emm_reg_common_t     common;
+    emm_reg_ll_failure_t ll_failure;
+    emm_reg_ll_sucess_t  ll_success;
+    emm_reg_sdu_non_delivery_ho_t non_delivery_ho;
   } u;
 } emm_reg_t;
 
