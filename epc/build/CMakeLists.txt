@@ -551,6 +551,7 @@ add_library(S6A
   ${S6A_DIR}/s6a_subscription_data.c
   ${S6A_DIR}/s6a_task.c
   ${S6A_DIR}/s6a_up_loc.c
+  ${S6A_DIR}/s6a_can_loc.c
   )
 
 set(SGW_DIR ${OPENAIRCN_DIR}/src/sgw)
@@ -589,6 +590,8 @@ add_library(MME_APP
   ${MME_DIR}/mme_app_transport.c
   ${MME_DIR}/mme_app_ue_context.c
   ${MME_DIR}/mme_config.c
+# SMS CLR
+  ${MME_DIR}/mme_app_cancel.c
   )
 
 

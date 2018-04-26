@@ -110,18 +110,27 @@ s6a_fd_init_dict_objs (
    * Register callbacks
    */
   memset (&when, 0, sizeof (when));
-  when.command = s6a_fd_cnf.dataobj_s6a_ula;
-  when.app = s6a_fd_cnf.dataobj_s6a_app;
   /*
    * Register the callback for Update Location Answer S6A Application
    */
+  when.command = s6a_fd_cnf.dataobj_s6a_ula;
+  when.app = s6a_fd_cnf.dataobj_s6a_app;
   CHECK_FD_FCT (fd_disp_register (s6a_ula_cb, DISP_HOW_CC, &when, NULL, &s6a_fd_cnf.ula_hdl));
   DevAssert (s6a_fd_cnf.ula_hdl );
-  when.command = s6a_fd_cnf.dataobj_s6a_aia;
+
+  /*
+   * SMS CLR: Register the callback for Cancel Location Request S6A Application
+   */
+  when.command = s6a_fd_cnf.dataobj_s6a_clr;
   when.app = s6a_fd_cnf.dataobj_s6a_app;
+  CHECK_FD_FCT (fd_disp_register (s6a_clr_cb, DISP_HOW_CC, &when, NULL, &s6a_fd_cnf.clr_hdl));
+  DevAssert (s6a_fd_cnf.clr_hdl );
+
   /*
    * Register the callback for Authentication Information Answer S6A Application
    */
+  when.command = s6a_fd_cnf.dataobj_s6a_aia;
+  when.app = s6a_fd_cnf.dataobj_s6a_app;
   CHECK_FD_FCT (fd_disp_register (s6a_aia_cb, DISP_HOW_CC, &when, NULL, &s6a_fd_cnf.aia_hdl));
   DevAssert (s6a_fd_cnf.aia_hdl );
   /*
