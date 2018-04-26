@@ -38,3 +38,6 @@ MESSAGE_DEF(S6A_UPDATE_LOCATION_REQ, MESSAGE_PRIORITY_MED,      s6a_update_locat
 MESSAGE_DEF(S6A_UPDATE_LOCATION_ANS, MESSAGE_PRIORITY_MED,      s6a_update_location_ans_t, s6a_update_location_ans)
 MESSAGE_DEF(S6A_AUTH_INFO_REQ, MESSAGE_PRIORITY_MED,            s6a_auth_info_req_t, s6a_auth_info_req)
 MESSAGE_DEF(S6A_AUTH_INFO_ANS, MESSAGE_PRIORITY_MED,            s6a_auth_info_ans_t, s6a_auth_info_ans)
+/* SMS CLR */
+MESSAGE_DEF(S6A_CANCEL_LOCATION_REQ, MESSAGE_PRIORITY_MED,      s6a_cancel_location_req_t, s6a_cancel_location_req)
+MESSAGE_DEF(S6A_CANCEL_LOCATION_ANS, MESSAGE_PRIORITY_MED,      s6a_cancel_location_ans_t, s6a_cancel_location_ans)
