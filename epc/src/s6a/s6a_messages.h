@@ -37,6 +37,11 @@ int s6a_ula_cb(struct msg **msg, struct avp *paramavp,
 int s6a_aia_cb(struct msg **msg, struct avp *paramavp,
                struct session *sess, void *opaque,
                enum disp_action *act);
+/* SMS CLR */
+int s6a_clr_cb(struct msg **msg, struct avp *paramavp,
+               struct session *sess, void *opaque,
+               enum disp_action *act);
+int s6a_generate_cancel_location(s6a_cancel_location_ans_t *ulr_p);
 
 int s6a_parse_subscription_data(struct avp *avp_subscription_data,
                                 subscription_data_t *subscription_data);
