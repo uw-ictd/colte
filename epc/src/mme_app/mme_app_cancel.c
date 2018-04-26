@@ -55,6 +55,7 @@ int mme_app_send_s6a_cancel_location_ans (
   struct ue_mm_context_s *const ue_mm_context)
 {
   OAILOG_DEBUG (LOG_MME_APP, "SMS CLR: SENDING CANCEL LOCATION ANSWER\n");
+  return 0;
 }
 //   OAILOG_FUNC_IN (LOG_MME_APP);
 //   MessageDef                             *message_p = NULL;
@@ -95,9 +96,10 @@ int mme_app_send_s6a_cancel_location_ans (
 
 //------------------------------------------------------------------------------
 int mme_app_handle_s6a_cancel_location_req (
-  const s6a_update_location_ans_t * const ula_pP)
+  const s6a_cancel_location_req_t * const ula_pP)
 {
   OAILOG_DEBUG (LOG_MME_APP, "SMS CLR: HANDLING CANCEL LOCATION REQUEST\n");
+  return 0;
 }
   // OAILOG_FUNC_IN (LOG_MME_APP);
   // uint64_t                                imsi64 = 0;

@@ -1,3 +1,24 @@
+/* SMS CLR */
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <pthread.h>
+
+#include "bstrlib.h"
+
+#include "dynamic_memory_check.h"
+#include "hashtable.h"
+#include "obj_hashtable.h"
+#include "log.h"
+#include "msc.h"
+#include "assertions.h"
+#include "conversions.h"
+#include "intertask_interface.h"
+#include "common_defs.h"
+#include "s6a_defs.h"
+#include "s6a_messages_types.h"
+#include "mme_config.h"
+	
 int
 s6a_clr_cb (
   struct msg **msg_pP,
@@ -7,6 +28,7 @@ s6a_clr_cb (
   enum disp_action *act_pP)
 {
   OAILOG_DEBUG (LOG_S6A, "SMS CLR: s6a_clr_cb callback entered\n");
+  return 0;
 }
 //   struct msg                             *ans_p = NULL;
 //   struct msg                             *qry_p = NULL;
@@ -123,6 +145,7 @@ s6a_generate_cancel_location (
   s6a_cancel_location_ans_t * ulr_pP)
 {
   OAILOG_DEBUG (LOG_S6A, "SMS CLR: s6a_generate_cancel_location\n");
+  return 0;
 }  
 //   struct avp                             *avp_p = NULL;
 //   struct msg                             *msg_p = NULL;
