@@ -4,6 +4,8 @@
 #include "hss_config.h"
 #include "db_proto.h"
 #include "s6a_proto.h"
+#include "bstrlib.h"
+#include "log.h"
 
 //   char       imsi[IMSI_BCD_DIGITS_MAX + 1]; // username
   // uint8_t    imsi_length;               // username
@@ -16,10 +18,21 @@ s6a_generate_cancel_location_req (char *imsi)
   struct session                         *sess_p = NULL;
   union avp_value                         value;
 
+  /* SMS CLR TODO: ALL THIS IS JUST HARD-CODED!!! */
+  /* SMS CLR TODO: should this value actually be "colte"??? Possible bug??? */
+  bstring dst_host = bfromcstr("mme");
+  // bstring src_host = bfromcstr("hss");
+  bstring realm = bfromcstr("OpenAir5G.Alliance");
+
   /*
    * Create the new update location request message
    */
-  CHECK_FCT (fd_msg_new (s6a_fd_cnf.dataobj_s6a_clr, 0, &msg_p));
+
+  // CHECK_FCT (fd_msg_new (s6a_fd_cnf.dataobj_s6a_clr, 0, &msg_p));
+  struct dict_object *dataobj_s6a_clr;
+  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_COMMAND, CMD_BY_NAME, "Cancel-Location-Request", &dataobj_s6a_clr, ENOENT));
+  CHECK_FCT (fd_msg_new (dataobj_s6a_clr, 0, &msg_p));
+
   /*
    * Create a new session
    */
@@ -50,27 +63,26 @@ s6a_generate_cancel_location_req (char *imsi)
    * Destination Host
    */
   {
-    bstring                                 host = bstrcpy(mme_config.s6a_config.hss_host_name);
-
-    bconchar(host, '.');
-    bconcat (host, mme_config.realm);
+    bconchar(dst_host, '.');
+    bconcat (dst_host, realm);
 
     CHECK_FCT (fd_msg_avp_new (s6a_fd_cnf.dataobj_s6a_destination_host, 0, &avp_p));
-    value.os.data = (unsigned char *)bdata(host);
-    value.os.len = blength(host);
+    value.os.data = (unsigned char *)bdata(dst_host);
+    value.os.len = blength(dst_host);
     CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
     CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_LAST_CHILD, avp_p));
-    bdestroy_wrapper (&host);
+    bdestroy(dst_host);
   }
   /*
    * Destination_Realm
    */
   {
     CHECK_FCT (fd_msg_avp_new (s6a_fd_cnf.dataobj_s6a_destination_realm, 0, &avp_p));
-    value.os.data = (unsigned char *)bdata(mme_config.realm);
-    value.os.len = blength(mme_config.realm);
+    value.os.data = (unsigned char *)bdata(realm);
+    value.os.len = blength(realm);
     CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
     CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_LAST_CHILD, avp_p));
+    bdestroy(realm);
   }
   /*
    * Adding the User-Name (IMSI)
@@ -84,7 +96,7 @@ s6a_generate_cancel_location_req (char *imsi)
 
   CHECK_FCT (fd_msg_avp_new (s6a_fd_cnf.dataobj_s6a_cancel_type, 0, &avp_p));
 /* SMS CLR: WHAT VAL SHOULD THIS ACTUALLY BE?!? AND WHAT FORMAT?!? */
-  value.i32 = 1;  
+  value.i32 = 2;
   CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
   CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_LAST_CHILD, avp_p));
 
