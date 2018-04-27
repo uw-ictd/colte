@@ -123,6 +123,7 @@ typedef struct {
   struct dict_object *dataobj_s6a_apn_configuration_profile;
   struct dict_object *dataobj_s6a_subscribed_rau_tau_timer;
   struct dict_object *dataobj_s6a_context_identifier;
+  struct dict_object *dataobj_s6a_cancel_type;
   /* All-APN-Configurations-Included-Indicator */
   struct dict_object *dataobj_s6a_all_apn_conf_inc_ind;
   struct dict_object *dataobj_s6a_apn_configuration;
