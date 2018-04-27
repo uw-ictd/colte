@@ -134,4 +134,5 @@ s6a_cancel_loc_ans_cb (
   enum disp_action *act)
 {
   FPRINTF_ERROR("SMS CLR: Received S6A Cancel Location Answer\n");
+  return 0;
 }
