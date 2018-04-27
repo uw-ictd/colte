@@ -108,6 +108,8 @@ typedef struct {
   struct dict_object *dataobj_s6a_re_synchronization_info;
   struct dict_object *dataobj_s6a_service_selection;
   struct dict_object *dataobj_s6a_ue_srvcc_cap;
+  /* SMS CLR */
+  struct dict_object *dataobj_s6a_cancel_type;
 
   /* Handlers */
   struct disp_hdl *aia_hdl;   /* Authentication Information Answer Handle */
@@ -269,6 +271,8 @@ fd_init_dict_objs (
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Re-Synchronization-Info", &s6a_fd_cnf.dataobj_s6a_re_synchronization_info, ENOENT));
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Service-Selection", &s6a_fd_cnf.dataobj_s6a_service_selection, ENOENT));
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "UE-SRVCC-Capability", &s6a_fd_cnf.dataobj_s6a_ue_srvcc_cap, ENOENT));
+  /* SMS CLR */
+  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Cancellation-Type", &s6a_fd_cnf.dataobj_s6a_cancel_type, ENOENT));
   /*
    * Register callbacks
    */

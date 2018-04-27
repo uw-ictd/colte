@@ -111,6 +111,8 @@ typedef struct {
   struct dict_object *dataobj_s6a_re_synchronization_info;
   struct dict_object *dataobj_s6a_service_selection;
   struct dict_object *dataobj_s6a_ue_srvcc_cap;
+  /* SMS CLR */
+  struct dict_object *dataobj_s6a_cancel_type;
 
   /* Handlers */
   struct disp_hdl *aia_hdl;   /* Authentication Information Answer Handle */
