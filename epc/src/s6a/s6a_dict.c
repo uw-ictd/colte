@@ -91,6 +91,8 @@ s6a_fd_init_dict_objs (
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Auth-Session-State", &s6a_fd_cnf.dataobj_s6a_auth_session_state, ENOENT));
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Result-Code", &s6a_fd_cnf.dataobj_s6a_result_code, ENOENT));
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Experimental-Result", &s6a_fd_cnf.dataobj_s6a_experimental_result, ENOENT));
+  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Vendor-Id", &s6a_fd_cnf.dataobj_s6a_vendor_id, ENOENT));
+  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Experimental-Result-Code", &s6a_fd_cnf.dataobj_s6a_experimental_result_code, ENOENT));
   /*
    * Pre-loading S6A specifics AVPs
    */
@@ -107,6 +109,8 @@ s6a_fd_init_dict_objs (
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Service-Selection", &s6a_fd_cnf.dataobj_s6a_service_selection, ENOENT));
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "UE-SRVCC-Capability", &s6a_fd_cnf.dataobj_s6a_ue_srvcc_cap, ENOENT));
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Cancellation-Type", &s6a_fd_cnf.dataobj_s6a_cancel_type, ENOENT));
+
+
   /*
    * Register callbacks
    */
