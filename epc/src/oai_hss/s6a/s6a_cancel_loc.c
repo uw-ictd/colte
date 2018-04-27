@@ -133,6 +133,80 @@ s6a_cancel_loc_ans_cb (
   void *opaque,
   enum disp_action *act)
 {
+  struct msg                             *ans_p = NULL;
+  struct msg                             *qry_p = NULL;
+  struct avp                             *avp_p = NULL;
+  struct avp_hdr                         *hdr_p = NULL;
+  // MessageDef                             *message_p = NULL;
+  // s6a_update_location_ans_t              *s6a_update_location_ans_p = NULL;
+
+  ans_p = *msg;
+
+  /*
+   * Retrieve the original query associated with the asnwer
+   */
+  CHECK_FCT (fd_msg_answ_getq (ans_p, &qry_p));
+  // message_p = itti_alloc_new_message (TASK_S6A, S6A_UPDATE_LOCATION_ANS);
+  // s6a_update_location_ans_p = &message_p->ittiMsg.s6a_update_location_ans;
+
+  /* Get the IMSI out of the answer */
+  // CHECK_FCT (fd_msg_search_avp (qry_p, s6a_cnf.dataobj_s6a_user_name, &avp_p));
+  // if (avp_p) {
+  //   CHECK_FCT (fd_msg_avp_hdr (avp_p, &hdr_p));
+  //   memcpy (s6a_update_location_ans_p->imsi, hdr_p->avp_value->os.data, hdr_p->avp_value->os.len);
+  //   s6a_update_location_ans_p->imsi[hdr_p->avp_value->os.len] = '\0';
+  //   s6a_update_location_ans_p->imsi_length = hdr_p->avp_value->os.len;
+  //   OAILOG_DEBUG (LOG_S6A, "Received s6a ula for imsi=%*s\n", (int)hdr_p->avp_value->os.len, hdr_p->avp_value->os.data);
+  // } else {
+  //   DevMessage ("Query has been freed before we received the answer\n");
+  // }
+
+  /*
+   * Retrieve the result-code
+   */
+  CHECK_FCT (fd_msg_search_avp (ans_p, s6a_cnf.dataobj_s6a_result_code, &avp_p));
+  if (avp_p) {
+    CHECK_FCT (fd_msg_avp_hdr (avp_p, &hdr_p));
+    // s6a_update_location_ans_p->result.present = S6A_RESULT_BASE;
+    // s6a_update_location_ans_p->result.choice.base = hdr_p->avp_value->u32;
+    // MSC_LOG_TX_MESSAGE (MSC_S6A_MME, MSC_MMEAPP_MME, NULL, 0, "0 S6A_UPDATE_LOCATION_ANS imsi %s %s", s6a_update_location_ans_p->imsi, retcode_2_string (hdr_p->avp_value->u32));
+
+    if (hdr_p->avp_value->u32 != ER_DIAMETER_SUCCESS) {
+      FPRINTF_ERROR ("Got error %u:%s\n", hdr_p->avp_value->u32, retcode_2_string (hdr_p->avp_value->u32));
+      goto err;
+    }
+  }
+  // } else {
+  //   /*
+  //    * The result-code is not present, may be it is an experimental result
+  //    * * * * avp_p indicating a 3GPP specific failure.
+  //    */
+  //   CHECK_FCT (fd_msg_search_avp (ans_p, s6a_fd_cnf.dataobj_s6a_experimental_result, &avp_p));
+
+  //   if (avp_p) {
+      
+  //      * The procedure has failed within the HSS.
+  //      * * * * NOTE: contrary to result-code, the experimental-result is a grouped
+  //      * * * * AVP and requires parsing its childs to get the code back.
+       
+  //     s6a_update_location_ans_p->result.present = S6A_RESULT_EXPERIMENTAL;
+  //     s6a_parse_experimental_result (avp_p, &s6a_update_location_ans_p->result.choice.experimental);
+  //     goto err;
+  //   } else {
+  //     /*
+  //      * Neither result-code nor experimental-result is present ->
+  //      * * * * totally incorrect behaviour here.
+  //      */
+  //     OAILOG_ERROR (LOG_S6A, "Experimental-Result and Result-Code are absent: " "This is not a correct behaviour\n");
+  //     goto err;
+  //   }
+  // }
+err:
+//   ans_p = NULL;
+//   itti_send_msg_to_task (TASK_MME_APP, INSTANCE_DEFAULT, message_p);
+//   OAILOG_DEBUG (LOG_S6A, "Sending S6A_UPDATE_LOCATION_ANS to task MME_APP\n");
+//   return RETURNok;
+
   FPRINTF_ERROR("SMS CLR: Received S6A Cancel Location Answer\n");
   return 0;
 }
