@@ -20,7 +20,7 @@ s6a_generate_cancel_location_req (char *imsi)
 
   /* SMS CLR TODO: ALL THIS IS JUST HARD-CODED!!! */
   /* SMS CLR TODO: should this value actually be "colte"??? Possible bug??? */
-  bstring dst_host = bfromcstr("mme");
+  bstring dst_host = bfromcstr("colte");
   // bstring src_host = bfromcstr("hss");
   bstring realm = bfromcstr("OpenAir5G.Alliance");
 
@@ -62,6 +62,7 @@ s6a_generate_cancel_location_req (char *imsi)
     CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
     CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_FIRST_CHILD, avp_p));
   }
+
   CHECK_FCT (fd_msg_avp_new (dataobj_s6a_auth_session_state, 0, &avp_p));
   /*
    * No State maintained
@@ -73,6 +74,7 @@ s6a_generate_cancel_location_req (char *imsi)
    * Add Origin_Host & Origin_Realm
    */
   CHECK_FCT (fd_msg_add_origin (msg_p, 0));
+
   /*
    * Destination Host
    */
@@ -90,6 +92,7 @@ s6a_generate_cancel_location_req (char *imsi)
   /*
    * Destination_Realm
    */
+
   {
     CHECK_FCT (fd_msg_avp_new (dataobj_s6a_destination_realm, 0, &avp_p));
     value.os.data = (unsigned char *)bdata(realm);
@@ -98,6 +101,7 @@ s6a_generate_cancel_location_req (char *imsi)
     CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_LAST_CHILD, avp_p));
     bdestroy(realm);
   }
+
   /*
    * Adding the User-Name (IMSI)
    */
@@ -114,8 +118,6 @@ s6a_generate_cancel_location_req (char *imsi)
   CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
   CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_LAST_CHILD, avp_p));
 
-  CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
-  CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_LAST_CHILD, avp_p));
   CHECK_FCT (fd_msg_send (&msg_p, NULL, NULL));
 
   FPRINTF_ERROR("SMS CLR: Sending S6A Cancel Location Request for imsi=%s\n", imsi);
