@@ -97,6 +97,9 @@ typedef struct {
   struct dict_object *dataobj_s6a_auth_session_state;
   struct dict_object *dataobj_s6a_result_code;
   struct dict_object *dataobj_s6a_experimental_result;
+  /* SMS CLR */
+  struct dict_object *dataobj_s6a_vendor_id;
+  struct dict_object *dataobj_s6a_experimental_result_code;
 
   /* S6A specific AVPs */
   struct dict_object *dataobj_s6a_visited_plmn_id;
