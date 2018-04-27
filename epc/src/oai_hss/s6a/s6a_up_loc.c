@@ -136,6 +136,8 @@ s6a_up_loc_cb (
     goto out;
   }
 
+// SMS CLR REMOVE: REALLY THRU HERE
+
   /*
    * Retrieve the header from origin host and realm avps
    */

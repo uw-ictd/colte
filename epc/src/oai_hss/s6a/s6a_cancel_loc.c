@@ -124,3 +124,14 @@ s6a_generate_cancel_location_req (char *imsi)
 
   return 0;
 }
+
+int
+s6a_cancel_loc_ans_cb (
+  struct msg **msg,
+  struct avp *paramavp,
+  struct session *sess,
+  void *opaque,
+  enum disp_action *act)
+{
+  FPRINTF_ERROR("SMS CLR: Received S6A Cancel Location Answer\n");
+}
