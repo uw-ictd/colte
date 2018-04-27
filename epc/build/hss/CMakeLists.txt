@@ -282,6 +282,7 @@ target_link_libraries (oai_hss
                        hss_utils
                        -Wl,-no-whole-archive
                        gmp
+                       BSTR
                        ${MySQL_LIBRARY} 
                        ${NETTLE_LIBRARIES} 
                        ${FREEDIAMETER_LIBRARIES}
