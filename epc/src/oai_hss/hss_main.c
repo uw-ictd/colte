@@ -118,7 +118,9 @@ main (
     /*
      * TODO: handle signals here
      */
-    sleep (1);
+    sleep (10);
+    // char imsi[15] = "910540000009999";
+    s6a_generate_cancel_location_req("910540000009999");
   }
 
   pid_file_unlock();
