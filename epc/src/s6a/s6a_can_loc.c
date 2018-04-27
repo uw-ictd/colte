@@ -32,12 +32,12 @@ s6a_add_result_code (
   if (DIAMETER_ERROR_IS_VENDOR (result_code) && experimental != 0) {
     struct avp                             *experimental_result;
 
-    CHECK_FCT (fd_msg_avp_new (s6a_cnf.dataobj_s6a_experimental_result, 0, &experimental_result));
-    CHECK_FCT (fd_msg_avp_new (s6a_cnf.dataobj_s6a_vendor_id, 0, &avp));
+    CHECK_FCT (fd_msg_avp_new (s6a_fd_cnf.dataobj_s6a_experimental_result, 0, &experimental_result));
+    CHECK_FCT (fd_msg_avp_new (s6a_fd_cnf.dataobj_s6a_vendor_id, 0, &avp));
     value.u32 = VENDOR_3GPP;
     CHECK_FCT (fd_msg_avp_setvalue (avp, &value));
     CHECK_FCT (fd_msg_avp_add (experimental_result, MSG_BRW_LAST_CHILD, avp));
-    CHECK_FCT (fd_msg_avp_new (s6a_cnf.dataobj_s6a_experimental_result_code, 0, &avp));
+    CHECK_FCT (fd_msg_avp_new (s6a_fd_cnf.dataobj_s6a_experimental_result_code, 0, &avp));
     value.u32 = result_code;
     CHECK_FCT (fd_msg_avp_setvalue (avp, &value));
     CHECK_FCT (fd_msg_avp_add (experimental_result, MSG_BRW_LAST_CHILD, avp));
