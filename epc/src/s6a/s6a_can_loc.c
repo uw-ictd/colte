@@ -21,28 +21,26 @@
 	
 int
 s6a_clr_cb (
-  struct msg **msg_pP,
-  struct avp *paramavp_pP,
-  struct session *sess_pP,
-  void *opaque_pP,
-  enum disp_action *act_pP)
+  struct msg **msg,
+  struct avp *paramvp,
+  struct session *sess,
+  void *opaque,
+  enum disp_action *act)
 {
   struct msg                             *ans,
                                          *qry;
-  struct avp                             *avp,
-                                         *origin_host,
-                                         *origin_realm;
+  struct avp                             *avp;
+//                                         *origin_host,
+//                                         *origin_realm;
   struct avp                             *failed_avp = NULL;
-  struct avp_hdr                         *origin_host_hdr,
-                                         *origin_realm_hdr;
+//  struct avp_hdr                         *origin_host_hdr,
+//                                         *origin_realm_hdr;
   struct avp_hdr                         *hdr;
-  union avp_value                         value;
-  int                                     ret = 0;
+//  union avp_value                         value;
+//  int                                     ret = 0;
   int                                     result_code = ER_DIAMETER_SUCCESS;
   int                                     experimental = 0;
-  uint32_t                                ulr_flags = 0;
-  mysql_ul_ans_t                          mysql_ans;
-  mysql_ul_push_t                         mysql_push;
+//  uint32_t                                ulr_flags = 0;
 
   if (msg == NULL) {
     return EINVAL;
