@@ -36,13 +36,13 @@ s6a_generate_cancel_location_req (char *imsi)
   struct dict_object *dataobj_s6a_user_name;
   struct dict_object *dataobj_s6a_cancel_type;
 
-  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_COMMAND, CMD_BY_NAME, "Cancel-Location-Request", &dataobj_s6a_clr, ENOENT));
-  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Session-Id", &dataobj_s6a_session_id, ENOENT));
-  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Auth-Session-State", &dataobj_s6a_auth_session_state, ENOENT));
-  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Destination-Host", &dataobj_s6a_destination_host, ENOENT));
-  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Destination-Realm", &dataobj_s6a_destination_realm, ENOENT));
-  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "User-Name", &dataobj_s6a_user_name, ENOENT));
-  CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Cancellation-Type", &dataobj_s6a_cancel_type, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_COMMAND, CMD_BY_NAME, "Cancel-Location-Request", &dataobj_s6a_clr, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Session-Id", &dataobj_s6a_session_id, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Auth-Session-State", &dataobj_s6a_auth_session_state, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Destination-Host", &dataobj_s6a_destination_host, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Destination-Realm", &dataobj_s6a_destination_realm, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "User-Name", &dataobj_s6a_user_name, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Cancellation-Type", &dataobj_s6a_cancel_type, ENOENT));
 
   /*
    * Create the new update location request message
