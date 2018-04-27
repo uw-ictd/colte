@@ -229,4 +229,7 @@ int s6a_add_ipv6_address(struct avp *avp, const char *ipv6_addr);
 char *experimental_retcode_2_string(int ret_code);
 char *retcode_2_string(int ret_code);
 
+/* SMS CLR */
+int s6a_generate_cancel_location_req (char *imsi);
+
 #endif /* S6A_PROTO_H_ */
