@@ -7,8 +7,6 @@
 #include "bstrlib.h"
 #include "log.h"
 
-#define CHECK_FD_FCT(fCT)  DevAssert(fCT == 0);
-
 //   char       imsi[IMSI_BCD_DIGITS_MAX + 1]; // username
   // uint8_t    imsi_length;               // username
 
