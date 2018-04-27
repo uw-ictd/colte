@@ -46,7 +46,6 @@ s6a_generate_cancel_location_req (char *imsi)
    * Add Origin_Host & Origin_Realm
    */
   CHECK_FCT (fd_msg_add_origin (msg_p, 0));
-  mme_config_read_lock (&mme_config);
   /*
    * Destination Host
    */
@@ -73,7 +72,6 @@ s6a_generate_cancel_location_req (char *imsi)
     CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
     CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_LAST_CHILD, avp_p));
   }
-  mme_config_unlock (&mme_config);
   /*
    * Adding the User-Name (IMSI)
    */
@@ -93,5 +91,8 @@ s6a_generate_cancel_location_req (char *imsi)
   CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
   CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_LAST_CHILD, avp_p));
   CHECK_FCT (fd_msg_send (&msg_p, NULL, NULL));
-  OAILOG_DEBUG (LOG_S6A, "SMS CLR: Sending S6A Cancel Location Request for imsi=%s\n", imsi);
-  return RETURNok;
+
+  FPRINTF_ERROR("SMS CLR: Sending S6A Cancel Location Request for imsi=%s\n", imsi);
+
+  return 0;
+}
