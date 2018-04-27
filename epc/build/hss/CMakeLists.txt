@@ -245,7 +245,13 @@ target_include_directories(hss_s6a PRIVATE ${FREEDIAMETER_INCLUDE_DIR})
 
 set(UTILS_GENERATED_DIR ${OPENAIR_BIN_DIR})
 
-
+add_library(BSTR
+  ${OPENAIRCN_DIR}/src/utils/bstr/bstraux.c
+  ${OPENAIRCN_DIR}/src/utils/bstr/bstrlib.c
+  ${OPENAIRCN_DIR}/src/utils/bstr/buniutil.c
+  ${OPENAIRCN_DIR}/src/utils/bstr/utf8util.c
+)
+include_directories(${OPENAIRCN_DIR}/src/utils/bstr)
 
 set(utils_SRC
     ${OAI_HSS_DIR}/utils/conversion.c
