@@ -231,5 +231,7 @@ char *retcode_2_string(int ret_code);
 
 /* SMS CLR */
 int s6a_generate_cancel_location_req (char *imsi);
-
+int s6a_cancel_loc_ans_cb(struct msg **msg, struct avp *paramavp,
+                  struct session *sess, void *opaque,
+                  enum disp_action *act);
 #endif /* S6A_PROTO_H_ */

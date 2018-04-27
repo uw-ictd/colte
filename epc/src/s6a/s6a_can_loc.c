@@ -27,9 +27,118 @@ s6a_clr_cb (
   void *opaque_pP,
   enum disp_action *act_pP)
 {
-  OAILOG_DEBUG (LOG_S6A, "SMS CLR: s6a_clr_cb callback entered\n");
+  struct msg                             *ans,
+                                         *qry;
+  struct avp                             *avp,
+                                         *origin_host,
+                                         *origin_realm;
+  struct avp                             *failed_avp = NULL;
+  struct avp_hdr                         *origin_host_hdr,
+                                         *origin_realm_hdr;
+  struct avp_hdr                         *hdr;
+  union avp_value                         value;
+  int                                     ret = 0;
+  int                                     result_code = ER_DIAMETER_SUCCESS;
+  int                                     experimental = 0;
+  uint32_t                                ulr_flags = 0;
+  mysql_ul_ans_t                          mysql_ans;
+  mysql_ul_push_t                         mysql_push;
+
+  if (msg == NULL) {
+    return EINVAL;
+  }
+
+  OAILOG_DEBUG (LOG_S6A, "SMS CLR: Received Cancel Location Request\n");
+  qry = *msg;
+  /*
+   * Create the answer
+   */
+  CHECK_FCT (fd_msg_new_answer_from_req (fd_g_config->cnf_dict, msg, 0));
+  ans = *msg;
+
+  /*
+   * Add the Auth-Session-State AVP
+   */
+  CHECK_FCT (fd_msg_search_avp (qry, s6a_fd_cnf.dataobj_s6a_auth_session_state, &avp));
+  CHECK_FCT (fd_msg_avp_hdr (avp, &hdr));
+  CHECK_FCT (fd_msg_avp_new (s6a_fd_cnf.dataobj_s6a_auth_session_state, 0, &avp));
+  CHECK_FCT (fd_msg_avp_setvalue (avp, hdr->avp_value));
+  CHECK_FCT (fd_msg_avp_add (ans, MSG_BRW_LAST_CHILD, avp));
+  /*
+   * Append the result code to the answer
+   */
+  CHECK_FCT (s6a_add_result_code (ans, failed_avp, result_code, experimental));
+  CHECK_FCT (fd_msg_send (msg, NULL, NULL));
   return 0;
 }
+
+
+  /* SMS CLR: The following code parses/validates IMSI - do we need to? */
+  /*
+   * Retrieving IMSI AVP
+   */
+  // CHECK_FCT (fd_msg_search_avp (qry, s6a_fd_cnf.dataobj_s6a_imsi, &avp));
+  // if (avp) {
+  //   CHECK_FCT (fd_msg_avp_hdr (avp, &hdr));
+
+  //   if (hdr->avp_value->os.len > IMSI_LENGTH) {
+  //     FPRINTF_NOTICE ( "IMSI_LENGTH ER_DIAMETER_INVALID_AVP_VALUE\n");
+  //     result_code = ER_DIAMETER_INVALID_AVP_VALUE;
+  //     goto out;
+  //   }
+  //   // 3GPP TS 29.272-910 / 5.2.1.1.3 Detailed behaviour of the HSS
+  //   // When receiving an Update Location request the HSS shall check whether the IMSI is known.
+  //   // If it is not known, a Result Code of DIAMETER_ERROR_USER_UNKNOWN shall be returned.
+  //   // If it is known, but the subscriber has no EPS subscription, the HSS may (as an operator option)
+  //   //     return a Result Code of DIAMETER_ERROR_UNKNOWN_EPS_SUBSCRIPTION.
+  //   // If the Update Location Request is received over the S6a interface, and the subscriber has not
+  //   //     any APN configuration, the HSS shall return a Result Code of DIAMETER_ERROR_UNKNOWN_EPS_SUBSCRIPTION.
+  //   // The HSS shall check whether the RAT type the UE is using  is allowed. If it is not,
+  //   //     a Result Code of DIAMETER_ERROR_RAT_NOT_ALLOWED shall be returned.
+  //   // ...
+  //   sprintf (mysql_push.imsi, "%*s", (int)hdr->avp_value->os.len, (char *)hdr->avp_value->os.data);
+
+  //   if ((ret = hss_mysql_update_loc (mysql_push.imsi, &mysql_ans)) != 0) {
+  //     /*
+  //      * We failed to find the IMSI in the database. Replying to the request
+  //      * * * * with the user unknown cause.
+  //      */
+  //     experimental = 1;
+  //     FPRINTF_NOTICE ( "IMSI %s DIAMETER_ERROR_USER_UNKNOWN\n", mysql_push.imsi);
+  //     result_code = DIAMETER_ERROR_USER_UNKNOWN;
+  //     goto out;
+  //   }
+  // } else {
+  //   FPRINTF_ERROR ( "Cannot get IMSI AVP which is mandatory\n");
+  //   result_code = ER_DIAMETER_MISSING_AVP;
+  //   goto out;
+  // }
+
+  /*
+   * Retrieving Origin host AVP
+   */
+  // CHECK_FCT (fd_msg_search_avp (qry, s6a_fd_cnf.dataobj_s6a_origin_host, &origin_host));
+  // if (!origin_host) {
+  //   FPRINTF_ERROR ( "origin_host ER_DIAMETER_MISSING_AVP\n");
+  //   result_code = ER_DIAMETER_MISSING_AVP;
+  //   goto out;
+  // }
+
+  
+  //  * Retrieving Origin realm AVP
+   
+  // CHECK_FCT (fd_msg_search_avp (qry, s6a_fd_cnf.dataobj_s6a_origin_realm, &origin_realm));
+  // if (!origin_realm) {
+  //   FPRINTF_ERROR ( "origin_realm ER_DIAMETER_MISSING_AVP\n");
+  //   result_code = ER_DIAMETER_MISSING_AVP;
+  //   goto out;
+  // }
+
+
+
+
+
+
 //   struct msg                             *ans_p = NULL;
 //   struct msg                             *qry_p = NULL;
 //   struct avp                             *avp_p = NULL;
