@@ -86,16 +86,17 @@ typedef struct s6a_update_location_ans_s {
 
 /* SMS CLR */
 typedef struct s6a_cancel_location_req_s {
-#define SKIP_SUBSCRIBER_DATA (0x1)
-  unsigned skip_subscriber_data:1;
-#define INITIAL_ATTACH       (0x1)
-  unsigned initial_attach:1;
+// #define SKIP_SUBSCRIBER_DATA (0x1)
+//   unsigned skip_subscriber_data:1;
+// #define INITIAL_ATTACH       (0x1)
+//   unsigned initial_attach:1;
 
   char       imsi[IMSI_BCD_DIGITS_MAX + 1]; // username
   uint8_t    imsi_length;               // username
+  imsi64_t   imsi64;
 
-  plmn_t     visited_plmn;              // visited plmn id
-  rat_type_t rat_type;                  // rat type
+  // plmn_t     visited_plmn;              // visited plmn id
+  // rat_type_t rat_type;                  // rat type
 
   // missing                           // origin host
   // missing                           // origin realm

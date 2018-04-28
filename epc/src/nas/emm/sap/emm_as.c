@@ -1148,6 +1148,10 @@ static int _emm_as_data_req (const emm_as_data_t * msg, dl_info_transfer_req_t *
       size = emm_send_detach_accept (msg, &emm_msg->detach_accept);
       break;
 
+    case EMM_AS_NAS_DATA_DETACH_REQUEST:
+      size = emm_send_detach_request (msg, &emm_msg->detach_request);
+      break;
+
     case EMM_AS_NAS_DATA_TAU: 
       size = emm_send_tracking_area_update_accept_dl_nas (msg, &emm_msg->tracking_area_update_accept);
       break;

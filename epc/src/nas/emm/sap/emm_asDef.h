@@ -179,6 +179,7 @@ typedef struct emm_as_establish_s {
 #define EMM_AS_NAS_INFO_TAU     0x03                  /* Tracking Area Update request  */
 #define EMM_AS_NAS_INFO_SR      0x04                  /* Service Request       */
 #define EMM_AS_NAS_INFO_EXTSR   0x05                  /* Extended Service Request  */
+#define EMM_AS_NAS_INFO_DETACH_REQUEST  0x06                  /* Detach REQUEST        */
 #define EMM_AS_NAS_INFO_NONE    0xFF                  /* No Nas Message  */
   uint8_t                nas_info;                    /* Type of initial NAS information to transfer   */
   bstring                nas_msg;                     /* NAS message to be transfered within
@@ -240,6 +241,7 @@ typedef struct emm_as_data_s {
 #define EMM_AS_NAS_DATA_DETACH          0x02  /* Detach request       */
 #define EMM_AS_NAS_DATA_TAU             0x03  /* TAU    Accept        */
 #define EMM_AS_NAS_DATA_ATTACH_ACCEPT   0x04  /* Attach Accept        */
+#define EMM_AS_NAS_DATA_DETACH_REQUEST  0x06  /* Detach REQUEST       */
   uint8_t                nas_info;    /* Type of NAS information to transfer  */
   bstring                nas_msg;     /* NAS message to be transfered     */
 } emm_as_data_t;
