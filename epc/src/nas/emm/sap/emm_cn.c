@@ -173,13 +173,13 @@ static int _emm_cn_deregister_ue (const mme_ue_s1ap_id_t ue_id)
   int                                     rc = RETURNok;
 
   OAILOG_FUNC_IN (LOG_NAS_EMM);
-  OAILOG_WARNING (LOG_NAS_EMM, "EMM-PROC  - " "TODO deregister UE " MME_UE_S1AP_ID_FMT ", following procedure is a test\n", ue_id);
+  // OAILOG_WARNING (LOG_NAS_EMM, "EMM-PROC  - " "TODO deregister UE " MME_UE_S1AP_ID_FMT ", following procedure is a test\n", ue_id);
   emm_detach_request_ies_t * params = calloc(1, sizeof(*params));
   params->type         = EMM_DETACH_TYPE_EPS;
   params->switch_off   = false;
   params->is_native_sc = false;
   params->ksi          = 0;
-  emm_proc_detach_request (ue_id, params);
+  emm_proc_detach (ue_id, params);
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
 }
 
