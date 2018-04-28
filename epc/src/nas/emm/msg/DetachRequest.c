@@ -64,6 +64,30 @@ decode_detach_request (
   return decoded;
 }
 
+// int
+// encode_detach_request (
+//   detach_request_msg * detach_request,
+//   uint8_t * buffer,
+//   uint32_t len)
+// {
+//   int                                     encoded = 0;
+//   int                                     encode_result = 0;
+
+//   /*
+//    * Checking IEI and pointer
+//    */
+//   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, DETACH_REQUEST_MINIMUM_LENGTH, len);
+//   *(buffer + encoded) = ((encode_u8_nas_key_set_identifier (&detach_request->naskeysetidentifier) << 4) | (encode_u8_detach_type (&detach_request->detachtype) & 0x0f));
+//   encoded++;
+
+//   if ((encode_result = encode_eps_mobile_identity (&detach_request->gutiorimsi, 0, buffer + encoded, len - encoded)) < 0)       //Return in case of error
+//     return encode_result;
+//   else
+//     encoded += encode_result;
+
+//   return encoded;
+// }
+
 int
 encode_detach_request (
   detach_request_msg * detach_request,
@@ -77,13 +101,8 @@ encode_detach_request (
    * Checking IEI and pointer
    */
   CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, DETACH_REQUEST_MINIMUM_LENGTH, len);
-  *(buffer + encoded) = ((encode_u8_nas_key_set_identifier (&detach_request->naskeysetidentifier) << 4) | (encode_u8_detach_type (&detach_request->detachtype) & 0x0f));
+  *(buffer + encoded) = (encode_u8_detach_type (&detach_request->detachtype) & 0x0f);
   encoded++;
-
-  if ((encode_result = encode_eps_mobile_identity (&detach_request->gutiorimsi, 0, buffer + encoded, len - encoded)) < 0)       //Return in case of error
-    return encode_result;
-  else
-    encoded += encode_result;
 
   return encoded;
 }

@@ -43,7 +43,7 @@
     NAS_KEY_SET_IDENTIFIER_MAXIMUM_LENGTH + \
     EPS_MOBILE_IDENTITY_MAXIMUM_LENGTH )
 
-
+#define DETACH_REQUEST_MME_MAXIMUM_LENGTH DETACH_TYPE_MAXIMUM_LENGTH
 /*
  * Message name: Detach request
  * Description: This message is sent by the UE to request the release of an EMM context. See table 8.2.11.1.1.
@@ -56,6 +56,7 @@ typedef struct detach_request_msg_tag {
   eps_protocol_discriminator_t protocoldiscriminator:4;
   security_header_type_t       securityheadertype:4;
   message_type_t               messagetype;
+
   detach_type_t                   detachtype;
   NasKeySetIdentifier          naskeysetidentifier;
   eps_mobile_identity_t        gutiorimsi;

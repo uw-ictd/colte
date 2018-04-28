@@ -80,12 +80,50 @@ s6a_clr_cb (
   int                                     experimental = 0;
 //  uint32_t                                ulr_flags = 0;
 
+  s6a_cancel_location_req_t              *s6a_cancel_location_req_p = NULL;
+  MessageDef                             *message_p = NULL;
+
   if (msg == NULL) {
     return EINVAL;
   }
 
   OAILOG_DEBUG (LOG_S6A, "SMS CLR: Received Cancel Location Request\n");
   qry = *msg;
+
+  /* STEP 0: Validate Message */
+  /* SMS CLR TODO */
+
+  /* STEP 0.5: Validate and get IMSI */
+  CHECK_FCT (fd_msg_search_avp (qry, s6a_fd_cnf.dataobj_s6a_imsi, &avp));
+  if (!avp) {
+    OAILOG_ERROR (LOG_S6A, "Cannot get IMSI AVP which is mandatory\n");
+    result_code = ER_DIAMETER_MISSING_AVP;
+    // goto out;    
+  }
+
+  CHECK_FCT (fd_msg_avp_hdr (avp, &hdr));
+  if (hdr->avp_value->os.len > IMSI_LENGTH) {
+    OAILOG_ERROR (LOG_S6A, "IMSI_LENGTH ER_DIAMETER_INVALID_AVP_VALUE\n");
+    result_code = ER_DIAMETER_INVALID_AVP_VALUE;
+      // goto out;
+  }
+
+  /* STEP 1: Convert IMSI to our format and send it to MME app for processing */
+  message_p = itti_alloc_new_message (TASK_S6A, S6A_CANCEL_LOCATION_REQ);
+  s6a_cancel_location_req_p = &message_p->ittiMsg.s6a_cancel_location_req;
+
+  // sprintf (mysql_push.imsi, "%*s", (int)hdr->avp_value->os.len, (char *)hdr->avp_value->os.data);
+//     s6a_update_location_ans_p->imsi[hdr_p->avp_value->os.len] = '\0';
+//     s6a_update_location_ans_p->imsi_length = hdr_p->avp_value->os.len;
+  memcpy (s6a_cancel_location_req_p->imsi, hdr->avp_value->os.data, hdr->avp_value->os.len);
+  s6a_cancel_location_req_p->imsi[hdr->avp_value->os.len] = '\0';
+  s6a_cancel_location_req_p->imsi_length = hdr->avp_value->os.len;
+  IMSI_STRING_TO_IMSI64 ((char *)s6a_cancel_location_req_p->imsi, &s6a_cancel_location_req_p->imsi64);
+
+  itti_send_msg_to_task (TASK_MME_APP, INSTANCE_DEFAULT, message_p);
+  OAILOG_DEBUG (LOG_S6A, "Sending S6A_CANCEL_LOCATION_REQ to task MME_APP\n");
+
+  /* STEP 2: Send a response to the HSS */
   /*
    * Create the answer
    */
@@ -110,45 +148,7 @@ s6a_clr_cb (
 
 
   /* SMS CLR: The following code parses/validates IMSI - do we need to? */
-  /*
-   * Retrieving IMSI AVP
-   */
-  // CHECK_FCT (fd_msg_search_avp (qry, s6a_fd_cnf.dataobj_s6a_imsi, &avp));
-  // if (avp) {
-  //   CHECK_FCT (fd_msg_avp_hdr (avp, &hdr));
 
-  //   if (hdr->avp_value->os.len > IMSI_LENGTH) {
-  //     FPRINTF_NOTICE ( "IMSI_LENGTH ER_DIAMETER_INVALID_AVP_VALUE\n");
-  //     result_code = ER_DIAMETER_INVALID_AVP_VALUE;
-  //     goto out;
-  //   }
-  //   // 3GPP TS 29.272-910 / 5.2.1.1.3 Detailed behaviour of the HSS
-  //   // When receiving an Update Location request the HSS shall check whether the IMSI is known.
-  //   // If it is not known, a Result Code of DIAMETER_ERROR_USER_UNKNOWN shall be returned.
-  //   // If it is known, but the subscriber has no EPS subscription, the HSS may (as an operator option)
-  //   //     return a Result Code of DIAMETER_ERROR_UNKNOWN_EPS_SUBSCRIPTION.
-  //   // If the Update Location Request is received over the S6a interface, and the subscriber has not
-  //   //     any APN configuration, the HSS shall return a Result Code of DIAMETER_ERROR_UNKNOWN_EPS_SUBSCRIPTION.
-  //   // The HSS shall check whether the RAT type the UE is using  is allowed. If it is not,
-  //   //     a Result Code of DIAMETER_ERROR_RAT_NOT_ALLOWED shall be returned.
-  //   // ...
-  //   sprintf (mysql_push.imsi, "%*s", (int)hdr->avp_value->os.len, (char *)hdr->avp_value->os.data);
-
-  //   if ((ret = hss_mysql_update_loc (mysql_push.imsi, &mysql_ans)) != 0) {
-  //     /*
-  //      * We failed to find the IMSI in the database. Replying to the request
-  //      * * * * with the user unknown cause.
-  //      */
-  //     experimental = 1;
-  //     FPRINTF_NOTICE ( "IMSI %s DIAMETER_ERROR_USER_UNKNOWN\n", mysql_push.imsi);
-  //     result_code = DIAMETER_ERROR_USER_UNKNOWN;
-  //     goto out;
-  //   }
-  // } else {
-  //   FPRINTF_ERROR ( "Cannot get IMSI AVP which is mandatory\n");
-  //   result_code = ER_DIAMETER_MISSING_AVP;
-  //   goto out;
-  // }
 
   /*
    * Retrieving Origin host AVP
@@ -169,11 +169,6 @@ s6a_clr_cb (
   //   result_code = ER_DIAMETER_MISSING_AVP;
   //   goto out;
   // }
-
-
-
-
-
 
 //   struct msg                             *ans_p = NULL;
 //   struct msg                             *qry_p = NULL;

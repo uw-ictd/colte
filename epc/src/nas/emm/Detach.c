@@ -185,12 +185,67 @@ emm_proc_detach (
   emm_proc_detach_type_t type)
 {
   OAILOG_FUNC_IN (LOG_NAS_EMM);
-  int                                     rc = RETURNerror;
+  int                                     rc = RETURNok;
 
   OAILOG_INFO (LOG_NAS_EMM, "EMM-PROC  - Initiate detach type = %s (%d)", _emm_detach_type_str[type], type);
   /*
-   * TODO
+   * Get the UE context
    */
+  ue_mm_context_t *ue_mm_context = mme_ue_context_exists_mme_ue_s1ap_id (&mme_app_desc.mme_ue_contexts, ue_id);
+
+  if (ue_mm_context == NULL) {
+    OAILOG_WARNING (LOG_NAS_EMM, "No EMM context exists for the UE (ue_id=" MME_UE_S1AP_ID_FMT ")\n", ue_id);
+    // There may be MME APP Context. Trigger clean up in MME APP 
+    // SMS CLR TODO: Put this back???
+    // nas_itti_detach_req(ue_id);
+    OAILOG_FUNC_RETURN (LOG_NAS_EMM, RETURNok);
+  }
+
+  emm_context_t *emm_ctx = &ue_mm_context->emm_context;
+  emm_sap_t emm_sap = {0};
+  emm_as_data_t *emm_as = &emm_sap.u.emm_as.u.data;
+  MSC_LOG_TX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "0 EMM_AS_NAS_INFO_DETACH ue id " MME_UE_S1AP_ID_FMT " ", ue_id);
+
+  /*
+   * Setup NAS information message to transfer
+   */
+  emm_as->nas_info = EMM_AS_NAS_INFO_DETACH_REQUEST;
+////////////////////////////////////////////////////
+// SMS TODO: POPULATE VALUES FROM DetachRequest.h //
+////////////////////////////////////////////////////
+  emm_as->nas_msg = NULL;
+  emm_as->ue_id = ue_id;
+  emm_as_set_security_data (&emm_as->sctx, &emm_ctx->_security, false, true);
+
+  /*
+   * Notify EMM-AS SAP that Detach Request message has to
+   * be sent to the network
+   */
+
+  emm_sap.primitive = EMMAS_DATA_REQ;
+  rc = emm_sap_send (&emm_sap);
+
+  if (rc != RETURNerror) {
+
+    emm_sap_t                               emm_sap = {0};
+
+    /*
+     * Notify EMM FSM that the UE has been implicitly detached
+     */
+    MSC_LOG_TX_MESSAGE (MSC_NAS_EMM_MME, MSC_NAS_EMM_MME, NULL, 0, "0 EMMREG_DETACH_REQ ue id " MME_UE_S1AP_ID_FMT " ", ue_id);
+    emm_sap.primitive = EMMREG_DETACH_REQ;
+    emm_sap.u.emm_reg.ue_id = ue_id;
+    emm_sap.u.emm_reg.ctx = emm_ctx;
+    rc = emm_sap_send (&emm_sap);
+    // Notify MME APP to trigger Session release towards SGW and S1 signaling release towards S1AP.
+    // SMS CLR TODO: Put this back???
+    // nas_itti_detach_req(ue_id);
+  }
+  // Release emm and esm context  
+  _clear_emm_ctxt(emm_ctx);
+
+  unlock_ue_contexts(ue_mm_context);
+
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
 }
 

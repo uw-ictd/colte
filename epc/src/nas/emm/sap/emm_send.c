@@ -153,6 +153,54 @@ emm_send_detach_accept (
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, size);
 }
 
+int
+emm_send_detach_request (
+  const emm_as_data_t * msg,
+  detach_request_msg * emm_msg)
+{
+  OAILOG_FUNC_IN (LOG_NAS_EMM);
+  int                                     size = EMM_HEADER_MAXIMUM_LENGTH;
+
+  OAILOG_INFO (LOG_NAS_EMM, "EMMAS-SAP - Send Detach Request message\n");
+  /*
+   * Mandatory - Message type
+   */
+  emm_msg->messagetype = DETACH_REQUEST;
+
+  // detach_type_t                   detachtype;
+  // emm_msg->detachtype = EMM_DETACH_TYPE_EPS_IMSI;
+  size += DETACH_REQUEST_MME_MAXIMUM_LENGTH;
+  emm_msg->detachtype = EMM_DETACH_TYPE_NOT_REATTACH;
+  
+  // emm_msg->cause = 
+  // NasKeySetIdentifier          naskeysetidentifier;
+  // size += NAS_KEY_SET_IDENTIFIER_MAXIMUM_LENGTH;
+  // emm_msg->naskeysetidentifier.tsc = NAS_KEY_SET_IDENTIFIER_NATIVE;
+  // emm_msg->naskeysetidentifier.naskeysetidentifier = msg->ksi;
+
+  // eps_mobile_identity_t        gutiorimsi;
+  // emm_msg->gutiorimsi.imsi.typeofidentity == EPS_MOBILE_IDENTITY_IMSI;
+  // emm_msg->gutiorimsi.imsi.identity_digit1 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit2 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit3 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit4 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit5 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit6 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit7 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit8 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit9 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit10 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit11 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit12 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit13 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit14 = 
+  // emm_msg->gutiorimsi.imsi.identity_digit15 = 
+
+// is there a "size" function?
+
+  OAILOG_FUNC_RETURN (LOG_NAS_EMM, size);
+}
+
 
 /*
    --------------------------------------------------------------------------
