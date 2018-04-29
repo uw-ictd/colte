@@ -168,9 +168,10 @@ emm_send_detach_request (
   emm_msg->messagetype = DETACH_REQUEST;
 
   // detach_type_t                   detachtype;
-  // emm_msg->detachtype = EMM_DETACH_TYPE_EPS_IMSI;
   size += DETACH_REQUEST_MME_MAXIMUM_LENGTH;
-  emm_msg->detachtype = EMM_DETACH_TYPE_NOT_REATTACH;
+  // SMS TODO: WHICH ONE IS CORRECT?!?
+  // emm_msg->detachtype.typeofdetach = EMM_DETACH_TYPE_NOT_REATTACH;
+  emm_msg->detachtype.typeofdetach = EMM_DETACH_TYPE_EPS_IMSI;
   
   // emm_msg->cause = 
   // NasKeySetIdentifier          naskeysetidentifier;
