@@ -95,7 +95,7 @@ encode_detach_request (
   uint32_t len)
 {
   int                                     encoded = 0;
-  int                                     encode_result = 0;
+  // int                                     encode_result = 0;
 
   /*
    * Checking IEI and pointer
