@@ -51,7 +51,7 @@
 #include "mme_app_defs.h"
 
 //------------------------------------------------------------------------------
-int mme_app_send_s6a_cancel_location_ans (
+void mme_app_send_s6a_cancel_location_ans (
   struct ue_mm_context_s *const ue_mm_context)
 {
   OAILOG_DEBUG (LOG_MME_APP, "SMS CLR: SENDING CANCEL LOCATION ANSWER\n");
@@ -95,7 +95,7 @@ int mme_app_send_s6a_cancel_location_ans (
 
 
 //------------------------------------------------------------------------------
-int mme_app_handle_s6a_cancel_location_req (
+void mme_app_handle_s6a_cancel_location_req (
   const s6a_cancel_location_req_t * const cancel_req_p)
   // const itti_nas_detach_req_t * const detach_req_p) is what we're modeling
 {
