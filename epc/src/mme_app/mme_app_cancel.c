@@ -49,6 +49,7 @@
 #include "mme_app_extern.h"
 #include "mme_app_ue_context.h"
 #include "mme_app_defs.h"
+#include "mme_app_itti_messaging.h"
 
 //------------------------------------------------------------------------------
 void mme_app_send_s6a_cancel_location_ans (
@@ -100,7 +101,7 @@ void mme_app_handle_s6a_cancel_location_req (
   // const itti_nas_detach_req_t * const detach_req_p) is what we're modeling
 {
   OAILOG_DEBUG (LOG_MME_APP, "SMS CLR: HANDLING CANCEL LOCATION REQUEST\n");
-  return 0;
+  return;
 
   struct ue_mm_context_s *ue_context = NULL;
   DevAssert(cancel_req_p != NULL);
