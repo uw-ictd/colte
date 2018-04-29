@@ -19,6 +19,8 @@
 #include "s6a_messages_types.h"
 #include "mme_config.h"
 	
+#define IMSI_LENGTH_MAX 15
+
 int
 s6a_add_result_code (
   struct msg *ans,
