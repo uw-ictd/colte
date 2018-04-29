@@ -55,7 +55,7 @@ void mme_app_send_s6a_cancel_location_ans (
   struct ue_mm_context_s *const ue_mm_context)
 {
   OAILOG_DEBUG (LOG_MME_APP, "SMS CLR: SENDING CANCEL LOCATION ANSWER\n");
-  return 0;
+  return;
 }
 //   OAILOG_FUNC_IN (LOG_MME_APP);
 //   MessageDef                             *message_p = NULL;
@@ -115,7 +115,7 @@ void mme_app_handle_s6a_cancel_location_req (
   // STEP ONE: send the ue a detach request message - skip for now!
   MessageDef *message_p;
   message_p = itti_alloc_new_message(TASK_MME_APP, S1AP_DEREGISTER_UE_REQ);
-  S1AP_DEREGISTER_UE_REQ (message_p).mme_ue_s1ap_id = ue_context_p->mme_ue_s1ap_id;
+  S1AP_DEREGISTER_UE_REQ (message_p).mme_ue_s1ap_id = ue_context->mme_ue_s1ap_id;
   // S1AP_UE_CONTEXT_RELEASE_COMMAND (message_p).cause = cause;
   // MSC_LOG_TX_MESSAGE (MSC_MMEAPP_MME, MSC_S1AP_MME, NULL, 0, "0 S1AP_UE_CONTEXT_RELEASE_COMMAND mme_ue_s1ap_id %06" PRIX32 " ",
                       // S1AP_UE_CONTEXT_RELEASE_COMMAND (message_p).mme_ue_s1ap_id);
