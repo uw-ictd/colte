@@ -86,8 +86,8 @@ int mme_app_send_s6a_update_location_req     (struct ue_mm_context_s * const ue_
 int mme_app_handle_s6a_update_location_ans   (const s6a_update_location_ans_t * const ula_pP);
 
 /* SMS CLR */
-int mme_app_send_s6a_cancel_location_ans   (struct ue_mm_context_s * const ue_context_pP);
-int mme_app_handle_s6a_cancel_location_req   (const s6a_cancel_location_req_t * const ula_pP);
+void mme_app_send_s6a_cancel_location_ans   (struct ue_mm_context_s * const ue_context_pP);
+void mme_app_handle_s6a_cancel_location_req   (const s6a_cancel_location_req_t * const ula_pP);
 
 int mme_app_handle_nas_pdn_connectivity_req  ( itti_nas_pdn_connectivity_req_t * const nas_pdn_connectivity_req_p);
 
