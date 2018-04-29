@@ -84,7 +84,7 @@ Description Defines functions executed at the EMMAS Service Access
 int emm_send_status(const emm_as_status_t *, emm_status_msg *);
 
 int emm_send_detach_accept(const emm_as_data_t *, detach_accept_msg *);
-int emm_send_detach_request(const emm_as_data_t *, detach_accept_msg *);
+int emm_send_detach_request(const emm_as_data_t *, detach_request_msg *);
 
 int emm_send_attach_accept(const emm_as_establish_t *, attach_accept_msg *);
 int emm_send_attach_accept_dl_nas (const emm_as_data_t * msg, attach_accept_msg *);
