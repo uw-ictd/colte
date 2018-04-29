@@ -94,7 +94,7 @@ s6a_clr_cb (
   /* SMS CLR TODO */
 
   /* STEP 0.5: Validate and get IMSI */
-  CHECK_FCT (fd_msg_search_avp (qry, s6a_fd_cnf.dataobj_s6a_imsi, &avp));
+  CHECK_FCT (fd_msg_search_avp (qry, s6a_fd_cnf.dataobj_s6a_user_name, &avp));
   if (!avp) {
     OAILOG_ERROR (LOG_S6A, "Cannot get IMSI AVP which is mandatory\n");
     result_code = ER_DIAMETER_MISSING_AVP;
@@ -102,7 +102,7 @@ s6a_clr_cb (
   }
 
   CHECK_FCT (fd_msg_avp_hdr (avp, &hdr));
-  if (hdr->avp_value->os.len > IMSI_LENGTH) {
+  if (hdr->avp_value->os.len > IMSI_LENGTH_MAX) {
     OAILOG_ERROR (LOG_S6A, "IMSI_LENGTH ER_DIAMETER_INVALID_AVP_VALUE\n");
     result_code = ER_DIAMETER_INVALID_AVP_VALUE;
       // goto out;
