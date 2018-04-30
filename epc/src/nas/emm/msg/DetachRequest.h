@@ -32,10 +32,7 @@
 #include "3gpp_24.008.h"
 
 /* Minimum length macro. Formed by minimum length of each mandatory field */
-#define DETACH_REQUEST_MINIMUM_LENGTH ( \
-    DETACH_TYPE_MINIMUM_LENGTH + \
-    NAS_KEY_SET_IDENTIFIER_MINIMUM_LENGTH + \
-    EPS_MOBILE_IDENTITY_MINIMUM_LENGTH )
+#define DETACH_REQUEST_MINIMUM_LENGTH DETACH_TYPE_MINIMUM_LENGTH
 
 /* Maximum length macro. Formed by maximum length of each field */
 #define DETACH_REQUEST_MAXIMUM_LENGTH ( \
