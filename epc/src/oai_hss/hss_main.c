@@ -87,6 +87,7 @@ int spencer_listening_server() {
     }
 
     if (msg.command == SPENCER_COMMAND_REMOVE_IMSI) {
+      FPRINTF_ERROR("SMS CLR: RECEIVED COMMAND TO REMOVE IMSI %s\n", msg.imsi);
       s6a_generate_cancel_location_req(msg.imsi);
     } else if (msg.command == SPENCER_COMMAND_ADD_IMSI) {
       add_back_imsi(msg.imsi);
