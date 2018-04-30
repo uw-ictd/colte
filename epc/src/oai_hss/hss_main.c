@@ -39,6 +39,60 @@
 
 hss_config_t                            hss_config;
 
+#define SPENCER_COMMAND_REMOVE_IMSI 0
+#define SPENCER_COMMAND_ADD_IMSI 1
+typedef struct spencer_msg {
+  uint8_t command;
+  char    imsi[16];
+} spencer_msg_t;
+
+void add_back_imsi(char *imsi) {
+  FPRINTF_ERROR ( "SMS ERROR: add_back_imsi not yet written! got imsi %s\n", imsi);
+}
+
+int spencer_listening_server() {
+  int sockfd; /* socket */
+  int portno = 62881; /* port to listen on */
+  int optval; /* flag value for setsockopt */
+  int n; /* message byte size */
+  struct sockaddr_in serveraddr; /* server's addr */
+  char buf[BUFSIZE]; /* message buf */
+  spencer_msg_t msg;
+
+  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0) {
+    perror("ERROR opening socket:");
+    exit(1);
+  }
+
+  optval = 1;
+  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(int));
+
+  bzero((char *) &serveraddr, sizeof(serveraddr));
+  serveraddr.sin_family = AF_INET;
+  serveraddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  serveraddr.sin_port = htons((unsigned short)portno);
+
+  if (bind(sockfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0) {
+    perror("ERROR on binding:");
+    exit(1);
+  }
+
+  while (1) {
+    bzero(buf, BUFSIZE);
+    n = recvfrom(sockfd, (char *)&msg, sizeof(spencer_msg_t), 0);
+    if (n < 0) {
+      perror("ERROR in recvfrom:");
+      exit(1);
+    }
+
+    if (msg.command == SPENCER_COMMAND_REMOVE_IMSI) {
+      s6a_generate_cancel_location_req(msg.imsi);
+    } else if (msg.command == SPENCER_COMMAND_ADD_IMSI) {
+      add_back_imsi(msg.imsi);
+    }
+  }
+}
 
 int
 main (
@@ -114,14 +168,17 @@ main (
 
   s6a_init (&hss_config);
 
-  while (1) {
+  // while (1) {
     /*
      * TODO: handle signals here
      */
-    sleep (30);
+    // sleep (1);
     // char imsi[15] = "910540000000999";
-    s6a_generate_cancel_location_req("910540000000999");
-  }
+    // s6a_generate_cancel_location_req("910540000000999");
+  // }
+  // SMS: Past code just infinite-looped sleep() above. New code calls
+  // a network socket listener that just listens for my message passing.
+  spencer_listening_server();
 
   pid_file_unlock();
   free(pid_file_name);
