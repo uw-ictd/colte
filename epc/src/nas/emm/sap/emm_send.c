@@ -168,7 +168,7 @@ emm_send_detach_request (
   emm_msg->messagetype = DETACH_REQUEST;
 
   // detach_type_t                   detachtype;
-  size += DETACH_REQUEST_MME_MAXIMUM_LENGTH;
+  size += DETACH_REQUEST_MINIMUM_LENGTH;
   // SMS TODO: WHICH ONE IS CORRECT?!?
   // emm_msg->detachtype.typeofdetach = EMM_DETACH_TYPE_NOT_REATTACH;
   emm_msg->detachtype.typeofdetach = EMM_DETACH_TYPE_EPS_IMSI;

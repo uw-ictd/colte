@@ -179,7 +179,7 @@ static int _emm_cn_deregister_ue (const mme_ue_s1ap_id_t ue_id)
   // params->switch_off   = false;
   // params->is_native_sc = false;
   // params->ksi          = 0;
-  emm_proc_detach (ue_id, EMM_DETACH_TYPE_EPS);
+  emm_proc_detach (ue_id, EMM_DETACH_TYPE_NOT_REATTACH);
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
 }
 
