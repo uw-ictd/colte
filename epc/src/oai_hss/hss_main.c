@@ -47,16 +47,15 @@ typedef struct spencer_msg {
 } spencer_msg_t;
 
 void add_back_imsi(char *imsi) {
-  FPRINTF_ERROR ( "SMS ERROR: add_back_imsi not yet written! got imsi %s\n", imsi);
+  printf("SMS ERROR: add_back_imsi not yet written! got imsi %s\n", imsi);
 }
 
-int spencer_listening_server() {
+int spencer_listening_server(void) {
   int sockfd; /* socket */
   int portno = 62881; /* port to listen on */
   int optval; /* flag value for setsockopt */
   int n; /* message byte size */
   struct sockaddr_in serveraddr; /* server's addr */
-  char buf[BUFSIZE]; /* message buf */
   spencer_msg_t msg;
 
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -79,15 +78,15 @@ int spencer_listening_server() {
   }
 
   while (1) {
-    bzero(buf, BUFSIZE);
-    n = recvfrom(sockfd, (char *)&msg, sizeof(spencer_msg_t), 0);
+    bzero((char *)&msg, sizeof(spencer_msg_t));
+    n = recv(sockfd, (char *)&msg, sizeof(spencer_msg_t), 0);
     if (n < 0) {
       perror("ERROR in recvfrom:");
       exit(1);
     }
 
     if (msg.command == SPENCER_COMMAND_REMOVE_IMSI) {
-      FPRINTF_ERROR("SMS CLR: RECEIVED COMMAND TO REMOVE IMSI %s\n", msg.imsi);
+      printf("SMS CLR: RECEIVED COMMAND TO REMOVE IMSI %s\n", msg.imsi);
       s6a_generate_cancel_location_req(msg.imsi);
     } else if (msg.command == SPENCER_COMMAND_ADD_IMSI) {
       add_back_imsi(msg.imsi);

@@ -26,7 +26,7 @@ void error(char *msg) {
 }
 
 int main(int argc, char **argv) {
-    int sockfd
+    int sockfd;
     int n;
     int portno = 62881;
     struct sockaddr_in serveraddr;
@@ -46,8 +46,7 @@ int main(int argc, char **argv) {
     strncpy(msg.imsi, "910540000000999", 15);
 
     /* send the message to the server */
-    serverlen = sizeof(serveraddr);
-    n = sendto(sockfd, buf, strlen(buf), 0, &serveraddr, serverlen);
+    n = sendto(sockfd,(char *)&msg, sizeof(spencer_msg_t), 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
     if (n < 0) 
       error("ERROR in sendto");
     
