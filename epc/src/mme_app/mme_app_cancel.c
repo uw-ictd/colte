@@ -52,12 +52,12 @@
 #include "mme_app_itti_messaging.h"
 
 //------------------------------------------------------------------------------
-void mme_app_send_s6a_cancel_location_ans (
-  struct ue_mm_context_s *const ue_mm_context)
-{
-  OAILOG_DEBUG (LOG_MME_APP, "SMS CLR: SENDING CANCEL LOCATION ANSWER\n");
-  return;
-}
+// void mme_app_send_s6a_cancel_location_ans (
+//   struct ue_mm_context_s *const ue_mm_context)
+// {
+//   OAILOG_DEBUG (LOG_MME_APP, "SMS CLR: SENDING CANCEL LOCATION ANSWER\n");
+//   return;
+// }
 //   OAILOG_FUNC_IN (LOG_MME_APP);
 //   MessageDef                             *message_p = NULL;
 //   s6a_update_location_req_t              *s6a_ulr_p = NULL;
