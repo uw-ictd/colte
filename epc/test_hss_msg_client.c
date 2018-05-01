@@ -28,7 +28,7 @@ void error(char *msg) {
 int main(int argc, char **argv) {
     int sockfd;
     int n;
-    int portno = 62881;
+    int portno = 62880;
     struct sockaddr_in serveraddr;
     spencer_msg_t msg;
 
