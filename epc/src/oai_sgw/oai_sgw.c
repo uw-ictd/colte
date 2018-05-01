@@ -74,6 +74,8 @@
 #include "pid_file.h"
 #include "timer.h"
 
+#include "pgw_ue_ip_address_alloc.h"
+
 #define SPENCER_COMMAND_REQUEST_IMSI 1
 #define SPENCER_COMMAND_REQUEST_IMSI_ANSWER 2
 typedef struct spencer_msg {
@@ -82,13 +84,13 @@ typedef struct spencer_msg {
   char    imsi[16];
 } spencer_msg_t;
 
-int spencer_listening_server(void) {
+void *spencer_listening_server(void *ptr) {
   int sockfd; /* socket */
   int portno = 62881; /* port to listen on */
   int optval; /* flag value for setsockopt */
   int n; /* message byte size */
   struct sockaddr_in serveraddr, clientaddr; /* server's addr */
-  int clientlen;
+  socklen_t clientlen;
   spencer_msg_t msg;
 
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -114,7 +116,7 @@ int spencer_listening_server(void) {
 
   while (1) {
     bzero((char *)&msg, sizeof(spencer_msg_t));
-    n = recvfrom(sockfd, (char *)&msg, sizeof(spencer_msg_t), 0, &clientaddr, &clientlen);
+    n = recvfrom(sockfd, (char *)&msg, sizeof(spencer_msg_t), 0, (struct sockaddr *) &clientaddr, &clientlen);
     if (n < 0) {
       perror("ERROR in recvfrom:");
       exit(1);
@@ -126,10 +128,10 @@ int spencer_listening_server(void) {
 
       // SMS TODO: VALIDATION?!?!?
 
-      printf("SMS: RECEIVED IMSI REQUEST FOR ADDRESS %s\n", inet_ntoa(msg.addr));
+      printf("SMS: RECEIVED IMSI REQUEST FOR ADDRESS %s\n", inet_ntoa(sa.sin_addr));
 
       // lookup IMSI here
-      ue_get_imsi_from_ipv4(msg.imsi, sa.sin_addr);
+      ue_get_imsi_from_ipv4(msg.imsi, &sa.sin_addr);
 
       // format IMSI???
       // print IMSI???
