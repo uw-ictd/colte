@@ -118,12 +118,13 @@ pgw_get_free_ipv4_paa_address (
 
   ipv4_p = STAILQ_FIRST (&pgw_app.ipv4_list_free);
 
-  // strncpy(ipv4_p->imsi, imsi, 16);
-  imsi_t im = (imsi_t )*imsi;
-  printf("SMS: %u,%u,%u,%u,%u\n", im.u.num.digit1,im.u.num.digit2,im.u.num.digit3,im.u.num.digit4,im.u.num.digit5)
-  addr_pP->s_addr = ipv4_p->addr.s_addr;
+  imsi_t *im = (imsi_t *)imsi;
+  sprintf(ipv4_p->imsi, "%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u\n",
+	im->u.num.digit1,im->u.num.digit2,im->u.num.digit3,im->u.num.digit4,im->u.num.digit5,
+	im->u.num.digit6,im->u.num.digit7,im->u.num.digit8,im->u.num.digit9,im->u.num.digit10,
+	im->u.num.digit11,im->u.num.digit12,im->u.num.digit13,im->u.num.digit14,im->u.num.digit15);
 
-//  printf("SMS: ALLOCATING ADDRESS FOR IMSI %u%u%u\n", imsi[0],imsi[1],imsi[2]);
+  addr_pP->s_addr = ipv4_p->addr.s_addr;
 
   STAILQ_REMOVE (&pgw_app.ipv4_list_free, ipv4_p, ipv4_list_elm_s, ipv4_entries);
   STAILQ_INSERT_TAIL (&pgw_app.ipv4_list_allocated, ipv4_p, ipv4_entries);
