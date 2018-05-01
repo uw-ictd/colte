@@ -35,7 +35,7 @@
 
 int allocate_ue_ipv4_address(const char *imsi, struct in_addr *addr) {
   // Call PGW IP Address allocator 
-  return pgw_get_free_ipv4_paa_address (addr); 
+  return pgw_get_free_ipv4_paa_address (addr, imsi); 
 }
 
 int release_ue_ipv4_address(const char *imsi, struct in_addr *addr) {
