@@ -107,7 +107,7 @@ pgw_load_pool_ip_addresses (
 
 int
 pgw_get_free_ipv4_paa_address (
-  struct in_addr *const addr_pP)
+  struct in_addr *const addr_pP, char *imsi)
 {
   struct ipv4_list_elm_s        *ipv4_p = NULL;
 
@@ -117,9 +117,15 @@ pgw_get_free_ipv4_paa_address (
   }
 
   ipv4_p = STAILQ_FIRST (&pgw_app.ipv4_list_free);
+
+  strncpy(ipv4_p->imsi, imsi, 16);
+  addr_pP->s_addr = ipv4_p->addr.s_addr;
+
+  printf("SMS: ALLOCATING ADDRESS FOR IMSI %s\n", imsi);
+
   STAILQ_REMOVE (&pgw_app.ipv4_list_free, ipv4_p, ipv4_list_elm_s, ipv4_entries);
   STAILQ_INSERT_TAIL (&pgw_app.ipv4_list_allocated, ipv4_p, ipv4_entries);
-  addr_pP->s_addr = ipv4_p->addr.s_addr;
+
   return RETURNok;
 }
 
@@ -131,6 +137,8 @@ pgw_release_free_ipv4_paa_address (
 
   STAILQ_FOREACH (ipv4_p, &pgw_app.ipv4_list_allocated, ipv4_entries) {
     if (ipv4_p->addr.s_addr == addr_pP->s_addr) {
+      bzero(ipv4_p->imsi, 16);
+
       STAILQ_REMOVE (&pgw_app.ipv4_list_allocated, ipv4_p, ipv4_list_elm_s, ipv4_entries);
       STAILQ_INSERT_HEAD (&pgw_app.ipv4_list_free, ipv4_p, ipv4_entries);
       return RETURNok;
