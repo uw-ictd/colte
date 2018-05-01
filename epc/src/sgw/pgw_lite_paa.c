@@ -118,7 +118,9 @@ pgw_get_free_ipv4_paa_address (
 
   ipv4_p = STAILQ_FIRST (&pgw_app.ipv4_list_free);
 
-  strncpy(ipv4_p->imsi, imsi, 16);
+  // strncpy(ipv4_p->imsi, imsi, 16);
+  imsi_t im = (imsi_t )*imsi;
+  printf("SMS: %u,%u,%u,%u,%u\n", im.u.num.digit1,im.u.num.digit2,im.u.num.digit3,im.u.num.digit4,im.u.num.digit5)
   addr_pP->s_addr = ipv4_p->addr.s_addr;
 
 //  printf("SMS: ALLOCATING ADDRESS FOR IMSI %u%u%u\n", imsi[0],imsi[1],imsi[2]);
