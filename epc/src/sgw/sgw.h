@@ -67,6 +67,7 @@ typedef struct sgw_app_s {
 struct ipv4_list_elm_s {
   STAILQ_ENTRY(ipv4_list_elm_s) ipv4_entries;
   struct in_addr  addr;
+  char imsi[16];
 };
 
 
