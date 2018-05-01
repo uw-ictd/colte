@@ -29,7 +29,7 @@
 #define FILE_PGW_LITE_PAA_SEEN
 
 void pgw_load_pool_ip_addresses       (void);
-int pgw_get_free_ipv4_paa_address     (struct in_addr * const addr_P, char *imsi);
+int pgw_get_free_ipv4_paa_address     (struct in_addr * const addr_P, const char *imsi);
 int pgw_release_free_ipv4_paa_address (const struct in_addr * const addr_P);
 int pgw_get_imsi_from_ipv4		      (struct in_addr * const addr_P, char *imsi);
 
