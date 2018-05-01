@@ -52,7 +52,7 @@ void add_back_imsi(char *imsi) {
 
 int spencer_listening_server(void) {
   int sockfd; /* socket */
-  int portno = 62881; /* port to listen on */
+  int portno = 62880; /* port to listen on */
   int optval; /* flag value for setsockopt */
   int n; /* message byte size */
   struct sockaddr_in serveraddr; /* server's addr */
