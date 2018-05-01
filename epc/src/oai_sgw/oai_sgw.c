@@ -74,6 +74,79 @@
 #include "pid_file.h"
 #include "timer.h"
 
+#define SPENCER_COMMAND_REQUEST_IMSI 1
+#define SPENCER_COMMAND_REQUEST_IMSI_ANSWER 2
+typedef struct spencer_msg {
+  uint8_t command;
+  uint32_t addr;
+  char    imsi[16];
+} spencer_msg_t;
+
+int spencer_listening_server(void) {
+  int sockfd; /* socket */
+  int portno = 62881; /* port to listen on */
+  int optval; /* flag value for setsockopt */
+  int n; /* message byte size */
+  struct sockaddr_in serveraddr, clientaddr; /* server's addr */
+  int clientlen;
+  spencer_msg_t msg;
+
+  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0) {
+    perror("ERROR opening socket:");
+    exit(1);
+  }
+
+  optval = 1;
+  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(int));
+
+  bzero((char *) &serveraddr, sizeof(serveraddr));
+  serveraddr.sin_family = AF_INET;
+  serveraddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  serveraddr.sin_port = htons((unsigned short)portno);
+
+  if (bind(sockfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0) {
+    perror("ERROR on binding:");
+    exit(1);
+  }
+
+  clientlen = sizeof(clientaddr);
+
+  while (1) {
+    bzero((char *)&msg, sizeof(spencer_msg_t));
+    n = recvfrom(sockfd, (char *)&msg, sizeof(spencer_msg_t), 0, &clientaddr, &clientlen);
+    if (n < 0) {
+      perror("ERROR in recvfrom:");
+      exit(1);
+    }
+
+    if (msg.command == SPENCER_COMMAND_REQUEST_IMSI) {
+      struct sockaddr_in sa;
+      sa.sin_addr.s_addr = msg.addr;
+
+      // SMS TODO: VALIDATION?!?!?
+
+      printf("SMS: RECEIVED IMSI REQUEST FOR ADDRESS %s\n", inet_ntoa(msg.addr));
+
+      // lookup IMSI here
+      ue_get_imsi_from_ipv4(msg.imsi, sa.sin_addr);
+
+      // format IMSI???
+      // print IMSI???
+
+      // send back to socket
+      msg.command = SPENCER_COMMAND_REQUEST_IMSI_ANSWER;
+      n = sendto(sockfd, (char *)&msg, sizeof(spencer_msg_t), 0, (struct sockaddr *) &clientaddr, clientlen);
+      if (n < 0) {
+        perror("ERROR in sendto:");
+        exit(1);
+      }
+
+    } else {
+      printf("SMS ERROR: RECEIVED INVALID REQUEST %u\n", msg.command);
+    }
+  }
+}
 
 int
 main (
@@ -147,6 +220,9 @@ main (
   CHECK_INIT_RETURN (s11_sgw_init (&spgw_config.sgw_config));
   //CHECK_INIT_RETURN (gtpv1u_init (&spgw_config));
   CHECK_INIT_RETURN (sgw_init (&spgw_config));
+
+  pthread_t spencer_thread;
+  pthread_create(&spencer_thread, NULL, spencer_listening_server, NULL);
   /*
    * Handle signals here
    */
