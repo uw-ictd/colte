@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
+#include <arpa/inet.h>
 
 #define BUFSIZE 1024
 
@@ -31,7 +32,7 @@ int main(int argc, char **argv) {
     int n;
     int portno = 62881;
     struct sockaddr_in serveraddr;
-    int serverlen
+    int serverlen;
     spencer_msg_t msg, msg2;
 
     /* socket: create the socket */
