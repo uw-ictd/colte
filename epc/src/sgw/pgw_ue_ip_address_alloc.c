@@ -43,7 +43,7 @@ int release_ue_ipv4_address(const char *imsi, struct in_addr *addr) {
   return pgw_release_free_ipv4_paa_address (addr); 
 }
 
-int ue_get_imsi_from_ipv4(const char *imsi, struct in_addr *addr) {
+int ue_get_imsi_from_ipv4(char *imsi, struct in_addr *addr) {
   // Look up the UE's IMSI from IPv4 address (if attached) and copy
   return pgw_get_imsi_from_ipv4 (addr, imsi);
 }
