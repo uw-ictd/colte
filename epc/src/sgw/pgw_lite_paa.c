@@ -147,5 +147,22 @@ pgw_release_free_ipv4_paa_address (
   return RETURNerror;
 }
 
+int
+pgw_get_imsi_from_ipv4 (
+  struct in_addr * const addr_P, char *imsi)
+{
+  struct ipv4_list_elm_s        *ipv4_p = NULL;
+
+  STAILQ_FOREACH (ipv4_p, &pgw_app.ipv4_list_allocated, ipv4_entries) {
+    if (ipv4_p->addr.s_addr == addr_pP->s_addr) {
+      strncpy(imsi, ipv4_p->imsi, 16);
+      return RETURNok;
+    }
+  }
+  
+  /* getting here means that the IP address isn't allocated?!? */
+  bzero(imsi, 16);
+  return RETURNerror;
+}
 
 
