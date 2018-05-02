@@ -76,8 +76,8 @@
 
 #include "pgw_ue_ip_address_alloc.h"
 
-#define SPENCER_COMMAND_REQUEST_IMSI 1
 #define SPENCER_COMMAND_REQUEST_IMSI_ANSWER_OK 0
+#define SPENCER_COMMAND_REQUEST_IMSI 1
 #define SPENCER_COMMAND_REQUEST_IMSI_ANSWER_ERROR 2
 typedef struct spencer_msg {
   uint8_t command;
