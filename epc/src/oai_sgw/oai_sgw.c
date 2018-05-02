@@ -142,7 +142,6 @@ void *spencer_listening_server(void *ptr) {
         printf("SMS: RECEIVED IMSI REQUEST FOR ADDRESS %s: ERROR\n", inet_ntoa(sa.sin_addr));
       }
 
-      msg.command = SPENCER_COMMAND_REQUEST_IMSI_ANSWER;
       n = sendto(sockfd, (char *)&msg, sizeof(spencer_msg_t), 0, (struct sockaddr *) &clientaddr, clientlen);
       if (n < 0) {
         perror("ERROR in sendto:");
