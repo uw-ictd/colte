@@ -7,25 +7,43 @@ HSS_ADD_IMSI_COMMAND = 1
 HSS_SERVICE_PORT = 62880
 HSS_SERVICE_ADDR = "127.0.0.1"
 
-SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK = 0
-SPGW_COMMAND_REQUEST_IMSI = 1
-SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR = 2
+SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK = "\0"
+SPGW_COMMAND_REQUEST_IMSI = "\1"
+SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR = "\2"
 SPGW_SERVICE_PORT = 62881
 SPGW_SERVICE_ADDR = "127.0.0.1"
+
+ZERO_IMSI = "000000000000000"
 
 def get_imsi_from_ip(ip_addr):
 
 	# Network Code
-	rawip = convert(ip_addr)
-	message = "\1" + rawip + "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+	rawip = socket.inet_aton(ip_addr)
+#        print int(rawip)
+	message = SPGW_COMMAND_REQUEST_IMSI + "\0\0\0" + rawip + "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	sock.sendto(message, HSS_SERVICE_ADDR, HSS_SERVICE_PORT)
-	response = sock.recvfrom()
+	sock.sendto(message, (SPGW_SERVICE_ADDR, SPGW_SERVICE_PORT))
+	data = sock.recv(24)
 
-	# (Validation?!?)
+	# Check for errors and validate response before continuing
+	if (data[0] == SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR):
+		print "get_imsi_from_ip ERROR: SPGW could not return an IMSI"
+		return ZERO_IMSI
 
-	# Return imsi-as-string
-	return "910540000000999"
+        if (data[0] != SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK):
+		print "get_imsi_from_ip ERROR: Unknown error?!?"
+		return ZERO_IMSI
+
+	raw_ip_response = data[4:8]
+	if (raw_ip_response != rawip):
+		print "get_imsi_from_ip ERROR: IP addresses don't match?!?"
+                print "Origin IP: " + socket.inet_ntoa(rawip)
+                print "Received IP: " + socket.inet_ntoa(raw_ip_response)
+		return ZERO_IMSI
+
+	imsi = str(data[8:24])
+	# print "IMSI : " + imsi
+	return imsi
 
 def disable_user(imsi):
 	print "CUTTING OFF USER " + str(imsi)
@@ -33,22 +51,20 @@ def disable_user(imsi):
 	# 2: cut user off!
 	message = "\0" + imsi
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	sock.sendto(message, HSS_SERVICE_ADDR, HSS_SERVICE_PORT)
+	sock.sendto(message, (HSS_SERVICE_ADDR, HSS_SERVICE_PORT))
 	# 3: flip user bit
 
 def enable_user(imsi):
-	print "CUTTING OFF USER " + str(imsi)
+	print "REENABLING USER " + str(imsi)
 	# 1: add user back to HSS!
 	message = "\1" + imsi
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	sock.sendto(message, HSS_SERVICE_ADDR, HSS_SERVICE_PORT)
+	sock.sendto(message, (HSS_SERVICE_ADDR, HSS_SERVICE_PORT))
 	# 2: flip user bit
 	# 3: send text?!?
 
 def make_new_user(vals):
         print "Make new user? No, don't! How'd they even get on the network???"
-
-
 
 # example cost: 5 dollars (units) per gb
 cost_per_gb = 5.00
