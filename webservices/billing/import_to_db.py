@@ -1,7 +1,56 @@
 import MySQLdb
 import os
+import socket
 
-# example cost: 5 dollars per gb
+HSS_REMOVE_IMSI_COMMAND = 0
+HSS_ADD_IMSI_COMMAND = 1
+HSS_SERVICE_PORT = 62880
+HSS_SERVICE_ADDR = "127.0.0.1"
+
+SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK = 0
+SPGW_COMMAND_REQUEST_IMSI = 1
+SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR = 2
+SPGW_SERVICE_PORT = 62881
+SPGW_SERVICE_ADDR = "127.0.0.1"
+
+def get_imsi_from_ip(ip_addr):
+
+	# Network Code
+	rawip = convert(ip_addr)
+	message = "\1" + rawip + "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	sock.sendto(message, HSS_SERVICE_ADDR, HSS_SERVICE_PORT)
+	response = sock.recvfrom()
+
+	# (Validation?!?)
+
+	# Return imsi-as-string
+	return "910540000000999"
+
+def disable_user(imsi):
+	print "CUTTING OFF USER " + str(imsi)
+	# 1: send text?!?
+	# 2: cut user off!
+	message = "\0" + imsi
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	sock.sendto(message, HSS_SERVICE_ADDR, HSS_SERVICE_PORT)
+	# 3: flip user bit
+
+def enable_user(imsi):
+	print "CUTTING OFF USER " + str(imsi)
+	# 1: add user back to HSS!
+	message = "\1" + imsi
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	sock.sendto(message, HSS_SERVICE_ADDR, HSS_SERVICE_PORT)
+	# 2: flip user bit
+	# 3: send text?!?
+
+def make_new_user(vals):
+        print "Make new user? No, don't! How'd they even get on the network???"
+
+
+
+# example cost: 5 dollars (units) per gb
 cost_per_gb = 5.00
 cost_per_mb = cost_per_gb / 1024.0
 cost_per_byte = cost_per_mb / 1024.0
@@ -9,18 +58,8 @@ def calculate_cost(bytes_down, bytes_up):
 	# NAIVE APPROACH SO FAR: cost per byte * bytes
 	total_bytes = bytes_down + bytes_up
 	total_cost = total_bytes * cost_per_byte
-	print "new bytes: " + str(total_bytes) + "\ncost per byte: " + str(cost_per_byte) + "\ntotal cost: " + str(total_cost)
+	# print "new bytes: " + str(total_bytes) + "\ncost per byte: " + str(cost_per_byte) + "\ntotal cost: " + str(total_cost)
 	return total_cost
-
-def cut_off_user(imsi):
-	print "CUTTING OFF USER " + str(imsi)
-	# 1: send text!
-	# 2: CUT USER OFF
-	# 3: still preserve the record so that we can settle-up or re-activate sim without drama
-
-def make_new_user(vals):
-        print "Make new user? No, don't! How'd they even get on the network?"
-
 
 record_list = []
 db = MySQLdb.connect(host="localhost",
@@ -32,7 +71,7 @@ filename = os.environ.get('COLTE_DIR') + "/webservices/billing/tmp_dump.txt"
 #filename = "/home/vagrant/colte/webservices/billing/tmp_dump.txt"
 file = open(filename, 'r')
 
-# PROCESS FIRST ROW IS JUST TIME OF LAST ENTRY
+# FIRST ROW IS JUST THE TIME OF THE ENTRY
 timestr = file.readline().split()
 print timestr
 
@@ -42,14 +81,18 @@ for line in file:
 	new_bytes_down = vals[1]
 	new_bytes_up = vals[2]
 
-	query = ("SELECT * FROM customers WHERE ip = '" + str(ip_addr) + "'")
+	imsi = get_imsi_from_ip(ip_addr)
+
+	query = ("SELECT * FROM customers WHERE imsi = '" + imsi + "'")
 	numrows = cursor.execute(query)
 
 	if numrows == 0:
-		make_new_entry(vals)
+		print "ERROR: why do we not have info for this imsi in the database?!?!?"
+		continue
 
 	if numrows > 1:
-		print "More than one entry for same IP? What happened???"
+		print "More than one entry for same imsi? What happened???"
+		continue
 
 	answer_tuple = cursor.fetchone()
 	table_id = answer_tuple[0]
@@ -60,7 +103,7 @@ for line in file:
 	# data is only incremented (cumulatively, duh) so the only way these values will ever be less than previous val
 	# is if the counter reset. hopefully this never happens but edge-cases are important
         if (new_bytes_down < previous_bytes_down) or (new_bytes_up < previous_bytes_up):
-		# LOG SOMETHING!!!
+		# LOG SOMETHING!?!
 		bytes_down_in_period = new_bytes_down
 		bytes_up_in_period = new_bytes_up
         else:
@@ -74,7 +117,7 @@ for line in file:
 	# check for certain thresholds and potentially send warnings or take other action?
 
 	if new_balance <= 0:
-		cut_off_user(1234)
+		disable_user(imsi)
 
 	# END: store the record locally and onto the next user
 	new_record = (new_bytes_down, new_bytes_up, str(new_balance), table_id)
@@ -83,11 +126,3 @@ for line in file:
 # (commit all updates at once to save DB operations)
 commit_str = "UPDATE customers SET raw_down = %s, raw_up = %s, balance = %s WHERE idcustomers = %s"
 cursor.executemany(commit_str, record_list)
-
-# rows = file.readlines()
-# rows = file.readlines()[1:]
-# vals = [line.split() for line in rows]
-# query = "INSERT INTO customers (ip, raw_up, raw_down) VALUES (%s, %s, %s)"
-# db.commit()
-# db.close()
-
