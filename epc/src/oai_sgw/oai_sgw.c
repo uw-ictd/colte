@@ -132,9 +132,6 @@ void *spencer_listening_server(void *ptr) {
       // lookup IMSI here
       msg.command = ue_get_imsi_from_ipv4(msg.imsi, &sa.sin_addr);
 
-      // format IMSI???
-      // print IMSI???
-
       // send back to socket
       if (msg.command == 0) {
         printf("SMS: RECEIVED IMSI REQUEST FOR ADDRESS %s: IMSI VALUE %s\n", inet_ntoa(sa.sin_addr), msg.imsi);
