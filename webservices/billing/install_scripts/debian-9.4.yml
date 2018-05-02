@@ -118,6 +118,9 @@
         mode: 0755
       become: yes
 
+    - name: synchronize customer_db with oai users_db
+      shell: "python {{ billing_dir }}/synchronize_dbs.py"
+
 # step 3: schedule chron job for "import_to_db.py"
     - name: Install job on crontab
       cron:
