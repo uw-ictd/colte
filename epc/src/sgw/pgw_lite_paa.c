@@ -119,7 +119,7 @@ pgw_get_free_ipv4_paa_address (
   ipv4_p = STAILQ_FIRST (&pgw_app.ipv4_list_free);
 
   imsi_t *im = (imsi_t *)imsi;
-  sprintf(ipv4_p->imsi, "%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u\n",
+  sprintf(ipv4_p->imsi, "%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u",
 	im->u.num.digit1,im->u.num.digit2,im->u.num.digit3,im->u.num.digit4,im->u.num.digit5,
 	im->u.num.digit6,im->u.num.digit7,im->u.num.digit8,im->u.num.digit9,im->u.num.digit10,
 	im->u.num.digit11,im->u.num.digit12,im->u.num.digit13,im->u.num.digit14,im->u.num.digit15);
@@ -159,13 +159,13 @@ pgw_get_imsi_from_ipv4 (
   STAILQ_FOREACH (ipv4_p, &pgw_app.ipv4_list_allocated, ipv4_entries) {
     if (ipv4_p->addr.s_addr == addr_pP->s_addr) {
       strncpy(imsi, ipv4_p->imsi, 16);
-      return RETURNok;
+      return 0;
     }
   }
   
   /* getting here means that the IP address isn't allocated?!? */
   bzero(imsi, 16);
-  return RETURNerror;
+  return 2;
 }
 
 

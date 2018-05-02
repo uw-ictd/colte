@@ -77,7 +77,8 @@
 #include "pgw_ue_ip_address_alloc.h"
 
 #define SPENCER_COMMAND_REQUEST_IMSI 1
-#define SPENCER_COMMAND_REQUEST_IMSI_ANSWER 2
+#define SPENCER_COMMAND_REQUEST_IMSI_ANSWER_OK 0
+#define SPENCER_COMMAND_REQUEST_IMSI_ANSWER_ERROR 2
 typedef struct spencer_msg {
   uint8_t command;
   uint32_t addr;
@@ -128,24 +129,25 @@ void *spencer_listening_server(void *ptr) {
 
       // SMS TODO: VALIDATION?!?!?
 
-      printf("SMS: RECEIVED IMSI REQUEST FOR ADDRESS %s\n", inet_ntoa(sa.sin_addr));
-
       // lookup IMSI here
-      ue_get_imsi_from_ipv4(msg.imsi, &sa.sin_addr);
+      msg.command = ue_get_imsi_from_ipv4(msg.imsi, &sa.sin_addr);
 
       // format IMSI???
       // print IMSI???
 
       // send back to socket
+      if (msg.command == 0) {
+        printf("SMS: RECEIVED IMSI REQUEST FOR ADDRESS %s: IMSI VALUE %s\n", inet_ntoa(sa.sin_addr), msg.imsi);
+      } else {
+        printf("SMS: RECEIVED IMSI REQUEST FOR ADDRESS %s: ERROR\n", inet_ntoa(sa.sin_addr));
+      }
+
       msg.command = SPENCER_COMMAND_REQUEST_IMSI_ANSWER;
       n = sendto(sockfd, (char *)&msg, sizeof(spencer_msg_t), 0, (struct sockaddr *) &clientaddr, clientlen);
       if (n < 0) {
         perror("ERROR in sendto:");
         exit(1);
       }
-
-    } else {
-      printf("SMS ERROR: RECEIVED INVALID REQUEST %u\n", msg.command);
     }
   }
 }
