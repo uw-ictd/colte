@@ -37,29 +37,26 @@ def get_imsi_from_ip(ip_addr):
 	raw_ip_response = data[4:8]
 	if (raw_ip_response != rawip):
 		print "get_imsi_from_ip ERROR: IP addresses don't match?!?"
-                print "Origin IP: " + socket.inet_ntoa(rawip)
-                print "Received IP: " + socket.inet_ntoa(raw_ip_response)
+		print "Origin IP: " + socket.inet_ntoa(rawip)
+		print "Received IP: " + socket.inet_ntoa(raw_ip_response)
 		return ZERO_IMSI
 
 	imsi = str(data[8:24])
 	# print "IMSI : " + imsi
 	return imsi
 
-def disable_user(imsi):
+def hss_disable_user(imsi):
 	print "CUTTING OFF USER " + str(imsi)
-	# 1: send text?!?
-	# 2: cut user off!
 	message = "\0" + imsi
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	sock.sendto(message, (HSS_SERVICE_ADDR, HSS_SERVICE_PORT))
-	# 3: flip user bit
 
-def enable_user(imsi):
-	print "REENABLING USER " + str(imsi)
+# def hss_enable_user(imsi):
+	# print "REENABLING USER " + str(imsi)
 	# 1: add user back to HSS!
-	message = "\1" + imsi
-	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	sock.sendto(message, (HSS_SERVICE_ADDR, HSS_SERVICE_PORT))
+	# message = "\1" + imsi
+	# sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	# sock.sendto(message, (HSS_SERVICE_ADDR, HSS_SERVICE_PORT))
 	# 2: flip user bit
 	# 3: send text?!?
 
@@ -68,8 +65,8 @@ def make_new_user(vals):
 
 # example cost: 5 dollars (units) per gb
 cost_per_gb = 5.00
-cost_per_mb = cost_per_gb / 1024.0
-cost_per_byte = cost_per_mb / 1024.0
+cost_per_mb = cost_per_gb / 1024
+cost_per_byte = cost_per_mb / 1024
 def calculate_cost(bytes_down, bytes_up):
 	# NAIVE APPROACH SO FAR: cost per byte * bytes
 	total_bytes = bytes_down + bytes_up
@@ -81,7 +78,7 @@ record_list = []
 db = MySQLdb.connect(host="localhost",
                      user=os.environ.get('COLTE_USER'),
                      passwd=os.environ.get('COLTE_DBPASS'),
-		     db="colte_db")
+		     	 	 db="colte_db")
 cursor = db.cursor()
 filename = os.environ.get('COLTE_DIR') + "/webservices/billing/tmp_dump.txt"
 #filename = "/home/vagrant/colte/webservices/billing/tmp_dump.txt"
@@ -89,7 +86,7 @@ file = open(filename, 'r')
 
 # FIRST ROW IS JUST THE TIME OF THE ENTRY
 timestr = file.readline().split()
-print timestr
+print "Read Timestring: " + timestr
 
 for line in file:
 	vals = line.split()
@@ -98,8 +95,10 @@ for line in file:
 	new_bytes_up = vals[2]
 
 	imsi = get_imsi_from_ip(ip_addr)
+	if imsi == ZERO_IMSI:
+		continue
 
-	query = ("SELECT * FROM customers WHERE imsi = '" + imsi + "'")
+	query = ("SELECT (idcustomers, raw_down, raw_up, balance, enabled) FROM customers WHERE imsi = '" + imsi + "'")
 	numrows = cursor.execute(query)
 
 	if numrows == 0:
@@ -112,33 +111,41 @@ for line in file:
 
 	answer_tuple = cursor.fetchone()
 	table_id = answer_tuple[0]
-	previous_bytes_down = answer_tuple[2]
-	previous_bytes_up = answer_tuple[3]
-	previous_balance = answer_tuple[4]
+	previous_bytes_down = answer_tuple[1]
+	previous_bytes_up = answer_tuple[2]
+	previous_balance = answer_tuple[3]
+	enabled = answer_tuple[4]
 	
+	# sanity check
+	if enabled != 1:
+		print "ERROR: Why is IMSI " + imsi + " not set to enabled in customers db? Value is " + str(enabled)
+
 	# data is only incremented (cumulatively, duh) so the only way these values will ever be less than previous val
 	# is if the counter reset. hopefully this never happens but edge-cases are important
-        if (new_bytes_down < previous_bytes_down) or (new_bytes_up < previous_bytes_up):
-		# LOG SOMETHING!?!
-		bytes_down_in_period = new_bytes_down
-		bytes_up_in_period = new_bytes_up
-        else:
-		bytes_down_in_period = int(new_bytes_down) - int(previous_bytes_down)
-		bytes_up_in_period = int(new_bytes_up) - int(previous_bytes_up)
+    if (new_bytes_down < previous_bytes_down) or (new_bytes_up < previous_bytes_up):
+	# LOG SOMETHING!?!
+	bytes_down_in_period = new_bytes_down
+	bytes_up_in_period = new_bytes_up
+    else:
+	bytes_down_in_period = int(new_bytes_down) - int(previous_bytes_down)
+	bytes_up_in_period = int(new_bytes_up) - int(previous_bytes_up)
 
 	# billing math here
 	cost_in_period = calculate_cost(bytes_down_in_period, bytes_up_in_period)
 	new_balance = previous_balance - cost_in_period
 
-	# check for certain thresholds and potentially send warnings or take other action?
+	# SMS TODO: check for certain thresholds, can potentially send warnings or take other action?
 
 	if new_balance <= 0:
-		disable_user(imsi)
+		hss_disable_user(imsi)
+		enabled = "0"
+	else:
+		enabled = "1"
 
 	# END: store the record locally and onto the next user
-	new_record = (new_bytes_down, new_bytes_up, str(new_balance), table_id)
+	new_record = (new_bytes_down, new_bytes_up, str(new_balance), enabled, table_id)
 	record_list.append(new_record)
 	
 # (commit all updates at once to save DB operations)
-commit_str = "UPDATE customers SET raw_down = %s, raw_up = %s, balance = %s WHERE idcustomers = %s"
+commit_str = "UPDATE customers SET raw_down = %s, raw_up = %s, balance = %s, enabled = %s WHERE idcustomers = %s"
 cursor.executemany(commit_str, record_list)
