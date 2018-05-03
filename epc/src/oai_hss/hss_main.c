@@ -173,10 +173,8 @@ main (
      * TODO: handle signals here
      */
     // sleep (1);
-    // char imsi[15] = "910540000000999";
-    // s6a_generate_cancel_location_req("910540000000999");
   // }
-  // SMS: Past code just infinite-looped sleep() above. New code calls
+  // SMS NOTE: Past code just infinite-looped sleep() above. New code calls
   // a network socket listener that just listens for my message passing.
   spencer_listening_server();
 

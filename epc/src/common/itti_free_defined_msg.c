@@ -211,7 +211,6 @@ void itti_free_msg_content (MessageDef * const message_p)
   case S6A_UPDATE_LOCATION_ANS:
   case S6A_AUTH_INFO_REQ:
   case S6A_AUTH_INFO_ANS:
-  /* SMS CLR */
   case S6A_CANCEL_LOCATION_REQ:
   case S6A_CANCEL_LOCATION_ANS:
     // DO nothing

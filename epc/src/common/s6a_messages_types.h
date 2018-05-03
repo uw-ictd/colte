@@ -41,7 +41,6 @@
 #define S6A_UPDATE_LOCATION_ANS(mSGpTR)  (mSGpTR)->ittiMsg.s6a_update_location_ans
 #define S6A_AUTH_INFO_REQ(mSGpTR)        (mSGpTR)->ittiMsg.s6a_auth_info_req
 #define S6A_AUTH_INFO_ANS(mSGpTR)        (mSGpTR)->ittiMsg.s6a_auth_info_ans
-/* SMS CLR */
 #define S6A_CANCEL_LOCATION_REQ(mSGpTR)  (mSGpTR)->ittiMsg.s6a_cancel_location_req
 #define S6A_CANCEL_LOCATION_ANS(mSGpTR)  (mSGpTR)->ittiMsg.s6a_cancel_location_ans
 
@@ -84,19 +83,10 @@ typedef struct s6a_update_location_ans_s {
 
 } s6a_update_location_ans_t;
 
-/* SMS CLR */
 typedef struct s6a_cancel_location_req_s {
-// #define SKIP_SUBSCRIBER_DATA (0x1)
-//   unsigned skip_subscriber_data:1;
-// #define INITIAL_ATTACH       (0x1)
-//   unsigned initial_attach:1;
-
   char       imsi[IMSI_BCD_DIGITS_MAX + 1]; // username
   uint8_t    imsi_length;               // username
   imsi64_t   imsi64;
-
-  // plmn_t     visited_plmn;              // visited plmn id
-  // rat_type_t rat_type;                  // rat type
 
   // missing                           // origin host
   // missing                           // origin realm
@@ -108,18 +98,12 @@ typedef struct s6a_cancel_location_req_s {
 typedef struct s6a_cancel_location_ans_s {
   s6a_result_t        result;              // Result of the update location request procedure
   subscription_data_t subscription_data;   // subscriber status,
-  // Maximum Requested Bandwidth Uplink, downlink
-  // access restriction data
-  // msisdn
-  //apn_config_profile_t  apn_config_profile;// APN configuration profile
 
   network_access_mode_t access_mode;
   rau_tau_timer_t       rau_tau_timer;
   char    imsi[IMSI_BCD_DIGITS_MAX + 1];
   uint8_t imsi_length;
 } s6a_cancel_location_ans_t;
-/* SMS CLR */
-
 
 typedef struct s6a_auth_info_req_s {
   char    imsi[IMSI_BCD_DIGITS_MAX + 1];
