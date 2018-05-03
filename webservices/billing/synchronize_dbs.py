@@ -85,7 +85,7 @@ query = ("SELECT imsi FROM all_users WHERE imsi NOT IN (SELECT imsi FROM custome
 numrows = cursor.execute(query)
 for row in cursor:
 	imsi = row[0]
-	commit_str = "INSERT INTO customers (imsi, raw_down, raw_up, balance, enabled, msisdn) VALUES ('" + imsi + "', 0, 0, 0, 0, 'NotUsed')"
+	commit_str = "INSERT INTO customers (imsi, raw_down, raw_up, balance, enabled, msisdn) VALUES (" + imsi + ", 0, 0, 0, 0, 'NotUsed')"
 	cursor.execute(commit_str)	
 
 #########################################################################

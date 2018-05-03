@@ -146,9 +146,18 @@ for line in file:
 	# SMS TODO: check for certain thresholds, can potentially send warnings or take other action?
 
 	if new_balance <= 0:
-                print "Balance dropped below zero, cutting off " + imsi
+		print "Balance dropped below zero, cutting off IMSI " + imsi
+
+		# step 1: remove user from "users" db (so that re-auths will fail)
+		disable_str = "DELETE FROM users WHERE imsi = " + imsi
+		cursor.execute(disable_str)
+
+		# step 2: notify HSS to initiate network detach
 		hss_disable_user(imsi)
+
+		# step 3: enabled=0 will mark when we commit in the "customers" db
 		enabled = "0"
+		
 	else:
 		enabled = "1"
 
@@ -156,7 +165,7 @@ for line in file:
 	new_record = (new_bytes_down, new_bytes_up, str(new_balance), enabled, table_id)
 	record_list.append(new_record)
 	
-# (commit all updates at once to save DB operations)
+# (commit all updates at once to save on DB operations)
 commit_str = "UPDATE customers SET raw_down = %s, raw_up = %s, balance = %s, enabled = %s WHERE idcustomers = %s"
 
 cursor.executemany(commit_str, record_list)
