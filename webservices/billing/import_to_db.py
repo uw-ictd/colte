@@ -27,7 +27,7 @@ def get_imsi_from_ip(ip_addr):
 
 	# Check for errors and validate response before continuing
 	if (data[0] == SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR):
-		print "get_imsi_from_ip ERROR: SPGW could not return an IMSI"
+		print "get_imsi_from_ip ERROR: SPGW has no IMSI for IP " + ip_addr
 		return ZERO_IMSI
 
         if (data[0] != SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK):
@@ -36,17 +36,17 @@ def get_imsi_from_ip(ip_addr):
 
 	raw_ip_response = data[4:8]
 	if (raw_ip_response != rawip):
-		print "get_imsi_from_ip ERROR: IP addresses don't match?!?"
+		print "get_imsi_from_ip ERROR: IP address in SPGW response doesn't match query?!?"
 		print "Origin IP: " + socket.inet_ntoa(rawip)
 		print "Received IP: " + socket.inet_ntoa(raw_ip_response)
 		return ZERO_IMSI
 
 	imsi = str(data[8:24])
-	# print "IMSI : " + imsi
+	print "Translated IP address " + ip_addr + " to IMSI " + imsi
+
 	return imsi
 
 def hss_disable_user(imsi):
-	print "CUTTING OFF USER " + str(imsi)
 	message = "\0" + imsi
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	sock.sendto(message, (HSS_SERVICE_ADDR, HSS_SERVICE_PORT))
@@ -80,7 +80,6 @@ db = MySQLdb.connect(host="localhost",
 		     	 	 db="colte_db")
 cursor = db.cursor()
 filename = os.environ.get('COLTE_DIR') + "/webservices/billing/tmp_dump.txt"
-#filename = "/home/vagrant/colte/webservices/billing/tmp_dump.txt"
 file = open(filename, 'r')
 
 # FIRST ROW IS JUST THE TIME OF THE ENTRY
@@ -98,7 +97,6 @@ for line in file:
 		continue
 
 	query = "SELECT idcustomers, raw_down, raw_up, balance, enabled FROM customers WHERE imsi = " + imsi 
-	print query
 	numrows = cursor.execute(query)
 
 	if numrows == 0:
@@ -115,7 +113,6 @@ for line in file:
 	previous_bytes_up = answer_tuple[2]
 	previous_balance = answer_tuple[3]
 	enabled = answer_tuple[4]
-	print table_id
 
 	# sanity check
 	if enabled != 1:
@@ -143,9 +140,13 @@ for line in file:
 	cost_in_period = calculate_cost(total_bytes_in_period)
 	new_balance = previous_balance - cost_in_period
 
+        print "IMSI " + imsi + " used " + str(total_bytes_in_period) + " in 5-min period for total cost of " + str(cost_in_period)
+        print "Balance = " + str(new_balance) + ", raw_down = " + str(new_bytes_down) + ", raw_up = " + str(new_bytes_up)
+
 	# SMS TODO: check for certain thresholds, can potentially send warnings or take other action?
 
 	if new_balance <= 0:
+                print "Balance dropped below zero, cutting off " + imsi
 		hss_disable_user(imsi)
 		enabled = "0"
 	else:
@@ -157,7 +158,5 @@ for line in file:
 	
 # (commit all updates at once to save DB operations)
 commit_str = "UPDATE customers SET raw_down = %s, raw_up = %s, balance = %s, enabled = %s WHERE idcustomers = %s"
-
-print record_list
 
 cursor.executemany(commit_str, record_list)
