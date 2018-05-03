@@ -34,6 +34,12 @@ function check_ipv4(ip)
 			return 0
 		end
 	end
+
+	-- FINAL CHECK: if the least-significant-byte is 1 (e.g. 192.168.151.1) then 
+	-- skip this IP, because it's actually the local router
+	if (tonumber(chunks[4]) == 1) then
+		return 0
+	end
 	return 1
 end
 	
@@ -44,23 +50,10 @@ require "lua_utils"
 
 sendHTTPContentTypeHeader('text/html')
 
--- local host_ip = _GET["10.42.0.77"]
-local host_ip = "192.168.151.2"
-
 interface.select(ifname)
-local host = interface.getHostInfo(host_ip)
-local value = 0
 
 local t = os.time()
 print('time ' .. t .. '\n')
-
-if(host ~= nil) then
-   value = host["packets.sent"]+host["packets.rcvd"]
-   v1 = host["bytes.sent"]
-   v2 = host["bytes.rcvd"]
-   print(host_ip .. ' ' .. v1 .. ' ' .. v2 .. '\n')
-end
-
 
 local hosts_stats = interface.getHostsInfo()
 hosts_stats = hosts_stats["hosts"]
