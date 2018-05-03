@@ -67,9 +67,8 @@ def make_new_user(vals):
 cost_per_gb = 50.00
 cost_per_mb = cost_per_gb / 1024
 cost_per_byte = cost_per_mb / 1024
-def calculate_cost(bytes_down, bytes_up):
+def calculate_cost(total_bytes):
 	# NAIVE APPROACH SO FAR: cost per byte * bytes
-	total_bytes = bytes_down + bytes_up
 	total_cost = total_bytes * cost_per_byte
 	# print "new bytes: " + str(total_bytes) + "\ncost per byte: " + str(cost_per_byte) + "\ntotal cost: " + str(total_cost)
 	return total_cost
@@ -99,7 +98,7 @@ for line in file:
 		continue
 
 	query = "SELECT idcustomers, raw_down, raw_up, balance, enabled FROM customers WHERE imsi = " + imsi 
-        print query
+	print query
 	numrows = cursor.execute(query)
 
 	if numrows == 0:
@@ -116,7 +115,7 @@ for line in file:
 	previous_bytes_up = answer_tuple[2]
 	previous_balance = answer_tuple[3]
 	enabled = answer_tuple[4]
-        print table_id
+	print table_id
 
 	# sanity check
 	if enabled != 1:
@@ -124,16 +123,24 @@ for line in file:
 
 	# data is only incremented (cumulatively, duh) so the only way these values will ever be less than previous val
 	# is if the counter reset. hopefully this never happens but edge-cases are important
-        if (new_bytes_down < previous_bytes_down) or (new_bytes_up < previous_bytes_up):
-	# LOG SOMETHING!?!
-	    bytes_down_in_period = new_bytes_down
-	    bytes_up_in_period = new_bytes_up
-        else:
-	    bytes_down_in_period = int(new_bytes_down) - int(previous_bytes_down)
-	    bytes_up_in_period = int(new_bytes_up) - int(previous_bytes_up)
+	# NOTE: some counters might reset when others don't!
+	if (new_bytes_down < previous_bytes_down):
+		bytes_down_in_period = new_bytes_down
+	else:
+		bytes_down_in_period = int(new_bytes_down) - int(previous_bytes_down)
+
+	if (new_bytes_up < previous_bytes_up):
+		bytes_up_in_period = new_bytes_up
+	else:
+		bytes_up_in_period = int(new_bytes_up) - int(previous_bytes_up)
+
+	# SANITY CHECK
+	if (bytes_down_in_period < 0) or (bytes_up_in_period < 0):
+		print "ERROR: HOW COULD WE GET NEGATIVE BYTE USAGE?!?"
 
 	# billing math here
-	cost_in_period = calculate_cost(bytes_down_in_period, bytes_up_in_period)
+	total_bytes_in_period = bytes_down_in_period + bytes_up_in_period
+	cost_in_period = calculate_cost(total_bytes_in_period)
 	new_balance = previous_balance - cost_in_period
 
 	# SMS TODO: check for certain thresholds, can potentially send warnings or take other action?
