@@ -195,8 +195,8 @@ emm_proc_detach (
 
   if (ue_mm_context == NULL) {
     OAILOG_WARNING (LOG_NAS_EMM, "No EMM context exists for the UE (ue_id=" MME_UE_S1AP_ID_FMT ")\n", ue_id);
-    // There may be MME APP Context. Trigger clean up in MME APP 
-    // SMS CLR TODO: Put this back???
+    // SMS TODO: Put this line back???
+    // There may be MME APP Context - trigger clean up in MME APP?
     // nas_itti_detach_req(ue_id);
     OAILOG_FUNC_RETURN (LOG_NAS_EMM, RETURNok);
   }
@@ -210,9 +210,6 @@ emm_proc_detach (
    * Setup NAS information message to transfer
    */
   emm_as->nas_info = EMM_AS_NAS_INFO_DETACH_REQUEST;
-////////////////////////////////////////////////////
-// SMS TODO: POPULATE VALUES FROM DetachRequest.h //
-////////////////////////////////////////////////////
   emm_as->nas_msg = NULL;
   emm_as->ue_id = ue_id;
   emm_as_set_security_data (&emm_as->sctx, &emm_ctx->_security, false, true);
@@ -237,8 +234,8 @@ emm_proc_detach (
     emm_sap.u.emm_reg.ue_id = ue_id;
     emm_sap.u.emm_reg.ctx = emm_ctx;
     rc = emm_sap_send (&emm_sap);
+    // SMS TODO: Put this back???
     // Notify MME APP to trigger Session release towards SGW and S1 signaling release towards S1AP.
-    // SMS CLR TODO: Put this back???
     // nas_itti_detach_req(ue_id);
   }
   // Release emm and esm context  

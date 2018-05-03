@@ -590,7 +590,6 @@ add_library(MME_APP
   ${MME_DIR}/mme_app_transport.c
   ${MME_DIR}/mme_app_ue_context.c
   ${MME_DIR}/mme_config.c
-# SMS CLR
   ${MME_DIR}/mme_app_cancel.c
   )
 

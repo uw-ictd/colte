@@ -220,7 +220,6 @@ set(s6a_SRC
     ${OAI_HSS_DIR}/s6a/s6a_subscription_data.c
     ${OAI_HSS_DIR}/s6a/s6a_supported_features.c
     ${OAI_HSS_DIR}/s6a/s6a_up_loc.c
-# SMS CLR
     ${OAI_HSS_DIR}/s6a/s6a_cancel_loc.c
 )
 set(s6a_HDR

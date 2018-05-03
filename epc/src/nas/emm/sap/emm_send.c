@@ -153,6 +153,24 @@ emm_send_detach_accept (
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, size);
 }
 
+/****************************************************************************
+ **                                                                        **
+ ** Name:    emm_send_detach_request()                                     **
+ **                                                                        **
+ ** Description: Builds Detach Accept message                              **
+ **                                                                        **
+ **      THIS Detach Request message is sent by the MME to the UE          **
+ **      to indicate that the network-initiated detach procedure           **
+ **      is being started.                                                 **
+ **                                                                        **
+ ** Inputs:  msg:       The EMMAS-SAP primitive to process                 **
+ **      Others:    None                                                   **
+ **                                                                        **
+ ** Outputs:     emm_msg:   The EMM message to be sent                     **
+ **      Return:    The size of the EMM message                            **
+ **      Others:    None                                                   **
+ **                                                                        **
+ ***************************************************************************/
 int
 emm_send_detach_request (
   const emm_as_data_t * msg,
@@ -172,32 +190,6 @@ emm_send_detach_request (
   // SMS TODO: WHICH ONE IS CORRECT?!?
   // emm_msg->detachtype.typeofdetach = EMM_DETACH_TYPE_NOT_REATTACH;
   emm_msg->detachtype.typeofdetach = EMM_DETACH_TYPE_EPS_IMSI;
-  
-  // emm_msg->cause = 
-  // NasKeySetIdentifier          naskeysetidentifier;
-  // size += NAS_KEY_SET_IDENTIFIER_MAXIMUM_LENGTH;
-  // emm_msg->naskeysetidentifier.tsc = NAS_KEY_SET_IDENTIFIER_NATIVE;
-  // emm_msg->naskeysetidentifier.naskeysetidentifier = msg->ksi;
-
-  // eps_mobile_identity_t        gutiorimsi;
-  // emm_msg->gutiorimsi.imsi.typeofidentity == EPS_MOBILE_IDENTITY_IMSI;
-  // emm_msg->gutiorimsi.imsi.identity_digit1 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit2 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit3 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit4 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit5 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit6 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit7 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit8 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit9 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit10 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit11 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit12 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit13 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit14 = 
-  // emm_msg->gutiorimsi.imsi.identity_digit15 = 
-
-// is there a "size" function?
 
   OAILOG_FUNC_RETURN (LOG_NAS_EMM, size);
 }

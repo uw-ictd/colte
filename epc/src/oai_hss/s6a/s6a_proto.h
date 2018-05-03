@@ -85,6 +85,8 @@ typedef struct {
   /* AVPs */
   struct dict_object *dataobj_s6a_origin_host;
   struct dict_object *dataobj_s6a_origin_realm;
+  struct dict_object *dataobj_s6a_destination_host;
+  struct dict_object *dataobj_s6a_destination_realm;
   struct dict_object *dataobj_s6a_imsi;            /* s6a imsi avp */
   struct dict_object *dataobj_s6a_imei;
   struct dict_object *dataobj_s6a_software_version;
@@ -100,6 +102,7 @@ typedef struct {
   struct dict_object *dataobj_s6a_vendor_id;
   struct dict_object *dataobj_s6a_experimental_result_code;
   struct dict_object *dataobj_s6a_auth_session_state;
+  struct dict_object *dataobj_s6a_session_id;
   struct dict_object *dataobj_s6a_authentication_info;
   struct dict_object *dataobj_s6a_e_utran_vector;
   struct dict_object *dataobj_s6a_rand;
@@ -229,7 +232,6 @@ int s6a_add_ipv6_address(struct avp *avp, const char *ipv6_addr);
 char *experimental_retcode_2_string(int ret_code);
 char *retcode_2_string(int ret_code);
 
-/* SMS CLR */
 int s6a_generate_cancel_location_req (char *imsi);
 int s6a_cancel_loc_ans_cb(struct msg **msg, struct avp *paramavp,
                   struct session *sess, void *opaque,

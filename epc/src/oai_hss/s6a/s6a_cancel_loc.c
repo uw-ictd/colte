@@ -18,34 +18,16 @@ s6a_generate_cancel_location_req (char *imsi)
   struct session                         *sess_p = NULL;
   union avp_value                         value;
 
-  /* SMS CLR TODO: ALL THIS IS JUST HARD-CODED!!! */
-  /* SMS CLR TODO: should this value actually be "colte"??? Possible bug??? */
+  /* SMS TODO: ALL THIS IS JUST HARD-CODED!!! */
+  /* SMS TODO: should this value actually be "colte"??? Possible bug??? */
   bstring dst_host = bfromcstr("colte");
   // bstring src_host = bfromcstr("hss");
   bstring realm = bfromcstr("OpenAir5G.Alliance");
 
-  /* SMS CLR: These specific values copied/mimic'ed from s6a_dict.c since not included.
-   * They directly correspond to all the values that lead with s6a_fd_cnf. */
-  struct dict_object *dataobj_s6a_clr;
-  struct dict_object *dataobj_s6a_session_id;
-  struct dict_object *dataobj_s6a_auth_session_state;
-  struct dict_object *dataobj_s6a_destination_host;
-  struct dict_object *dataobj_s6a_destination_realm;
-  struct dict_object *dataobj_s6a_user_name;
-  struct dict_object *dataobj_s6a_cancel_type;
-
-  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_COMMAND, CMD_BY_NAME, "Cancel-Location-Request", &dataobj_s6a_clr, ENOENT));
-  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Session-Id", &dataobj_s6a_session_id, ENOENT));
-  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Auth-Session-State", &dataobj_s6a_auth_session_state, ENOENT));
-  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Destination-Host", &dataobj_s6a_destination_host, ENOENT));
-  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Destination-Realm", &dataobj_s6a_destination_realm, ENOENT));
-  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "User-Name", &dataobj_s6a_user_name, ENOENT));
-  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Cancellation-Type", &dataobj_s6a_cancel_type, ENOENT));
-
   /*
    * Create the new update location request message
    */
-  CHECK_FCT (fd_msg_new (dataobj_s6a_clr, 0, &msg_p));
+  CHECK_FCT (fd_msg_new (s6a_cnf.dataobj_s6a_cancel_loc_req, 0, &msg_p));
 
   /*
    * Create a new session
@@ -56,14 +38,14 @@ s6a_generate_cancel_location_req (char *imsi)
     size_t                                  sidlen;
 
     CHECK_FCT (fd_sess_getsid (sess_p, &sid, &sidlen));
-    CHECK_FCT (fd_msg_avp_new (dataobj_s6a_session_id, 0, &avp_p));
+    CHECK_FCT (fd_msg_avp_new (s6a_cnf.dataobj_s6a_session_id, 0, &avp_p));
     value.os.data = sid;
     value.os.len = sidlen;
     CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
     CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_FIRST_CHILD, avp_p));
   }
 
-  CHECK_FCT (fd_msg_avp_new (dataobj_s6a_auth_session_state, 0, &avp_p));
+  CHECK_FCT (fd_msg_avp_new (s6a_cnf.dataobj_s6a_auth_session_state, 0, &avp_p));
   /*
    * No State maintained
    */
@@ -82,7 +64,7 @@ s6a_generate_cancel_location_req (char *imsi)
     bconchar(dst_host, '.');
     bconcat (dst_host, realm);
 
-    CHECK_FCT (fd_msg_avp_new (dataobj_s6a_destination_host, 0, &avp_p));
+    CHECK_FCT (fd_msg_avp_new (s6a_cnf.dataobj_s6a_destination_host, 0, &avp_p));
     value.os.data = (unsigned char *)bdata(dst_host);
     value.os.len = blength(dst_host);
     CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
@@ -94,7 +76,7 @@ s6a_generate_cancel_location_req (char *imsi)
    */
 
   {
-    CHECK_FCT (fd_msg_avp_new (dataobj_s6a_destination_realm, 0, &avp_p));
+    CHECK_FCT (fd_msg_avp_new (s6a_cnf.dataobj_s6a_destination_realm, 0, &avp_p));
     value.os.data = (unsigned char *)bdata(realm);
     value.os.len = blength(realm);
     CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
@@ -106,13 +88,13 @@ s6a_generate_cancel_location_req (char *imsi)
    * Adding the User-Name (IMSI)
    */
 /* SMS CLR: LOOK INTO THIS */
-  CHECK_FCT (fd_msg_avp_new (dataobj_s6a_user_name, 0, &avp_p));
+  CHECK_FCT (fd_msg_avp_new (s6a_cnf.dataobj_s6a_imsi, 0, &avp_p));
   value.os.data = (unsigned char *)imsi;
   value.os.len = strlen (imsi);
   CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
   CHECK_FCT (fd_msg_avp_add (msg_p, MSG_BRW_LAST_CHILD, avp_p));
 
-  CHECK_FCT (fd_msg_avp_new (dataobj_s6a_cancel_type, 0, &avp_p));
+  CHECK_FCT (fd_msg_avp_new (s6a_cnf.dataobj_s6a_cancel_type, 0, &avp_p));
 /* SMS CLR: WHAT VAL SHOULD THIS ACTUALLY BE?!? AND WHAT FORMAT?!? */
   value.i32 = 2;
   CHECK_FCT (fd_msg_avp_setvalue (avp_p, &value));
