@@ -130,6 +130,11 @@
         user: "{{ username }}"
         disabled: "no"
 
+# step 4: for some reason have to restart ntopng daemon for system to work
+    - name: start ntopng as a service
+      shell: service ntopng restart
+      become: yes
+
 # OTHER CONSIDERATIONS:
 # - if we get a weird result from .py, or if netopng crashes, we need to shut off the entire network (lest people use it for free)
 # can we somehow monitor this?
