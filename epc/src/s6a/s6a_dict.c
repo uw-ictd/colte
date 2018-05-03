@@ -109,8 +109,6 @@ s6a_fd_init_dict_objs (
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Service-Selection", &s6a_fd_cnf.dataobj_s6a_service_selection, ENOENT));
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "UE-SRVCC-Capability", &s6a_fd_cnf.dataobj_s6a_ue_srvcc_cap, ENOENT));
   CHECK_FD_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Cancellation-Type", &s6a_fd_cnf.dataobj_s6a_cancel_type, ENOENT));
-
-
   /*
    * Register callbacks
    */
@@ -124,7 +122,7 @@ s6a_fd_init_dict_objs (
   DevAssert (s6a_fd_cnf.ula_hdl );
 
   /*
-   * SMS CLR: Register the callback for Cancel Location Request S6A Application
+   * Register the callback for Cancel Location Request S6A Application
    */
   when.command = s6a_fd_cnf.dataobj_s6a_clr;
   when.app = s6a_fd_cnf.dataobj_s6a_app;
@@ -138,6 +136,7 @@ s6a_fd_init_dict_objs (
   when.app = s6a_fd_cnf.dataobj_s6a_app;
   CHECK_FD_FCT (fd_disp_register (s6a_aia_cb, DISP_HOW_CC, &when, NULL, &s6a_fd_cnf.aia_hdl));
   DevAssert (s6a_fd_cnf.aia_hdl );
+  
   /*
    * Advertise the support for the test application in the peer
    */

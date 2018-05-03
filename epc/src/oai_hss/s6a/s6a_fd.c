@@ -103,6 +103,10 @@ s6a_init_objs (
    */
   CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Origin-Host", &s6a_cnf.dataobj_s6a_origin_host, ENOENT));
   CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Origin-Realm", &s6a_cnf.dataobj_s6a_origin_realm, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Destination-Host", &s6a_cnf.dataobj_s6a_destination_host, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Destination-Realm", &s6a_cnf.dataobj_s6a_destination_realm, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME, "Session-Id", &s6a_cnf.dataobj_s6a_session_id, ENOENT));
+  CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Cancellation-Type", &s6a_cnf.dataobj_s6a_cancel_type, ENOENT));
   CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "User-Name", &s6a_cnf.dataobj_s6a_imsi, ENOENT));
   CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "IMEI", &s6a_cnf.dataobj_s6a_imei, ENOENT));
   CHECK_FCT (fd_dict_search (fd_g_config->cnf_dict, DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Software-Version", &s6a_cnf.dataobj_s6a_software_version, ENOENT));

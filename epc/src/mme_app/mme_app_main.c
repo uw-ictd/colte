@@ -224,7 +224,6 @@ void *mme_app_thread (void *args)
       }
       break;
 
-    /* SMS CLR */
     case S6A_CANCEL_LOCATION_REQ:{
         /*
          * We received the update location answer message from HSS -> Handle it

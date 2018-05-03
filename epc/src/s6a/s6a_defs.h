@@ -97,7 +97,6 @@ typedef struct {
   struct dict_object *dataobj_s6a_auth_session_state;
   struct dict_object *dataobj_s6a_result_code;
   struct dict_object *dataobj_s6a_experimental_result;
-  /* SMS CLR */
   struct dict_object *dataobj_s6a_vendor_id;
   struct dict_object *dataobj_s6a_experimental_result_code;
 
@@ -114,7 +113,6 @@ typedef struct {
   struct dict_object *dataobj_s6a_re_synchronization_info;
   struct dict_object *dataobj_s6a_service_selection;
   struct dict_object *dataobj_s6a_ue_srvcc_cap;
-  /* SMS CLR */
   struct dict_object *dataobj_s6a_cancel_type;
 
   /* Handlers */
