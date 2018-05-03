@@ -18,10 +18,8 @@ s6a_generate_cancel_location_req (char *imsi)
   struct session                         *sess_p = NULL;
   union avp_value                         value;
 
-  /* SMS TODO: ALL THIS IS JUST HARD-CODED!!! */
-  /* SMS TODO: should this value actually be "colte"??? Possible bug??? */
-  bstring dst_host = bfromcstr("colte");
-  // bstring src_host = bfromcstr("hss");
+  /* SMS TODO: THESE VALS ARE JUST HARD-CODED! */
+  bstring dst_host = bfromcstr("mme");
   bstring realm = bfromcstr("OpenAir5G.Alliance");
 
   /*
