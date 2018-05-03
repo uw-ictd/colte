@@ -6,6 +6,7 @@
 # (2) every entry in "oai_hss" MUST have an enabled entry in customers database or will be disabled
 
 import MySQLdb
+import os
 
 db = MySQLdb.connect(host="localhost",
                      user=os.environ.get('COLTE_USER'),
@@ -20,7 +21,7 @@ cursor = db.cursor()
 enabled_imsis = []
 record_list = []
 file_update = False
-query = ("SELECT (idcustomers, imsi, raw_down, raw_up, balance, enabled) FROM customers")
+query = "SELECT idcustomers, imsi, raw_down, raw_up, balance, enabled FROM customers"
 numrows = cursor.execute(query)
 
 for row in cursor:
