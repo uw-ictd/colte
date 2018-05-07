@@ -3,8 +3,8 @@ var router = express.Router();
 var customer = require('../models/customer');
 
 router.get('/', function(req, res, next) {
-  var ip = '192.168.151.2';//req.ip;
-  customer.find(ip).then((data) => {
+  var imsi = '910540000000999';//req.ip;
+  customer.find(imsi).then((data) => {
     // console.log(data);
     res.render('user', {
       title: 'Home',
@@ -16,10 +16,10 @@ router.get('/', function(req, res, next) {
 });
   
 router.post('/transfer', function(req,res) {
-  var ip = '192.168.151.2';
+  var imsi = '910540000000999';
   var amount = req.body.amount;
   var msisdn = req.body.msisdn;
-  customer.transfer_balance(ip, msisdn, amount).catch((error) => {
+  customer.transfer_balance(imsi, msisdn, amount).catch((error) => {
     console.log("Transfer error: " + error);
   });
   res.redirect('/user');
