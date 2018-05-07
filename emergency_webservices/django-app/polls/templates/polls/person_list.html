@@ -1,0 +1,77 @@
+{% load staticfiles %}
+
+<head>
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+</head>
+
+{% if user %}
+<a href="update.html" class="btn btn-md btn-secondary">Update Your Information</a>
+<a href="register_else.html" class="btn btn-md btn-secondary">Register Someone Else </a>
+{% else %}
+<a href="register" class="btn btn-md btn-secondary">Register Your Information</a>
+{% endif %}
+<form type="get" action="." style="margin: 0">
+  <input id="search_box" type="text" name="search_box" placeholder="Search...">
+  <button class="btn btn-md btn-secondary" id="search_submit" type="submit">Search</button>
+</form>
+
+{% if query %}
+<h3> This is a search for {{ query }}</h3>
+{% endif %}
+
+{% if addUser %}
+<h3> Added User Successfully!</h3>
+{% endif %}
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Status</th>
+      <th>Phone Number</th>
+      <th>Last Update</th>
+      <th>Last Location</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for person in persons %}
+      <tr>
+        <td>{{ person.name_text }}</td>
+        {% if person.status == 1 %}
+          <td>Okay</td>
+        {% elif person.status == 2 %}
+          <td>Injured</td>          
+        {% elif person.status == 3 %}
+          <td>Needs Help</td>          
+        {% else %}
+          <td>(Unknown)</td>  
+        {% endif %}
+        <td>{{ person.phone_number }}</td>
+        <td>{{ person.last_reported }}</td>
+        <td>{{ person.location }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if persons.has_other_pages %}
+  <ul class="pagination">
+    {% if persons.has_previous %}
+      <li><a href="?page={{ persons.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in persons.paginator.page_range %}
+      {% if persons.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if persons.has_next %}
+      <li><a href="?page={{ persons.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
