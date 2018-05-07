@@ -18,47 +18,11 @@ cursor = db.cursor()
 ############### STEP ONE: VALIDATE THE CUSTOMERS DATABASE ###############
 #########################################################################
 
-enabled_imsis = []
-record_list = []
-file_update = False
-query = "SELECT idcustomers, imsi, raw_down, raw_up, balance, enabled FROM customers"
+query = "UPDATE customers SET enabled=0 WHERE balance<=0"
 numrows = cursor.execute(query)
 
-for row in cursor:
-	table_id = row[0]
-	imsi = row[1]
-	raw_down = row[2]
-	raw_up = row[3]
-	balance = row[4]
-	enabled = row[5]
-	update = False
-
-	if raw_down < 0:
-		raw_down = "0"
-		update = True
-
-	if raw_up < 0:
-		raw_up = "0"
-		update = True
-
-	if balance > 0:
-		enabled_imsis.append(imsi)
-		if enabled == 0:
-			enabled = "1"
-			update = True
-
-	if balance <= 0 and enabled == 1:
-		enabled = "0"
-		update = True
-
-	if update:
-		new_record = (raw_down, raw_up, balance, enabled, table_id)
-		record_list.append(new_record)
-		file_update = True
-
-if file_update:
-	commit_str = "UPDATE customers SET raw_down = %s, raw_up = %s, balance = %s, enabled = %s WHERE idcustomers = %s"
-	cursor.executemany(commit_str, record_list)
+query = "UPDATE customers SET enabled=1 WHERE balance>0"
+numrows = cursor.execute(query)
 
 #########################################################################
 ################ STEP TWO: VALIDATE THE OAI_HSS DATABASE  ###############
