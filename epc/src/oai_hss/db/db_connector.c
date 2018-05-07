@@ -138,7 +138,7 @@ hss_mysql_update_loc (
     return EINVAL;
   }
 
-  sprintf (query, "SELECT `access_restriction`,`mmeidentity_idmmeidentity`,`u.msisdn`,`ue_ambr_ul`,`ue_ambr_dl`,`rau_tau_timer` "
+  sprintf (query, "SELECT `access_restriction`,`mmeidentity_idmmeidentity`,u.msisdn,`ue_ambr_ul`,`ue_ambr_dl`,`rau_tau_timer` "
                   "FROM users AS u, customers AS c "
                   "WHERE u.imsi=c.imsi AND c.enabled=1 AND u.imsi=%s ", imsi);
   memcpy (mysql_ul_ans->imsi, imsi, strlen (imsi) + 1);
