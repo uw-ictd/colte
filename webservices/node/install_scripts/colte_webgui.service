@@ -2,8 +2,7 @@
 Description=CoLTE WebGui
 
 [Service]
-ExecStart=/var/www/myapp/app.js
-ExecStart=/home/colte/colte/webservices/node/bin/www
+ExecStart=/bin/bash -c "/home/colte/colte/webservices/node/bin/www >> /var/log/colte/webgui.log 2>&1"
 Restart=always
 User=colte
 Group=colte  
