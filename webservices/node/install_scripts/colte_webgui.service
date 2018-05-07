@@ -1,0 +1,15 @@
+[Unit]
+Description=CoLTE WebGui
+
+[Service]
+ExecStart=/var/www/myapp/app.js
+ExecStart=/home/colte/colte/webservices/node/bin/www
+Restart=always
+User=colte
+Group=colte  
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/home/colte/colte/webservices/node
+
+[Install]
+WantedBy=multi-user.target
