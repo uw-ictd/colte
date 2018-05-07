@@ -66,7 +66,8 @@ def make_new_user(vals):
 # example cost: 5 dollars (units) per gb
 cost_per_gb = 50.00
 cost_per_mb = cost_per_gb / 1024
-cost_per_byte = cost_per_mb / 1024
+cost_per_kb = cost_per_mb / 1024
+cost_per_byte = cost_per_kb / 1024
 def calculate_cost(total_bytes):
 	# NAIVE APPROACH SO FAR: cost per byte * bytes
 	total_cost = total_bytes * cost_per_byte
