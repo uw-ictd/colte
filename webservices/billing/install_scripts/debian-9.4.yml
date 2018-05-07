@@ -81,33 +81,33 @@
         mode: 0644
       become: yes
 
-# step 2: setup/install mysql db
-    - name: apt-get install mysql
-      apt:
-        name: "{{ item }}"
-      become: yes 
-      with_items:
-      - python-mysqldb
-      - mysql-client
-      - mysql-server
-#      - libmysql-client-dev
+# # step 2: setup/install mysql db
+#     - name: apt-get install mysql
+#       apt:
+#         name: "{{ item }}"
+#       become: yes 
+#       with_items:
+#       - python-mysqldb
+#       - mysql-client
+#       - mysql-server
+# #      - libmysql-client-dev
 
-    - name: mysql configs
-      mysql_user:
-        name: "{{ username }}"
-        password: "{{ mysql_password }}"
-        host: localhost
-        priv: '*.*:ALL'
-        #login_password: research
-      become: yes
+#     - name: mysql configs
+#       mysql_user:
+#         name: "{{ username }}"
+#         password: "{{ mysql_password }}"
+#         host: localhost
+#         priv: '*.*:ALL'
+#         #login_password: research
+#       become: yes
 
-    - name: install billing table into mysql
-      mysql_db:
-        login_user: "{{ username }}"
-        login_password: "{{ mysql_password }}"
-        name: colte_db
-        state: import
-        target: "{{ billing_dir }}/customer_db.sql"
+#     - name: install billing table into mysql
+#       mysql_db:
+#         login_user: "{{ username }}"
+#         login_password: "{{ mysql_password }}"
+#         name: colte_db
+#         state: import
+#         target: "{{ billing_dir }}/customer_db.sql"
 
     - name: ensure log directory exists
       file:
@@ -117,9 +117,6 @@
         group: "{{ username }}"
         mode: 0755
       become: yes
-
-    - name: synchronize customer_db with oai users_db
-      shell: "python {{ billing_dir }}/synchronize_dbs.py"
 
 # step 3: schedule chron job for "import_to_db.py"
     - name: Install job on crontab

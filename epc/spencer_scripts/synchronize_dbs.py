@@ -64,43 +64,21 @@ if file_update:
 ################ STEP TWO: VALIDATE THE OAI_HSS DATABASE  ###############
 #########################################################################
 
-# We're doing three checks here.
-# Check #1: Ensure that each entry in 'users' is also in 'all_users'
-query = "INSERT INTO all_users SELECT * FROM users WHERE imsi NOT IN (SELECT imsi FROM all_users)"
-numrows = cursor.execute(query)
-
-# Check #2: Ensure that each entry in 'customers' is also in 'all_users'
+# Check #1: Ensure that each entry in 'customers' is also in 'users'
 # Note that this check does include disabled users in the customers db.
 # Note that it's a HUGE error to have a customer without a user. We can't recover
 # from that problem because we don't know what KI, etc. should be set to.
-query = ("SELECT imsi FROM customers WHERE imsi NOT IN (SELECT imsi FROM all_users)")
+query = ("SELECT imsi FROM customers WHERE imsi NOT IN (SELECT imsi FROM users)")
 numrows = cursor.execute(query)
 for row in cursor:
 	imsi = row[0]
-	print "ERROR: IMSI " + imsi + " in table customers but not in all_users. What to do?!?"
+	print "ERROR: IMSI " + imsi + " in table customers but not in users. What to do?!?"
 
-# Check #3: Ensure that each entry in 'all_users' is also in 'customers'
-# QUESTION: How to handle? Right now creating a "dummy" customer. We could also delete from all_users.
-query = ("SELECT imsi FROM all_users WHERE imsi NOT IN (SELECT imsi FROM customers)")
+# Check #2: Ensure that each entry in 'users' is also in 'customers'
+# QUESTION: How to handle? Right now creating a "dummy" customer that has no $ and is disabled by default.
+query = ("SELECT imsi FROM users WHERE imsi NOT IN (SELECT imsi FROM customers)")
 numrows = cursor.execute(query)
 for row in cursor:
 	imsi = row[0]
 	commit_str = "INSERT INTO customers (imsi, raw_down, raw_up, balance, enabled, msisdn) VALUES (" + imsi + ", 0, 0, 0, 0, 'NotUsed')"
-	cursor.execute(commit_str)	
-
-#########################################################################
-################ STEP THREE: UPDATE THE OAI_HSS DATABASE  ###############
-#########################################################################
-
-# Step 1: Find all entries in 'users' that aren't enabled in the customers db.
-#         Have to remove all of these values from the users database
-query = ("DELETE FROM users WHERE imsi NOT IN (SELECT imsi FROM customers WHERE enabled = 1)")
-numrows = cursor.execute(query)
-
-# Step 2: Find all enabled entries in 'customers' that aren't in 'users' db.
-# We have to look for these values in the all_users table and move them over
-# if we find it. Note: If we DON'T find it in the all_users table, we need to
-# throw up our hands and let people know. Note that we can't really create a user 
-# here because we don't know KI.
-query = "INSERT INTO users SELECT * FROM all_users WHERE imsi in (SELECT imsi FROM customers WHERE enabled = 1 AND imsi NOT IN (SELECT imsi FROM users))"
-numrows = cursor.execute(query)
+	cursor.execute(commit_str)
