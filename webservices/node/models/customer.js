@@ -4,10 +4,10 @@ var knex = require('knex')(require('../knexfile')[env]);
 
 var customer = {
   all() {
-    return knex.select('imsi', 'msisdn', 'ip', 'raw_down', 'raw_up', 'balance', 'activated').from('customers');
+    return knex.select('imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'activated').from('customers');
   },
-  find(ip) {
-    return knex.select('raw_up', 'raw_down', 'balance').where('ip', ip).from('customers');
+  find(imsi) {
+    return knex.select('raw_up', 'raw_down', 'balance').where('imsi', imsi).from('customers');
   },
   change_activation(msisdn, isActivated) {
     return knex.select('activated').where('msisdn', msisdn).from('customers')
@@ -47,13 +47,13 @@ var customer = {
       });
     })
   },
-  // moves "amount" from the customer with sender_ip to the customer with receiver_msisdn
+  // moves "amount" from the customer with sender_imsi to the customer with receiver_msisdn
   // amount must be non-negative
   // returns promise with no data
   // currently logs success/error to console
-  transfer_balance(sender_ip, receiver_msisdn, amount) {
+  transfer_balance(sender_imsi, receiver_msisdn, amount) {
     function fetch_bals() {
-      return knex.select('balance').where('ip', sender_ip).from('customers').then((sender_bal) => {
+      return knex.select('balance').where('imsi', sender_imsi).from('customers').then((sender_bal) => {
         return knex.select('balance').where('msisdn', receiver_msisdn).from('customers')
           .then((receiver_bal) => { return [sender_bal, receiver_bal]; });
       });
@@ -64,7 +64,7 @@ var customer = {
         var sender_bal;
         var receiver_bal;
         if (data[0].length != 1) {
-          err = "Sender IP matched " + data[0].length + " entries.";
+          err = "Sender IMSI matched " + data[0].length + " entries.";
         } else if (data[1].length != 1) {
           err = "Receiver MSISDN matched " + data[1].length + " entries.";
         } else {
@@ -81,7 +81,7 @@ var customer = {
         }
         sender_bal = Number(sender_bal) - Number(amount);
         receiver_bal = Number(receiver_bal) + Number(amount);
-        return trx.update({ balance: sender_bal }).where('ip', sender_ip).from('customers')
+        return trx.update({ balance: sender_bal }).where('imsi', sender_imsi).from('customers')
         .then((unused_data) => {
           // note we're still using the data argument from the fetch_bals promise
           return knex.update({ balance: receiver_bal }).where('msisdn', receiver_msisdn).from('customers')
