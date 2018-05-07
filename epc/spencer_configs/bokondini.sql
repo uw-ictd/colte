@@ -111,7 +111,7 @@ CREATE TABLE `customers` (
   `imsi` varchar(16) NOT NULL,
   `raw_down` int(10) unsigned DEFAULT '0',
   `raw_up` int(10) unsigned DEFAULT '0',
-  `balance` float(10,2) unsigned DEFAULT '0' COMMENT 'in USD for now',
+  `balance` float(10,2) DEFAULT '0.0',
   `enabled` tinyint(1) DEFAULT '0',
   `msisdn` varchar(16) DEFAULT 'NotUsed',
   PRIMARY KEY (`imsi`)
