@@ -60,8 +60,8 @@ def hss_disable_user(imsi):
 	# 2: flip user bit
 	# 3: send text?!?
 
-def make_new_user(vals):
-        print "Make new user? No, don't! How'd they even get on the network???"
+# def make_new_user(vals):
+#         print "Make new user? No, don't! How'd they even get on the network???"
 
 # example cost: 5 dollars (units) per gb
 cost_per_gb = 50.00
@@ -97,7 +97,7 @@ for line in file:
 	if imsi == ZERO_IMSI:
 		continue
 
-	query = "SELECT idcustomers, raw_down, raw_up, balance, enabled FROM customers WHERE imsi = " + imsi 
+	query = "SELECT imsi, raw_down, raw_up, balance, enabled FROM customers WHERE imsi = " + imsi 
 	numrows = cursor.execute(query)
 
 	if numrows == 0:
@@ -109,7 +109,7 @@ for line in file:
 		continue
 
 	answer_tuple = cursor.fetchone()
-	table_id = answer_tuple[0]
+	imsi = answer_tuple[0]
 	previous_bytes_down = answer_tuple[1]
 	previous_bytes_up = answer_tuple[2]
 	previous_balance = answer_tuple[3]
@@ -149,24 +149,19 @@ for line in file:
 	if new_balance <= 0:
 		print "Balance dropped below zero, cutting off IMSI " + imsi
 
-		# step 1: remove user from "users" db (so that re-auths will fail)
-		disable_str = "DELETE FROM users WHERE imsi = " + imsi
-		cursor.execute(disable_str)
-
-		# step 2: notify HSS to initiate network detach
+		# step 1: notify HSS to initiate network detach
 		hss_disable_user(imsi)
-
-		# step 3: enabled=0 will mark when we commit in the "customers" db
+		# step 2: enabled=0 will mark when we commit in the "customers" db
 		enabled = "0"
 		
 	else:
 		enabled = "1"
 
 	# END: store the record locally and onto the next user
-	new_record = (new_bytes_down, new_bytes_up, str(new_balance), enabled, table_id)
+	new_record = (new_bytes_down, new_bytes_up, str(new_balance), enabled, imsi)
 	record_list.append(new_record)
 	
 # (commit all updates at once to save on DB operations)
-commit_str = "UPDATE customers SET raw_down = %s, raw_up = %s, balance = %s, enabled = %s WHERE idcustomers = %s"
+commit_str = "UPDATE customers SET raw_down = %s, raw_up = %s, balance = %s, enabled = %s WHERE imsi = %s"
 
 cursor.executemany(commit_str, record_list)

@@ -138,7 +138,9 @@ hss_mysql_update_loc (
     return EINVAL;
   }
 
-  sprintf (query, "SELECT `access_restriction`,`mmeidentity_idmmeidentity`," "`msisdn`,`ue_ambr_ul`,`ue_ambr_dl`,`rau_tau_timer` " "FROM `users` WHERE `users`.`imsi`='%s' ", imsi);
+  sprintf (query, "SELECT `access_restriction`,`mmeidentity_idmmeidentity`,`u.msisdn`,`ue_ambr_ul`,`ue_ambr_dl`,`rau_tau_timer` "
+                  "FROM users AS u, customers AS c "
+                  "WHERE u.imsi=c.imsi AND c.enabled=1 AND u.imsi=%s ", imsi);
   memcpy (mysql_ul_ans->imsi, imsi, strlen (imsi) + 1);
   FPRINTF_DEBUG ("Query: %s\n", query);
   pthread_mutex_lock (&db_desc->db_cs_mutex);
@@ -249,7 +251,7 @@ hss_mysql_get_user (
   }
 
 
-  sprintf (query, "SELECT `imsi` FROM `users` WHERE `users`.`imsi`='%s' ", imsi);
+  sprintf (query, "SELECT `imsi` FROM customers WHERE enabled=1 and imsi=%s ", imsi);
   FPRINTF_DEBUG ("Query: %s\n", query);
   pthread_mutex_lock (&db_desc->db_cs_mutex);
 
@@ -513,7 +515,9 @@ hss_mysql_auth_info (
     return EINVAL;
   }
 
-  sprintf (query, "SELECT `key`,`sqn`,`rand`,`OPc` FROM `users` WHERE `users`.`imsi`='%s' ", auth_info_req->imsi);
+  sprintf (query, "SELECT `key`,`sqn`,`rand`,`OPc` "
+                  "FROM users AS u, customers AS c "
+                  "WHERE u.imsi=c.imsi AND c.enabled=1 AND u.imsi=%s ", auth_info_req->imsi);
   FPRINTF_DEBUG ("Query: %s\n", query);
   pthread_mutex_lock (&db_desc->db_cs_mutex);
 
