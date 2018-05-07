@@ -177,6 +177,14 @@
     - name: synchronize customer table with users table (just in case there are errors)
       shell: "python {{ epc_dir }}/spencer_scripts/synchronize_dbs.py"
 
+    - name: Install synchronize db job on crontab (daily)
+      cron:
+        name: "Synchronize Database (check for enabled/disabled users)"
+        special_time: daily
+        job: "{{ epc_dir }}/synchronize_dbs.sh >> /var/log/colte/cron.log 2>&1"
+        user: "{{ username }}"
+        disabled: "no"
+        
     - name: write information to hss.conf
       lineinfile:
         path: "{{ epc_dir }}/spencer_configs/hss.conf"
