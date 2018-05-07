@@ -25,16 +25,16 @@ router.post('/updatebalance', function(req, res) {
   })
 })
 
-router.post('/activation', function(req, res) {
+router.post('/enabled', function(req, res) {
   var msisdn = req.body.msisdn;
-  var isActivated = req.body.isActivated;
+  var isEnabled = req.body.isEnabled;
 
-  if (isActivated != 1 && isActivated != 0) {
+  if (isEnabled != 1 && isEnabled != 0) {
     res.status(400).end();
   }
   
-  customer.change_activation(msisdn, isActivated).then((data) => { 
-    console.log(msisdn + "'s activation is now " + isActivated);
+  customer.change_enabled(msisdn, isEnabled).then((data) => { 
+    console.log(msisdn + "'s enabled is now " + isEnabled);
     res.status(200).end();
   })
   .catch((error) => {

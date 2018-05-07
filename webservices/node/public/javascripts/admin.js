@@ -21,14 +21,14 @@
         });
     });
 
-    $(".activated").change(function () {
+    $(".enabled").change(function () {
       var parents = $(this).closest('tr');
       var msisdn = $(parents).attr('id');
-      var isChecked = $("#"+msisdn+" .activated").is(':checked');
-      var isActivated = isChecked ? 1 : 0;
-      var message = isChecked ? "Activation" : "Deactivation";
+      var isChecked = $("#"+msisdn+" .enabled").is(':checked');
+      var isEnabled = isChecked ? 1 : 0;
+      var message = isChecked ? "Enable" : "Disable";
 
-      $.post("/admin/activation", {msisdn: msisdn, isActivated: isActivated})
+      $.post("/admin/enabled", {msisdn: msisdn, isEnabled: isEnabled})
         .done(function() {
           alert(message + " successful");
           document.location.reload();
