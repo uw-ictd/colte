@@ -13,16 +13,6 @@
     node_dir: "{{ colte_dir }}/webservices/node"
 
   tasks:
-    # - name: must increase sudo timeout for this script to run successfully
-    #   lineinfile:
-    #     path: /etc/sudoers
-    #     regexp: 'env_reset'
-    #     line: 'Defaults env_reset, timestamp_timeout=60'
-    #     owner: root
-    #     group: root
-    #     mode: 440
-    #   become: yes
-
     - name: check for environment vars
       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
       when: coltenv is not defined
@@ -48,10 +38,6 @@
       npm:
         path: "{{ node_dir }}"
 
-    - name: "Install forever (to run Node.js app)."
-      npm: name=forever state=present global=yes
-      become: yes
-
     - name: write environment information to production.env
       lineinfile:
         path: "{{ node_dir }}/production.env"
@@ -71,6 +57,30 @@
         owner: "{{ username }}"
         group: "{{ username }}"
         mode: 0755
+
+    - name: dynamically write colte_webgui.service
+      lineinfile:
+        path: "{{ node_dir }}/install_scripts/colte_webgui.service"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+      with_items:
+      - {field: "ExecStart", line: "ExecStart=/bin/bash -c \"{{ node_dir }}/bin/www >> /var/log/colte/webgui.log 2>&1\""}
+      - {field: "User", line: "User={{ username }}"}
+      - {field: "Group", line: "Group={{ username }}"}
+      - {field: "WorkingDirectory", line: "WorkingDirectory={{ node_dir }}"}
+
+    - name: copy webgui.service to /etc/systemd/system
+      copy: 
+        src: "{{ node_dir }}/install_scripts/colte_webgui.service"
+        dest: "/etc/systemd/system/colte_webgui.service"
+        mode: 0644
+      become: yes
+
+    - name: start colte webgui via systemd
+      systemd: state=started name=colte_webgui
+      become: yes
 
     # - name: npm start webserver
     #   shell: npm start
