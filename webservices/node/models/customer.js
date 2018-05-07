@@ -4,13 +4,13 @@ var knex = require('knex')(require('../knexfile')[env]);
 
 var customer = {
   all() {
-    return knex.select('imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'activated').from('customers');
+    return knex.select('imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'enabled').from('customers');
   },
   find(imsi) {
     return knex.select('raw_up', 'raw_down', 'balance').where('imsi', imsi).from('customers');
   },
-  change_activation(msisdn, isActivated) {
-    return knex.select('activated').where('msisdn', msisdn).from('customers')
+  change_enabled(msisdn, isEnabled) {
+    return knex.select('enabled').where('msisdn', msisdn).from('customers')
     .catch(function (error) {
       throw new Error(error.sqlMessage);
     })
@@ -22,7 +22,7 @@ var customer = {
       return rows;
     })
     .then(function(rows) {
-      return knex.update({activated: isActivated}).where('msisdn', msisdn).from('customers')
+      return knex.update({enabled: isEnabled}).where('msisdn', msisdn).from('customers')
       .catch(function(error) {
         throw new Error(error.sqlMessage);
       });
