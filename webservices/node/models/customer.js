@@ -6,6 +6,9 @@ var customer = {
   all() {
     return knex.select('imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'enabled').from('customers');
   },
+  find_by_ip(ip) {
+    return knex.select('raw_up', 'raw_down', 'balance').where('c.imsi=s.imsi AND s.ip=', ip).from('customers AS c, static_ips AS s');
+  },
   find(imsi) {
     return knex.select('raw_up', 'raw_down', 'balance').where('imsi', imsi).from('customers');
   },
