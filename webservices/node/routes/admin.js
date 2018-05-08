@@ -7,6 +7,7 @@ router.get('/', function(req, res, next) {
     res.render('admin', { 
       title: 'Home',
       customers_list: data,
+      layout: 'admin_layout',
     });
   });
 });
