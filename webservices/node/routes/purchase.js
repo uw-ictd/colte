@@ -3,8 +3,10 @@ var router = express.Router();
 var customer = require('../models/customer');
 
 router.get('/', function(req, res, next) {
-  var imsi = '910540000000999';//req.ip;
-  customer.find(imsi).then((data) => {
+
+  // var ip = req.ip
+  var ip = "192.168.151.6"
+  customer.find_by_ip(ip).then((data) => {
     // console.log(data);
     res.render('purchase', {
       title: 'Home',
