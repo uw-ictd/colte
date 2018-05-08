@@ -77,6 +77,11 @@ typedef struct sgw_config_s {
   log_config_t log_config;
 
   bstring      config_file;
+
+  char *mysql_server;
+  char *mysql_user;
+  char *mysql_password;
+  char *mysql_database;
 } sgw_config_t;
 
 void sgw_config_init (sgw_config_t * config_pP);

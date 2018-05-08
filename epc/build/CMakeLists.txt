@@ -568,6 +568,7 @@ add_library (SGW
   ${SGW_DIR}/sgw_handlers.c
   ${SGW_DIR}/sgw_task.c
   ${SGW_DIR}/spgw_config.c
+  ${SGW_DIR}/sgw_db_connector.c
   )
 
 set(MME_DIR ${OPENAIRCN_DIR}/src/mme_app)

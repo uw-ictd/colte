@@ -35,21 +35,28 @@
 
 int allocate_ue_ipv4_address(const char *imsi, struct in_addr *addr) {
   // Call PGW IP Address allocator 
-  return pgw_get_free_ipv4_paa_address (addr, imsi); 
+
+  // return pgw_get_free_ipv4_paa_address (addr, imsi); 
+  return spgw_get_ip_from_imsi(addr, imsi);
 }
 
 int release_ue_ipv4_address(const char *imsi, struct in_addr *addr) {
   // Release IP address back to PGW IP Address allocator 
-  return pgw_release_free_ipv4_paa_address (addr); 
+
+  // return pgw_release_free_ipv4_paa_address (addr); 
+  return 0;
 }
 
 int ue_get_imsi_from_ipv4(char *imsi, struct in_addr *addr) {
   // Look up the UE's IMSI from IPv4 address (if attached) and copy
-  return pgw_get_imsi_from_ipv4 (addr, imsi);
+
+  // return pgw_get_imsi_from_ipv4 (addr, imsi);
+  return spgw_get_imsi_from_ip(addr, imsi);
 }
 
 void pgw_ip_address_pool_init(void) {
-  pgw_load_pool_ip_addresses ();
+  
+  // pgw_load_pool_ip_addresses ();
   return;
 }
 
