@@ -217,6 +217,8 @@
       - {field: "SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP", line: "        SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP         = \"{{ enb_iface_addr }}\";"}
       - {field: "PGW_INTERFACE_NAME_FOR_SGI", line: "        PGW_INTERFACE_NAME_FOR_SGI            = \"{{ wan_iface }}\";"}
       - {field: "IPV4_LIST", line: "        IPV4_LIST = (\"{{ lte_subnet }}\");"}
+      - {field: 'MYSQL_pass', line: '    MYSQL_pass   = "{{ mysql_password }}";'}
+      - {field: 'MYSQL_user', line: '    MYSQL_user   = "{{ username }}";'}
 
     - name: copy config files to /usr/local/etc/colte
       copy: 

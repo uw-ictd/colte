@@ -28,9 +28,17 @@
 #ifndef FILE_PGW_LITE_PAA_SEEN
 #define FILE_PGW_LITE_PAA_SEEN
 
+#include "sgw_config.h"
+
 void pgw_load_pool_ip_addresses       (void);
 int pgw_get_free_ipv4_paa_address     (struct in_addr * const addr_P, const char *imsi);
 int pgw_release_free_ipv4_paa_address (const struct in_addr * const addr_P);
 int pgw_get_imsi_from_ipv4		      (struct in_addr * const addr_P, char *imsi);
+
+// sgw_db_connector.c
+int spgw_mysql_connect (const sgw_config_t * sgw_config_p);
+void spgw_mysql_disconnect (void);
+int spgw_get_imsi_from_ip (struct in_addr *ip, char *imsi);
+int spgw_get_ip_from_imsi (struct in_addr *ip, char *imsi);
 
 #endif
