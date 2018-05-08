@@ -16,35 +16,51 @@ SPGW_SERVICE_ADDR = "127.0.0.1"
 ZERO_IMSI = "000000000000000"
 
 def get_imsi_from_ip(ip_addr):
+	query = "SELECT imsi FROM static_ips WHERE ip = " + ip_addr 
+	numrows = cursor.execute(query)
 
-	# Network Code
-	rawip = socket.inet_aton(ip_addr)
-#        print int(rawip)
-	message = SPGW_COMMAND_REQUEST_IMSI + "\0\0\0" + rawip + "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	sock.sendto(message, (SPGW_SERVICE_ADDR, SPGW_SERVICE_PORT))
-	data = sock.recv(24)
+	if numrows == 0:
+		print "ERROR: why do we not have an IMSI for ip address " + ip_addr + " in the database?!?!?"
+		continue
 
-	# Check for errors and validate response before continuing
-	if (data[0] == SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR):
-		print "get_imsi_from_ip ERROR: SPGW has no IMSI for IP " + ip_addr
-		return ZERO_IMSI
+	if numrows > 1:
+		print "More than one IMSI entry for same ip address? What happened???"
+		continue
 
-        if (data[0] != SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK):
-		print "get_imsi_from_ip ERROR: Unknown error?!?"
-		return ZERO_IMSI
-
-	raw_ip_response = data[4:8]
-	if (raw_ip_response != rawip):
-		print "get_imsi_from_ip ERROR: IP address in SPGW response doesn't match query?!?"
-		print "Origin IP: " + socket.inet_ntoa(rawip)
-		print "Received IP: " + socket.inet_ntoa(raw_ip_response)
-		return ZERO_IMSI
-
-	imsi = str(data[8:24])
-	print "Translated IP address " + ip_addr + " to IMSI " + imsi
-
+	answer_tuple = cursor.fetchone()
+	imsi = answer_tuple[0]
 	return imsi
+
+# def old_get_imsi_from_ip(ip_addr):
+
+# 	# Network Code
+# 	rawip = socket.inet_aton(ip_addr)
+# #        print int(rawip)
+# 	message = SPGW_COMMAND_REQUEST_IMSI + "\0\0\0" + rawip + "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+# 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# 	sock.sendto(message, (SPGW_SERVICE_ADDR, SPGW_SERVICE_PORT))
+# 	data = sock.recv(24)
+
+# 	# Check for errors and validate response before continuing
+# 	if (data[0] == SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR):
+# 		print "get_imsi_from_ip ERROR: SPGW has no IMSI for IP " + ip_addr
+# 		return ZERO_IMSI
+
+#         if (data[0] != SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK):
+# 		print "get_imsi_from_ip ERROR: Unknown error?!?"
+# 		return ZERO_IMSI
+
+# 	raw_ip_response = data[4:8]
+# 	if (raw_ip_response != rawip):
+# 		print "get_imsi_from_ip ERROR: IP address in SPGW response doesn't match query?!?"
+# 		print "Origin IP: " + socket.inet_ntoa(rawip)
+# 		print "Received IP: " + socket.inet_ntoa(raw_ip_response)
+# 		return ZERO_IMSI
+
+# 	imsi = str(data[8:24])
+# 	print "Translated IP address " + ip_addr + " to IMSI " + imsi
+
+# 	return imsi
 
 def hss_disable_user(imsi):
 	message = "\0" + imsi
