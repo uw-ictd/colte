@@ -812,6 +812,11 @@ set(CMAKE_MODULE_PATH "${OPENAIRCN_DIR}/build/modules" "${CMAKE_MODULE_PATH}")
 
 include(FindPkgConfig)
 
+INCLUDE(FindMySQL)
+IF( NOT MySQL_FOUND )
+  MESSAGE( SEND_ERROR "MySQL Client is required" )
+ENDIF( NOT MySQL_FOUND )
+
 pkg_search_module(LIBXML2 libxml-2.0 REQUIRED)
 include_directories(${LIBXML2_INCLUDE_DIRS})
 
@@ -897,7 +902,7 @@ add_executable(spgw
   )
 target_link_libraries (spgw
   -Wl,--start-group
-  GTPV1U SGW S11_SGW GTPV2C UDP_SERVER ${MSC_LIB} ${ITTI_LIB} ${3GPP_TYPES_LIB} CN_UTILS HASHTABLE BSTR
+  GTPV1U SGW S11_SGW GTPV2C UDP_SERVER ${MSC_LIB} ${ITTI_LIB} ${3GPP_TYPES_LIB} CN_UTILS HASHTABLE BSTR ${MySQL_LIBRARY}
   -Wl,--end-group
   pthread m rt gtpnl ${LFDS} ${CONFIG_LIBRARIES}  
   )
