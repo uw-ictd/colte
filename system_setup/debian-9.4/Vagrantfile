@@ -8,6 +8,7 @@ Vagrant.configure("2") do |config|
 
     epc.vm.network "forwarded_port", guest: 80, host: 8080
     epc.vm.network "forwarded_port", guest: 3002, host: 8081
+    epc.vm.network "forwarded_port", guest: 7999, host: 8082
 
     epc.vm.provision "shell", inline: <<-SHELL
       apt-get install -y git vim
