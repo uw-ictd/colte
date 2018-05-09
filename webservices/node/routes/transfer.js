@@ -4,8 +4,14 @@ var customer = require('../models/customer');
 
 router.get('/', function(req, res, next) {
 
-   var ip = req.ip
-  //var ip = "192.168.151.6"
+  var ip = req.ip
+  if (ip.substr(0,7) == "::ffff:") {
+    ip = ip.substr(7)
+  } else if (ip.substr(0,3) == "::1") {
+    ip = "127.0.0.1"
+  }
+  console.log("Web Request From: " + ip)
+
   customer.find_by_ip(ip).then((data) => {
     // console.log(data);
     res.render('transfer', {
