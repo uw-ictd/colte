@@ -7,7 +7,9 @@ var customer = {
     return knex.select('imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'enabled').from('customers');
   },
   find_by_ip(ip) {
-    return knex.select('raw_up', 'raw_down', 'balance').where('c.imsi=s.imsi AND s.ip=', ip).from('customers AS c, static_ips AS s');
+    return knex.select('raw_up', 'raw_down', 'balance')
+		.from('customers').join('static_ips', "customers.imsi", "=", "static_ips.imsi")
+		.whereRaw('customers.imsi=static_ips.imsi').andWhere('static_ips.ip', ip);
   },
   find(imsi) {
     return knex.select('raw_up', 'raw_down', 'balance').where('imsi', imsi).from('customers');
