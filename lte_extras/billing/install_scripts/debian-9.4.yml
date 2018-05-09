@@ -6,7 +6,7 @@
     username: "{{ ansible_env.COLTE_USER }}"
     mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
-    billing_dir: "{{ colte_dir }}/webservices/billing"
+    billing_dir: "{{ colte_dir }}/lte_extras/billing"
 
     wan_iface: "{{ ansible_env.COLTE_WAN_IFACE }}"
     lan_subnet: "{{ ansible_env.COLTE_LTE_SUBNET }}"

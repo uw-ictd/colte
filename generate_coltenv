@@ -49,12 +49,17 @@ echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/co
 #############################################################
 #################### COMPILATION OPTIONS ####################
 #############################################################
+# These are all the various features we can turn on or off. They should work 
+# relatively independently of each other, though some of them (i.e. billing 
+# or webgui) won't make any sense without the EPC having been built.
 
 echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_BILLING=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_WEBGUI=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_BIND=0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_IMS=0" | tee --append /usr/local/etc/colte/coltenv
+
 echo "export COLTE_ENBRAINS=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_EMERGENCY_WEBSERVICES=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_IMS=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_NODE=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_BILLING=1" | tee --append /usr/local/etc/colte/coltenv
 
 source /usr/local/etc/colte/coltenv

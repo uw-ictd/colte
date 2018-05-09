@@ -6,11 +6,10 @@
 - hosts: localhost
   vars:
     coltenv: "{{ ansible_env.COLTENV }}"
-    build_node: "{{ ansible_env.COLTE_NODE }}"
     username: "{{ ansible_env.COLTE_USER }}"
     mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
-    node_dir: "{{ colte_dir }}/webservices/node"
+    webgui_dir: "{{ colte_dir }}/lte_extras/webgui"
 
   tasks:
     - name: check for environment vars
@@ -36,11 +35,11 @@
 
     - name: npm install dependencies
       npm:
-        path: "{{ node_dir }}"
+        path: "{{ webgui_dir }}"
 
     - name: write environment information to production.env
       lineinfile:
-        path: "{{ node_dir }}/production.env"
+        path: "{{ webgui_dir }}/production.env"
         regexp: "{{ item.field }}"
         line: "{{ item.line }}"
         owner: "{{ username }}"
@@ -52,28 +51,28 @@
 
     - name: copy production.env file to .env
       copy: 
-        src: "{{ node_dir }}/production.env"
-        dest: "{{ node_dir }}/.env"
+        src: "{{ webgui_dir }}/production.env"
+        dest: "{{ webgui_dir }}/.env"
         owner: "{{ username }}"
         group: "{{ username }}"
         mode: 0755
 
     - name: dynamically write colte_webgui.service
       lineinfile:
-        path: "{{ node_dir }}/install_scripts/colte_webgui.service"
+        path: "{{ webgui_dir }}/install_scripts/colte_webgui.service"
         regexp: "{{ item.field }}"
         line: "{{ item.line }}"
         owner: "{{ username }}"
         group: "{{ username }}"
       with_items:
-      - {field: "ExecStart", line: "ExecStart=/bin/bash -c \"{{ node_dir }}/bin/www >> /var/log/colte/webgui.log 2>&1\""}
+      - {field: "ExecStart", line: "ExecStart=/bin/bash -c \"{{ webgui_dir }}/bin/www >> /var/log/colte/webgui.log 2>&1\""}
       - {field: "User", line: "User={{ username }}"}
       - {field: "Group", line: "Group={{ username }}"}
-      - {field: "WorkingDirectory", line: "WorkingDirectory={{ node_dir }}"}
+      - {field: "WorkingDirectory", line: "WorkingDirectory={{ webgui_dir }}"}
 
     - name: copy webgui.service to /etc/systemd/system
       copy: 
-        src: "{{ node_dir }}/install_scripts/colte_webgui.service"
+        src: "{{ webgui_dir }}/install_scripts/colte_webgui.service"
         dest: "/etc/systemd/system/colte_webgui.service"
         mode: 0644
       become: yes
@@ -81,17 +80,4 @@
     - name: start colte webgui via systemd
       systemd: state=started name=colte_webgui
       become: yes
-
-    # - name: npm start webserver
-    #   shell: npm start
-    #   args:
-    #     chdir: "{{ webservices_dir }}"
-
-    # - name: "Check list of Node.js apps running."
-    #   command: forever list
-    #   register: forever_list
-    #   changed_when: false
-
-    # - name: "Start example Node.js app."
-    #   command: forever start -c "npm start" "{{ webservices_dir }}"
-    #   when: "forever_list.stdout.find('/path/to/app.js') == -1"
+      
