@@ -39,6 +39,6 @@ int pgw_get_imsi_from_ipv4		      (struct in_addr * const addr_P, char *imsi);
 int spgw_mysql_connect (const sgw_config_t * sgw_config_p);
 void spgw_mysql_disconnect (void);
 int spgw_get_imsi_from_ip (struct in_addr *ip, char *imsi);
-int spgw_get_ip_from_imsi (struct in_addr *ip, char *imsi);
+int spgw_get_ip_from_imsi (struct in_addr *ip, const char *imsi);
 
 #endif
