@@ -75,6 +75,7 @@
 #include "timer.h"
 
 #include "pgw_ue_ip_address_alloc.h"
+#include "pgw_lite_paa.h"
 
 #define SPENCER_COMMAND_REQUEST_IMSI_ANSWER_OK 0
 #define SPENCER_COMMAND_REQUEST_IMSI 1
@@ -211,6 +212,8 @@ main (
    * Parse the command line for options and set the mme_config accordingly.
    */
   CHECK_INIT_RETURN (spgw_config_parse_opt_line (argc, argv, &spgw_config));
+
+  CHECK_INIT_RETURN (spgw_mysql_connect(&spgw_config));
   /*
    * Calling each layer init function
    */

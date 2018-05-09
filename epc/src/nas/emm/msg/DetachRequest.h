@@ -34,15 +34,15 @@
 /* Minimum length macro. Formed by minimum length of each mandatory field */
 #define DETACH_REQUEST_MINIMUM_LENGTH DETACH_TYPE_MINIMUM_LENGTH
 
-// SMS NOTE: Below is the old minimum length macro. Now that we're supporting
+/* SMS NOTE: Below is the old minimum length macro. Now that we're supporting
 // the MME->UE detach request message (which is much shorter) we needed to
 // change this macro. We could keep them both if we want to re-name and break
 // up (i.e. UE and MME as separate message types) but I see no reason to.
-// #define DETACH_REQUEST_MINIMUM_LENGTH ( \
-//     DETACH_TYPE_MINIMUM_LENGTH + \
-//     NAS_KEY_SET_IDENTIFIER_MINIMUM_LENGTH + \
-//     EPS_MOBILE_IDENTITY_MINIMUM_LENGTH )
-
+ #define DETACH_REQUEST_MINIMUM_LENGTH ( \
+     DETACH_TYPE_MINIMUM_LENGTH + \
+     NAS_KEY_SET_IDENTIFIER_MINIMUM_LENGTH + \
+     EPS_MOBILE_IDENTITY_MINIMUM_LENGTH )
+*/
 /* Maximum length macro. Formed by maximum length of each field */
 #define DETACH_REQUEST_MAXIMUM_LENGTH ( \
     DETACH_TYPE_MAXIMUM_LENGTH + \
