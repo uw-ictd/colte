@@ -17,7 +17,7 @@ if [ $COLTE_WEBGUI == 1 ]; then
 	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/webgui/install_scripts/debian-9.4.yml
 fi
 
-if [ $COLTE_IMS == 1 ]; then
+if [ $COLTE_BIND == 1 ]; then
 	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/bind/debian-9.4.yml
 fi
 
