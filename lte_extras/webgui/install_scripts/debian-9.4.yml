@@ -1,0 +1,83 @@
+# This script is to be run on the actual host machine (i.e. no Vagrant BS here.)
+# It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
+# If you don't want a specific webservice just comment out the appropriate include_tasks.yml file
+
+---
+- hosts: localhost
+  vars:
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+    webgui_dir: "{{ colte_dir }}/lte_extras/webgui"
+
+  tasks:
+    - name: check for environment vars
+      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
+        
+    - name: apt-get update
+      apt:
+        update-cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+    - name: use curl script to fetch/install node and npm
+      shell: curl -sL https://deb.nodesource.com/setup_6.x | bash -
+      become: yes
+
+    - name: install node and npm
+      apt:
+        name: "{{ item }}"
+      with_items:
+      - nodejs
+      become: yes
+
+    - name: npm install dependencies
+      npm:
+        path: "{{ webgui_dir }}"
+
+    - name: write environment information to production.env
+      lineinfile:
+        path: "{{ webgui_dir }}/production.env"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0755
+      with_items:
+      - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
+      - {field: 'DB_USER', line: 'DB_USER={{ username }}'}
+
+    - name: copy production.env file to .env
+      copy: 
+        src: "{{ webgui_dir }}/production.env"
+        dest: "{{ webgui_dir }}/.env"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0755
+
+    - name: dynamically write colte_webgui.service
+      lineinfile:
+        path: "{{ webgui_dir }}/install_scripts/colte_webgui.service"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+      with_items:
+      - {field: "ExecStart", line: "ExecStart=/bin/bash -c \"{{ webgui_dir }}/bin/www >> /var/log/colte/webgui.log 2>&1\""}
+      - {field: "User", line: "User={{ username }}"}
+      - {field: "Group", line: "Group={{ username }}"}
+      - {field: "WorkingDirectory", line: "WorkingDirectory={{ webgui_dir }}"}
+
+    - name: copy webgui.service to /etc/systemd/system
+      copy: 
+        src: "{{ webgui_dir }}/install_scripts/colte_webgui.service"
+        dest: "/etc/systemd/system/colte_webgui.service"
+        mode: 0644
+      become: yes
+
+    - name: start colte webgui via systemd
+      systemd: state=started name=colte_webgui
+      become: yes
+      
