@@ -15,7 +15,7 @@
 
     - name: apt-get bind
       apt:
-        name: {{ item }}
+        name: "{{ item }}"
       become: yes
       with_items:
       - bind9
@@ -47,10 +47,9 @@
       with_items:
       - {field: "admin", line: "@ IN  SOA colte.{{ network_name }}. admin.{{ network_name }}. ("}
       - {field: "NS", line: " IN  NS  colte.{{ network_name }}."}
-      - {field: "NS", line: " IN  NS  colte.{{ network_name }}."}
 # SMS TODO: DYNAMICALLY WRITE/REPLACE 192.168.151.1
-      - {field: "coltereplace", line: "colte.{{ network_name }}.  IN  A 192.168.151.1"}
-      - {field: "network.bokondini", line: "network.{{ network_name }}.  IN  A 192.168.151.1"}
+      - {field: "A1", line: "colte.{{ network_name }}.  IN  A 192.168.151.1 ;A1"}
+      - {field: "A2", line: "network.{{ network_name }}.  IN  A 192.168.151.1 ;A2"}
 
     - name: ensure /etc/bind/zones directory exists
       file:
@@ -71,6 +70,10 @@
       - {src: "{{ bind_dir }}/named.conf.local", dst: "/etc/bind/named.conf.local"}
       - {src: "{{ bind_dir }}/named.conf.options", dst: "/etc/bind/named.conf.options"}
       - {src: "{{ bind_dir }}/db", dst: "/etc/bind/zones/db.{{ network_name }}"}
+
+    - name: restart bind9
+      service: name=bind9 state=restarted
+      become: yes
 
 # followed these instructions exactly:
 # https://www.digitalocean.com/community/tutorials/how-to-configure-bind-as-a-caching-or-forwarding-dns-server-on-ubuntu-14-04
