@@ -30,3 +30,28 @@ fi
 if [ $? != 0 ] ; then
      iptables -A FORWARD -i enp3s0 -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 fi
+
+# SMS NOTE 1:
+
+# I should be able to remove rules (1) and (2) if chain defaults are set to accept.
+# Rule (1) ensures that packets from gtp0 can access me locally. We CAN REMOVE this
+# if the default INPUT chain is set to accept (is it?).
+# I have no clue wht Rule (2) does, really. It seems like a tautology? It only applies
+# to FILTER table INPUT chain, which is destined inbound for local host. Why wouldn't
+# these packets already be accepted, how was conn. established in the first place?!?!?
+# Either way this rule should NOT ever be in the flow for NATed packets in or out - 
+# FORWARD chain would be the only appropriate one in the FILTER table.
+
+# Rule (3) is the heart of the NAT. MASQUERADE automatically sets up SNAT/DNAT
+# and is vital for situations where we don't already know the source IP (note
+# that it could be anything in 192.168.151.*)
+# Rules (4) and (5) ensure that packets bridged to/from gtp0 don't get dropped by FILTER chain.
+
+# SMS NOTE 2: HERE'S HOW TO ENABLE/DISABLE INDIVIDUAL CLIENT USERS!!!
+
+# IPTABLES 
+# iptables -I FORWARD -s {source_ip} -j REJECT
+# iptables -I FORWARD -d {source_ip} -j REJECT
+
+# iptables -D FORWARD -s {source_ip} -j REJECT
+# iptables -D FORWARD -d {source_ip} -j REJECT
