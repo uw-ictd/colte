@@ -219,6 +219,9 @@
       - {field: "IPV4_LIST", line: "        IPV4_LIST = (\"{{ lte_subnet }}\");"}
       - {field: 'MYSQL_pass', line: '    MYSQL_pass   = "{{ mysql_password }}";'}
       - {field: 'MYSQL_user', line: '    MYSQL_user   = "{{ username }}";'}
+# SMS TODO: THESE VALUES ARE HARD-CODED WE NEED TO SET THEM TO COLTE'S VALUE IF-AND-ONLY-IF BIND OPTION TURNED ON
+      - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: '    DEFAULT_DNS_IPV4_ADDRESS = "192.168.151.1";'}
+      - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: '    DEFAULT_DNS_SEC_IPV4_ADDRESS = "192.168.151.1";'}
 
     - name: copy config files to /usr/local/etc/colte
       copy: 
