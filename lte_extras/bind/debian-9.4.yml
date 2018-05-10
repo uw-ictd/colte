@@ -46,7 +46,7 @@
         line: "{{ item.line }}"
       with_items:
       - {field: "admin", line: "@ IN  SOA colte.{{ network_name }}. admin.{{ network_name }}. ("}
-      - {field: "NS", line: " IN  NS  colte.{{ network_name }}."}
+      - {field: "N1", line: " IN  NS  colte.{{ network_name }}. ;N1"}
 # SMS TODO: DYNAMICALLY WRITE/REPLACE 192.168.151.1
       - {field: "A1", line: "colte.{{ network_name }}.  IN  A 192.168.151.1 ;A1"}
       - {field: "A2", line: "network.{{ network_name }}.  IN  A 192.168.151.1 ;A2"}
