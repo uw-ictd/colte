@@ -13,6 +13,10 @@ if [ $COLTE_BILLING == 1 ]; then
 	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/billing/install_scripts/debian-9.4.yml
 fi
 
+if [ $COLTE_NGINX == 1 ]; then
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/nginx/debian-9.4.yml
+fi
+
 if [ $COLTE_WEBGUI == 1 ]; then
 	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/webgui/install_scripts/debian-9.4.yml
 fi
