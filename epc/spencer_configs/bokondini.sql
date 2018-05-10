@@ -127,17 +127,19 @@ CREATE TABLE `customers` (
   `imsi` varchar(16) NOT NULL,
   `raw_down` int(10) unsigned DEFAULT '0',
   `raw_up` int(10) unsigned DEFAULT '0',
+  `data_balance` int(10) unsigned DEFAULT '0',
   `balance` float(10,2) DEFAULT '0.0',
+  `bridged` tinyint(1) DEFAULT '0',
   `enabled` tinyint(1) DEFAULT '0',
   `msisdn` varchar(16) DEFAULT 'NotUsed',
   PRIMARY KEY (`imsi`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 INSERT INTO `customers` VALUES
-('000000000000001', 0, 0, 500, 1, 'NotUsed'),
-('910540000000995', 0, 0, 500, 1, 'NotUsed'),
-('910540000000996', 0, 0, 500, 1, 'NotUsed'),
-('910540000000997', 0, 0, 500, 1, 'NotUsed'),
-('910540000000998', 0, 0, 500, 1, 'NotUsed'),
-('910540000000999', 0, 0, 500, 1, 'NotUsed')
+('000000000000001', 0, 0, 0, 500, 1, 1, 'NotUsed'),
+('910540000000995', 0, 0, 0, 500, 1, 1, 'NotUsed'),
+('910540000000996', 0, 0, 0, 500, 1, 1, 'NotUsed'),
+('910540000000997', 0, 0, 0, 500, 1, 1, 'NotUsed'),
+('910540000000998', 0, 0, 0, 500, 1, 1, 'NotUsed'),
+('910540000000999', 0, 0, 0, 500, 1, 1, 'NotUsed')
 ;
