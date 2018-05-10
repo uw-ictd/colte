@@ -42,7 +42,7 @@ echo "export COLTE_NETWORK_NAME=bokondini" | tee --append /usr/local/etc/colte/c
 # BEFORE YOU COMPILE/INSTALL EVERYTHING.
 echo "export COLTE_WAN_IFACE=enp3s0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_ENB_IFACE=enp3s0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_ENB_IFACE_ADDR=172.28.5.93/24" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_ENB_IFACE_ADDR=172.28.5.90/24" | tee --append /usr/local/etc/colte/coltenv
 # WARNING: DO NOT CHANGE COLTE_LTE_SUBNET FOR NOW
 echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/colte/coltenv
 
@@ -56,9 +56,10 @@ echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/co
 # relatively independently of each other, though some of them (i.e. billing 
 # or webgui) won't make any sense without the EPC having been built.
 
-echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_BILLING=1" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_WEBGUI=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_EPC=0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_BILLING=0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_NGINX=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_WEBGUI=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_BIND=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_IMS=0" | tee --append /usr/local/etc/colte/coltenv
 
