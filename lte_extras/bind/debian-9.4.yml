@@ -4,6 +4,8 @@
     coltenv: "{{ ansible_env.COLTENV }}"
     username: "{{ ansible_env.COLTE_USER }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
+    lte_subnet: "{{ ansible_env.COLTE_LTE_SUBNET }}"
+    network_name: "{{ ansible_env.COLTE_NETWORK_NAME }}"
     bind_dir: "{{ colte_dir }}/lte_extras/bind"
 
   tasks:
@@ -20,23 +22,55 @@
       - bind9utils
       - bind9-doc
 
-    - name: dynamically write subnet to bind configuration file
+    - name: write information to named.conf.options
+      lineinfile:
+        path: "{{ bind_dir }}/named.conf.options"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+      with_items:
+      - {field: "#SUBNET", line: "  {{ lte_subnet }}; #SUBNET"}
+
+    - name: write network name to named.conf.local
+      lineinfile:
+        path: "{{ bind_dir }}/named.conf.local"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+      with_items:
+      - {field: "zone ", line: "zone \"{{ network_name }}\" {"}
+      - {field: "file", line: "  file \"/etc/bind/zones/db.{{ network_name }}\";"}
+
+    - name: write network name to zonefile
+      lineinfile:
+        path: "{{ bind_dir }}/db"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+      with_items:
+      - {field: "admin", line: "@ IN  SOA colte.{{ network_name }}. admin.{{ network_name }}. ("}
+      - {field: "NS", line: " IN  NS  colte.{{ network_name }}."}
+      - {field: "NS", line: " IN  NS  colte.{{ network_name }}."}
+# SMS TODO: DYNAMICALLY WRITE/REPLACE 192.168.151.1
+      - {field: "coltereplace", line: "colte.{{ network_name }}.  IN  A 192.168.151.1"}
+      - {field: "network.bokondini", line: "network.{{ network_name }}.  IN  A 192.168.151.1"}
+
+    - name: ensure /etc/bind/zones directory exists
+      file:
+        path: /etc/bind/zones
+        state: directory
+        # mode: 0755
+      become: yes
+
+    - name: copy bind configuration files
       copy: 
-        src: "{{ bind_dir }}/CONF"
-        dest: DEST
+        src: "{{ item.src }}"
+        dest: "{{ item.dst }}"
         # owner: "{{ username }}"
         # group: "{{ username }}"
         mode: 0644
       become: yes
-
-    - name: copy bind configuration file
-      copy: 
-        src: "{{ bind_dir }}/CONF"
-        dest: DEST
-        # owner: "{{ username }}"
-        # group: "{{ username }}"
-        mode: 0644
-      become: yes    
+      with_items:
+      - {src: "{{ bind_dir }}/named.conf.local", dst: "/etc/bind/named.conf.local"}
+      - {src: "{{ bind_dir }}/named.conf.options", dst: "/etc/bind/named.conf.options"}
+      - {src: "{{ bind_dir }}/db", dst: "/etc/bind/zones/db.{{ network_name }}"}
 
 # followed these instructions exactly:
 # https://www.digitalocean.com/community/tutorials/how-to-configure-bind-as-a-caching-or-forwarding-dns-server-on-ubuntu-14-04

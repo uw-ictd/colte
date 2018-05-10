@@ -1,0 +1,20 @@
+;
+; BIND data file for local loopback interface
+;
+$TTL	604800
+@	IN	SOA	colte.bokondini. admin.bokondini. (
+			      3		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+;
+
+	IN	NS	colte.bokondini.
+
+coltereplace.bokondini.	IN	A	192.168.151.1
+network.bokondini.	IN	A	192.168.151.1
+
+; SMS TODO: I CAN ADD MORE ADDRS HERE FOR ALL THE DIFFERENT WEBSERVICES WE'RE ADVERTISING.
+; WE SHOULD ALWAYS KEEP "colte" TO REFER TO US AS THE NAMESERVER. WE SHOULD ALSO KEEP 'network'
+; AS A PRIMITIVE THAT LETS US (AND OTHER USERS) ACCESS THE WEBGUI
