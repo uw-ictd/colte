@@ -1,7 +1,7 @@
 import MySQLdb
 import os
 import socket
-import iptc
+#import iptc
 
 HSS_REMOVE_IMSI_COMMAND = 0
 HSS_ADD_IMSI_COMMAND = 1
@@ -33,16 +33,17 @@ class Customer:
 	enabled = 1
 
 def get_imsi_from_ip(ip_addr):
-	query = "SELECT imsi FROM static_ips WHERE ip = " + ip_addr 
+	query = "SELECT imsi FROM static_ips WHERE ip = \"" + ip_addr + "\""
+        print query
 	numrows = cursor.execute(query)
 
 	if numrows == 0:
 		print "ERROR: why do we not have an IMSI for ip address " + ip_addr + " in the database?!?!?"
-		continue
+		return ZERO_IMSI
 
 	if numrows > 1:
 		print "More than one IMSI entry for same ip address? What happened???"
-		continue
+		return ZERO_IMSI
 
 	answer_tuple = cursor.fetchone()
 	imsi = answer_tuple[0]
@@ -114,7 +115,7 @@ db = MySQLdb.connect(host="localhost",
                      passwd=os.environ.get('COLTE_DBPASS'),
 		     	 	 db="colte_db")
 cursor = db.cursor()
-filename = os.environ.get('COLTE_DIR') + "/webservices/billing/tmp_dump.txt"
+filename = os.environ.get('COLTE_DIR') + "/lte_extras/billing/tmp_dump.txt"
 file = open(filename, 'r')
 
 # FIRST ROW IS JUST THE TIME OF THE ENTRY
@@ -122,7 +123,7 @@ timestr = file.readline().split()
 print "Read Timestring: " + str(timestr)
 
 for line in file:
-	c. Customer()
+	c = Customer()
 
 	vals = line.split()
 	c.ip = vals[0]
@@ -179,9 +180,9 @@ for line in file:
 	total_bytes_in_period = bytes_down_in_period + bytes_up_in_period
 	c.new_data_balance = c.old_data_balance - total_bytes_in_period
 
-    print "IMSI " + c.imsi + " used " + str(total_bytes_in_period) + " bytes. Bytes_remaining = " + str(c.new_data_balance) + ", raw_down = " + str(c.new_bytes_down) + ", raw_up = " + str(c.new_bytes_up)
-
-    verify_balance(c)
+        print "IMSI " + c.imsi + " used " + str(total_bytes_in_period) + " bytes. Bytes_remaining = " + str(c.new_data_balance) + ", raw_down = " + str(c.new_bytes_down) + ", raw_up = " + str(c.new_bytes_up)
+    
+        verify_balance(c)
 
 	# END: store the record locally and onto the next user
 	new_record = (c.new_bytes_down, c.new_bytes_up, str(c.new_data_balance), c.enabled, c.bridged, c.imsi)
@@ -201,11 +202,11 @@ def verify_balance(c):
 	# so that if we crosed multiple thresholds at once, only alert re: the lowest amt.
 	if c.new_data_balance <= 0 and c.old_data_balance > 0:
 		out_of_data(c)
-	else if c.new_data_balance <= 1000000 and c.old_data_balance > 1000000:
+	elif c.new_data_balance <= 1000000 and c.old_data_balance > 1000000:
 		alert_crossed_1mb(c)
-	else if c.new_data_balance <= 5000000 and c.old_data_balance > 5000000:
+	elif c.new_data_balance <= 5000000 and c.old_data_balance > 5000000:
 		alert_crossed_5mb(c)
-	else if c.new_data_balance <= 10000000 and c.old_data_balance > 10000000:
+	elif c.new_data_balance <= 10000000 and c.old_data_balance > 10000000:
 		alert_crossed_10mb(c)
 
 def alert_crossed_10mb(c):
@@ -244,9 +245,10 @@ def enable_iptables_filter(c):
 
 def disable_iptables_filter(c):
 	# command = "sudo iptables -D FORWARD -s " + c.ip + " -j REJECT"
-	rule = iptc.Rule()
-	rule.src = c.ip
-	rule.target = iptc.Target('REJECT')
-	chain = iptc.Chain(iptc.Table.(iptc.Table.FILTER), "FORWARD")
-	chain.delete_rule(rule)
+	# rule = iptc.Rule()
+	# rule.src = c.ip
+	# rule.target = iptc.Target('REJECT')
+	# chain = iptc.Chain(iptc.Table.(iptc.Table.FILTER), "FORWARD")
+	# chain.delete_rule(rule)
+        print "DISABLE IPTABLES FILTER NOT YET WRITTEN"
 
