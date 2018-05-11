@@ -124,8 +124,9 @@
         name: "Import bandwidth numbers from ntopng to billing db"
         minute: "*/5"
         job: "{{ billing_dir }}/import_to_db.sh >> /var/log/colte/cron.log 2>&1"
-        user: "{{ username }}"
+        # user: "{{ username }}"
         disabled: "no"
+      become: yes
 
 # step 4: for some reason have to restart ntopng daemon for system to work
     - name: start ntopng as a service
