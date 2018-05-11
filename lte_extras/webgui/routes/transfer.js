@@ -24,14 +24,26 @@ router.get('/', function(req, res, next) {
 });
   
 router.post('/transfer', function(req,res) {
-  var imsi = '910540000000999';
-  var amount = req.body.amount;
-  var msisdn = req.body.msisdn;
-  customer.transfer_balance(imsi, msisdn, amount).catch((error) => {
-    console.log("Transfer error: " + error);
-  });
 
-  res.redirect('/transfer');
+  var ip = req.ip
+  if (ip.substr(0,7) == "::ffff:") {
+    ip = ip.substr(7)
+  } else if (ip.substr(0,3) == "::1") {
+    ip = "127.0.0.1"
+  }
+  customer.find_by_ip(ip).then((data, req, res) => {
+
+    var amount = req.body.amount;
+    var msisdn = req.body.msisdn;
+
+    customer.transfer_balance(imsi, msisdn, amount).catch((error) => {
+      console.log("Transfer error: " + error);
+      res.redirect('/transfer');
+    })
+    .then(function() {
+      res.redirect('/transfer');
+    });
+  });
 });
 
 module.exports = router;

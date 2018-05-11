@@ -6,14 +6,17 @@ var customer = {
   all() {
     return knex.select('imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'enabled').from('customers');
   },
+
   find_by_ip(ip) {
     return knex.select('raw_up', 'raw_down', 'balance')
 		.from('customers').join('static_ips', "customers.imsi", "=", "static_ips.imsi")
 		.whereRaw('customers.imsi=static_ips.imsi').andWhere('static_ips.ip', ip);
   },
+
   find(imsi) {
     return knex.select('raw_up', 'raw_down', 'balance').where('imsi', imsi).from('customers');
   },
+
   change_enabled(msisdn, isEnabled) {
     return knex.select('enabled').where('msisdn', msisdn).from('customers')
     .catch(function (error) {
@@ -33,6 +36,7 @@ var customer = {
       });
     })
   },
+
   top_up(msisdn, delta) {
     return knex.select('balance').where('msisdn', msisdn).from('customers')
     .catch(function(error) {
@@ -52,6 +56,7 @@ var customer = {
       });
     })
   },
+
   // moves "amount" from the customer with sender_imsi to the customer with receiver_msisdn
   // amount must be non-negative
   // returns promise with no data
@@ -63,6 +68,7 @@ var customer = {
           .then((receiver_bal) => { return [sender_bal, receiver_bal]; });
       });
     }
+
     function transfer_func(trx) {
       return fetch_bals().then((data) => {
         var err = null;
@@ -99,6 +105,35 @@ var customer = {
     }
     return knex.transaction(transfer_func);
   }
+
+// ASSUMPTION: all three of these values are already sanitized/validated.
+// We can cancel the transaction if (for some reason) the user doesn't 
+// have enough funds, otherwise no logic is really needed.
+  purchase_package(imsi, cost, data) {
+    return knex.select('balance', 'data_balance').where('imsi', imsi).from('customers')
+    .catch(function(error) {
+      throw new Error(error.sqlMessage);
+    })
+    .then(function(rows) {
+      if (rows.length != 1) {
+        throw new Error("IMSI error");
+      }
+      return rows;
+    })
+    .then(function(rows) {
+      var newBalance = parseInt(rows[0].balance) - parseInt(cost);
+      var newData = parseInt(rows[0].data_balance) + parseInt(data);
+
+      if (newBalance < 0) {
+        throw new Error("Insufficient funds for transfer!");
+      }      
+
+      return knex.update({balance: newBalance, data_balance: newData}).where('imsi', imsi).from('customers')
+      .catch(function (error) {
+        throw new Error(error.sqlMessage);
+      });
+    })
+  },
 }
 
 module.exports = customer;
