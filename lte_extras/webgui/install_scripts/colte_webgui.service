@@ -5,7 +5,7 @@ Description=CoLTE WebGui
 ExecStart=/bin/bash -c "/home/colte/colte/lte_extras/webgui/bin/www >> /var/log/colte/webgui.log 2>&1"
 Restart=always
 User=colte
-Group=colte  
+Group=colte
 Environment=PATH=/usr/bin:/usr/local/bin
 Environment=NODE_ENV=production
 WorkingDirectory=/home/colte/colte/lte_extras/webgui

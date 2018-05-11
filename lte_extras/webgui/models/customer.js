@@ -8,9 +8,9 @@ var customer = {
   },
 
   find_by_ip(ip) {
-    return knex.select('raw_up', 'raw_down', 'balance')
+    return knex.select('customers.imsi', 'raw_up', 'raw_down', 'balance', 'data_balance')
 		.from('customers').join('static_ips', "customers.imsi", "=", "static_ips.imsi")
-		.whereRaw('customers.imsi=static_ips.imsi').andWhere('static_ips.ip', ip);
+		.where('static_ips.ip', ip);
   },
 
   find(imsi) {
@@ -104,12 +104,13 @@ var customer = {
       });
     }
     return knex.transaction(transfer_func);
-  }
+  },
 
 // ASSUMPTION: all three of these values are already sanitized/validated.
 // We can cancel the transaction if (for some reason) the user doesn't 
 // have enough funds, otherwise no logic is really needed.
   purchase_package(imsi, cost, data) {
+    console.log("IMSI = " + imsi + " cost = " + cost + " data = " + data)
     return knex.select('balance', 'data_balance').where('imsi', imsi).from('customers')
     .catch(function(error) {
       throw new Error(error.sqlMessage);
@@ -133,7 +134,7 @@ var customer = {
         throw new Error(error.sqlMessage);
       });
     })
-  },
+  }
 }
 
 module.exports = customer;
