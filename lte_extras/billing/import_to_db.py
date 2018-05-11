@@ -177,15 +177,15 @@ def main():
 		# SANITY CHECK
 		if (bytes_down_in_period < 0) or (bytes_up_in_period < 0):
 			print "MAJOR BILLING SCRIPT ERROR: HOW COULD WE GET NEGATIVE BYTE USAGE?!?"
-                        bytes_down_in_period = 0
-                        bytes_up_in_period = 0
+			bytes_down_in_period = 0
+			bytes_up_in_period = 0
 
 		total_bytes_in_period = bytes_down_in_period + bytes_up_in_period
 		c.new_data_balance = c.old_data_balance - total_bytes_in_period
 
-	        print "IMSI " + c.imsi + " used " + str(total_bytes_in_period) + " bytes. Bytes_remaining = " + str(c.new_data_balance) + ", raw_down = " + str(c.new_bytes_down) + ", raw_up = " + str(c.new_bytes_up)
+		print "IMSI " + c.imsi + " used " + str(total_bytes_in_period) + " bytes. Bytes_remaining = " + str(c.new_data_balance) + ", raw_down = " + str(c.new_bytes_down) + ", raw_up = " + str(c.new_bytes_up)
 	    
-	        verify_balance(c)
+		verify_balance(c)
 
 		# END: store the record locally and onto the next user
 		new_record = (c.new_bytes_down, c.new_bytes_up, str(c.new_data_balance), c.enabled, c.bridged, c.imsi)
