@@ -2,6 +2,7 @@ import MySQLdb
 import os
 import socket
 #import iptc
+import subprocess
 
 HSS_REMOVE_IMSI_COMMAND = 0
 HSS_ADD_IMSI_COMMAND = 1
@@ -32,7 +33,7 @@ class Customer:
 	bridged = 1
 	enabled = 1
 
-def get_imsi_from_ip(ip_addr):
+def get_imsi_from_ip(ip_addr, cursor):
 	query = "SELECT imsi FROM static_ips WHERE ip = \"" + ip_addr + "\""
         print query
 	numrows = cursor.execute(query)
@@ -131,7 +132,7 @@ def main():
 		c.new_bytes_down = vals[1]
 		c.new_bytes_up = vals[2]
 
-		c.imsi = get_imsi_from_ip(c.ip)
+		c.imsi = get_imsi_from_ip(c.ip, cursor)
 		if c.imsi == ZERO_IMSI:
 			continue
 
@@ -222,7 +223,7 @@ def alert_crossed_1mb(c):
 def out_of_data(c):
 	# STEP 1: enable iptables filter to ensure that they can't get out on the general Internet
 	print "IMSI " + c.imsi + " out of data, enabling iptables filter."
-	enable_iptables_filter(c.imsi)
+	enable_iptables_filter(c)
 	c.bridged = 0
 
 	# STEP 2: if they're also out of balance, cut them off entirely (figure this out later)
