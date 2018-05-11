@@ -24,14 +24,15 @@ router.get('/', function(req, res, next) {
   
 router.post('/purchase', function(req,res) {
   var ip = req.ip
+  var package = req.body.package;
+  console.log("PACKAGE = " + package)
+
   if (ip.substr(0,7) == "::ffff:") {
     ip = ip.substr(7)
   } else if (ip.substr(0,3) == "::1") {
     ip = "127.0.0.1"
   }
-  customer.find_by_ip(ip).then((data, req, res) => {
-
-    var package = req.body.package;
+  customer.find_by_ip(ip).then((data) => {
     
     if (package == 0) {
       var cost = 5;
@@ -48,9 +49,8 @@ router.post('/purchase', function(req,res) {
       return;
     }
 
-    customer.purchase_package(imsi, cost, bytes_purchased).catch((error) => {
+    customer.purchase_package(data[0].imsi, cost, bytes_purchased).catch((error) => {
       console.log("Purchase error: " + error);
-      res.redirect('/purchase');
     })
     .then(function() {
       res.redirect('/purchase');

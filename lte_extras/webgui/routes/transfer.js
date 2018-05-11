@@ -26,19 +26,18 @@ router.get('/', function(req, res, next) {
 router.post('/transfer', function(req,res) {
 
   var ip = req.ip
+  var amount = req.body.amount;
+  var msisdn = req.body.msisdn;
+
   if (ip.substr(0,7) == "::ffff:") {
     ip = ip.substr(7)
   } else if (ip.substr(0,3) == "::1") {
     ip = "127.0.0.1"
   }
-  customer.find_by_ip(ip).then((data, req, res) => {
+  customer.find_by_ip(ip).then((data) => {
 
-    var amount = req.body.amount;
-    var msisdn = req.body.msisdn;
-
-    customer.transfer_balance(imsi, msisdn, amount).catch((error) => {
+    customer.transfer_balance(data[0].imsi, msisdn, amount).catch((error) => {
       console.log("Transfer error: " + error);
-      res.redirect('/transfer');
     })
     .then(function() {
       res.redirect('/transfer');

@@ -5,7 +5,7 @@
       </div>
       <div class="card-body">
         <p>Balance: ${{balance}}</p>
-        <p>Current Data: ${{data_balance}}</p>
+        <p>Current Data: {{data_balance}} Bytes</p>
       </div>
     </div>
 
@@ -15,9 +15,9 @@
       </div>
       <div class="card-body">
         <form action="/purchase/purchase" method="post">
-          <p>10MB for $5</p><button name="package" value="0" type="submit" class="btn btn-primary">Purchase</button>
-          <p>100MB for $15</p><button name="package" value="1" type="submit" class="btn btn-primary">Purchase</button>
-          <p>1GB for $25</p><button name="package" value="2" type="submit" class="btn btn-primary">Purchase</button>
+          <p>10MB for $5<button name="package" value="0" type="submit" class="btn btn-primary">Purchase</button></p>
+          <p>100MB for $15<button name="package" value="1" type="submit" class="btn btn-primary">Purchase</button></p>
+          <p>1GB for $25<button name="package" value="2" type="submit" class="btn btn-primary">Purchase</button></p>
         </form>
       </div>
     </div>
