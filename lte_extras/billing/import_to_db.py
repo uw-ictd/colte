@@ -177,7 +177,8 @@ def main():
 		# SANITY CHECK
 		if (bytes_down_in_period < 0) or (bytes_up_in_period < 0):
 			print "MAJOR BILLING SCRIPT ERROR: HOW COULD WE GET NEGATIVE BYTE USAGE?!?"
-			continue
+                        bytes_down_in_period = 0
+                        bytes_up_in_period = 0
 
 		total_bytes_in_period = bytes_down_in_period + bytes_up_in_period
 		c.new_data_balance = c.old_data_balance - total_bytes_in_period
