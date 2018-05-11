@@ -245,14 +245,13 @@ def enable_iptables_filter(c):
 	# chain = iptc.Chain(iptc.Table.(iptc.Table.FILTER), "FORWARD")
 	# chain.insert_rule(rule)
 
-def disable_iptables_filter(c):
+#def disable_iptables_filter(c):
 	# command = "sudo iptables -D FORWARD -s " + c.ip + " -j REJECT"
 	# rule = iptc.Rule()
 	# rule.src = c.ip
 	# rule.target = iptc.Target('REJECT')
 	# chain = iptc.Chain(iptc.Table.(iptc.Table.FILTER), "FORWARD")
 	# chain.delete_rule(rule)
-        print "DISABLE IPTABLES FILTER NOT YET WRITTEN"
-
+ 
 if __name__ == "__main__":
     main()
