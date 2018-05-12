@@ -12,6 +12,10 @@
       fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
       when: coltenv is not defined
 
+    - name: stop apache2 sevice (IMPORTANT BEFORE INSTALLING nginx)
+      service: name=apache2 state=stopped
+      become: yes
+
     - name: apt-get nginx
       apt:
         name: "{{ item }}"
@@ -38,6 +42,12 @@
         src: "/etc/nginx/sites-available/webgui"
         dest: "/etc/nginx/sites-enabled/webgui"
         state: link
+      become: yes
+
+    - name: remove default nginx website (or server will not launch)
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
       become: yes
 
       # normally just have to issue a "reloaded" but this is better practice
