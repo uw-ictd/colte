@@ -32,10 +32,11 @@
     - name: install virtualbox
       apt:
         update_cache: yes
-        name: virtualbox-5.2
+        name: "{{ item }}"
       become: yes
       with_items:
-      - virtualbox-5.2
+      - linux-headers-4.9.0-6-amd64
+      - virtualbox-5.1
       - vagrant
 
 # download the clearwater ims ovf VAGRANT BOX from (http://vm-images.cw-ngv.com/cw-aio.ova)
