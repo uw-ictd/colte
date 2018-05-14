@@ -1,0 +1,20 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.define "ims" do |ims|
+    ims.vm.box = "cw-ims"
+
+    ims.vm.network "forwarded_port", guest: 22, host: 8022
+    ims.vm.network "forwarded_port", guest: 80, host: 8080
+    ims.vm.network "forwarded_port", guest: 5060, host: 8060
+
+    # ims.vm.provision "shell", inline: <<-SHELL
+    #   apt-get install -y git vim
+    #   git clone https://github.com/uw-ictd/colte.git /home/vagrant/colte
+    #   chown -R vagrant:vagrant /home/vagrant/colte
+    # SHELL
+
+  end
+end

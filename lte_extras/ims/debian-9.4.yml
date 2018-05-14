@@ -11,24 +11,52 @@
       fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
       when: coltenv is not defined
 
-    - name: install virtualbox
-      apt:
-        name: virtualbox
-
 # STEP ONE: sudo add the line "deb http://download.virtualbox.org/virtualbox/debian stretch contrib"
 # to the file /etc/apt/sources.list.d/virtualbox.list
-# NEXT STEPS:
+    - name: add virtualbox repo
+      lineinfile:
+        path: /etc/apt/sources.list.d/virtualbox.list
+        line: "deb http://download.virtualbox.org/virtualbox/debian stretch contrib"
+        create: yes
+      become: yes
+
 # wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
+    - name: add oracle vbox key to apt
+      apt_key:
+        url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+        state: present
+      become: yes
+
 # apt update
 # apt install virtualbox-5.2
+    - name: install virtualbox
+      apt:
+        update_cache: yes
+        name: virtualbox-5.2
+      become: yes
+      with_items:
+      - virtualbox-5.2
+      - vagrant
 
-# NEXT: DOWNLOAD THE CLEARWATER IMS OVF FILE
+# download the clearwater ims ovf VAGRANT BOX from (http://vm-images.cw-ngv.com/cw-aio.ova)
+#    - name: download Clearwater IMS All-In-One Server
+#      get_url:
+#        url: http://vm-images.cw-ngv.com/cw-aio.ova
+#        dest: "{{ ims_dir }}"
 
-# NEXT: IMPORT THE OVF FILE INTO VIRTUALBOX
+# ALTERNATE TO ABOVE STEP: for now, we just *assume* that the .box file already exists in
+# the ims subdirectory. I want to figure out a better solution, maybe copy/paste via install
+# script, or hosting at UW. Would like not to not DL 1.1 gb in this script.
 
-# NEXT: START THE IMS VM
+# import the ovf file into Vagrant and turn it on!
+    - name: import cw-aio.box into Vagrant
+      shell: |
+        vagrant box add cw-aio.box --name cw-ims
+        vagrant up ims
+      args:
+        chdir: "{{ ims_dir }}"
 
-# NEXT: HOW TO CONFIGURE??!?!?!? VAGRANT PLUS OTHER ANSIBLE SCRIPT?!?!?!?
+# NOTE: HOW TO CONFIGURE??!?!?!? VAGRANT PLUS OTHER ANSIBLE SCRIPT?!?!?!?
 
 
     # WARNING: I WAS NEVER ABLE TO GET CLEARWATER-DOCKER USEFULLY WORKING. THE BELOW
