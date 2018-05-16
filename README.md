@@ -1,8 +1,11 @@
 # CoLTE
-CoLTE is the Community LTE Project. It consists of several main elements working together: 1) An onboard, all-in-one EPC powered by OpenAirInterface (OAI). This is mainly done.
-2) Network monitor/management/billing software that supports prepaid cash transactions via ntopng for mangement. This is still under construction.
-3) Emergency response webservices per the Mozilla Challenge. More discussion on this later.
-4) 
+CoLTE is the Community LTE Project. It consists of several main elements working together:
+1) An onboard, all-in-one EPC powered by OpenAirInterface (OAI).
+2) Network monitoring software (powered by ntopng) that keeps track of how many bytes each user uses and takes actions at certain thresholds.
+3) Billing software that lets users top up and sell/resell data and credit.
+4) A Web GUI that lets administrators configure the network and shows users the status of their account.
+5) Local Web and DNS caching via BIND and Nginx.
+
 
 # Installation
 
@@ -15,13 +18,13 @@ Your machine will need two separate interfaces: one connected to the Internet (t
 ## Step 2: Configure Coltenv
 Once your network configuration is correct, have a look at generate_coltenv. Most of the options should be left alone (unless you know what you're doing) but you should edit the network options to match your configuration. Set WAN_IFACE to your upstream (Internet) interface, ENB_IFACE to the downstream LAN interface, and ENB_IFACE_ADDR to it's address/subnet. Don't worry about matching COLTE_LTE_SUBNET to anything, because this subnet is assigned to the gtp0 interface once the SPGW dynamically brings it up.
 
-You should also have a look at the compilation options to see what features you may want to add or not. NODE refers to the configuration webgui, BILLING refers to the network monitoring/billing system, and the rest are self-explanatory. Note that EMERGENCY_WEBSERVICES takes a very long time to download/install so I recommend disabling it unless you have to use it.
+You should also have a look at the compilation options to see what features you may want to add or not. WEBGUI refers to the configuration webgui, BILLING refers to the network monitoring/billing system, and the rest are self-explanatory. Note that EMERGENCY_WEBSERVICES takes a very long time to download/install so I recommend disabling it unless you have to use it.
 
 ## Step 3: Install Everything.
 Run $COLTE_DIR/system_setup/$OS/setup.sh and Ansible should do all the rest for you.
 
 # Running CoLTE
-Right now, the best way to run everything is just in a bunch of different terminal windows. I am working on daemonizing everything but this effort is currently under construction.
+Right now, the best way to run everything is just in a bunch of different terminal windows. I am working on serviced/daemonizing everything, but this effort is currently under construction.
 
 ## EPC:
 The EPC has three separate components: the hss, mme, and spgw. For each component, open a new terminal window, go to $COLTE_DIR/epc, type "source oaienv", and use the run script. Example below:
@@ -32,10 +35,10 @@ The EPC has three separate components: the hss, mme, and spgw. For each componen
 I recommend starting the HSS, then the MME, then the SPGW (in that order). With each new connected component, you should see some good log messages, a connection being made, and then they should go relatively quiet, except for the MME, which prints out a status update every ten seconds.
 
 ## Node:
-The Webgui can be started in a terminal by going to $COLTE_DIR/webservices/node and running "npm start".
+The WebGUI is started automatically after installation. You can enable/disable it with "sudo systemctl {start|stop} colte_webgui"
 
 ## Billing Services:
-The Billing component is made of two services: ntopng and a repeating cronjob that polls it. The cronjob just fails quietly if ntopng is not running. To start ntopng simply type "service ntopng start"
+The Billing component is made of two services: ntopng and a repeating cronjob that polls it. The cronjob just fails quietly if ntopng is not running. You can start/stop ntopng with "sudo service ntopng {start|stop}"
 
 ## Emergency Webservices:
 The install scripts download every website (right now it's just Rocketchat and Xowa) as Docker containers and add them to Apache, with each site using it's own VirtualHost .conf directive. Therefore, you must (1) start Apache and (2) start the corresponding Docker containers. You can do this all by running the script "$COLTE_DIR/emergency_webservices/start.sh".
@@ -46,12 +49,12 @@ If you want/need to change any of the configurations after install, go to /usr/l
 # Exposed Webservices
 There are a bunch of different Web-based services exposed on this machine. Here's an authoritative list of the different services that are exposed, and what port they're assigned to by default.
 
-1. phpMyAdmin: http://localhost/phpmyadmin
+1. phpMyAdmin: http://localhost/phpmyadmin (WILL BE DISABLED SOON)
 2. ntopng: http://localhost:3002/
 3. Node Webgui: http://localhost:7999/
-4. Emergency Home: http://localhost:8080/
-5. Emergency Rocketchat: http://localhost:8081/
-6. Emergency Xowa: http://localhost:8082/
+4. Emergency Home: http://localhost:9080/
+5. Emergency Rocketchat: http://localhost:9081/
+6. Emergency Xowa: http://localhost:9082/
 
 
 
