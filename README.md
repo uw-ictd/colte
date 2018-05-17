@@ -18,7 +18,7 @@ Your machine will need two separate interfaces: one connected to the Internet (t
 ## Step 2: Configure Coltenv
 Once your network configuration is correct, have a look at generate_coltenv. Most of the options should be left alone (unless you know what you're doing) but you should edit the network options to match your configuration. Set WAN_IFACE to your upstream (Internet) interface, ENB_IFACE to the downstream LAN interface, and ENB_IFACE_ADDR to it's address/subnet. Don't worry about matching COLTE_LTE_SUBNET to anything, because this subnet is assigned to the gtp0 interface once the SPGW dynamically brings it up.
 
-You should also have a look at the compilation options to see what features you may want to add or not. WEBGUI refers to the configuration webgui, BILLING refers to the network monitoring/billing system, and the rest are self-explanatory. Note that EMERGENCY_WEBSERVICES takes a very long time to download/install so I recommend disabling it unless you have to use it.
+You should also have a look at the compilation options to see what features you may want to add or not. WEBGUI refers to the configuration webgui, BILLING refers to the network monitoring/billing system, and the rest are self-explanatory. Note that EMERGENCY takes a very long time to download/install so I recommend disabling it unless you have to use it.
 
 ## Step 3: Install Everything.
 Run $COLTE_DIR/system_setup/$OS/setup.sh and Ansible should do all the rest for you.
@@ -41,7 +41,7 @@ The WebGUI is started automatically after installation. You can enable/disable i
 The Billing component is made of two services: ntopng and a repeating cronjob that polls it. The cronjob just fails quietly if ntopng is not running. You can start/stop ntopng with "sudo service ntopng {start|stop}"
 
 ## Emergency Webservices:
-The install scripts download every website (right now it's just Rocketchat and Xowa) as Docker containers and add them to Apache, with each site using it's own VirtualHost .conf directive. Therefore, you must (1) start Apache and (2) start the corresponding Docker containers. You can do this all by running the script "$COLTE_DIR/emergency_webservices/start.sh".
+The install scripts download every website (right now it's just Rocketchat and Xowa) as Docker containers and add them to Apache, with each site using it's own VirtualHost .conf directive. Therefore, you must (1) start Apache and (2) start the corresponding Docker containers. You can do this all by running the script "$COLTE_DIR/emergency/start.sh".
 
 # Configuration 
 If you want/need to change any of the configurations after install, go to /usr/local/etc/colte. In there, you will find config files for the hss, mme, and spgw. Ignore the freeDiameter files. As more and more of the components are configurable, we will add the conf files to this directory.
