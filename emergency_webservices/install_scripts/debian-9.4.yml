@@ -26,11 +26,6 @@
     # TASK ONE: make sure bind is installed already
 
     # TASK TWO: install/config a BIND zone for ".emergency"
-# lineinfile:  (/etc/bind/named.conf.local)
-# zone "emergency" {
-#   type master;
-#   file "/etc/bind/zones/db.emergency";
-# };
     - name: copy emergency zone pointer into named.conf.local
       blockinfile:
         path: "/etc/bind/named.conf.local"
@@ -39,6 +34,7 @@
             type master;
             file "/etc/bind/zones/db.emergency";
           };
+      become: yes
 
     - name: copy bind zonefile
       copy: 
@@ -55,15 +51,15 @@
 
 # INSTALLING DOCKER:
 # (since stretch, apt-get docker doesn't work anymore so we have to manual install)
-    - name: apt-get docker-compose
-      apt:
-        name: docker-compose
-      become: yes
+#    - name: apt-get docker-compose
+#      apt:
+#        name: docker-compose
+#      become: yes
   
-    - name: manually download/install docker deb
-      apt: 
-        deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
-      become: yes
+#    - name: manually download/install docker deb
+#      apt: 
+#        deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
+#      become: yes
 
 # To add a webservice/website, create a new .yml file and add to this list!
     - include_tasks: "{{ emergency_webservices_dir }}/homepage.yml"
