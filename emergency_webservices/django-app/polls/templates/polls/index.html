@@ -1,9 +1,0 @@
-{% if most_recent_entries %}
-    <ul>
-    {% for person in most_recent_entries %}
-        <li><a href="/polls/{{ person.id }}/">{{ person.name_text }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No people are available.</p>
-{% endif %}

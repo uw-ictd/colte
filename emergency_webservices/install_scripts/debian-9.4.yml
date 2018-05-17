@@ -23,32 +23,35 @@
         cache_valid_time: 3600
       become: yes
 
-    - name: must increase sudo timeout for this script to run successfully
-      lineinfile:
-        path: /etc/sudoers
-        regexp: 'env_reset'
-        line: 'Defaults env_reset, timestamp_timeout=60'
-        owner: root
-        group: root
-        mode: 440
+    # TASK ONE: make sure bind is installed already
+
+    # TASK TWO: install/config a BIND zone for ".emergency"
+# lineinfile:  (/etc/bind/named.conf.local)
+# zone "emergency" {
+#   type master;
+#   file "/etc/bind/zones/db.emergency";
+# };
+    - name: copy emergency zone pointer into named.conf.local
+      blockinfile:
+        path: "/etc/bind/named.conf.local"
+        block: |
+          zone "emergency" {
+            type master;
+            file "/etc/bind/zones/db.emergency";
+          };
+
+    - name: copy bind zonefile
+      copy: 
+        src: "{{ emergency_webservices_dir }}/zone_db"
+        dest: "/etc/bind/zones/db.emergency"
       become: yes
 
-    - name: apt-get install apache2
-      apt:
-        name: "{{ item }}"
-      with_items:
-      - apache2
+    - name: restart bind9
+      service: name=bind9 state=restarted
       become: yes
 
-    - name: a2enmod install apache modules
-      apache2_module:
-        state: present
-        name: "{{ item }}"
-      with_items:
-      - proxy
-      - proxy_http
-      become: yes
-      # notify: restart apache
+    # TASK THREE: make sure nginx is already installed and configured
+    # (if not, run nginx script)
 
 # INSTALLING DOCKER:
 # (since stretch, apt-get docker doesn't work anymore so we have to manual install)
@@ -63,19 +66,21 @@
       become: yes
 
 # To add a webservice/website, create a new .yml file and add to this list!
-    - include_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
-    - include_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
+    - include_tasks: "{{ emergency_webservices_dir }}/homepage.yml"
+    # - include_tasks: "{{ emergency_webservices_dir }}/registry.yml"
+    # - include_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
+    # - include_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
     # - include_tasks: "{{ emergency_webservices_dir }}/maps.yml"
 
-    - name: turn everything off
-      service: name=apache2 state=stopped
-      become: yes
+    # - name: turn everything off
+    #   service: name=apache2 state=stopped
+    #   become: yes
 
-  handlers:
-    - name: restart apache
-      service: name=apache2 state=restarted
-      become: yes
+  # handlers:
+  #   - name: restart apache
+  #     service: name=apache2 state=restarted
+  #     become: yes
 
-    - name: reload apache
-      service: name=apache2 state=reloaded
-      become: yes
+  #   - name: reload apache
+  #     service: name=apache2 state=reloaded
+  #     become: yes
