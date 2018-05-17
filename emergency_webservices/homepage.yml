@@ -4,16 +4,16 @@
 
 # NOTE: you need to already have docker installed somehow (varies per system, goddamn it)
 
-    # - name: create emergencell directory
-    #   file:
-    #     path: /var/www/emergencell
-    #     state: directory
-    #   become: yes
+    - name: create emergencell directory
+      file:
+        path: /var/www/emergencell
+        state: directory
+      become: yes
 
     - name: copy static homepage files
       copy:
-        src: "{{ emergency_webservices_dir }}/homepage"
-        dest: "/var/www/emergencell"
+        src: "{{ emergency_webservices_dir }}/homepage/"
+        dest: "/var/www/emergencell/"
       become: yes
 
     - name: copy website configuration file
