@@ -1,0 +1,34 @@
+# Rocketchat is a free/opensource/docker-ized version of slack
+
+# declare vars for ports?!?!
+
+# NOTE: you need to already have docker installed somehow (varies per system, goddamn it)
+
+    # - name: create emergencell directory
+    #   file:
+    #     path: /var/www/emergencell
+    #     state: directory
+    #   become: yes
+
+    - name: copy static homepage files
+      copy:
+        src: "{{ emergency_webservices_dir }}/homepage"
+        dest: "/var/www/emergencell"
+      become: yes
+
+    - name: copy website configuration file
+      copy:
+        src: "{{ emergency_webservices_dir }}/homepage.conf"
+        dest: "/etc/nginx/sites-available/emergencell_homepage"
+      become: yes
+
+    - name: symlink website into sites-enabled
+      file:
+        src: "/etc/nginx/sites-available/emergencell_homepage"
+        dest: "/etc/nginx/sites-enabled/emergencell_homepage"
+        state: link
+      become: yes
+
+    - name: restart nginx
+      service: name=nginx state=reloaded
+      become: yes
