@@ -2,6 +2,17 @@ var express = require('express');
 var router = express.Router();
 var customer = require('../models/customer');
 
+function convertBytes(size) {
+		var i = -1;
+		var byteUnits = [' kB', ' MB', ' GB', ' TB']
+		do {
+					size = size / 1000;
+					i++;
+				} while (size > 1000 && i < 3);
+
+		return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
+};
+
 router.get('/', function(req, res, next) {
 
   var ip = req.ip
@@ -14,9 +25,12 @@ router.get('/', function(req, res, next) {
 
   customer.find_by_ip(ip).then((data) => {
     // console.log(data);
+
+    data_balance_str = convertBytes(data[0].data_balance);
+
     res.render('purchase', {
       title: 'Purchase',
-      data_balance: data[0].data_balance,
+      data_balance_str: data_balance_str,
       balance: data[0].balance
     });
   });

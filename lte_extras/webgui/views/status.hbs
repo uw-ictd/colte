@@ -4,37 +4,27 @@
       <div class="card-header">
         Account Information
       </div>
-        <p>Phone Number: ${{msisdn}}</p>
-        <p>IP Address?</p>
-        <p>IMSI? (probably not)</p>
-        <p>Upstream Internet Connection: off/on</p>
       <div class="card-body">
+        <p>Phone Number: {{msisdn}}</p>
+        <p>Current Balance: ${{balance}}</p>
+        <p>Data Balance: {{data_balance_str}}</p>
       </div>
     </div>
-
-    <div class="card mb-3">
-      <div class="card-header">
-        Usage
-      </div>
-      <div class="card-body">
-        <p>Current Balance: ${{balance}}</p>
-        <p>Data Remaining: {{data_balance}} Bytes</p>
-        <p>Package Info/Purchase History?</p>
 
 <!--        <div class="progress">
           <div class="progress-bar" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
         <p>Data</p> -->
-      </div>
-    </div>
 
     <div class="card mb-3">
       <div class="card-header">
         More Information
       </div>
       <div class="card-body">
-        <p>Total Downloaded: {{raw_down}} MB</p>
-        <p>Total Uploaded: {{raw_up}} MB</p>
+        <p>Total Downloaded: {{raw_down_str}}</p>
+        <p>Total Uploaded: {{raw_up_str}}</p>
+        <p>IP Address?</p>
+        <p>IMSI? (probably not)</p>
       </div>
     </div>
 
