@@ -1,0 +1,24 @@
+;
+; BIND data file for local loopback interface
+;
+$TTL	604800
+@ IN  SOA colte.emergency. admin.emergency. (
+			      3		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+;
+
+ IN  NS  colte.emergency.
+
+colte.emergency.  IN  A 192.168.151.1
+home.emergency.  IN  A 192.168.151.1
+
+; (ADD WEBSERVICES HERE)
+chat.emergency.  IN  A 192.168.151.1
+maps.emergency.  IN  A 192.168.151.1
+wiki.emergency.  IN  A 192.168.151.1
+xowa.emergency.  IN  A 192.168.151.1
+
+; SMS NOTE: I CAN JUST DO "*" - SHOULD I?
