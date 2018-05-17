@@ -51,22 +51,22 @@
 
 # INSTALLING DOCKER:
 # (since stretch, apt-get docker doesn't work anymore so we have to manual install)
-#    - name: apt-get docker-compose
-#      apt:
-#        name: docker-compose
-#      become: yes
+    - name: apt-get docker-compose
+      apt:
+        name: docker-compose
+      become: yes
   
-#    - name: manually download/install docker deb
-#      apt: 
-#        deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
-#      become: yes
+    - name: manually download/install docker deb
+      apt: 
+        deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
+      become: yes
 
 # To add a webservice/website, create a new .yml file and add to this list!
     - include_tasks: "{{ emergency_webservices_dir }}/homepage.yml"
-    # - include_tasks: "{{ emergency_webservices_dir }}/registry.yml"
-    # - include_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
-    # - include_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
-    # - include_tasks: "{{ emergency_webservices_dir }}/maps.yml"
+    #- include_tasks: "{{ emergency_webservices_dir }}/registry.yml"
+    - include_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
+    - include_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
+    #- include_tasks: "{{ emergency_webservices_dir }}/maps.yml"
 
     # - name: turn everything off
     #   service: name=apache2 state=stopped
