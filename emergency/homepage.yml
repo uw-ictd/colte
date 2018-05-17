@@ -12,13 +12,13 @@
 
     - name: copy static homepage files
       copy:
-        src: "{{ emergency_webservices_dir }}/homepage/"
+        src: "{{ emergency_dir }}/homepage/"
         dest: "/var/www/emergencell/"
       become: yes
 
     - name: copy website configuration file
       copy:
-        src: "{{ emergency_webservices_dir }}/homepage.conf"
+        src: "{{ emergency_dir }}/homepage.conf"
         dest: "/etc/nginx/sites-available/emergencell_homepage"
       become: yes
 
