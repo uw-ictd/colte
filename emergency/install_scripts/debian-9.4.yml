@@ -6,11 +6,11 @@
 - hosts: localhost
   vars:
     coltenv: "{{ ansible_env.COLTENV }}"
-    build_emergency: "{{ ansible_env.COLTE_EMERGENCY_WEBSERVICES }}"
+    build_emergency: "{{ ansible_env.COLTE_EMERGENCY }}"
     username: "{{ ansible_env.COLTE_USER }}"
     # mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
-    emergency_webservices_dir: "{{ colte_dir }}/emergency_webservices"
+    emergency_dir: "{{ colte_dir }}/emergency"
 
   tasks:
     - name: check for environment vars
@@ -38,7 +38,7 @@
 
     - name: copy bind zonefile
       copy: 
-        src: "{{ emergency_webservices_dir }}/zone_db"
+        src: "{{ emergency_dir }}/zone_db"
         dest: "/etc/bind/zones/db.emergency"
       become: yes
 
@@ -62,11 +62,11 @@
       become: yes
 
 # To add a webservice/website, create a new .yml file and add to this list!
-    - include_tasks: "{{ emergency_webservices_dir }}/homepage.yml"
-    #- include_tasks: "{{ emergency_webservices_dir }}/registry.yml"
-    - include_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
-    - include_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
-    #- include_tasks: "{{ emergency_webservices_dir }}/maps.yml"
+    - include_tasks: "{{ emergency_dir }}/homepage.yml"
+    #- include_tasks: "{{ emergency_dir }}/registry.yml"
+    - include_tasks: "{{ emergency_dir }}/rocketchat.yml"
+    - include_tasks: "{{ emergency_dir }}/xowa.yml"
+    #- include_tasks: "{{ emergency_dir }}/maps.yml"
 
     # - name: turn everything off
     #   service: name=apache2 state=stopped

@@ -9,7 +9,7 @@
     username: "{{ ansible_env.COLTE_USER }}"
     # mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
-    emergency_webservices_dir: "{{ colte_dir }}/emergency_webservices"
+    emergency_dir: "{{ colte_dir }}/emergency"
 
   tasks:
     - name: check for environment vars
@@ -60,9 +60,9 @@
       become: yes
   
 # To add a webservice/website, create a new .yml file and add to this list!
-    - import_tasks: "{{ emergency_webservices_dir }}/rocketchat.yml"
-    - import_tasks: "{{ emergency_webservices_dir }}/xowa.yml"
-#    - import_tasks: "{{ emergency_webservices_dir }}/maps.yml"
+    - import_tasks: "{{ emergency_dir }}/rocketchat.yml"
+    - import_tasks: "{{ emergency_dir }}/xowa.yml"
+#    - import_tasks: "{{ emergency_dir }}/maps.yml"
 
   handlers:
     - name: restart apache

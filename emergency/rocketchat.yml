@@ -32,7 +32,7 @@
 
     - name: copy website configuration file
       copy:
-        src: "{{ emergency_webservices_dir }}/rocketchat.conf"
+        src: "{{ emergency_dir }}/rocketchat.conf"
         dest: "/etc/nginx/sites-available/rocketchat"
       become: yes
 
@@ -59,7 +59,7 @@
 
     # - name: copy rocketchat.conf over to apache
     #   copy: 
-    #     src: "{{ emergency_webservices_dir }}/rocketchat.conf"
+    #     src: "{{ emergency_dir }}/rocketchat.conf"
     #     dest: /etc/apache2/sites-available/rocketchat.conf
     #     owner: "{{ username }}"
     #     group: "{{ username }}"

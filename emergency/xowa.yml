@@ -13,7 +13,7 @@
 
     - name: make xowa_storage directory
       file:
-        path: "{{ emergency_webservices_dir }}/xowa_storage/{{ item }}"
+        path: "{{ emergency_dir }}/xowa_storage/{{ item }}"
         state: directory
         recurse: yes
       with_items:
@@ -35,7 +35,7 @@
     - name: download simple wikipedia (html/text)
       get_url:
         url: http://archive.org/download/Xowa_simplewiki_latest/{{ item }}
-        dest: "{{ emergency_webservices_dir }}/xowa_storage/temp"
+        dest: "{{ emergency_dir }}/xowa_storage/temp"
       with_items:
       - Xowa_simplewiki_2017-05_core.zip
       - Xowa_simplewiki_2017-05_xtn.search.core.zip
@@ -52,7 +52,7 @@
     - name: download simple wikipedia (images)
       get_url:
         url: http://archive.org/download/Xowa_simplewiki_latest/{{ item }}
-        dest: "{{ emergency_webservices_dir }}/xowa_storage/temp"
+        dest: "{{ emergency_dir }}/xowa_storage/temp"
       with_items:
       - Xowa_simplewiki_2017-05_file_core.zip
       - Xowa_simplewiki_2017-05_file_ns.000_db.001.zip
@@ -62,8 +62,8 @@
 
     - name: unzip and load simple wikipedia
       unarchive:
-        src: "{{ emergency_webservices_dir }}/xowa_storage/temp/{{ item }}"
-        dest: "{{ emergency_webservices_dir }}/xowa_storage/simple.wikipedia.org/"
+        src: "{{ emergency_dir }}/xowa_storage/temp/{{ item }}"
+        dest: "{{ emergency_dir }}/xowa_storage/simple.wikipedia.org/"
       with_items:
       - Xowa_simplewiki_2017-05_core.zip
       - Xowa_simplewiki_2017-05_xtn.search.core.zip
@@ -83,14 +83,14 @@
       - Xowa_simplewiki_2017-05_file_ns.014_db.001.zip
 
     - name: cleanup temp folder
-      file: path='{{ emergency_webservices_dir }}/xowa_storage/temp' state=absent
+      file: path='{{ emergency_dir }}/xowa_storage/temp' state=absent
 
     - name: start xowa docker image
       docker_container:
         name: xowa
         image: quantumobject/docker-xowa
         ports: 9082:8080
-        volumes: "{{ emergency_webservices_dir }}/xowa_storage:/opt/xowa/wiki"
+        volumes: "{{ emergency_dir }}/xowa_storage:/opt/xowa/wiki"
         # detach: true
       become: yes
 # command: -v yours/storage:/opt/xowa/wiki
@@ -98,7 +98,7 @@
 
     - name: copy website configuration file
       copy:
-        src: "{{ emergency_webservices_dir }}/xowa.conf"
+        src: "{{ emergency_dir }}/xowa.conf"
         dest: "/etc/nginx/sites-available/xowa"
       become: yes
 
@@ -135,7 +135,7 @@
 
     # - name: copy xowa.conf over to apache
     #   copy: 
-    #     src: "{{ emergency_webservices_dir }}/xowa.conf"
+    #     src: "{{ emergency_dir }}/xowa.conf"
     #     dest: /etc/apache2/sites-available/xowa.conf
     #     owner: "{{ username }}"
     #     group: "{{ username }}"
