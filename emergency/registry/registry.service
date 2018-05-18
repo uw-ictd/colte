@@ -1,0 +1,13 @@
+[Unit]
+Description=EmergenCell Registry
+
+[Service]
+ExecStart=python manage.py runserver 9083 >> /var/log/colte/emergencell_registry.log 2>&1"
+Restart=always
+User=colte
+Group=colte
+Environment=PATH=/usr/bin:/usr/local/bin
+WorkingDirectory=/home/colte/colte/emergency/registry
+
+[Install]
+WantedBy=multi-user.target
