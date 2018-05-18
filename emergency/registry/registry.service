@@ -2,7 +2,7 @@
 Description=EmergenCell Registry
 
 [Service]
-ExecStart=python manage.py runserver 9083 >> /var/log/colte/emergencell_registry.log 2>&1"
+ExecStart=/bin/bash -c "python /home/colte/colte/emergency/registry/manage.py runserver 9083 >> /var/log/colte/emergencell_registry.log 2>&1"
 Restart=always
 User=colte
 Group=colte
