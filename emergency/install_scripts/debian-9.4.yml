@@ -63,7 +63,7 @@
 
 # To add a webservice/website, create a new .yml file and add to this list!
     - include_tasks: "{{ emergency_dir }}/homepage.yml"
-    #- include_tasks: "{{ emergency_dir }}/registry.yml"
+    - include_tasks: "{{ emergency_dir }}/registry.yml"
     - include_tasks: "{{ emergency_dir }}/rocketchat.yml"
     - include_tasks: "{{ emergency_dir }}/xowa.yml"
     #- include_tasks: "{{ emergency_dir }}/maps.yml"
