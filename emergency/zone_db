@@ -20,5 +20,6 @@ chat.emergency.  IN  A 192.168.151.1
 maps.emergency.  IN  A 192.168.151.1
 wiki.emergency.  IN  A 192.168.151.1
 xowa.emergency.  IN  A 192.168.151.1
+register.emergency.  IN  A 192.168.151.1
 
-; SMS NOTE: I CAN JUST DO "*" - SHOULD I?
+; SMS NOTE: I CAN JUST DO "*" - SHOULD I?
