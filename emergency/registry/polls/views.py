@@ -24,11 +24,11 @@ from .forms import AddPersonForm
 #     except EmptyPage:
 #         persons = paginator.page(paginator.num_pages)
 
-#     return render(request, 'polls/person_list.html', { 'persons': persons })
+#     return render(request, 'person_list.html', { 'persons': persons })
 
 def detail(request, person_id):
 	person = get_object_or_404(Person, pk=person_id)
-	return render(request, 'polls/detail.html', {'person': person})
+	return render(request, 'detail.html', {'person': person})
 
 def register(request):
     if request.method=='POST':
@@ -41,7 +41,7 @@ def register(request):
             # np.date = datetime.now()
             np.status = 1
             np.save()
-            return HttpResponseRedirect('/polls/')
+            return HttpResponseRedirect('/')
 
     form = AddPersonForm()
     return render(request, 'polls/register.html', {'form': form})
