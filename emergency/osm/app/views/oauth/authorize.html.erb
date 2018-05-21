@@ -1,0 +1,19 @@
+<% content_for :heading do %>
+  <h1><%= t ".title" %></h1>
+<% end %>
+
+<p><%= raw t(".request_access", :app_name => link_to(@token.client_application.name, @token.client_application.url), :user => link_to(current_user.display_name, :controller => :user, :action => :view, :display_name => current_user.display_name)) %></p>
+
+<%= form_tag authorize_url do %>
+  <%= hidden_field_tag "oauth_token", @token.token %>
+  <%- if params[:oauth_callback] -%>
+    <%= hidden_field_tag "oauth_callback", params[:oauth_callback] %>
+  <%- end -%>
+  <p><%= t '.allow_to' %></p>
+  <ul>
+  <% @token.client_application.permissions.each do |perm| %>
+    <li><%= check_box_tag perm.to_s, "yes", @token.read_attribute(perm) %><%= t ".#{perm}" %></li>
+  <% end %>
+  </ul>
+  <p><%= submit_tag t(".grant_access") %></p>
+<% end %>

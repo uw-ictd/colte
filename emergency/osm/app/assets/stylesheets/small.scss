@@ -1,0 +1,199 @@
+@import "parameters";
+
+/* Styles specific to a small screen, such as iPhone, Android, etc... */
+
+body.small {
+
+  input[type="submit"],
+  input[type="text"] {
+    -webkit-appearance: none;
+  }
+
+  .column-1 {
+    width: 100%;
+  }
+
+  #menu-icon {
+    display: inline-block !important;
+  }
+
+  nav.primary,
+  nav.secondary {
+    float: none !important;
+    position: relative;
+    display: block;
+    clear: both;
+  }
+
+  header {
+    height: auto;
+    min-height: $headerHeight;
+    background: #fff;
+
+    h1 {
+      padding-bottom: 15px;
+    }
+
+    &.closed nav {
+      display: none;
+    }
+
+    .search_forms {
+      display: block;
+    }
+  }
+
+  #sidebar .search_forms,
+  #edit_tab,
+  #export_tab {
+    display: none;
+  }
+
+  nav.primary {
+    padding: 0;
+
+    ul, li {
+      border: none;
+      border-radius: 0;
+      width: 100%;
+    }
+
+    ul {
+      border-top: 1px solid #eee;
+      li {
+        border-bottom: 1px solid #eee;
+        border-right: none;
+        > a {
+          border-radius: 0;
+          width: 100%;
+          text-align: center;
+          font-size: 15px;
+        }
+      }
+    }
+  }
+
+  nav.secondary {
+    border-bottom: 1px solid #eee;
+
+    .user-menu {
+      display: block;
+      width: 100%;
+      margin-left: 0;
+      > li {
+        width: 49%;
+        > a {
+          width: 100%;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  #compact-secondary-nav {
+    display: none;
+  }
+
+  .compact-hide {
+    display: inline-block;
+  }
+
+  &.map-layout {
+    #sidebar, #map {
+      position: relative;
+      overflow-x: hidden;
+      width: 100%;
+      height: 50%;
+    }
+
+    .overlay-sidebar {
+      #sidebar {
+        position: absolute;
+        width: 300px;
+        height: auto;
+        overflow: hidden;
+      }
+
+      #map {
+        height: 100%;
+      }
+    }
+
+    #map-ui {
+      z-index: 9999;
+      width: 100%;
+      overflow-y: scroll;
+    }
+  }
+
+  #sidebar .welcome,
+  #sidebar #banner {
+    display: none !important;
+  }
+
+  .leaflet-top.leaflet-right {
+    top: 10px !important;
+  }
+
+  .content_map {
+    width: 100%;
+    border: none;
+    float: none;
+    height: 200px;
+    max-height: none;
+    min-height: auto;
+  }
+
+  /* Rules for the login form */
+
+  #login_login input#user_email {
+    width: 100%;
+    max-width: 18em;
+  }
+
+  #login_login input#user_password {
+    width: 100%;
+    max-width: 18em;
+  }
+
+  #login_login input#openid_url {
+    width: 100%;
+    max-width: 18em;
+  }
+
+  #login_openid_buttons td {
+    padding: 2px;
+  }
+
+  /* Rules for the user view */
+
+  .user_map {
+    width: 100% !important;
+    height: 300px !important;
+  }
+
+  #userinformation .deemphasize {
+    position: relative;
+    right: auto; left: auto;
+    margin-top: 10px;
+    top: auto;
+  }
+
+  /* Rules for the sign-up page */
+
+  &.user-new,
+  &.user-create {
+    .col6 {
+      width: 100%;
+    }
+
+    .aside {
+      display: none;
+    }
+  }
+
+  &.site-about #content .attr h1 {
+    font-size: 28px;
+  }
+
+}

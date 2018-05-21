@@ -28,7 +28,7 @@
       become: yes
 
 # apt update
-# apt install virtualbox-5.2
+# apt install virtualbox-5.1
     - name: install virtualbox
       apt:
         update_cache: yes

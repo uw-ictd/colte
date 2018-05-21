@@ -1,0 +1,7 @@
+$("#inboxanchor").replaceWith("<%=j render :partial => "layouts/inbox" %>");
+$("#inbox-count").replaceWith("<%=j render :partial => "message_count" %>");
+<% if @message.message_read? -%>
+$("#inbox-<%= @message.id %>").removeClass("inbox-row-unread").addClass("inbox-row");
+<% else -%>
+$("#inbox-<%= @message.id %>").removeClass("inbox-row").addClass("inbox-row-unread");
+<% end -%>

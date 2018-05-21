@@ -1,0 +1,194 @@
+# Messages for Swiss German (Alemannisch)
+# Exported from translatewiki.net
+# Export driver: spyc
+# Author: Als-Chlämens
+# Author: Als-Holder
+---
+gsw:
+  browse:
+    changeset:
+      title: Changeset
+      changesetxml: Changeset-XML
+      osmchangexml: osmChange XML
+      feed:
+        title: 'Changeset %{id}'
+        title_comment: 'Changeset %{id} - %{comment}'
+    relation_member:
+      entry_role: '%{type} %{name} as %{role}'
+      type:
+        node: Chnote
+        way: Wäg
+        relation: Relation
+    containing_relation:
+      entry: 'Relation %{relation_name}'
+      entry_role: 'Relation %{relation_name} (as %{relation_role})'
+    not_found:
+      sorry: 'Mir hän dr %{type} mit dr Nummere %{id} leider nit chenne finde. Du hesch Di villicht verschribe oder Du bisch eme nit giltige Link nogange.'
+      type:
+        node: Chnote
+        way: Wäg
+        relation: Relation
+        changeset: Mängi vu Änderige
+    start_rjs:
+      load_data: Date lade
+      loading: Am Lade ...
+    tag_details:
+      tags: 'Tags:'
+  trace:
+    visibility:
+      private: >
+        Privat (nume as anonymi, nit sortierti
+        Pinkt ohni Zytstämpfel aazeigt)
+      public: >
+        Effentlig (wird in dr Tracklischt
+        aazeigt, aber numen as anonymi, nit
+        sortierti Punktfolg ohni Zytstämpfel)
+      trackable: >
+        Track (wird in dr Tracklischt as
+        anonymi, sortierti Punktfolg mit
+        Zytstämpfel aazeigt)
+      identifiable: >
+        Identifizierbar (wird in dr Tracklischt
+        as anonymi, sortierti Punktfolg mit
+        Zytstämpfel aazeigt)
+    create:
+      upload_trace: E GPS-Track uffelade
+      trace_uploaded: >
+        Dyy GPX-Datei isch uffeglade wore un
+        wartet uf d Ufnahm in d Datebank. Des
+        gschiht normalerwyys innerhalb vun ere
+        halbe Stund, derno wird Dir e
+        Bstetigungs-E-Mail gschickt.
+    edit:
+      title: 'Am Bearbeite vum Track %{name}'
+      heading: 'Track %{name} bearbeite'
+      filename: 'Dateiname:'
+      download: abelade
+      uploaded_at: 'Uffegladen am:'
+      points: 'Pinkt:'
+      start_coord: 'Aafangskoordinate:'
+      map: Charte
+      edit: bearbeite
+      owner: 'Bsitzer:'
+      description: 'Bschryybig:'
+      tags: 'Tags:'
+      tags_help: Trännig dur Komma
+      save_button: Änderige spychere
+      visibility: 'Sichtbarkeit:'
+      visibility_help: Was heißt des?
+    trace_form:
+      upload_gpx: GPX-Datei uffelade
+      description: Bschryybig
+      tags: Markierige
+      tags_help: Trännig dur Komma
+      visibility: Sichtbarkeit
+      visibility_help: Was heißt des?
+      upload_button: Uffelade
+      help: Hilf
+    trace_header:
+      see_all_traces: Alli Tracks aaluege
+      see_your_traces: Eigeni GPS-Tracks aazeige
+      traces_waiting: '%{count} vu Dyyne Tracks sin zur Zyt in dr Warteschlang. Bitte wart, bis die fertig sin go d Verarbeitig nit fir anderi Nutzer blockiere.'
+    trace_optionals:
+      tags: Markierige
+    view:
+      title: 'Am Aaluege vum Track %{name}'
+      heading: 'Am Bschaue vum Track %{name}'
+      pending: HÄNGIG
+      filename: 'Dateiname:'
+      download: abelade
+      uploaded: 'Uffegladen am:'
+      points: 'Pinkt:'
+      start_coordinates: 'Startkoordinate:'
+      map: Charte
+      edit: bearbeite
+      owner: 'Bsitzer:'
+      description: 'Bschryybig:'
+      tags: 'Markierige:'
+      none: Keini
+      edit_track: Dää Track bearbeite
+      delete_track: Dää Track lesche
+      trace_not_found: Track nit gfunde!
+      visibility: 'Sichtbarkeit:'
+    trace:
+      pending: HÄNGIG
+      count_points: '%{count} Pinkt'
+      ago: '%{time_in_words_ago} här'
+      more: meh
+      trace_details: Track-Einzelheite aaluege
+      view_map: Charten aazeige
+      edit: bearbeite
+      edit_map: Charte bearbeite
+      public: EFFETLI
+      private: PRIVAT
+      by: vu
+      in: in
+      map: Charte
+    list:
+      public_traces: Effetligi GPS-Track
+      your_traces: Dyy GPS-Track
+      public_traces_from: 'Effetligi GPS-Track vu %{user}'
+      tagged_with: 'Gchännzeichnet mit %{tags}'
+    delete:
+      scheduled_for_deletion: Track, wu zum Lesche vorgsäh isch
+    make_public:
+      made_public: Track, wu vereffetligt isch
+  user:
+    reset_password:
+      title: Passwort zrucksetze
+      heading: 'Passwort fir %{user} zrucksetze'
+      confirm password: 'Passwort bstetige:'
+      reset: Passwort zrucksetze
+      flash changed: Dyy Passwort isch gänderet wore.
+      flash token bad: >
+        Mir hän des Chirzel leider nit chenne
+        finde. Iberprief d URL.
+    popup:
+      your location: Dyy Standort
+      nearby mapper: Mapper in dr Nechi
+    confirm_email:
+      heading: Änderig vu dr E-Mail-Adräss bstetige
+      press confirm button: >
+        Druck unte uf dr „Bstetige“-Chnopf
+        go Dyy nej E-Mail-Adräss bstetige.
+      button: Bstetige
+      success: >
+        Dyy E-Mail-Adräss isch bstetigt wore,
+        dankschen fir s Regischtriere!
+      failure: >
+        E E-Mail-Adräss isch scho mit däm Link
+        bstetigt wore.
+    go_public:
+      flash success: >
+        Alli Dyyni Bearbeitige sion jetz
+        effetlig, un Du derfsch jetz Bearbeitige
+        mache.
+    make_friend:
+      success: '%{name} isch jetz Dyy Frynd.'
+      failed: 'Excusez, %{name} het nit as Frynd chenne zuegfiegt wäre.'
+      already_a_friend: 'Du bisch scho ne Frynd vu %{name}.'
+    filter:
+      not_an_administrator: >
+        Du muesch e Administrator syy go die
+        Aktion uusfiere.
+  user_role:
+    filter:
+      not_an_administrator: >
+        Benutzerrolle chenne nume vu
+        Adminischtratore verwaltet wäre, un Du
+        bisch kei Adminischtrator.
+      not_a_role: 'D Zeichechette „%{role}“ bezeichnet kei giltigi Rolle.'
+      already_has_role: 'Dr Nutzer ghert scho zue dr Rolle %{role}.'
+      doesnt_have_role: 'Dr Nutzer het kei Roll %{role}.'
+    grant:
+      title: Rollezueornig bstetige
+      heading: Rollezueornig bstetige
+      are_you_sure: 'Bisch sicher, ass Du dr Benutzer „%{name}“ dr Rolle „%{role}“ witt zueordne?'
+      confirm: Bstetige
+      fail: 'Dr Benutzer „%{name}“ het dr Rolle „%{role}“ nit chenne zuegordnet wären. Bitte iberprief, eb s sich um e giltige Benutzer un e giltigi Rolle handlet.'
+    revoke:
+      title: Ufhebig vu dr Rollezueornig bstetige
+      heading: D Ufhebig vu dr Rollezueornig bstetige
+      are_you_sure: 'Bisch sicher, ass Du d Zueornig vum Benutzer „%{name}“ zue dr Rolle „%{role}“ witt ufhebe?'
+      confirm: Bstetige
+      fail: 'Het d Zueornig vum Benutzer „%{name}“ zue dr Rolle „%{role}“ nit chenne ufhebe. Bitte iberprief, eb s sich um e giltige Benutzer un e giltigi Rolle handlet.'

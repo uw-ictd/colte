@@ -1,0 +1,65 @@
+<% set_title(t('.title', :id => @note.id)) %>
+
+<h2>
+  <a class="geolink" href="<%= root_path %>"><span class="icon close"></span></a>
+  <%= t ".#{@note.status}_title", :note_name => @note.id %>
+</h2>
+
+<div class="browse-section">
+  <h4><%= t('.description') %></h4>
+  <div class="note-description">
+    <%= h(@note_comments.first.body.to_html) %>
+  </div>
+
+  <div class="details" data-coordinates="<%= @note.lat %>,<%= @note.lon %>" data-status="<%= @note.status %>">
+    <%= note_event('open', @note.created_at, @note.author) %>
+    <% if @note.status == "closed" %>
+      <br/>
+      <%= note_event(@note.status, @note.closed_at, @note_comments.last.author) %>
+    <% end %>
+  </div>
+
+  <% if @note_comments.find { |comment| comment.author.nil? } -%>
+    <p class='warning'><%= t "javascripts.notes.show.anonymous_warning" %></p>
+  <% end -%>
+
+  <% if @note_comments.length > 1 %>
+    <div class='note-comments'>
+      <ul>
+        <% @note_comments[1..-1].each do |comment| %>
+          <li id="c<%= comment.id %>">
+            <small class='deemphasize'><%= note_event(comment.event, comment.created_at, comment.author) %></small>
+            <%= comment.body.to_html %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if @note.status == "open" %>
+    <form action="#">
+      <textarea class="comment" name="text" cols="40" rows="5"></textarea>
+      <div class="buttons clearfix">
+        <% if current_user and current_user.moderator? -%>
+          <input type="submit" name="hide" value="<%= t('javascripts.notes.show.hide') %>" class="deemphasize" data-note-id="<%= @note.id %>" data-method="DELETE" data-url="<%= note_url(@note, 'json') %>">
+        <% end -%>
+        <% if current_user -%>
+          <input type="submit" name="close" value="<%= t('javascripts.notes.show.resolve') %>" data-note-id="<%= @note.id %>" data-method="POST" data-url="<%= close_note_url(@note, 'json') %>">
+        <% end -%>
+        <input type="submit" name="comment" value="<%= t('javascripts.notes.show.comment') %>" data-note-id="<%= @note.id %>" data-method="POST" data-url="<%= comment_note_url(@note, 'json') %>" disabled="1">
+      </div>
+    </form>
+  <% else %>
+    <form action="#">
+      <input type="hidden" name="text" value="">
+      <div class="buttons clearfix">
+        <% if current_user and current_user.moderator? -%>
+          <input type="submit" name="hide" value="<%= t('javascripts.notes.show.hide') %>" class="deemphasize" data-note-id="<%= @note.id %>" data-method="DELETE" data-url="<%= note_url(@note, 'json') %>">
+        <% end -%>
+        <% if current_user -%>
+          <input type="submit" name="reopen" value="<%= t('javascripts.notes.show.reactivate') %>" data-note-id="<%= @note.id %>" data-method="POST" data-url="<%= reopen_note_url(@note, 'json') %>">
+        <% end -%>
+      </div>
+    </form>
+  <% end %>
+</div>
