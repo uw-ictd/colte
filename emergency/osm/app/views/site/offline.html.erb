@@ -1,0 +1,7 @@
+<% if STATUS == :database_offline %>
+<p><%= t 'layouts.osm_offline' %>
+</p>
+<% else %>
+<p><%= t 'layouts.osm_read_only' %>
+</p>
+<% end  %>

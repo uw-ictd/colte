@@ -1,0 +1,73 @@
+folder 'vendor/assets' do
+  folder 'jquery' do
+    file 'jquery.cookie.js', 'https://raw.githubusercontent.com/carhartl/jquery-cookie/master/src/jquery.cookie.js'
+    file 'jquery.throttle-debounce.js', 'https://raw.githubusercontent.com/cowboy/jquery-throttle-debounce/v1.1/jquery.ba-throttle-debounce.js'
+    file 'jquery.simulate.js', 'https://raw.githubusercontent.com/jquery/jquery-simulate/1.0.0/jquery.simulate.js'
+  end
+
+  folder 'bootstrap' do
+    file 'bootstrap.tooltip.js', 'https://raw.githubusercontent.com/twbs/bootstrap/v3.3.2/js/tooltip.js'
+    file 'bootstrap.dropdown.js', 'https://raw.githubusercontent.com/twbs/bootstrap/v3.3.2/js/dropdown.js'
+  end
+
+  folder 'leaflet' do
+    file 'leaflet.js', 'https://unpkg.com/leaflet@1.3.1/dist/leaflet-src.js'
+    file 'leaflet.css', 'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css'
+
+    [ 'layers.png', 'layers-2x.png',
+      'marker-icon.png', 'marker-icon-2x.png',
+      'marker-shadow.png' ].each do |image|
+      file "images/#{image}", "https://unpkg.com/leaflet@1.3.1/dist/images/#{image}"
+    end
+
+    from 'git://github.com/aratcliffe/Leaflet.contextmenu.git', :tag => 'v1.5.0' do
+      file 'leaflet.contextmenu.js', 'dist/leaflet.contextmenu.js'
+      file 'leaflet.contextmenu.css', 'dist/leaflet.contextmenu.css'
+    end
+
+    from 'git://github.com/kajic/leaflet-locationfilter.git' do
+      file 'leaflet.locationfilter.css', 'src/locationfilter.css'
+      file 'leaflet.locationfilter.js', 'src/locationfilter.js'
+      folder 'img', 'src/img'
+    end
+
+    from 'git://github.com/domoritz/leaflet-locatecontrol.git', :tag => 'v0.62.0' do
+      file 'leaflet.locate.js', 'src/L.Control.Locate.js'
+    end
+
+    from 'git://github.com/jfirebaugh/leaflet-osm.git' do
+      file 'leaflet.osm.js', 'leaflet-osm.js'
+    end
+
+    from 'git://github.com/jieter/Leaflet.encoded.git', :tag => '0.0.8' do
+      file 'leaflet.polyline.js', 'Polyline.encoded.js'
+    end
+  end
+
+  folder 'ohauth' do
+    from 'git://github.com/osmlab/ohauth.git' do
+      file 'ohauth.js'
+    end
+  end
+
+  folder 'iD' do
+    from 'git://github.com/openstreetmap/iD', :branch => 'release' do
+      folder 'iD/img', 'dist/img'
+      folder 'iD/locales', 'dist/locales'
+      folder 'iD/mapillary-js', 'dist/mapillary-js'
+
+      file 'iD.css.erb', 'dist/iD.css' do |path|
+        rewrite(path) do |content|
+          content.gsub(/url\('?(img\/[^')]+)'?\)/, 'url(<%= asset_path("iD/\1") %>)')
+        end
+      end
+
+      file 'iD.js', 'dist/iD.js'
+    end
+  end
+
+  folder 'javascripts' do
+    file 'html5shiv.js', 'https://raw.githubusercontent.com/aFarkas/html5shiv/master/src/html5shiv.js'
+    file 'bowser.js', 'https://github.com/lancedikson/bowser/releases/download/1.9.3/bowser.js'
+  end
+end
