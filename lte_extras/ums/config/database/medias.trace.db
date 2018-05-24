@@ -1,0 +1,6 @@
+2018-05-24 19:47:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "FILES" not found; SQL statement:
+SELECT count(*) FROM FILES [42102-196]
+2018-05-24 19:47:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "FILES" not found; SQL statement:
+DROP TABLE FILES [42102-196]
