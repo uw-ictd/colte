@@ -12,7 +12,7 @@
 
   tasks:
     - name: check for environment vars
-      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
       when: coltenv is not defined
         
     - name: apt-get update
@@ -29,17 +29,7 @@
       - libzen0v5
       become: yes
 
-    - name: download ums
-      get_url:
-        url: http://www.fosshub.com/Universal-Media-Server.html/UMS-7.0.1.tgz
-        dest: "{{ ums_dir }}/UMS-7.0.1.tgz"
-
-    - name: extract ums
-      unarchive:
-        src: "{{ ums_dir }}/UMS-7.0.1.tgz"
-        dest: "{{ ums_dir }}/app"
-
-    # SMS TODO: DO WE NEED TO DYNAMICALLY CONFIGURE ANYTHING IN THIS DIRECTORY?!?
+    # SMS TODO: DO WE NEED TO DYNAMICALLY CONFIGURE ANYTHING?!?
 
     - name: link ums configs into user/.config/UMS
       file:
@@ -47,7 +37,7 @@
         src: "{{ ums_dir }}/config"
         state: link
 
-    # SMS TODO: dynamically add tons of media to the "files" folder?!?
+    # SMS TODO: dynamically add media to the "files" folder?!?
 
     - name: dynamically write ums.service
       lineinfile:
@@ -73,3 +63,19 @@
       systemd: state=started name=ums
       become: yes
       
+    - name: copy website configuration file
+      copy:
+        src: "{{ ums_dir }}/ums.conf"
+        dest: "/etc/nginx/sites-available/ums"
+      become: yes
+
+    - name: symlink website into sites-enabled
+      file:
+        src: "/etc/nginx/sites-available/ums"
+        dest: "/etc/nginx/sites-enabled/ums"
+        state: link
+      become: yes
+
+    - name: restart nginx
+      service: name=nginx state=reloaded
+      become: yes
