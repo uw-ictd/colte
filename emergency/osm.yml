@@ -35,6 +35,28 @@
       args:
         chdir: "{{ emergency_dir }}/osm"
 
+
+
+# STEP 2: install/configure the tile server
+    - name: download docker tile-server image
+      docker_image:
+        name: klokantech/openmaptiles-server
+      become: yes
+
+    # - name: CONFIGURE TILESERVER!!!
+
+    - name: start tile-server docker
+      docker_container:
+        name: xowa
+        image: klokantech/openmaptiles-server
+        ports: 9085:80
+        volumes: "{{ emergency_dir }}/osm/ts_data:/data"
+      become: yes
+#docker run --rm -it -v $(pwd):/data -p 8080:80 klokantech/openmaptiles-server
+
+
+
+
     - name: copy website configuration file
       copy:
         src: "{{ emergency_dir }}/osm.conf"
