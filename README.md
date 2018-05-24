@@ -57,6 +57,8 @@ There are a bunch of different Web-based services exposed on this machine. Here'
 5. Emergency Rocketchat: http://localhost:9081/
 6. Emergency Wikipedia: http://localhost:9082/
 7. Emergency Registration: http://localhost:9083/
+8. Emergency OpenStreetMaps: http://localhost:9084/
+9. OSM Tileserver: http://localhost:9085/
 
 
 
