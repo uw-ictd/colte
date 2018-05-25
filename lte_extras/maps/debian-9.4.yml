@@ -1,4 +1,11 @@
 # OSM is OpenStreetMaps
+---
+- hosts: localhost
+  vars:
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+    osm_dir: "{{ colte_dir }}/lte_extras/maps"
 
 # STEP ONE: sudo add the line "deb http://download.virtualbox.org/virtualbox/debian stretch contrib"
 # to the file /etc/apt/sources.list.d/virtualbox.list
@@ -28,12 +35,15 @@
       - virtualbox-5.1
       - vagrant
 
-    - name: start the OSM server (Vagrant)
-      shell: |
-        vagrant box add osm.box --name osm
-        vagrant up osm
+    - name: import the OSM server Vagrant box
+      shell: vagrant box add osm.box --name osm
       args:
-        chdir: "{{ emergency_dir }}/osm"
+        chdir: "{{ osm_dir }}"
+
+    - name: start the OSM main server (Vagrant)
+      shell: vagrant up osm
+      args:
+        chdir: "{{ osm_dir }}"
 
 # STEP 2: install/configure the tile server
     - name: download docker tile-server image
@@ -41,18 +51,18 @@
         name: klokantech/openmaptiles-server
       become: yes
 
-    - name: start tile-server (Docker)
+    - name: start the OSM tile server (Docker)
       docker_container:
         name: osm_tileserver
         image: klokantech/openmaptiles-server
         ports: 9085:80
-        volumes: "{{ emergency_dir }}/osm/ts_data:/data"
+        volumes: "{{ osm_dir }}/ts_data:/data"
       become: yes
 #docker run --rm -it -v $(pwd):/data -p 9085:80 klokantech/openmaptiles-server
 
     - name: copy website configuration file
       copy:
-        src: "{{ emergency_dir }}/osm.conf"
+        src: "{{ osm_dir }}/osm.conf"
         dest: "/etc/nginx/sites-available/osm"
       become: yes
 

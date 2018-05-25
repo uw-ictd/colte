@@ -1,6 +1,12 @@
 # Rocketchat is a free/opensource/docker-ized version of slack
-
-# declare vars for ports?!?!
+---
+- hosts: localhost
+  vars:
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    # mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+    chat_dir: "{{ colte_dir }}/lte_extras/chat"
 
 # NOTE: you need to already have docker installed somehow (varies per system, goddamn it)
 
@@ -32,7 +38,7 @@
 
     - name: copy website configuration file
       copy:
-        src: "{{ emergency_dir }}/rocketchat.conf"
+        src: "{{ chat_dir }}/rocketchat.conf"
         dest: "/etc/nginx/sites-available/rocketchat"
       become: yes
 
