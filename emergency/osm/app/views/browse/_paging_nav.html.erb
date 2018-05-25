@@ -1,0 +1,5 @@
+<% if pages.page_count > 1 %>
+  <span class="paginate">
+    <%= raw pagination_links_each(pages, {}) { |n| link_to(n, page_param => n) } %>
+  </span>
+<% end %>

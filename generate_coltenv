@@ -63,8 +63,9 @@ echo "export COLTE_WEBGUI=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_BIND=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_IMS=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_UMS=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_MAP=0" | tee --append /usr/local/etc/colte/coltenv
 
 echo "export COLTE_ENBRAINS=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_EMERGENCY=0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_EMERGENCY=1" | tee --append /usr/local/etc/colte/coltenv
 
 source /usr/local/etc/colte/coltenv

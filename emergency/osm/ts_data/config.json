@@ -1,0 +1,35 @@
+{
+  "styles": {
+    "standard": [
+      "osm-bright"
+    ],
+    "custom": [],
+    "lang": "",
+    "langLatin": true,
+    "langAlts": true
+  },
+  "settings": {
+    "serve": {
+      "vector": false,
+      "raster": true,
+      "services": false,
+      "static": false
+    },
+    "raster": {
+      "format": "PNG_256",
+      "hidpi": 2,
+      "maxsize": 2048
+    },
+    "server": {
+      "title": "",
+      "redirect": "",
+      "domains": []
+    },
+    "memcache": {
+      "size": 3.75,
+      "servers": [
+        "localhost:11211"
+      ]
+    }
+  }
+}
