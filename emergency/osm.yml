@@ -1,6 +1,5 @@
 # OSM is OpenStreetMaps
 
-
 # STEP ONE: sudo add the line "deb http://download.virtualbox.org/virtualbox/debian stretch contrib"
 # to the file /etc/apt/sources.list.d/virtualbox.list
     - name: add virtualbox repo
@@ -29,13 +28,12 @@
       - virtualbox-5.1
       - vagrant
 
-    - name: Vagrant up
+    - name: start the OSM server (Vagrant)
       shell: |
-        vagrant up
+        vagrant box add osm.box --name osm
+        vagrant up osm
       args:
         chdir: "{{ emergency_dir }}/osm"
-
-
 
 # STEP 2: install/configure the tile server
     - name: download docker tile-server image
@@ -43,19 +41,14 @@
         name: klokantech/openmaptiles-server
       become: yes
 
-    # - name: CONFIGURE TILESERVER!!!
-
-    - name: start tile-server docker
+    - name: start tile-server (Docker)
       docker_container:
-        name: xowa
+        name: osm_tileserver
         image: klokantech/openmaptiles-server
         ports: 9085:80
         volumes: "{{ emergency_dir }}/osm/ts_data:/data"
       become: yes
-#docker run --rm -it -v $(pwd):/data -p 8080:80 klokantech/openmaptiles-server
-
-
-
+#docker run --rm -it -v $(pwd):/data -p 9085:80 klokantech/openmaptiles-server
 
     - name: copy website configuration file
       copy:
