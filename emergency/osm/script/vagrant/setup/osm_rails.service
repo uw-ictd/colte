@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenStreetMap Rails Server
+
+[Service]
+ExecStart=/bin/bash -c "rails server --binding=0.0.0.0 >> /srv/openstreetmap-website/osm_rails.log 2>&1"
+Restart=always
+User=vagrant
+Group=vagrant
+Environment=PATH=/usr/bin:/usr/local/bin
+WorkingDirectory=/srv/openstreetmap-website
+
+[Install]
+WantedBy=multi-user.target
+

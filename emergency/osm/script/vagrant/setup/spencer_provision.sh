@@ -38,6 +38,8 @@ popd
 
 sudo -u vagrant -H bundle exec rake db:migrate
 sudo -u vagrant -H bundle exec rake test:db
+sudo cp /srv/openstreetmap-website/script/vagrant/setup/osm_rails.service /etc/systemd/system/osm_rails.service
+
 # rails server --binding=0.0.0.0
 
 

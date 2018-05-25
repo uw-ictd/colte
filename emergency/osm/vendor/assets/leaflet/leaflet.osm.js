@@ -16,9 +16,10 @@ L.OSM.TileLayer = L.TileLayer.extend({
 
 L.OSM.Mapnik = L.OSM.TileLayer.extend({
   options: {
-    url: document.location.protocol === 'https:' ?
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' :
-      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+//    url: document.location.protocol === 'https:' ?
+//      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' :
+//      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    url: 'http://localhost:9085/styles/osm-bright/{z}/{x}/{y}.png',
     maxZoom: 19
   }
 });
