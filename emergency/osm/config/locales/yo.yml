@@ -1,0 +1,86 @@
+# Messages for Yoruba (Yorùbá)
+# Exported from translatewiki.net
+# Export driver: spyc
+# Author: Demmy
+---
+yo:
+  activerecord:
+    models:
+      country: Orile Ede
+      friend: Ore
+      language: Èdè
+      message: ihinoroiye riran
+      old_relation: ìsötàn agba
+      old_relation_member: aráìbátançbíiyèkan agba
+      old_way: Ona Atijo
+      relation: ìsötàn
+      relation_member: aráìbátançbíiyèkan
+      session: ìjokòó àwñn onídàájô
+      user: Oniti nlo nykan
+    attributes:
+      diary_comment:
+        body: Ara
+      diary_entry:
+        title: Àkọlé
+        language: Èdè
+      friend:
+        friend: Ore
+      message:
+        body: Ara
+      user:
+        languages: Àwọn èdè
+  diary_entry:
+    edit:
+      body: 'Ara:'
+      language: 'ede:'
+      use_map_link: Lo map
+    view:
+      login: wole
+  layouts:
+    home: ibùdó
+    logout: jade
+    log_in: Ìjáwọlé
+    log_in_tooltip: wole pelu with an existing account
+    make_a_donation:
+      text: Da wo si openstreetmap.org
+  notifier:
+    gpx_notification:
+      success:
+        loaded_successfully: |
+          loaded successfully with %{trace_points} out of a possible
+          %{possible_points} points.
+  message:
+    read:
+      title: Ka message
+  site:
+    edit:
+      potlatch_unsaved_changes: >
+        You have unsaved changes. (To save in
+        Potlatch, you should deselect the
+        current way or point, if editing in list
+        mode, or click save if you have a save
+        button.)
+    search:
+      where_am_i: Ni bo ni mo wa?
+      submit_text: Lo
+  trace:
+    view:
+      tags: Tags
+  user:
+    login:
+      title: Wole
+      heading: Wole
+      lost password link: Se eh ti san password nu?
+      account not active: 'Àforjìn, àkópamọ́ yín kò tí ì bẹ̀rẹ̀ ìṣẹ́ báyìí.<br />Ẹ jọ̀wọ́ ẹ lo àjápọ̀ tó wà nínú e-mail ìmúdájú àkòpamọ́ lati bẹ̀rẹ̀ àkópamọ́ yín, tàbí <a href="%{reconfirm}">kí ẹ tọrọ e-mail ìmúdájú tuntun</a>.'
+      auth failure: Pele, e le wole pelu details yi.
+    lost_password:
+      title: lost password
+      new password button: >
+        Fi ọ̀rọ̀ìpamọ́ tuntun
+        ránsẹ́ sí mi
+    reset_password:
+      title: ìtúntò ọ̀rọ̀ìpamọ́
+    account:
+      public editing:
+        enabled link: >
+          http://wiki.openstreetmap.org/wiki/Disabling_anonymous_edits

@@ -1,0 +1,18 @@
+<% content_for :heading do %>
+  <h1><%= t ".title" %></h1>
+<% end %>
+
+<p class='introduction'><%= t ".introduction" %></p>
+
+<% ['welcome', 'beginners_guide', 'help', 'mailing_lists', 'forums', 'irc', 'switch2osm', 'wiki'].each do |site| %>
+  <% unless site == 'welcome' && !current_user %>
+  <div class='<%= site %> help-item'>
+  <h3>
+    <a href='<%= t ".#{site}.url" %>'>
+      <%= t ".#{site}.title" %>
+    </a>
+  </h3>
+  <p><%= t ".#{site}.description" %></p>
+  </div>
+  <% end %>
+<% end %>
