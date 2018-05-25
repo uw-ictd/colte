@@ -1,0 +1,82 @@
+# Rocketchat is a free/opensource/docker-ized version of slack
+---
+- hosts: localhost
+  vars:
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    # mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+    chat_dir: "{{ colte_dir }}/lte_extras/chat"
+
+# NOTE: you need to already have docker installed somehow (varies per system, goddamn it)
+
+    - name: fetch docker images
+      docker_image:
+        name: "{{ item }}"
+      with_items:
+      - mongo:3.0
+      - rocket.chat
+      become: yes
+
+    - name: start mongodb docker image
+      docker_container:
+        name: db
+        image: mongo:3.0
+        command: --smallfiles
+        # detach: true
+      become: yes
+
+    - name: start rocketchat docker image
+      docker_container:
+        name: rocketchat
+        image: rocket.chat
+        ports: 9081:3000
+        links: db
+        env: ROOT_URL=http://localhost
+        # detach: true
+      become: yes
+
+    - name: copy website configuration file
+      copy:
+        src: "{{ chat_dir }}/rocketchat.conf"
+        dest: "/etc/nginx/sites-available/rocketchat"
+      become: yes
+
+    - name: symlink website into sites-enabled
+      file:
+        src: "/etc/nginx/sites-available/rocketchat"
+        dest: "/etc/nginx/sites-enabled/rocketchat"
+        state: link
+      become: yes
+
+    - name: restart nginx
+      service: name=nginx state=reloaded
+      become: yes
+
+    # - name: add to /etc/hosts
+    #   lineinfile:
+    #     path: /etc/hosts
+    #     regexp: 'chat\.localhost'
+    #     line: '127.0.0.1 chat.localhost'
+    #     owner: root
+    #     group: root
+    #     mode: 0644
+    #   become: yes
+
+    # - name: copy rocketchat.conf over to apache
+    #   copy: 
+    #     src: "{{ emergency_dir }}/rocketchat.conf"
+    #     dest: /etc/apache2/sites-available/rocketchat.conf
+    #     owner: "{{ username }}"
+    #     group: "{{ username }}"
+    #     mode: 0644
+    #   become: yes
+
+    # - name: Enable site
+    #   shell: a2ensite rocketchat.conf
+    #   become: yes
+      # notify: reload apache
+
+# docker run --name db -d mongo:3.0 --smallfiles
+# docker run --name rocketchat -p 8081:3000 --env ROOT_URL=http://localhost --link db -d rocket.chat
+

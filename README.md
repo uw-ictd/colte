@@ -44,7 +44,7 @@ The Billing component is made of two services: ntopng and a repeating cronjob th
 The install scripts download every website (right now it's just Rocketchat and Xowa) as Docker containers and add them to Apache, with each site using it's own VirtualHost .conf directive. Therefore, you must (1) start Apache and (2) start the corresponding Docker containers. You can do this all by running the script "$COLTE_DIR/emergency/start.sh".
 
 ## MediaServer:
-If you enable this option you'll configure and run a locally hosted media server (UMS, UniversalMediaServer) at media.networkname. You can add all the media you want to share to $COLTE_DIR/lte_extras/ums/files and start/stop the webserver with sudo systemctl {start|stop} ums. It logs to /var/log/colte/ums.log. Note that if you add media to files, you'll have to restart the server.
+If you enable this option you'll configure and run a locally hosted media server (UMS, UniversalMediaServer) at media.networkname. You can add all the media you want to share to $COLTE_DIR/lte_extras/media/files and start/stop the webserver with sudo systemctl {start|stop} ums. It logs to /var/log/colte/ums.log. Note that if you add media to files, you'll have to restart the server.
 
 # Configuration 
 If you want/need to change any of the configurations after install, go to /usr/local/etc/colte. In there, you will find config files for the hss, mme, and spgw. Ignore the freeDiameter files. As more and more of the components are configurable, we will add the conf files to this directory.

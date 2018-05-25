@@ -29,12 +29,20 @@ if [ $COLTE_IMS == 1 ]; then
 	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/ims/debian-9.4.yml
 fi
 
-if [ $COLTE_UMS == 1 ]; then
-	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/ums/debian-9.4.yml
+if [ $COLTE_MEDIA == 1 ]; then
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/media/debian-9.4.yml
 fi
 
 if [ $COLTE_MAP == 1 ]; then
-	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/ims/debian-9.4.yml
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/maps/debian-9.4.yml
+fi
+
+if [ $COLTE_WIKI == 1 ]; then
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/wiki/debian-9.4.yml
+fi
+
+if [ $COLTE_CHAT == 1 ]; then
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/chat/debian-9.4.yml
 fi
 
 if [ $COLTE_ENBRAINS == 1 ]; then

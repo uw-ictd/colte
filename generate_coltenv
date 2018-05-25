@@ -56,14 +56,17 @@ echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/co
 # relatively independently of each other, though some of them (i.e. billing 
 # or webgui) won't make any sense without the EPC having been built.
 
-echo "export COLTE_EPC=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_BILLING=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_NGINX=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_WEBGUI=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_BIND=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_IMS=0" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_UMS=1" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_MAP=0" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_BILLING=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_NGINX=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_BIND=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_WEBGUI=1" | tee --append /usr/local/etc/colte/coltenv
+
+echo "export COLTE_IMS=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_MEDIA=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_MAP=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_WIKI=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_CHAT=1" | tee --append /usr/local/etc/colte/coltenv
 
 echo "export COLTE_ENBRAINS=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_EMERGENCY=1" | tee --append /usr/local/etc/colte/coltenv
