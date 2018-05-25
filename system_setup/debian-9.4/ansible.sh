@@ -29,6 +29,10 @@ if [ $COLTE_IMS == 1 ]; then
 	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/ims/debian-9.4.yml
 fi
 
+if [ $COLTE_MAP == 1 ]; then
+	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/lte_extras/ims/debian-9.4.yml
+fi
+
 if [ $COLTE_ENBRAINS == 1 ]; then
 	ansible-playbook -K -v -i "localhost," -c local $COLTE_DIR/enbrains/install_scripts/debian-9.4.yml
 fi
