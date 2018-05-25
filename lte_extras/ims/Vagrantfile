@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
     # ims.vm.network "forwarded_port", guest: 22, host: 8022
     ims.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
-    ims.vm.network "forwarded_port", guest: 5060, host: 8060, auto_correct: true
+    ims.vm.network "forwarded_port", guest: 5060, host: 5060, auto_correct: true
 
 	ims.vm.synced_folder(".", "/home/ubuntu/vagrant", disabled: true)
 
