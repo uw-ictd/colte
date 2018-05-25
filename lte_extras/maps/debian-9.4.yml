@@ -1,0 +1,78 @@
+# OSM is OpenStreetMaps
+---
+- hosts: localhost
+  vars:
+    coltenv: "{{ ansible_env.COLTENV }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+    osm_dir: "{{ colte_dir }}/lte_extras/maps"
+
+# STEP ONE: sudo add the line "deb http://download.virtualbox.org/virtualbox/debian stretch contrib"
+# to the file /etc/apt/sources.list.d/virtualbox.list
+    - name: add virtualbox repo
+      lineinfile:
+        path: /etc/apt/sources.list.d/virtualbox.list
+        line: "deb http://download.virtualbox.org/virtualbox/debian stretch contrib"
+        create: yes
+      become: yes
+
+# wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
+    - name: add oracle vbox key to apt
+      apt_key:
+        url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+        state: present
+      become: yes
+
+# apt update
+# apt install virtualbox-5.1
+    - name: install virtualbox
+      apt:
+        update_cache: yes
+        name: "{{ item }}"
+      become: yes
+      with_items:
+      - linux-headers-4.9.0-6-amd64
+      - virtualbox-5.1
+      - vagrant
+
+    - name: import the OSM server Vagrant box
+      shell: vagrant box add osm.box --name osm
+      args:
+        chdir: "{{ osm_dir }}"
+
+    - name: start the OSM main server (Vagrant)
+      shell: vagrant up osm
+      args:
+        chdir: "{{ osm_dir }}"
+
+# STEP 2: install/configure the tile server
+    - name: download docker tile-server image
+      docker_image:
+        name: klokantech/openmaptiles-server
+      become: yes
+
+    - name: start the OSM tile server (Docker)
+      docker_container:
+        name: osm_tileserver
+        image: klokantech/openmaptiles-server
+        ports: 9085:80
+        volumes: "{{ osm_dir }}/ts_data:/data"
+      become: yes
+#docker run --rm -it -v $(pwd):/data -p 9085:80 klokantech/openmaptiles-server
+
+    - name: copy website configuration file
+      copy:
+        src: "{{ osm_dir }}/osm.conf"
+        dest: "/etc/nginx/sites-available/osm"
+      become: yes
+
+    - name: symlink website into sites-enabled
+      file:
+        src: "/etc/nginx/sites-available/osm"
+        dest: "/etc/nginx/sites-enabled/osm"
+        state: link
+      become: yes
+
+    - name: restart nginx
+      service: name=nginx state=reloaded
+      become: yes
