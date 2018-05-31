@@ -64,10 +64,10 @@ echo "export COLTE_WEBGUI=1" | tee --append /usr/local/etc/colte/coltenv
 
 echo "export COLTE_IMS=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_MEDIA=1" | tee --append /usr/local/etc/colte/coltenv
-### MAPS ARE DISABLED FOR NOW - DO NOT USE! ###
-# echo "export COLTE_MAP=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_WIKI=1" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_CHAT=1" | tee --append /usr/local/etc/colte/coltenv
+### MAPS AND CHAT ARE DISABLED FOR NOW - DO NOT USE! ###
+# echo "export COLTE_MAP=1" | tee --append /usr/local/etc/colte/coltenv
+# echo "export COLTE_CHAT=1" | tee --append /usr/local/etc/colte/coltenv
 
 echo "export COLTE_ENBRAINS=0" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_EMERGENCY=1" | tee --append /usr/local/etc/colte/coltenv
