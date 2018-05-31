@@ -8,6 +8,7 @@
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
     chat_dir: "{{ colte_dir }}/lte_extras/chat"
 
+  tasks:
 # NOTE: you need to already have docker installed somehow (varies per system, goddamn it)
     - name: apt-get docker-compose
       apt:
