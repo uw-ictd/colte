@@ -2,12 +2,12 @@
 Description=Universal Media Server (UMS)
 
 [Service]
-ExecStart=/bin/bash -c "/home/colte/colte/lte_extras/ums/app/UMS.sh >> /var/log/colte/ums.log 2>&1"
+ExecStart=/bin/bash -c "/home/colte/colte/lte_extras/media/app/UMS.sh >> /var/log/colte/ums.log 2>&1"
 Restart=always
 User=colte
 Group=colte
 Environment=PATH=/usr/bin:/usr/local/bin
-WorkingDirectory=/home/colte/colte/lte_extras/ums/app
+WorkingDirectory=/home/colte/colte/lte_extras/media/app
 
 [Install]
 WantedBy=multi-user.target

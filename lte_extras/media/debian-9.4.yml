@@ -8,7 +8,7 @@
     coltenv: "{{ ansible_env.COLTENV }}"
     username: "{{ ansible_env.COLTE_USER }}"
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
-    ums_dir: "{{ colte_dir }}/lte_extras/ums"
+    ums_dir: "{{ colte_dir }}/lte_extras/media"
 
   tasks:
     - name: check for environment vars
