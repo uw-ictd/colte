@@ -7,6 +7,7 @@
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
     wiki_dir: "{{ colte_dir }}/lte_extras/wiki"
 
+  tasks:
 # NOTE: you need to already have docker installed somehow (varies per system, goddamn it)
     - name: apt-get docker-compose
       apt:
