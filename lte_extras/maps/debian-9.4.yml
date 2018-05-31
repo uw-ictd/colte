@@ -8,8 +8,10 @@
     osm_dir: "{{ colte_dir }}/lte_extras/maps"
 
   tasks:
-# STEP ONE: sudo add the line "deb http://download.virtualbox.org/virtualbox/debian stretch contrib"
-# to the file /etc/apt/sources.list.d/virtualbox.list
+    - name: check for environment vars
+      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
+
     - name: add virtualbox repo
       lineinfile:
         path: /etc/apt/sources.list.d/virtualbox.list
