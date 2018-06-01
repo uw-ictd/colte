@@ -8,6 +8,11 @@
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
     chat_dir: "{{ colte_dir }}/lte_extras/chat"
 
+    colte_rc_admin: "{{ ansible_env.COLTE_RC_ADMIN }}"
+    colte_rc_pass: "{{ ansible_env.COLTE_RC_PASS }}"
+    colte_rc_email: "{{ ansible_env.COLTE_RC_EMAIL }}"
+
+
   tasks:
     - name: check for environment vars
       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
@@ -46,7 +51,12 @@
         image: rocket.chat
         ports: 9081:3000
         links: db
-        env: ROOT_URL=http://localhost
+        env:
+            ROOT_URL: http://localhost
+            ADMIN_USERNAME: colte_rc_admin
+            ADMIN_PASS: colte_rc_pass
+            ADMIN_EMAIL: colte_rc_email
+
         # detach: true
       become: yes
 
