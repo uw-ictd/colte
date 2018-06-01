@@ -15,7 +15,7 @@
 
   tasks:
     - name: check for environment vars
-      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
       when: coltenv is not defined
 
     - name: apt-get docker-compose
@@ -52,10 +52,11 @@
         ports: 9081:3000
         links: db
         env:
-            ROOT_URL: http://localhost
-            ADMIN_USERNAME: colte_rc_admin
-            ADMIN_PASS: colte_rc_pass
-            ADMIN_EMAIL: colte_rc_email
+            ROOT_URL: http://localhost:9081
+            Show_Setup_Wizard: completed
+            #ADMIN_USERNAME: colte_rc_admin
+            #ADMIN_PASS: colte_rc_pass
+            #ADMIN_EMAIL: colte_rc_email
 
         # detach: true
       become: yes
