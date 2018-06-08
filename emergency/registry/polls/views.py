@@ -50,6 +50,8 @@ def register(request):
 def index(request):
     query = request.GET.get('search_box', None)
 
+    number = request.GET.get('search_number', None)
+
     # Step 1: get client's IP (maybe translate to IMSI?!?)
     ip, is_routable = get_client_ip(request)
     if ip is None:
@@ -67,7 +69,10 @@ def index(request):
 # Order of precedence is (Public, Private, Loopback, None)
 
     if query:
-        person_list = Person.objects.filter(name_text__icontains=query).order_by('name_text')
+        if number:
+            person_list = Person.objects.filter(phone_number__icontains=query).order_by('name_text')
+        else:
+            person_list = Person.objects.filter(name_text__icontains=query).order_by('name_text')
     else:
         person_list = Person.objects.all().order_by('name_text')
 
