@@ -1,12 +1,42 @@
-<h3> REGISTER </h3>
+{% load staticfiles %}
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="{% static 'js/jquery-1.9.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+</head>
+
+
+
+
+<h5> Register your Information </h5>
 
 <form name="form" method="POST" action="" id="form" style="margin: 0">
   {% csrf_token %}
 <!--   <input id="name_box" type="text" name="name_box" placeholder="Full Name">
   <input id="phone_box" type="text" name="phone_box" placeholder="Phone Number">
   <input id="loc_box" type="text" name="loc_box" placeholder="Describe Location"> --> 
-  {{ form }}
-  <button class="btn btn-md btn-secondary" id="register_submit" type="submit">Register</button>
+  <!-- {{ form }} -->
+
+    <table class="table table-bordered table-striped">
+      <tbody>
+        <tr>
+          <td align="right">Name:</td>
+          <td id="name_box" class="contact"><input type="text" name="name_box" required="" id="id_name_box" maxlength="50" style="margin: 5px;  border: 1px solid #ccc"></td>
+        </tr>
+        <tr>
+          <td align="right">Phone Number:</td>
+          <td id="phone_box" class="contact"><input type="text" name="phone_box" required="" id="id_phone_box" maxlength="50" style="margin: 5px;  border: 1px solid #ccc"></td>
+        </tr>
+        <tr>
+          <td align="right">Current Location:</td>
+          <td id="loc_box" class="contact"><input type="text" name="loc_box" required="" id="id_loc_box" maxlength="50" style="margin: 5px;  border: 1px solid #ccc"></td>
+        </tr>
+      </tbody>
+    </table>
+
+  <button class="btn btn-md btn-secondary" id="register_submit" type="submit" style="margin: 5px">Register</button>
 </form>
 
 <!-- {% if most_recent_entries %}
