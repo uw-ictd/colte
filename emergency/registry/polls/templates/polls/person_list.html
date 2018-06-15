@@ -52,10 +52,6 @@
       <tr class="collapse"></tr>
       <tr id="accordion{{ person.id }}" class="collapse">
         <td colspan="2">
-          <!-- <div>
-          Hello<br>
-          Goodbye<br>
-          </div> -->
           <div>
           <table class="table table-bordered table-striped">
             <tbody>
@@ -73,68 +69,29 @@
     {% endfor %}    
   </tbody>
 </table>
-<!--   <tbody>
-    <tr data-toggle="collapse" data-target="#demo1" class="accordion-toggle">
-      <td><button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-eye-open"></span></button></td>
-      <td>{{ person.name_text }}</td>
-      <td>{{ person.phone_number }}</td>
-    </tr>
-    <tr>
-      <td colspan="12" class="hiddenRow"><div class="accordion-body collapse" id="demo1">
-        <table class="table table-striped">
-          <thead>
-            <tr><td><a href="WorkloadURL">Workload link</a></td><td>Bandwidth: Dandwidth Details</td><td>OBS Endpoint: end point</td></tr>
-            <tr><th>Access Key</th><th>Secret Key</th><th>Status </th><th> Created</th><th> Expires</th><th>Actions</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>access-key-1</td><td>secretKey-1</td><td>Status</td><td>some date</td><td>some date</td><td><a href="#" class="btn btn-default btn-sm">
-            <i class="glyphicon glyphicon-cog"></i></a></td></tr>
-          </tbody>
-        </table>
-      </div></td>
-    </tr> -->
-    {% for person in persons %}
-      <!-- <tr> -->
-        <!-- <td>M {{ person.name_text }}</td> -->
-        <!-- {% if person.status == 1 %}
-          <td>Okay</td>
-        {% elif person.status == 2 %}
-          <td>Injured</td>          
-        {% elif person.status == 3 %}
-          <td>Needs Help</td>          
-        {% else %}
-          <td>(Unknown)</td>  
-        {% endif %} -->
-        <!-- <td>{{ person.phone_number }}</td> -->
-        <!-- <td>{{ person.last_reported }}</td> -->
-        <!-- <td>{{ person.location }}</td> -->
-      <!-- </tr> -->
-    {% endfor %}
-<!--   </tbody>
-</table>
- -->
-
 
 {% if persons.has_other_pages %}
+<nav aria-label="Page navigation example">
   <ul class="pagination">
     {% if persons.has_previous %}
-      <li><a href="?page={{ persons.previous_page_number }}">&laquo;</a></li>
+      <li class="page-item"><a class="page-link" href="?page={{ persons.previous_page_number }}">&laquo;</a></li>
     {% else %}
-      <li class="disabled"><span>&laquo;</span></li>
+      <li class="page-item disabled"><p class="page-link">&laquo;</p></li>
     {% endif %}
     {% for i in persons.paginator.page_range %}
       {% if persons.number == i %}
-        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+        <li class="page-item active"><p class="page-link">{{ i }} <span class="sr-only">(current)</span></p></li>
       {% else %}
-        <li><a href="?page={{ i }}">{{ i }}</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
       {% endif %}
     {% endfor %}
     {% if persons.has_next %}
-      <li><a href="?page={{ persons.next_page_number }}">&raquo;</a></li>
+      <li class="page-item"><a class="page-link" href="?page={{ persons.next_page_number }}">&raquo;</a></li>
     {% else %}
-      <li class="disabled"><span>&raquo;</span></li>
+      <li class="page-item disabled"><p class="page-link">&raquo;</p></li>
     {% endif %}
   </ul>
+</nav>
 {% endif %}
 
 {% if query %}
