@@ -144,10 +144,6 @@ $(document).ready(function () {
     sidebar: sidebar
   }).addTo(map);
 
-  L.OSM.query({
-    position: position,
-    sidebar: sidebar
-  }).addTo(map);
 
   L.control.scale()
     .addTo(map);

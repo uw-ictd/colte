@@ -7,18 +7,19 @@ OSM.NewNote = function(map) {
     halo;
 
   var noteIcons = {
-    "new": L.icon({
-      iconUrl: OSM.NEW_NOTE_MARKER,
+    // change icon name - pathiratk
+    "water": L.icon({
+      iconUrl: OSM.WATER_MARKER,
       iconSize: [25, 40],
       iconAnchor: [12, 40]
     }),
-    "open": L.icon({
-      iconUrl: OSM.OPEN_NOTE_MARKER,
+    "fire": L.icon({
+      iconUrl: OSM.FIRE_MARKER,
       iconSize: [25, 40],
       iconAnchor: [12, 40]
     }),
-    "closed": L.icon({
-      iconUrl: OSM.CLOSED_NOTE_MARKER,
+    "food": L.icon({
+      iconUrl: OSM.FOOD_MARKER,
       iconSize: [25, 40],
       iconAnchor: [12, 40]
     })
@@ -135,7 +136,8 @@ OSM.NewNote = function(map) {
     }
 
     newNote = L.marker(markerLatlng, {
-      icon: noteIcons["new"],
+      // pathiratk
+      icon: noteIcons["fire"],
       opacity: 0.9,
       draggable: true
     });

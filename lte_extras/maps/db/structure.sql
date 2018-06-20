@@ -76,9 +76,13 @@ CREATE TYPE public.note_event_enum AS ENUM (
 --
 
 CREATE TYPE public.note_status_enum AS ENUM (
-    'open',
-    'closed',
-    'hidden'
+    -- change note status - pathiratk
+    -- 'open',
+    -- 'closed',
+    'hidden',
+    'water',
+    'fire',
+    'food'
 );
 
 
