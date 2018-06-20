@@ -27,7 +27,8 @@ class Note < ActiveRecord::Base
                  :numericality => { :on => :update, :integer_only => true }
   validates :latitude, :longitude, :numericality => { :only_integer => true }
   validates :closed_at, :presence => true, :if => proc { :status == "closed" }
-  validates :status, :inclusion => %w[open closed hidden]
+  # change status name - pathiratk
+  validates :status, :inclusion => %w[water fire food hidden] 
 
   validate :validate_position
 
@@ -79,6 +80,7 @@ class Note < ActiveRecord::Base
 
   # Fill in default values for new notes
   def set_defaults
-    self.status = "open" unless attribute_present?(:status)
+    # pathiratk
+    self.status = "water" unless attribute_present?(:status)
   end
 end
