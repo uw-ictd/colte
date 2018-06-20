@@ -64,12 +64,14 @@ class NotesController < ApplicationController
     lon = OSM.parse_float(params[:lon], OSM::APIBadUserInput, "lon was not a number")
     lat = OSM.parse_float(params[:lat], OSM::APIBadUserInput, "lat was not a number")
     comment = params[:text]
+    # Add arg - pathiratk
+    marker = params[:marker]
 
     # Include in a transaction to ensure that there is always a note_comment for every note
     Note.transaction do
       # Create the note
       # pathiratk
-      @note = Note.create(:lat => lat, :lon => lon, :status => "water");
+      @note = Note.create(:lat => lat, :lon => lon, :status => marker);
       raise OSM::APIBadUserInput, "The note is outside this world" unless @note.in_world?
 
       # Save the note
@@ -322,19 +324,22 @@ class NotesController < ApplicationController
   # Generate a condition to choose which notes we want based
   # on their status and the user's request parameters
   def closed_condition(notes)
-    closed_since = if params[:closed]
-                     params[:closed].to_i
-                   else
-                     7
-                   end
+    # select all notes which are not hidden - pathiratk
 
-    if closed_since < 0
-      notes.where("status != 'hidden'")
-    elsif closed_since > 0
-      notes.where("(status = 'open' OR (status = 'closed' AND closed_at > '#{Time.now - closed_since.days}'))")
-    else
-      notes.where("status = 'open'")
-    end
+    # closed_since = if params[:closed]
+    #                  params[:closed].to_i
+    #                else
+    #                  7
+    #                end
+
+    # if closed_since < 0
+    #   notes.where("status != 'hidden'")
+    # elsif closed_since > 0
+    #   notes.where("(status = 'open' OR (status = 'closed' AND closed_at > '#{Time.now - closed_since.days}'))")
+    # else
+    #   notes.where("status = 'open'")
+    # end
+    notes.where("status != 'hidden'")
   end
 
   ##
