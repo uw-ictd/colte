@@ -1,5 +1,8 @@
 <header class="closed">
   <h1>
+    <%# add new name - pathiratk %>
+    <a href="<%= root_path %>" class="geolink"> EmergenCell Maps </a>
+    <%if false %>
     <a href="<%= root_path %>" class="geolink">
       <picture>
         <source srcset="<%= image_path "osm_logo.svg" %>" type="image/svg+xml"></source>
@@ -7,6 +10,7 @@
       </picture>
       <%= t 'layouts.project_name.h1' %>
     </a>
+    <% end %>
   </h1>
   <a href="#" id="menu-icon"></a>
   <nav class='primary'>
@@ -45,7 +49,9 @@
         <li class="compact-hide <%= current_page_class(diary_path) %>"><%= link_to t('layouts.user_diaries'), diary_path %></li>
       <% end %>
       <li class="compact-hide <%= current_page_class(copyright_path) %>"><%= link_to t('layouts.copyright'), copyright_path %></li>
+      <%if false %>
       <li class="compact-hide <%= current_page_class(help_path) %>"><%= link_to t('layouts.help'), help_path %></li>
+      <% end %>
       <li class="compact-hide <%= current_page_class(about_path) %>"><%= link_to t('layouts.about'), about_path %></li>
       <li id="compact-secondary-nav" class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#"><%= t 'layouts.more' %> <b class="caret"></b></a>

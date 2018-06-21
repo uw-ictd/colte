@@ -2,7 +2,11 @@
 
 <h2>
   <a class="geolink" href="<%= root_path %>"><span class="icon close"></span></a>
+  <%# change note title %>
+  <%= h(@note.status) %>
+  <% if false %>
   <%= t ".#{@note.status}_title", :note_name => @note.id %>
+  <% end %>
 </h2>
 
 <div class="browse-section">
@@ -19,9 +23,12 @@
     <% end %>
   </div>
 
+  <%# remove anonymous warning - pathiratk %>
+  <% if false %>
   <% if @note_comments.find { |comment| comment.author.nil? } -%>
     <p class='warning'><%= t "javascripts.notes.show.anonymous_warning" %></p>
   <% end -%>
+  <% end %>
 
   <% if @note_comments.length > 1 %>
     <div class='note-comments'>

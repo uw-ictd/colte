@@ -16,13 +16,17 @@
   <% end %>
 <% end %>
 
+<% if false %>
 <% content_for :header do %>
   <%= render :partial => "layouts/search", :locals => { :autofocus => false } %>
+<% end %>
 <% end %>
 
 <% content_for :content do %>
   <div id="sidebar">
+    <% if false %>
     <%= render :partial => "layouts/search", :locals => { :autofocus => true } %>
+    <% end %>
 
     <div id="flash">
       <%= render :partial => "layouts/flash" %>
@@ -38,6 +42,8 @@
       <%= yield %>
     </div>
 
+    <%# remove welcome message - pathiratk %>
+    <% if false %>
     <% unless current_user %>
       <div class="welcome">
         <h2><%= t 'layouts.intro_header' %></h2>
@@ -52,6 +58,7 @@
         <a class="button learn-more" href="<%= about_path %>"><%= t('layouts.learn_more') %></a>
         <a class="button sign-up" href="<%= user_new_path %>"><%= t('layouts.start_mapping') %></a>
       </div>
+    <% end %>
     <% end %>
 
     <div id="banner">
