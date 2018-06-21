@@ -11,6 +11,11 @@
     <input type="hidden" name="lon">
     <input type="hidden" name="lat">
     <textarea class="comment" name="text" cols="40" rows="10" placeholder="<%= t('javascripts.notes.new.advice') %>"></textarea>
+    <fieldset>
+      <input type="radio" name="marker" value="water" checked> Water<br>
+      <input type="radio" name="marker" value="fire"> Fire<br>
+      <input type="radio" name="marker" value="food"> Food<br>
+      <%# add radio buttons - pathiratk %>
     <div class="buttons clearfix">
       <input type="submit" name="add" value="<%= t('javascripts.notes.new.add') %>" disabled="1">
     </div>

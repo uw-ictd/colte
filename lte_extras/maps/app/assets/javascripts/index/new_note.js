@@ -22,6 +22,11 @@ OSM.NewNote = function(map) {
       iconUrl: OSM.FOOD_MARKER,
       iconSize: [25, 40],
       iconAnchor: [12, 40]
+    }),
+    "new" : L.icon({
+      iconUrl: OSM.NEW_NOTE_MARKER,
+      iconSize: [25, 40],
+      iconAnchor: [12, 40]
     })
   };
 
@@ -51,7 +56,7 @@ OSM.NewNote = function(map) {
         lon: location.lng,
         text: $(form.text).val(),
         // add marker type - pathiratk
-        marker: "food"
+        marker: $('input[name="marker"]:checked').val()
       },
       success: function (feature) {
         noteCreated(feature, marker);
@@ -138,9 +143,9 @@ OSM.NewNote = function(map) {
     }
 
     newNote = L.marker(markerLatlng, {
-      // pathiratk
-      icon: noteIcons["fire"],
-      opacity: 0.9,
+      // change default icon - pathiratk
+      icon: noteIcons["new"],
+      opacity: 0.6,
       draggable: true
     });
 
