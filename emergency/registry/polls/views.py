@@ -11,6 +11,9 @@ from ipware import get_client_ip
 
 from .models import Person
 from .forms import AddPersonForm
+
+from django.db.models.functions import Lower
+
 # Create your views here.
 # def index(request):
 #     person_list = Person.objects.all()
@@ -50,6 +53,8 @@ def register(request):
 def index(request):
     query = request.GET.get('search_box', None)
 
+    number = request.GET.get('search_number', None)
+
     # Step 1: get client's IP (maybe translate to IMSI?!?)
     ip, is_routable = get_client_ip(request)
     if ip is None:
@@ -67,9 +72,12 @@ def index(request):
 # Order of precedence is (Public, Private, Loopback, None)
 
     if query:
-        person_list = Person.objects.filter(name_text__icontains=query).order_by('name_text')
+        if number:
+            person_list = Person.objects.filter(phone_number__icontains=query).order_by(Lower('name_text'))
+        else:
+            person_list = Person.objects.filter(name_text__icontains=query).order_by(Lower('name_text'))
     else:
-        person_list = Person.objects.all().order_by('name_text')
+        person_list = Person.objects.all().order_by(Lower('name_text'))
 
     page = request.GET.get('page', 1)
 
