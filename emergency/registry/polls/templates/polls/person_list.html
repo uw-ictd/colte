@@ -1,77 +1,99 @@
 {% load staticfiles %}
 
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="{% static 'js/jquery-1.9.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
 </head>
 
 {% if user %}
-<a href="update.html" class="btn btn-md btn-secondary">Update Your Information</a>
-<a href="register_else.html" class="btn btn-md btn-secondary">Register Someone Else </a>
+<a href="update.html" class="btn btn-md btn-secondary" style="margin: 5px">Update Your Information</a>
+<a href="register_else.html" class="btn btn-md btn-secondary" style="margin: 5px">Register Someone Else </a>
 {% else %}
-<a href="register" class="btn btn-md btn-secondary">Register Your Information</a>
+<a href="register" class="btn btn-md btn-secondary" style="margin: 5px">Register Your Information</a>
 {% endif %}
 <form type="get" action="." style="margin: 0">
-  <input id="search_box" type="text" name="search_box" placeholder="Search...">
-  <button class="btn btn-md btn-secondary" id="search_submit" type="submit">Search</button>
+{% if query %}
+  <input id="search_box" type="text" name="search_box" value="{{ query }}" style="margin: 5px;  border: 1px solid #ccc"><br>
+{% else %}
+  <input id="search_box" type="text" name="search_box" placeholder="Search Box" style="margin: 5px;  border: 1px solid #ccc"><br>
+{% endif %}
+  <button class="btn btn-md btn-secondary" id="search_name" name="search_name" value="1" type="submit" style="margin: 5px">Search By Name</button>
+  <button class="btn btn-md btn-secondary" id="search_number" name="search_number" value="1" type="submit" style="margin: 5px">Search By Number</button>
 </form>
 
 {% if query %}
-<h3> This is a search for {{ query }}</h3>
+<h3> This is a search for: {{ query }}</h3>
 {% endif %}
 
 {% if addUser %}
 <h3> Added User Successfully!</h3>
 {% endif %}
 
-<table class="table table-bordered">
+<table class="table table-bordered table-striped">
   <thead>
     <tr>
+      <!-- <th>&nbsp;</th> -->
       <th>Name</th>
-      <th>Status</th>
+      <!-- <th>Status</th> -->
       <th>Phone Number</th>
-      <th>Last Update</th>
-      <th>Last Location</th>
+      <!-- <th>Last Update</th> -->
+      <!-- <th>Last Location</th> -->
     </tr>
   </thead>
+
   <tbody>
-    {% for person in persons %}
-      <tr>
+    {% for person in persons %}    
+      <tr data-toggle="collapse" data-target="#accordion{{ person.id }}" class="clickable">
         <td>{{ person.name_text }}</td>
-        {% if person.status == 1 %}
-          <td>Okay</td>
-        {% elif person.status == 2 %}
-          <td>Injured</td>          
-        {% elif person.status == 3 %}
-          <td>Needs Help</td>          
-        {% else %}
-          <td>(Unknown)</td>  
-        {% endif %}
         <td>{{ person.phone_number }}</td>
-        <td>{{ person.last_reported }}</td>
-        <td>{{ person.location }}</td>
       </tr>
-    {% endfor %}
+      <tr class="collapse"></tr>
+      <tr id="accordion{{ person.id }}" class="collapse">
+        <td colspan="2">
+          <div>
+          <table class="table table-bordered table-striped">
+            <tbody>
+              <tr><td>Status:</td><td>Okay</td></tr>
+              <tr><td>Location:</td><td>{{ person.location }}</td></tr>
+              <tr><td>Last Updated:</td><td>{{ person.last_reported }}</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </td>
+      </tr>
+<!--         <td>Last Network Activity: {{ person.last_reported }}</td>
+        <td>Last Recorded Location: {{ person.location }} at TIME</td>
+ -->      
+    {% endfor %}    
   </tbody>
 </table>
 
 {% if persons.has_other_pages %}
+<nav aria-label="Page navigation example">
   <ul class="pagination">
     {% if persons.has_previous %}
-      <li><a href="?page={{ persons.previous_page_number }}">&laquo;</a></li>
+      <li class="page-item"><a class="page-link" href="?page={{ persons.previous_page_number }}">&laquo;</a></li>
     {% else %}
-      <li class="disabled"><span>&laquo;</span></li>
+      <li class="page-item disabled"><p class="page-link">&laquo;</p></li>
     {% endif %}
     {% for i in persons.paginator.page_range %}
       {% if persons.number == i %}
-        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+        <li class="page-item active"><p class="page-link">{{ i }} <span class="sr-only">(current)</span></p></li>
       {% else %}
-        <li><a href="?page={{ i }}">{{ i }}</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
       {% endif %}
     {% endfor %}
     {% if persons.has_next %}
-      <li><a href="?page={{ persons.next_page_number }}">&raquo;</a></li>
+      <li class="page-item"><a class="page-link" href="?page={{ persons.next_page_number }}">&raquo;</a></li>
     {% else %}
-      <li class="disabled"><span>&raquo;</span></li>
+      <li class="page-item disabled"><p class="page-link">&raquo;</p></li>
     {% endif %}
   </ul>
+</nav>
+{% endif %}
+
+{% if query %}
+<a href="." class="btn btn-md btn-secondary">Clear Search</a>
 {% endif %}

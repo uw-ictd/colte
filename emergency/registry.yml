@@ -29,12 +29,12 @@
     - name: copy registry.service to /etc/systemd/system
       copy: 
         src: "{{ emergency_dir }}/registry/registry.service"
-        dest: "/etc/systemd/system/emergencell_register.service"
+        dest: "/etc/systemd/system/emergencell_registry.service"
         mode: 0644
       become: yes
 
     - name: start registry via systemd
-      systemd: state=started name=emergencell_register
+      systemd: state=started name=emergencell_registry
       become: yes
 
     - name: copy website configuration file
