@@ -1,4 +1,7 @@
+<%# remove title - pathiratk %>
+<% if false %>
 <% set_title(t('.title', :id => @note.id)) %>
+<% end %>
 
 <h2>
   <a class="geolink" href="<%= root_path %>"><span class="icon close"></span></a>
@@ -10,7 +13,10 @@
 </h2>
 
 <div class="browse-section">
+  <%# remove description %>
+  <% if false  %>
   <h4><%= t('.description') %></h4>
+  <% end %>
   <div class="note-description">
     <%= h(@note_comments.first.body.to_html) %>
   </div>
@@ -26,7 +32,7 @@
   <%# remove anonymous warning - pathiratk %>
   <% if false %>
   <% if @note_comments.find { |comment| comment.author.nil? } -%>
-    <p class='warning'><%= t "javascripts.notes.show.anonymous_warning" %></p>
+    <p class='warning'><%= t "javascripts.marker.show.anonymous_warning" %></p>
   <% end -%>
   <% end %>
 
