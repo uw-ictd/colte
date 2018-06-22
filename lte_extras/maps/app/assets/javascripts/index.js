@@ -122,22 +122,22 @@ $(document).ready(function () {
   var sidebar = L.OSM.sidebar('#map-ui')
     .addTo(map);
 
-  L.OSM.layers({
-    position: position,
-    layers: map.baseLayers,
-    sidebar: sidebar
-  }).addTo(map);
+  // L.OSM.layers({
+  //   position: position,
+  //   layers: map.baseLayers,
+  //   sidebar: sidebar
+  // }).addTo(map);
 
-  L.OSM.key({
-    position: position,
-    sidebar: sidebar
-  }).addTo(map);
+  // L.OSM.key({
+  //   position: position,
+  //   sidebar: sidebar
+  // }).addTo(map);
 
-  L.OSM.share({
-    position: position,
-    sidebar: sidebar,
-    short: true
-  }).addTo(map);
+  // L.OSM.share({
+  //   position: position,
+  //   sidebar: sidebar,
+  //   short: true
+  // }).addTo(map);
 
   L.OSM.note({
     position: position,

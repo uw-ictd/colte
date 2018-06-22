@@ -1,23 +1,25 @@
+<%# remove title - pathiratk %>
+<% if false %>
 <% set_title(t "browse.note.new_note") %>
-
+<% end %>
 <h2>
   <a class="geolink" href="<%= root_path %>"><span class="icon close"></span></a>
-  <%= t "browse.note.new_note" %>
+  <%= t "browse.marker.new_marker" %>
 </h2>
 
 <div class="note browse-section">
-  <p class="warning"><%= t('javascripts.notes.new.intro') %></p>
+  <p class="warning"><%= t('javascripts.marker.new.intro') %></p>
   <form action="#">
     <input type="hidden" name="lon">
     <input type="hidden" name="lat">
-    <textarea class="comment" name="text" cols="40" rows="10" placeholder="<%= t('javascripts.notes.new.advice') %>"></textarea>
+    <textarea class="comment" name="text" cols="40" rows="10" placeholder="<%= t('javascripts.marker.new.advice') %>"></textarea>
     <fieldset>
       <input type="radio" name="marker" value="water" checked> Water<br>
       <input type="radio" name="marker" value="fire"> Fire<br>
       <input type="radio" name="marker" value="food"> Food<br>
       <%# add radio buttons - pathiratk %>
     <div class="buttons clearfix">
-      <input type="submit" name="add" value="<%= t('javascripts.notes.new.add') %>" disabled="1">
+      <input type="submit" name="add" value="<%= t('javascripts.marker.new.add') %>" disabled="1">
     </div>
   </form>
 </div>
