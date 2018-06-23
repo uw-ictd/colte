@@ -19,7 +19,7 @@ L.OSM.Mapnik = L.OSM.TileLayer.extend({
 //    url: document.location.protocol === 'https:' ?
 //      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' :
 //      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    url: 'http://localhost:9085/styles/osm-bright/{z}/{x}/{y}.png',
+    url: 'http://omt.emergency/styles/osm-bright/{z}/{x}/{y}.png',
     maxZoom: 19
   }
 });
