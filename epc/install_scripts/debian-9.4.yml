@@ -270,3 +270,14 @@
     - name: run iptables commands
       shell: "{{ epc_dir }}/spencer_configs/iptables.sh"
       become: yes
+
+    - name: copy .service files to /etc/systemd/system
+      copy: 
+        src: "{{ emergency_dir }}/registry/{{ item }}.service"
+        dest: "/etc/systemd/system/{{ item }}.service"
+        mode: 0644
+      become: yes
+      with_items:
+      - "hss"
+      - "mme"
+      - "spgw"
