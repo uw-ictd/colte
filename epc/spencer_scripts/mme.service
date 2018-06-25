@@ -1,0 +1,13 @@
+[Unit]
+Description=CoLTE MME
+
+[Service]
+ExecStart=/bin/bash -c "/home/colte/colte/epc/scripts/run_mme >> /var/log/colte/mme.log 2>&1"
+Restart=always
+User=colte
+Group=colte
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=OPENAIRCN_DIR=/home/colte/colte/epc
+WorkingDirectory=/home/colte/colte/epc
+[Install]
+WantedBy=multi-user.target
