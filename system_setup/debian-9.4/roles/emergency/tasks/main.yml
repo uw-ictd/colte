@@ -3,26 +3,26 @@
 # If you don't want a specific webservice just comment out the appropriate include_tasks.yml file
 
 ---
-  # install/config a BIND zone for ".emergency"
-  - name: copy emergency zone pointer into named.conf.local
-    blockinfile:
-      path: "/etc/bind/named.conf.local"
-      block: |
-        zone "emergency" {
-          type master;
-          file "/etc/bind/zones/db.emergency";
-        };
-    become: yes
+  # # install/config a BIND zone for ".emergency"
+  # - name: copy emergency zone pointer into named.conf.local
+  #   blockinfile:
+  #     path: "/etc/bind/named.conf.local"
+  #     block: |
+  #       zone "emergency" {
+  #         type master;
+  #         file "/etc/bind/zones/db.emergency";
+  #       };
+  #   become: yes
 
-  - name: copy bind zonefile
-    copy: 
-      src: "{{ emergency_dir }}/zone_db"
-      dest: "/etc/bind/zones/db.emergency"
-    become: yes
+  # - name: copy bind zonefile
+  #   copy: 
+  #     src: "{{ emergency_dir }}/zone_db"
+  #     dest: "/etc/bind/zones/db.emergency"
+  #   become: yes
 
-  - name: restart bind9
-    service: name=bind9 state=restarted
-    become: yes
+  # - name: restart bind9
+  #   service: name=bind9 state=restarted
+  #   become: yes
 
 ####### HOMEPAGE ############
   - name: create emergencell directory
@@ -31,6 +31,14 @@
       dest: "/var/www/emergencell"
       state: link
     become: yes
+
+  - name: write information to homepage.conf
+    lineinfile:
+      path: "{{ emergency_dir }}/homepage.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: "server_name", line: "  server_name home.{{ network_name }};"}
 
   - name: copy website configuration file
     copy:
@@ -86,6 +94,14 @@
   - name: start registry via systemd
     systemd: state=started name=emergencell_registry
     become: yes
+
+  - name: write information to registry.conf
+    lineinfile:
+      path: "{{ emergency_dir }}/registry.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: "server_name", line: "  server_name register.{{ network_name }};"}
 
   - name: copy website configuration file
     copy:

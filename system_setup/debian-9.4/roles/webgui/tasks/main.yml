@@ -47,7 +47,7 @@
 
   - name: write information to webgui.conf
     lineinfile:
-      path: "{{ nginx_dir }}/webgui.conf"
+      path: "{{ webgui_dir }}/install_scripts/webgui.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -55,7 +55,7 @@
 
   - name: copy website configuration file
     copy:
-      src: "{{ nginx_dir }}/webgui.conf"
+      src: "{{ webgui_dir }}/install_scripts/webgui.conf"
       dest: "/etc/nginx/sites-available/webgui"
     become: yes
 

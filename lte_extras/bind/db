@@ -14,8 +14,10 @@ $TTL	604800
 
 colte.bokondini.  IN  A 192.168.151.1 ;A1
 network.bokondini.  IN  A 192.168.151.1 ;A2
+home.bokondini.  IN  A 192.168.151.1
 media.bokondini.  IN  A 192.168.151.1
 maps.bokondini.  IN  A 192.168.151.1
+omt.bokondini.  IN  A 192.168.151.1
 xowa.bokondini.  IN  A 192.168.151.1
 wiki.bokondini.  IN  A 192.168.151.1
 chat.bokondini.  IN  A 192.168.151.1
