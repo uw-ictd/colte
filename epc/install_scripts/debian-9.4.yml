@@ -271,9 +271,51 @@
       shell: "{{ epc_dir }}/spencer_configs/iptables.sh"
       become: yes
 
+    - name: dynamically write hss.service file
+      lineinfile:
+        path: "{{ epc_dir }}/spencer_scripts/hss.service"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+        # owner: "{{ username }}"
+        # group: "{{ username }}"
+        # mode: 0644
+      with_items:
+      - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_hss >> /var/log/colte/hss.log 2>&1"'}
+      - {field: 'User', line: 'User={{ username }}'}
+      - {field: 'Group', line: 'Group={{ username }}'}
+      - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
+      - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
+
+    - name: dynamically write mme.service file
+      lineinfile:
+        path: "{{ epc_dir }}/spencer_scripts/mme.service"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+        # owner: "{{ username }}"
+        # group: "{{ username }}"
+        # mode: 0644
+      with_items:
+      - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_mme >> /var/log/colte/mme.log 2>&1"'}
+      - {field: 'User', line: 'User={{ username }}'}
+      - {field: 'Group', line: 'Group={{ username }}'}
+      - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
+      - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
+
+    - name: dynamically write spgw.service file
+      lineinfile:
+        path: "{{ epc_dir }}/spencer_scripts/spgw.service"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+      with_items:
+      - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_spgw >> /var/log/colte/spgw.log 2>&1"'}
+      - {field: 'User', line: 'User={{ username }}'}
+      - {field: 'Group', line: 'Group={{ username }}'}
+      - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
+      - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
+
     - name: copy .service files to /etc/systemd/system
       copy: 
-        src: "{{ emergency_dir }}/registry/{{ item }}.service"
+        src: "{{ epc_dir }}/spencer_scripts/{{ item }}.service"
         dest: "/etc/systemd/system/{{ item }}.service"
         mode: 0644
       become: yes
