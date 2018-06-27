@@ -1,0 +1,73 @@
+# This script is to be run on the actual host machine (i.e. no Vagrant BS here.)
+# It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
+# If you don't want a specific webservice just comment out the appropriate include_tasks.yml file
+
+---
+  # - name: check for environment vars
+  #   fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+  #   when: coltenv is not defined
+      
+  - name: apt-get update
+    apt:
+      update-cache: yes
+      cache_valid_time: 3600
+    become: yes
+
+  - name: install ums prereqs
+    apt:
+      name: "{{ item }}"
+    with_items:
+    - mediainfo
+    - libzen0v5
+    become: yes
+
+  # SMS TODO: DO WE NEED TO DYNAMICALLY CONFIGURE ANYTHING?!?
+
+  - name: link ums configs into user/.config/UMS
+    file:
+      path: "/home/{{ username }}/.config/UMS"
+      src: "{{ ums_dir }}/config"
+      state: link
+
+  # SMS TODO: dynamically add media to the "files" folder?!?
+
+  - name: dynamically write ums.service
+    lineinfile:
+      path: "{{ ums_dir }}/ums.service"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+      owner: "{{ username }}"
+      group: "{{ username }}"
+    with_items:
+    - {field: "ExecStart", line: "ExecStart=/bin/bash -c \"{{ ums_dir }}/app/UMS.sh >> /var/log/colte/ums.log 2>&1\""}
+    - {field: "User", line: "User={{ username }}"}
+    - {field: "Group", line: "Group={{ username }}"}
+    - {field: "WorkingDirectory", line: "WorkingDirectory={{ ums_dir }}/app"}
+
+  - name: copy ums.service to /etc/systemd/system
+    copy: 
+      src: "{{ ums_dir }}/ums.service"
+      dest: "/etc/systemd/system/ums.service"
+      mode: 0644
+    become: yes
+
+  - name: start ums via systemd
+    systemd: state=started name=ums
+    become: yes
+    
+  - name: copy website configuration file
+    copy:
+      src: "{{ ums_dir }}/ums.conf"
+      dest: "/etc/nginx/sites-available/ums"
+    become: yes
+
+  - name: symlink website into sites-enabled
+    file:
+      src: "/etc/nginx/sites-available/ums"
+      dest: "/etc/nginx/sites-enabled/ums"
+      state: link
+    become: yes
+
+  - name: restart nginx
+    service: name=nginx state=reloaded
+    become: yes

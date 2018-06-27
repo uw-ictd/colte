@@ -1,0 +1,33 @@
+---
+- hosts: localhost
+  roles:
+    - role: epc
+    - role: maps
+
+  vars:
+    coltenv: "{{ ansible_env.COLTENV }}"
+    build_billing: "{{ ansible_env.COLTE_BILLING }}"
+    username: "{{ ansible_env.COLTE_USER }}"
+    mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
+    colte_rc_admin: "{{ ansible_env.COLTE_RC_ADMIN }}"
+    colte_rc_pass: "{{ ansible_env.COLTE_RC_PASS }}"
+    colte_rc_email: "{{ ansible_env.COLTE_RC_EMAIL }}"
+
+    colte_dir: "{{ ansible_env.COLTE_DIR }}"
+    chat_dir: "{{ colte_dir }}/lte_extras/chat"
+    osm_dir: "{{ colte_dir }}/lte_extras/maps"
+    emergency_dir: "{{ colte_dir }}/emergency"
+    nginx_dir: "{{ colte_dir }}/lte_extras/nginx"
+    webgui_dir: "{{ colte_dir }}/lte_extras/webgui"
+    ums_dir: "{{ colte_dir }}/lte_extras/media"
+    wiki_dir: "{{ colte_dir }}/lte_extras/wiki"
+    epc_dir: "{{ colte_dir }}/epc"
+    packages_dir: "{{ colte_dir }}/packages"
+    billing_dir: "{{ colte_dir }}/lte_extras/billing"
+
+    enb_iface: "{{ ansible_env.COLTE_ENB_IFACE }}"
+    enb_iface_addr: "{{ ansible_env.COLTE_ENB_IFACE_ADDR }}"
+    wan_iface: "{{ ansible_env.COLTE_WAN_IFACE }}"
+    lte_subnet: "{{ ansible_env.COLTE_LTE_SUBNET }}"
+    network_name: "{{ ansible_env.COLTE_NETWORK_NAME }}"
+
