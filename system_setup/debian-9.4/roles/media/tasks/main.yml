@@ -54,6 +54,14 @@
   - name: start ums via systemd
     systemd: state=started name=ums
     become: yes
+
+  - name: write information to ums.conf
+    lineinfile:
+      path: "{{ ums_dir }}/ums.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: "server_name", line: "  server_name media.{{ network_name }};"}
     
   - name: copy website configuration file
     copy:
