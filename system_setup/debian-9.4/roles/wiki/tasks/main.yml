@@ -1,0 +1,136 @@
+# Xowa is an offline pre-packaged wikipedia. We're just including "simple" here for size constraints
+---
+#   tasks:
+#     - name: check for environment vars
+#       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+#       when: coltenv is not defined
+      
+  - name: fetch docker images
+    docker_image:
+      name: "{{ item }}"
+    with_items:
+    - quantumobject/docker-xowa
+    become: yes
+
+  # SMS BIG NOTE: CHANGE THESE DOWNLOAD SCRIPTS INTO SOME SEPARATE FILE
+  # - name: make storage directory
+  #   file:
+  #     path: "{{ wiki_dir }}/storage/{{ item }}"
+  #     state: directory
+  #     recurse: yes
+  #   with_items:
+  #   - temp
+  #   - simple.wikipedia.org
+
+  # - name: must increase sudo timeout for this script to run successfully
+  #   lineinfile:
+  #     path: /etc/sudoers
+  #     regexp: 'env_reset'
+  #     line: 'Defaults env_reset, timestamp_timeout=60'
+  #     owner: root
+  #     group: root
+  #     mode: 440
+  #   become: yes
+
+  # - name: download simple wikipedia (html/text)
+  #   get_url:
+  #     url: http://archive.org/download/Xowa_simplewiki_latest/{{ item }}
+  #     dest: "{{ emergency_dir }}/xowa_storage/temp"
+  #   with_items:
+  #   - Xowa_simplewiki_2017-05_core.zip
+  #   - Xowa_simplewiki_2017-05_xtn.search.core.zip
+  #   - Xowa_simplewiki_2017-05_xtn.search.link_title_ns.000_db.001.zip
+  #   - Xowa_simplewiki_2017-05_xtn.search.link_title_ns.999_db.001.zip
+  #   - Xowa_simplewiki_2017-05_html_ns.000.zip
+  #   - Xowa_simplewiki_2017-05_html_ns.004.zip
+  #   - Xowa_simplewiki_2017-05_html_ns.014.zip
+  #   - Xowa_simplewiki_2017-05_html_ns.008.zip
+  #   - Xowa_simplewiki_2017-05_xtn.category.core.zip
+  #   - Xowa_simplewiki_2017-05_xtn.category.link_db.001.zip
+  #   - Xowa_simplewiki_2017-05_xtn.fulltext_search.001.zip
+
+  # - name: download simple wikipedia (images)
+  #   get_url:
+  #     url: http://archive.org/download/Xowa_simplewiki_latest/{{ item }}
+  #     dest: "{{ emergency_dir }}/xowa_storage/temp"
+  #   with_items:
+  #   - Xowa_simplewiki_2017-05_file_core.zip
+  #   - Xowa_simplewiki_2017-05_file_ns.000_db.001.zip
+  #   - Xowa_simplewiki_2017-05_file_ns.000_db.002.zip
+  #   - Xowa_simplewiki_2017-05_file_ns.004_db.001.zip
+  #   - Xowa_simplewiki_2017-05_file_ns.014_db.001.zip
+
+  # - name: unzip and load simple wikipedia
+  #   unarchive:
+  #     src: "{{ emergency_dir }}/xowa_storage/temp/{{ item }}"
+  #     dest: "{{ emergency_dir }}/xowa_storage/simple.wikipedia.org/"
+  #   with_items:
+  #   - Xowa_simplewiki_2017-05_core.zip
+  #   - Xowa_simplewiki_2017-05_xtn.search.core.zip
+  #   - Xowa_simplewiki_2017-05_xtn.search.link_title_ns.000_db.001.zip
+  #   - Xowa_simplewiki_2017-05_xtn.search.link_title_ns.999_db.001.zip
+  #   - Xowa_simplewiki_2017-05_html_ns.000.zip
+  #   - Xowa_simplewiki_2017-05_html_ns.004.zip
+  #   - Xowa_simplewiki_2017-05_html_ns.014.zip
+  #   - Xowa_simplewiki_2017-05_html_ns.008.zip
+  #   - Xowa_simplewiki_2017-05_xtn.category.core.zip
+  #   - Xowa_simplewiki_2017-05_xtn.category.link_db.001.zip
+  #   - Xowa_simplewiki_2017-05_xtn.fulltext_search.001.zip
+  #   - Xowa_simplewiki_2017-05_file_core.zip
+  #   - Xowa_simplewiki_2017-05_file_ns.000_db.001.zip
+  #   - Xowa_simplewiki_2017-05_file_ns.000_db.002.zip
+  #   - Xowa_simplewiki_2017-05_file_ns.004_db.001.zip
+  #   - Xowa_simplewiki_2017-05_file_ns.014_db.001.zip
+
+  # - name: cleanup temp folder
+  #   file: path='{{ emergency_dir }}/xowa_storage/temp' state=absent
+
+  - name: start xowa docker image
+    docker_container:
+      name: xowa
+      image: quantumobject/docker-xowa
+      ports: 9082:8080
+      volumes: "{{ wiki_dir }}/storage:/opt/xowa/wiki"
+      # detach: true
+    become: yes
+# command: -v yours/storage:/opt/xowa/wiki
+# note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
+
+  - name: copy website configuration file
+    copy:
+      src: "{{ wiki_dir }}/xowa.conf"
+      dest: "/etc/nginx/sites-available/xowa"
+    become: yes
+
+  - name: symlink website into sites-enabled
+    file:
+      src: "/etc/nginx/sites-available/xowa"
+      dest: "/etc/nginx/sites-enabled/xowa"
+      state: link
+    become: yes
+
+  - name: restart nginx
+    service: name=nginx state=reloaded
+    become: yes
+
+    # - name: add to /etc/hosts
+    #   lineinfile:
+    #     path: /etc/hosts
+    #     regexp: 'wiki\.localhost'
+    #     line: '127.0.0.1 wiki.localhost'
+    #     owner: root
+    #     group: root
+    #     mode: 0644
+    #   become: yes
+
+    # - name: add to /etc/hosts
+    #   lineinfile:
+    #     path: /etc/hosts
+    #     regexp: 'xowa\.localhost'
+    #     line: '127.0.0.1 xowa.localhost'
+    #     owner: root
+    #     group: root
+    #     mode: 0644
+    #   become: yes
+
+# docker run -d -v yours/storage:/opt/xowa/wiki -p 9082 quantumobject/docker-xowa

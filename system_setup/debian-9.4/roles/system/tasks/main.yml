@@ -1,0 +1,28 @@
+---
+	- name: ensure log directory exists
+	  file:
+	    path: /var/log/colte
+	    state: directory
+	    owner: "{{ username }}"
+	    group: "{{ username }}"
+	    mode: 0755
+	  become: yes
+
+	- name: ensure config directory exists
+	  file:
+	    path: /usr/local/etc/colte
+	    state: directory
+	    owner: "{{ username }}"
+	    group: "{{ username }}"
+	    mode: 0755
+	  become: yes
+
+  - name: symlink for oai scripts (needed until we remake build/run scripts)
+    file:
+      src: /usr/local/etc/colte
+      dest: /usr/local/etc/oai
+      state: link
+      owner: "{{ username }}"
+      group: "{{ username }}"
+      mode: 0755
+    become: yes
