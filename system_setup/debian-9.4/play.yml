@@ -1,9 +1,5 @@
 ---
 - hosts: localhost
-  roles:
-    - role: epc
-    - role: maps
-
   vars:
     coltenv: "{{ ansible_env.COLTENV }}"
     build_billing: "{{ ansible_env.COLTE_BILLING }}"
@@ -30,4 +26,20 @@
     wan_iface: "{{ ansible_env.COLTE_WAN_IFACE }}"
     lte_subnet: "{{ ansible_env.COLTE_LTE_SUBNET }}"
     network_name: "{{ ansible_env.COLTE_NETWORK_NAME }}"
+
+  pre_tasks:
+    - name: check for environment vars
+      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      when: coltenv is not defined
+
+    - name: apt-get update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+
+  roles:
+    - role: epc
+    - role: maps
+    - { role: billing, when: build_billing == '1' }
 
