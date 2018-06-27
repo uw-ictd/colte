@@ -3,6 +3,7 @@
   vars:
     coltenv: "{{ ansible_env.COLTENV }}"
     build_billing: "{{ ansible_env.COLTE_BILLING }}"
+    build_maps: "{{ ansible_env.COLTE_MAP }}"
     username: "{{ ansible_env.COLTE_USER }}"
     mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
     colte_rc_admin: "{{ ansible_env.COLTE_RC_ADMIN }}"
@@ -14,6 +15,7 @@
     osm_dir: "{{ colte_dir }}/lte_extras/maps"
     emergency_dir: "{{ colte_dir }}/emergency"
     nginx_dir: "{{ colte_dir }}/lte_extras/nginx"
+    bind_dir: "{{ colte_dir }}/lte_extras/bind"
     webgui_dir: "{{ colte_dir }}/lte_extras/webgui"
     ums_dir: "{{ colte_dir }}/lte_extras/media"
     wiki_dir: "{{ colte_dir }}/lte_extras/wiki"
@@ -29,7 +31,7 @@
 
   pre_tasks:
     - name: check for environment vars
-      fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+      fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
       when: coltenv is not defined
 
     - name: apt-get update
@@ -39,7 +41,7 @@
       become: yes
 
   roles:
-    - role: epc
-    - role: maps
     - { role: billing, when: build_billing == '1' }
+    - { role: maps, when: build_maps == '1' }
+    - role: chat
 
