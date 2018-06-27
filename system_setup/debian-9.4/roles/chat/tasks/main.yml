@@ -36,14 +36,14 @@
         # detach: true
       become: yes
 
-  - name: write information to rocketchat.conf
-    lineinfile:
-      path: "{{ chat_dir }}/rocketchat.conf"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    with_items:
-    - {field: "server_name", line: "  server_name chat.{{ network_name }};"}
-
+    - name: write information to rocketchat.conf
+      lineinfile:
+        path: "{{ chat_dir }}/rocketchat.conf"
+        regexp: "{{ item.field }}"
+        line: "{{ item.line }}"
+      with_items:
+      - {field: "server_name", line: "  server_name chat.{{ network_name }};"}
+  
     - name: copy website configuration file
       copy:
         src: "{{ chat_dir }}/rocketchat.conf"
