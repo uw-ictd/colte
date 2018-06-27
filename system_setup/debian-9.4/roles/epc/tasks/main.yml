@@ -324,8 +324,6 @@
       # mode: 0644
     with_items:
     - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_hss >> /var/log/colte/hss.log 2>&1"'}
-    - {field: 'User', line: 'User={{ username }}'}
-    - {field: 'Group', line: 'Group={{ username }}'}
     - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
     - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
 
@@ -339,8 +337,6 @@
       # mode: 0644
     with_items:
     - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_mme >> /var/log/colte/mme.log 2>&1"'}
-    - {field: 'User', line: 'User={{ username }}'}
-    - {field: 'Group', line: 'Group={{ username }}'}
     - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
     - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
 
@@ -351,8 +347,6 @@
       line: "{{ item.line }}"
     with_items:
     - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_spgw >> /var/log/colte/spgw.log 2>&1"'}
-    - {field: 'User', line: 'User={{ username }}'}
-    - {field: 'Group', line: 'Group={{ username }}'}
     - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
     - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
 
