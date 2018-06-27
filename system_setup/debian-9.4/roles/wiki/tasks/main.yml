@@ -96,6 +96,15 @@
 # command: -v yours/storage:/opt/xowa/wiki
 # note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
 
+  - name: write information to xowa.conf
+    lineinfile:
+      path: "{{ wiki_dir }}/xowa.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: "server_name wiki", line: "  server_name wiki.{{ network_name }};"}
+    - {field: "server_name xowa", line: "  server_name xowa.{{ network_name }};"}
+
   - name: copy website configuration file
     copy:
       src: "{{ wiki_dir }}/xowa.conf"

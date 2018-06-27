@@ -4,6 +4,23 @@
 #     - name: check for environment vars
 #       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
 #       when: coltenv is not defined
+  - name: dynamically point to the omt server in leaflet.osm.js
+    lineinfile:
+      path: "{{ osm_dir }}/vendor/assets/leaflet/leaflet.osm.js"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: "url: 'http://omt", line: "    url: 'http://omt.{{ network_name }}/styles/osm-bright/{z}/{x}/{y}.png',"}
+
+  - name: add localhost dns pointers in /etc/hosts 
+    lineinfile:
+      path: "/etc/hosts"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    with_items:
+    - {field: "omt", line: "127.0.0.1 omt.{{ network_name }}"}
+    - {field: "maps", line: "127.0.0.1 maps.{{ network_name }}"}
 
   - name: import the OSM server Vagrant box
     shell: vagrant box add osm.box --name osm
@@ -29,6 +46,14 @@
       volumes: "{{ osm_dir }}/ts_data:/data"
     become: yes
 #docker run --rm -it -v $(pwd):/data -p 9085:80 klokantech/openmaptiles-server
+
+  - name: write information to osm.conf
+    lineinfile:
+      path: "{{ osm_dir }}/osm.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: "server_name", line: "  server_name maps.{{ network_name }};"}
 
   - name: copy website configuration file
     copy:
