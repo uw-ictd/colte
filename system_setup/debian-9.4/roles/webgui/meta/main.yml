@@ -1,0 +1,7 @@
+---
+dependencies:
+  - { role: mysql }
+  - { role: epc }
+  - { role: nginx }
+  - { role: bind }
+  - { role: system }

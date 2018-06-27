@@ -1,0 +1,58 @@
+# Rocketchat is a free/opensource/docker-ized version of slack
+---
+    # - name: check for environment vars
+    #   fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+    #   when: coltenv is not defined
+    
+    - name: fetch docker images
+      docker_image:
+        name: "{{ item }}"
+      with_items:
+      - mongo:3.0
+      - rocket.chat
+      become: yes
+
+    - name: start mongodb docker image
+      docker_container:
+        name: db
+        image: mongo:3.0
+        command: --smallfiles
+        # detach: true
+      become: yes
+
+    - name: start rocketchat docker image
+      docker_container:
+        name: rocketchat
+        image: rocket.chat
+        ports: 9081:3000
+        links: db
+        env:
+            ROOT_URL: http://localhost:9081
+            Show_Setup_Wizard: completed
+            #ADMIN_USERNAME: colte_rc_admin
+            #ADMIN_PASS: colte_rc_pass
+            #ADMIN_EMAIL: colte_rc_email
+
+        # detach: true
+      become: yes
+
+    - name: copy website configuration file
+      copy:
+        src: "{{ chat_dir }}/rocketchat.conf"
+        dest: "/etc/nginx/sites-available/rocketchat"
+      become: yes
+
+    - name: symlink website into sites-enabled
+      file:
+        src: "/etc/nginx/sites-available/rocketchat"
+        dest: "/etc/nginx/sites-enabled/rocketchat"
+        state: link
+      become: yes
+
+    - name: restart nginx
+      service: name=nginx state=reloaded
+      become: yes
+
+# docker run --name db -d mongo:3.0 --smallfiles
+# docker run --name rocketchat -p 8081:3000 --env ROOT_URL=http://localhost --link db -d rocket.chat
+

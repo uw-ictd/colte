@@ -1,0 +1,52 @@
+# OSM is OpenStreetMaps
+---
+#   tasks:
+#     - name: check for environment vars
+#       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+#       when: coltenv is not defined
+
+  - name: import the OSM server Vagrant box
+    shell: vagrant box add osm.box --name osm
+    args:
+      chdir: "{{ osm_dir }}"
+
+  - name: start the OSM main server (Vagrant)
+    shell: vagrant up osm
+    args:
+      chdir: "{{ osm_dir }}"
+
+# STEP 2: install/configure the tile server
+  - name: download docker tile-server image
+    docker_image:
+      name: klokantech/openmaptiles-server
+    become: yes
+
+  - name: start the OSM tile server (Docker)
+    docker_container:
+      name: osm_tileserver
+      image: klokantech/openmaptiles-server
+      ports: 9085:80
+      volumes: "{{ osm_dir }}/ts_data:/data"
+    become: yes
+#docker run --rm -it -v $(pwd):/data -p 9085:80 klokantech/openmaptiles-server
+
+  - name: copy website configuration file
+    copy:
+      src: "{{ osm_dir }}/osm.conf"
+      dest: "/etc/nginx/sites-available/osm"
+    become: yes
+
+  - name: symlink website into sites-enabled
+    file:
+      src: "/etc/nginx/sites-available/osm"
+      dest: "/etc/nginx/sites-enabled/osm"
+      state: link
+    become: yes
+
+### SMS TODO: BIND CONFIGURATION
+
+### SMS TODO: LOGGING?!?
+
+  - name: restart nginx
+    service: name=nginx state=reloaded
+    become: yes
