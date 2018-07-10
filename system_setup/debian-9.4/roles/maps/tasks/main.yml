@@ -22,6 +22,12 @@
     - {field: "omt", line: "127.0.0.1 omt.{{ network_name }}"}
     - {field: "maps", line: "127.0.0.1 maps.{{ network_name }}"}
 
+  - name: remove existing OSM server Vagrant box
+    shell: vagrant box remove osm --force
+    args:
+      chdir: "{{ osm_dir}}"
+    ignore_errors: yes
+
   - name: import the OSM server Vagrant box
     shell: vagrant box add osm.box --name osm
     args:
