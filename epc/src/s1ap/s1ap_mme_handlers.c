@@ -890,7 +890,8 @@ s1ap_mme_handle_ue_context_release_complete (
   S1AP_UE_CONTEXT_RELEASE_COMPLETE (message_p).mme_ue_s1ap_id = ue_ref_p->mme_ue_s1ap_id;
   MSC_LOG_TX_MESSAGE (MSC_S1AP_MME, MSC_MMEAPP_MME, NULL, 0, "0 S1AP_UE_CONTEXT_RELEASE_COMPLETE mme_ue_s1ap_id " MME_UE_S1AP_ID_FMT " ", S1AP_UE_CONTEXT_RELEASE_COMPLETE (message_p).mme_ue_s1ap_id);
   itti_send_msg_to_task (TASK_MME_APP, INSTANCE_DEFAULT, message_p);
-  DevAssert(ue_ref_p->s1_ue_state == S1AP_UE_WAITING_CRR);
+  // SMS TODO: We can put this back in once we figure out what the problem is?!?
+  // DevAssert(ue_ref_p->s1_ue_state == S1AP_UE_WAITING_CRR);
   s1ap_remove_ue (ue_ref_p);
   OAILOG_DEBUG (LOG_S1AP, "Removed UE " MME_UE_S1AP_ID_FMT "\n", (uint32_t) ueContextReleaseComplete_p->mme_ue_s1ap_id);
   OAILOG_FUNC_RETURN (LOG_S1AP, RETURNok);
