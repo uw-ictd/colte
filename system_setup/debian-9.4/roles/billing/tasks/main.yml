@@ -36,7 +36,7 @@
 
   - name: dynamically write ntopng.conf
     lineinfile:
-      path: "{{ billing_dir }}/ntopng.conf"
+      dest: "{{ billing_dir }}/ntopng.conf"
       regexp: "{{ item.key }}"
       line: "{{ item.value }}"
     with_items:
@@ -45,7 +45,7 @@
 
   - name: dynamically write lua script with subnet
     lineinfile:
-      path: "{{ billing_dir }}/colte_log_bandwidth.lua"
+      dest: "{{ billing_dir }}/colte_log_bandwidth.lua"
       regexp: "{{ item.key }}"
       line: "{{ item.value }}"
     with_items:

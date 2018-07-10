@@ -158,6 +158,7 @@
     git:
       repo: git://git.osmocom.org/libgtpnl
       dest: "{{ packages_dir }}/libgtpnl"
+      force: yes
 
 #    git reset --hard 345d687
 #    NOTE: could also just do "git checkout 345d687"
@@ -234,7 +235,7 @@
       
   - name: write information to hss.conf
     lineinfile:
-      path: "{{ epc_dir }}/spencer_configs/hss.conf"
+      dest: "{{ epc_dir }}/spencer_configs/hss.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
       # owner: "{{ username }}"
@@ -246,7 +247,7 @@
 
   - name: write information to mme.conf
     lineinfile:
-      path: "{{ epc_dir }}/spencer_configs/mme.conf"
+      dest: "{{ epc_dir }}/spencer_configs/mme.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -256,7 +257,7 @@
 
   - name: write information to spgw.conf
     lineinfile:
-      path: "{{ epc_dir }}/spencer_configs/spgw.conf"
+      dest: "{{ epc_dir }}/spencer_configs/spgw.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -292,7 +293,7 @@
 
   - name: update iptables script with wan_iface
     lineinfile:
-      path: "{{ epc_dir }}/spencer_configs/iptables.sh"
+      dest: "{{ epc_dir }}/spencer_configs/iptables.sh"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -316,7 +317,7 @@
 
   - name: dynamically write hss.service file
     lineinfile:
-      path: "{{ epc_dir }}/spencer_scripts/hss.service"
+      dest: "{{ epc_dir }}/spencer_scripts/hss.service"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
       # owner: "{{ username }}"
@@ -329,7 +330,7 @@
 
   - name: dynamically write mme.service file
     lineinfile:
-      path: "{{ epc_dir }}/spencer_scripts/mme.service"
+      dest: "{{ epc_dir }}/spencer_scripts/mme.service"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
       # owner: "{{ username }}"
@@ -342,7 +343,7 @@
 
   - name: dynamically write spgw.service file
     lineinfile:
-      path: "{{ epc_dir }}/spencer_scripts/spgw.service"
+      dest: "{{ epc_dir }}/spencer_scripts/spgw.service"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
