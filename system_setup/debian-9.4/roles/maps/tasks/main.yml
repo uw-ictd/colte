@@ -44,6 +44,7 @@
       image: klokantech/openmaptiles-server
       ports: 9085:80
       volumes: "{{ osm_dir }}/ts_data:/data"
+      restart_policy: always
     become: yes
 #docker run --rm -it -v $(pwd):/data -p 9085:80 klokantech/openmaptiles-server
 
