@@ -38,7 +38,7 @@
 
     - name: write information to rocketchat.conf
       lineinfile:
-        path: "{{ chat_dir }}/rocketchat.conf"
+        dest: "{{ chat_dir }}/rocketchat.conf"
         regexp: "{{ item.field }}"
         line: "{{ item.line }}"
       with_items:

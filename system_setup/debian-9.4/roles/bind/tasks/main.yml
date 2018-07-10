@@ -10,7 +10,7 @@
 
   - name: write information to named.conf.options
     lineinfile:
-      path: "{{ bind_dir }}/named.conf.options"
+      dest: "{{ bind_dir }}/named.conf.options"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -18,7 +18,7 @@
 
   - name: write network name to named.conf.local
     lineinfile:
-      path: "{{ bind_dir }}/named.conf.local"
+      dest: "{{ bind_dir }}/named.conf.local"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -27,7 +27,7 @@
 
   - name: write network name to zonefile
     lineinfile:
-      path: "{{ bind_dir }}/db"
+      dest: "{{ bind_dir }}/db"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:

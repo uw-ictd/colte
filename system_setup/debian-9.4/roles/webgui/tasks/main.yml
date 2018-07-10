@@ -27,7 +27,7 @@
 
   - name: write environment information to production.env
     lineinfile:
-      path: "{{ webgui_dir }}/production.env"
+      dest: "{{ webgui_dir }}/production.env"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
       owner: "{{ username }}"
@@ -47,7 +47,7 @@
 
   - name: write information to webgui.conf
     lineinfile:
-      path: "{{ webgui_dir }}/install_scripts/webgui.conf"
+      dest: "{{ webgui_dir }}/install_scripts/webgui.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -68,7 +68,7 @@
   
   - name: dynamically write colte_webgui.service
     lineinfile:
-      path: "{{ webgui_dir }}/install_scripts/colte_webgui.service"
+      dest: "{{ webgui_dir }}/install_scripts/colte_webgui.service"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
       owner: "{{ username }}"

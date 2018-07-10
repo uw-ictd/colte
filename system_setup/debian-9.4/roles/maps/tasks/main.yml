@@ -6,7 +6,7 @@
 #       when: coltenv is not defined
   - name: dynamically point to the omt server in leaflet.osm.js
     lineinfile:
-      path: "{{ osm_dir }}/vendor/assets/leaflet/leaflet.osm.js"
+      dest: "{{ osm_dir }}/vendor/assets/leaflet/leaflet.osm.js"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -14,7 +14,7 @@
 
   - name: add localhost dns pointers in /etc/hosts 
     lineinfile:
-      path: "/etc/hosts"
+      dest: "/etc/hosts"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     become: yes
@@ -49,7 +49,7 @@
 
   - name: write information to osm.conf
     lineinfile:
-      path: "{{ osm_dir }}/osm.conf"
+      dest: "{{ osm_dir }}/osm.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
