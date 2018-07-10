@@ -34,7 +34,7 @@
 
   - name: write information to homepage.conf
     lineinfile:
-      path: "{{ emergency_dir }}/homepage.conf"
+      dest: "{{ emergency_dir }}/homepage.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -73,7 +73,7 @@
 # step 1: dynamically populate registry.service (IF NEEDED?!?)
   - name: dynamically write registry.service
     lineinfile:
-      path: "{{ emergency_dir }}/registry/registry.service"
+      dest: "{{ emergency_dir }}/registry/registry.service"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
       owner: "{{ username }}"
@@ -97,7 +97,7 @@
 
   - name: write information to registry.conf
     lineinfile:
-      path: "{{ emergency_dir }}/registry.conf"
+      dest: "{{ emergency_dir }}/registry.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:

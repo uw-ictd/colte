@@ -13,7 +13,7 @@
 
   - name: add virtualbox repo
     lineinfile:
-      path: /etc/apt/sources.list.d/virtualbox.list
+      dest: /etc/apt/sources.list.d/virtualbox.list
       line: "deb http://download.virtualbox.org/virtualbox/debian stretch contrib"
       create: yes
     become: yes
