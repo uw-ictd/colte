@@ -38,6 +38,20 @@
     args:
       chdir: "{{ osm_dir }}"
 
+  - name: copy startup script to /etc/init.d
+    copy:
+      src: "{{ osm_dir }}/vagrant-osm.sh"
+      dest: "/etc/init.d"
+      mode: 0755
+    become: yes
+
+  - name: symlink startup script to /etc/rc5.d
+    file:
+      src: "/etc/init.d/vagrant-osm.sh"
+      dest: "/etc/rc5.d/S01vagrant-osm"
+      state: link
+    become: yes
+
 # STEP 2: install/configure the tile server
   - name: download docker tile-server image
     docker_image:
