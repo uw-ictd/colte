@@ -45,13 +45,19 @@
       mode: 0755
     become: yes
 
-  - name: symlink startup script to /etc/rc5.d
+  - name: symlink startup script into /etc/rc5.d
     file:
       src: "/etc/init.d/vagrant-osm.sh"
       dest: "/etc/rc5.d/S01vagrant-osm"
       state: link
     become: yes
 
+  - name: symlink rails app log into /var/log/colte
+    file:
+      src: "{{ osm_dir }}/osm_rails.log"
+      dest: "/var/log/colte/osm_rails.log"
+      state: link
+    become: yes
 # STEP 2: install/configure the tile server
   - name: download docker tile-server image
     docker_image:
