@@ -92,6 +92,7 @@
       ports: 9082:8080
       volumes: "{{ wiki_dir }}/storage:/opt/xowa/wiki"
       # detach: true
+      restart_policy: always
     become: yes
 # command: -v yours/storage:/opt/xowa/wiki
 # note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
