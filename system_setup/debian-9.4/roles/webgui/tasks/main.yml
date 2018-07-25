@@ -65,6 +65,13 @@
       dest: "/etc/nginx/sites-enabled/webgui"
       state: link
     become: yes    
+    
+  - name: add localhost dns pointers in /etc/hosts 
+    lineinfile:
+      dest: "/etc/hosts"
+      regexp: "network"
+      line: "127.0.0.1 network.{{ network_name }}"
+    become: yes
   
   - name: dynamically write colte_webgui.service
     lineinfile:
