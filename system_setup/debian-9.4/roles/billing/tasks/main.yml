@@ -43,6 +43,13 @@
     - {key: "-i=", value: "-i={{ wan_iface }}"}
     - {key: "-m=", value: "-m={{ lte_subnet }}"}
 
+  # - name: add localhost dns pointers in /etc/hosts 
+  #   lineinfile:
+  #     dest: "/etc/hosts"
+  #     regexp: "billing"
+  #     line: "127.0.0.1 billing.{{ network_name }}"
+  #   become: yes
+
   - name: dynamically write lua script with subnet
     lineinfile:
       dest: "{{ billing_dir }}/colte_log_bandwidth.lua"

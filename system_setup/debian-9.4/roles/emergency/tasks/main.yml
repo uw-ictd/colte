@@ -53,6 +53,13 @@
       state: link
     become: yes
 
+  - name: add localhost dns pointers in /etc/hosts 
+    lineinfile:
+      dest: "/etc/hosts"
+      regexp: "home"
+      line: "127.0.0.1 home.{{ network_name }}"
+    become: yes
+
   - name: restart nginx
     service: name=nginx state=reloaded
     become: yes
@@ -114,6 +121,13 @@
       src: "/etc/nginx/sites-available/registry"
       dest: "/etc/nginx/sites-enabled/registry"
       state: link
+    become: yes
+
+  - name: add localhost dns pointers in /etc/hosts 
+    lineinfile:
+      dest: "/etc/hosts"
+      regexp: "register"
+      line: "127.0.0.1 register.{{ network_name }}"
     become: yes
 
   - name: restart nginx

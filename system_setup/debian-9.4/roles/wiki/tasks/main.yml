@@ -119,28 +119,18 @@
       state: link
     become: yes
 
+  - name: add localhost dns pointers in /etc/hosts 
+    lineinfile:
+      dest: "/etc/hosts"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    with_items:
+    - {field: "xowa", line: "127.0.0.1 xowa.{{ network_name }}"}
+    - {field: "wiki", line: "127.0.0.1 wiki.{{ network_name }}"}
+
   - name: restart nginx
     service: name=nginx state=reloaded
     become: yes
-
-    # - name: add to /etc/hosts
-    #   lineinfile:
-    #     path: /etc/hosts
-    #     regexp: 'wiki\.localhost'
-    #     line: '127.0.0.1 wiki.localhost'
-    #     owner: root
-    #     group: root
-    #     mode: 0644
-    #   become: yes
-
-    # - name: add to /etc/hosts
-    #   lineinfile:
-    #     path: /etc/hosts
-    #     regexp: 'xowa\.localhost'
-    #     line: '127.0.0.1 xowa.localhost'
-    #     owner: root
-    #     group: root
-    #     mode: 0644
-    #   become: yes
 
 # docker run -d -v yours/storage:/opt/xowa/wiki -p 9082 quantumobject/docker-xowa
