@@ -9,9 +9,9 @@ HSS_ADD_IMSI_COMMAND = 1
 HSS_SERVICE_PORT = 62880
 HSS_SERVICE_ADDR = "127.0.0.1"
 
-SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK = "\0"
-SPGW_COMMAND_REQUEST_IMSI = "\1"
-SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR = "\2"
+SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK = b'0x00'
+SPGW_COMMAND_REQUEST_IMSI = b'0x01'
+SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR = b'0x02'
 SPGW_SERVICE_PORT = 62881
 SPGW_SERVICE_ADDR = "127.0.0.1"
 
@@ -35,15 +35,15 @@ class Customer:
 
 def get_imsi_from_ip(ip_addr, cursor):
     query = "SELECT imsi FROM static_ips WHERE ip = \"" + ip_addr + "\""
-        print query
+    print(query)
     numrows = cursor.execute(query)
 
     if numrows == 0:
-        print "ERROR: why do we not have an IMSI for ip address " + ip_addr + " in the database?!?!?"
+        print("ERROR: why do we not have an IMSI for ip address " + ip_addr + " in the database?!?!?")
         return ZERO_IMSI
 
     if numrows > 1:
-        print "More than one IMSI entry for same ip address? What happened???"
+        print("More than one IMSI entry for same ip address? What happened???")
         return ZERO_IMSI
 
     answer_tuple = cursor.fetchone()
@@ -122,7 +122,7 @@ def main():
 
     # FIRST ROW IS JUST THE TIME OF THE ENTRY
     timestr = file.readline().split()
-    print "Read Timestring: " + str(timestr)
+    print("Read Timestring: " + str(timestr))
 
     for line in file:
         c = Customer()
@@ -140,11 +140,11 @@ def main():
         numrows = cursor.execute(query)
 
         if numrows == 0:
-            print "ERROR: why do we not have info for this imsi in the database?!?!?"
+            print("ERROR: why do we not have info for this imsi in the database?!?!?")
             continue
 
         if numrows > 1:
-            print "More than one entry for same imsi? What happened???"
+            print("More than one entry for same imsi? What happened???")
             continue
 
         answer_tuple = cursor.fetchone()
@@ -159,7 +159,7 @@ def main():
 
         # sanity check
         if c.enabled != 1:
-            print "ERROR: Why is IMSI " + c.imsi + " not set to enabled in customers db? Value is " + str(c.enabled)
+            print("ERROR: Why is IMSI " + c.imsi + " not set to enabled in customers db? Value is " + str(c.enabled))
 
         # data is only incremented (cumulatively, duh) so the only way these values will ever be less than previous val
         # is if the counter reset. hopefully this never happens but edge-cases are important
@@ -176,14 +176,14 @@ def main():
 
         # SANITY CHECK
         if (bytes_down_in_period < 0) or (bytes_up_in_period < 0):
-            print "MAJOR BILLING SCRIPT ERROR: HOW COULD WE GET NEGATIVE BYTE USAGE?!?"
+            print("MAJOR BILLING SCRIPT ERROR: HOW COULD WE GET NEGATIVE BYTE USAGE?!?")
             bytes_down_in_period = 0
             bytes_up_in_period = 0
 
         total_bytes_in_period = bytes_down_in_period + bytes_up_in_period
         c.new_data_balance = c.old_data_balance - total_bytes_in_period
 
-        print "IMSI " + c.imsi + " used " + str(total_bytes_in_period) + " bytes. Bytes_remaining = " + str(c.new_data_balance) + ", raw_down = " + str(c.new_bytes_down) + ", raw_up = " + str(c.new_bytes_up)
+        print("IMSI " + c.imsi + " used " + str(total_bytes_in_period) + " bytes. Bytes_remaining = " + str(c.new_data_balance) + ", raw_down = " + str(c.new_bytes_down) + ", raw_up = " + str(c.new_bytes_up))
 
         verify_balance(c)
 
@@ -213,24 +213,24 @@ def verify_balance(c):
         alert_crossed_10mb(c)
 
 def alert_crossed_10mb(c):
-    print "IMSI " + c.imsi + " has less than 10MB of data remaining."
+    print("IMSI " + c.imsi + " has less than 10MB of data remaining.")
 
 def alert_crossed_5mb(c):
-    print "IMSI " + c.imsi + " has less than 5 MB of data remaining."
+    print("IMSI " + c.imsi + " has less than 5 MB of data remaining.")
 
 def alert_crossed_1mb(c):
-    print "IMSI " + c.imsi + " has less than 1 MB of data remaining."
+    print("IMSI " + c.imsi + " has less than 1 MB of data remaining.")
 
 def out_of_data(c):
     # STEP 1: enable iptables filter to ensure that they can't get out on the general Internet
-    print "IMSI " + c.imsi + " out of data, enabling iptables filter."
+    print("IMSI " + c.imsi + " out of data, enabling iptables filter.")
     enable_iptables_filter(c)
     c.bridged = 0
 
     # STEP 2: if they're also out of balance, cut them off entirely (figure this out later)
     if c.balance <= 0:
         # HERE: they're out of data balance AND out of money. Cut them off completely!
-        print "IMSI " + c.imsi + " also out of money, removing from network."
+        print("IMSI " + c.imsi + " also out of money, removing from network.")
         # hss_disable_user(imsi)
         # enabled = "0"
 
@@ -238,7 +238,7 @@ def enable_iptables_filter(c):
     # command = "sudo iptables -I FORWARD -s " + c.ip + " -j REJECT"
     p = subprocess.Popen(["iptables", "-I", "FORWARD", "-s", c.ip, "-j", "REJECT"], stdout=subprocess.PIPE)
     output , err = p.communicate()
-    print output
+    print(output)
     # rule = iptc.Rule()
     # rule.src = c.ip
     # rule.target = iptc.Target('REJECT')

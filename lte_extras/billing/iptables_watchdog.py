@@ -16,7 +16,7 @@ def enable_iptables_filter(c):
     # "sudo iptables -I FORWARD -s " + c.ip + " -j REJECT"
     p = subprocess.Popen(["iptables", "-I", "FORWARD", "-s", ip, "-j", "REJECT"], stdout=subprocess.PIPE)
     output , err = p.communicate()
-    print output
+    print(output)
     # rule = iptc.Rule()
     # rule.src = c.ip
     # rule.target = iptc.Target('REJECT')
@@ -27,7 +27,7 @@ def disable_iptables_filter(ip):
     # "sudo iptables -D FORWARD -s " + c.ip + " -j REJECT"
     p = subprocess.Popen(["iptables", "-D", "FORWARD", "-s", ip, "-j", "REJECT"], stdout=subprocess.PIPE)
     output , err = p.communicate()
-    print output
+    print(output)
     # rule = iptc.Rule()
     # rule.src = c.ip
     # rule.target = iptc.Target('REJECT')
@@ -46,6 +46,6 @@ numrows = cursor.execute(query)
 for row in cursor:
     imsi = row[0]
     ip = row[1]
-    print "IPTables Watchdog Re-Enabling IMSI " + imsi + "'s access to the Internet"
+    print("IPTables Watchdog Re-Enabling IMSI " + imsi + "'s access to the Internet")
     disable_iptables_filter(ip)
 
