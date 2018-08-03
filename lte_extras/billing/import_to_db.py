@@ -1,8 +1,9 @@
+from helpers import iptables
+
 import MySQLdb
 import os
 import socket
-#import iptc
-import subprocess
+
 
 HSS_REMOVE_IMSI_COMMAND = 0
 HSS_ADD_IMSI_COMMAND = 1
@@ -224,7 +225,7 @@ def alert_crossed_1mb(c):
 def out_of_data(c):
     # STEP 1: enable iptables filter to ensure that they can't get out on the general Internet
     print("IMSI " + c.imsi + " out of data, enabling iptables filter.")
-    enable_iptables_filter(c)
+    iptables.enable_forward_filter(c.ip)
     c.bridged = 0
 
     # STEP 2: if they're also out of balance, cut them off entirely (figure this out later)
@@ -234,24 +235,6 @@ def out_of_data(c):
         # hss_disable_user(imsi)
         # enabled = "0"
 
-def enable_iptables_filter(c):
-    # command = "sudo iptables -I FORWARD -s " + c.ip + " -j REJECT"
-    p = subprocess.Popen(["iptables", "-I", "FORWARD", "-s", c.ip, "-j", "REJECT"], stdout=subprocess.PIPE)
-    output , err = p.communicate()
-    print(output)
-    # rule = iptc.Rule()
-    # rule.src = c.ip
-    # rule.target = iptc.Target('REJECT')
-    # chain = iptc.Chain(iptc.Table.(iptc.Table.FILTER), "FORWARD")
-    # chain.insert_rule(rule)
-
-#def disable_iptables_filter(c):
-    # command = "sudo iptables -D FORWARD -s " + c.ip + " -j REJECT"
-    # rule = iptc.Rule()
-    # rule.src = c.ip
-    # rule.target = iptc.Target('REJECT')
-    # chain = iptc.Chain(iptc.Table.(iptc.Table.FILTER), "FORWARD")
-    # chain.delete_rule(rule)
 
 if __name__ == "__main__":
     main()
