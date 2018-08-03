@@ -1,26 +1,13 @@
+from helpers import constants
 from helpers import iptables
 
 import MySQLdb
 import os
-import socket
 
-
-HSS_REMOVE_IMSI_COMMAND = 0
-HSS_ADD_IMSI_COMMAND = 1
-HSS_SERVICE_PORT = 62880
-HSS_SERVICE_ADDR = "127.0.0.1"
-
-SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK = b'0x00'
-SPGW_COMMAND_REQUEST_IMSI = b'0x01'
-SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR = b'0x02'
-SPGW_SERVICE_PORT = 62881
-SPGW_SERVICE_ADDR = "127.0.0.1"
-
-ZERO_IMSI = "000000000000000"
 
 class Customer:
-    imsi = ZERO_IMSI
-    ip = "0.0.0.0"
+    imsi = constants.ZERO_IMSI
+    ip = constants.ZERO_IPv4
 
     new_raw_down = 0
     new_raw_up = 0
@@ -34,6 +21,7 @@ class Customer:
     bridged = 1
     enabled = 1
 
+
 def get_imsi_from_ip(ip_addr, cursor):
     query = "SELECT imsi FROM static_ips WHERE ip = \"" + ip_addr + "\""
     print(query)
@@ -41,75 +29,16 @@ def get_imsi_from_ip(ip_addr, cursor):
 
     if numrows == 0:
         print("ERROR: why do we not have an IMSI for ip address " + ip_addr + " in the database?!?!?")
-        return ZERO_IMSI
+        return constants.ZERO_IMSI
 
     if numrows > 1:
         print("More than one IMSI entry for same ip address? What happened???")
-        return ZERO_IMSI
+        return constants.ZERO_IMSI
 
     answer_tuple = cursor.fetchone()
     imsi = answer_tuple[0]
     return imsi
 
-def hss_disable_user(imsi):
-    message = "\0" + imsi
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.sendto(message, (HSS_SERVICE_ADDR, HSS_SERVICE_PORT))
-
-# def old_get_imsi_from_ip(ip_addr):
-
-#     # Network Code
-#     rawip = socket.inet_aton(ip_addr)
-# #        print int(rawip)
-#     message = SPGW_COMMAND_REQUEST_IMSI + "\0\0\0" + rawip + "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-#     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#     sock.sendto(message, (SPGW_SERVICE_ADDR, SPGW_SERVICE_PORT))
-#     data = sock.recv(24)
-
-#     # Check for errors and validate response before continuing
-#     if (data[0] == SPGW_COMMAND_REQUEST_IMSI_ANSWER_ERROR):
-#         print "get_imsi_from_ip ERROR: SPGW has no IMSI for IP " + ip_addr
-#         return ZERO_IMSI
-
-#         if (data[0] != SPGW_COMMAND_REQUEST_IMSI_ANSWER_OK):
-#         print "get_imsi_from_ip ERROR: Unknown error?!?"
-#         return ZERO_IMSI
-
-#     raw_ip_response = data[4:8]
-#     if (raw_ip_response != rawip):
-#         print "get_imsi_from_ip ERROR: IP address in SPGW response doesn't match query?!?"
-#         print "Origin IP: " + socket.inet_ntoa(rawip)
-#         print "Received IP: " + socket.inet_ntoa(raw_ip_response)
-#         return ZERO_IMSI
-
-#     imsi = str(data[8:24])
-#     print "Translated IP address " + ip_addr + " to IMSI " + imsi
-
-#     return imsi
-
-
-# def hss_enable_user(imsi):
-    # print "REENABLING USER " + str(imsi)
-    # 1: add user back to HSS!
-    # message = "\1" + imsi
-    # sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    # sock.sendto(message, (HSS_SERVICE_ADDR, HSS_SERVICE_PORT))
-    # 2: flip user bit
-    # 3: send text?!?
-
-# def make_new_user(vals):
-#         print "Make new user? No, don't! How'd they even get on the network???"
-
-# example cost: 5 dollars (units) per gb
-# cost_per_gb = 50.00
-# cost_per_mb = cost_per_gb / 1024
-# cost_per_kb = cost_per_mb / 1024
-# cost_per_byte = cost_per_kb / 1024
-# def calculate_cost(total_bytes):
-#     # NAIVE APPROACH SO FAR: cost per byte * bytes
-#     total_cost = total_bytes * cost_per_byte
-#     # print "new bytes: " + str(total_bytes) + "\ncost per byte: " + str(cost_per_byte) + "\ntotal cost: " + str(total_cost)
-#     return total_cost
 
 def main():
     record_list = []
@@ -134,7 +63,7 @@ def main():
         c.new_bytes_up = vals[2]
 
         c.imsi = get_imsi_from_ip(c.ip, cursor)
-        if c.imsi == ZERO_IMSI:
+        if c.imsi == constants.ZERO_IMSI:
             continue
 
         query = "SELECT raw_down, raw_up, data_balance, balance, bridged, enabled FROM customers WHERE imsi = " + c.imsi 
