@@ -5,21 +5,22 @@ import MySQLdb
 import os
 
 
-class Customer:
-    imsi = constants.ZERO_IMSI
-    ip = constants.ZERO_IPv4
+class Customer(object):
+    def __init__(self):
+        self.imsi = constants.ZERO_IMSI
+        self.ip = constants.ZERO_IPv4
 
-    new_raw_down = 0
-    new_raw_up = 0
-    new_data_balance = 0
+        self.new_raw_down = 0
+        self.new_raw_up = 0
+        self.new_data_balance = 0
 
-    old_raw_down = 0
-    old_raw_up = 0
-    old_data_balance = 0
+        self.old_raw_down = 0
+        self.old_raw_up = 0
+        self.old_data_balance = 0
 
-    balance = 0.0
-    bridged = 1
-    enabled = 1
+        self.balance = 0.0
+        self.bridged = 1
+        self.enabled = 1
 
 
 def get_imsi_from_ip(ip_addr, cursor):
@@ -94,12 +95,12 @@ def main():
         # data is only incremented (cumulatively, duh) so the only way these values will ever be less than previous val
         # is if the counter reset. hopefully this never happens but edge-cases are important
         # NOTE: some counters might reset when others don't!
-        if (c.new_bytes_down < c.old_bytes_down):
+        if c.new_bytes_down < c.old_bytes_down:
             bytes_down_in_period = c.new_bytes_down
         else:
             bytes_down_in_period = int(c.new_bytes_down) - int(c.old_bytes_down)
 
-        if (c.new_bytes_up < c.old_bytes_up):
+        if c.new_bytes_up < c.old_bytes_up:
             bytes_up_in_period = c.new_bytes_up
         else:
             bytes_up_in_period = int(c.new_bytes_up) - int(c.old_bytes_up)
@@ -126,30 +127,35 @@ def main():
 
     cursor.executemany(commit_str, record_list)
 
+
 def verify_balance(c):
     # if they still have a high data balance (LIKELY) then nothing to do here
-    if c.new_data_balance > 10000000: #10MB
+    if c.new_data_balance > 10000000:  # 10MB
         return
 
     # send (ONLY ONE) alert if we're crossing a threshold. Go in reverse order
     # so that if we crosed multiple thresholds at once, only alert re: the lowest amt.
-    if c.new_data_balance <= 0 and c.old_data_balance > 0:
+    if (c.new_data_balance <= 0) and (c.old_data_balance > 0):
         out_of_data(c)
-    elif c.new_data_balance <= 1000000 and c.old_data_balance > 1000000:
+    elif (c.new_data_balance <= 1000000) and (c.old_data_balance > 1000000):
         alert_crossed_1mb(c)
-    elif c.new_data_balance <= 5000000 and c.old_data_balance > 5000000:
+    elif (c.new_data_balance <= 5000000) and (c.old_data_balance > 5000000):
         alert_crossed_5mb(c)
-    elif c.new_data_balance <= 10000000 and c.old_data_balance > 10000000:
+    elif (c.new_data_balance <= 10000000) and (c.old_data_balance > 10000000):
         alert_crossed_10mb(c)
+
 
 def alert_crossed_10mb(c):
     print("IMSI " + c.imsi + " has less than 10MB of data remaining.")
 
+
 def alert_crossed_5mb(c):
     print("IMSI " + c.imsi + " has less than 5 MB of data remaining.")
 
+
 def alert_crossed_1mb(c):
     print("IMSI " + c.imsi + " has less than 1 MB of data remaining.")
+
 
 def out_of_data(c):
     # STEP 1: enable iptables filter to ensure that they can't get out on the general Internet
