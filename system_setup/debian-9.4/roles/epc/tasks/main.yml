@@ -351,6 +351,14 @@
     - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
     - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
 
+  - name: dynamically write spgw_nat.service file
+    lineinfile:
+      dest: "{{ epc_dir }}/spencer_scripts/spgw_nat.service"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/spencer_configs/iptables.sh"'}
+    
   - name: copy .service files to /etc/systemd/system
     copy: 
       src: "{{ epc_dir }}/spencer_scripts/{{ item }}.service"
@@ -361,3 +369,5 @@
     - "hss"
     - "mme"
     - "spgw"
+    - "spgw_nat"
+    - "epc"
