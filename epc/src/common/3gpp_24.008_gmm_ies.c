@@ -152,7 +152,7 @@ int decode_p_tmsi_signature_ie (
     CHECK_PDU_POINTER_AND_LENGTH_DECODER (buffer, (P_TMSI_SIGNATURE_IE_MAX_LENGTH - 1), len);
   }
 
-  IES_DECODE_U32(buffer, decoded, *ptmsisignature);
+  IES_DECODE_U24(buffer, decoded, *ptmsisignature);
   return decoded;
 }
 
@@ -173,7 +173,7 @@ int encode_p_tmsi_signature_ie (
     CHECK_PDU_POINTER_AND_LENGTH_ENCODER (buffer, (P_TMSI_SIGNATURE_IE_MAX_LENGTH - 1), len);
   }
 
-  IES_ENCODE_U32(buffer, encoded, ptmsisignature);
+  IES_ENCODE_U24(buffer, encoded, ptmsisignature);
   return encoded;
 }
 
