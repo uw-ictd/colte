@@ -10,19 +10,19 @@
     #     cache_valid_time: 3600
     #   become: yes
 
-  - name: pre-configure phpmyadmin
-    debconf:
-      name: phpmyadmin 
-      question: "{{ item.name }}"
-      vtype: "{{ item.type }}"
-      value: "{{ item.val }}"
-    with_items:
-      - {name: phpmyadmin/dbconfig-install, type: boolean, val: true}
-      - {name: phpmyadmin/app-password-confirm, type: password, val: "{{ mysql_password }}"}
-      - {name: phpmyadmin/mysql/admin-pass, type: password, val: "{{ mysql_password }}"}
-      - {name: phpmyadmin/mysql/app-pass, type: password, val: "{{ mysql_password }}"}
-      - {name: phpmyadmin/reconfigure-webserver, type: multiselect, val: apache2}
-    become: yes
+  # - name: pre-configure phpmyadmin
+  #   debconf:
+  #     name: phpmyadmin 
+  #     question: "{{ item.name }}"
+  #     vtype: "{{ item.type }}"
+  #     value: "{{ item.val }}"
+  #   with_items:
+  #     - {name: phpmyadmin/dbconfig-install, type: boolean, val: true}
+  #     - {name: phpmyadmin/app-password-confirm, type: password, val: "{{ mysql_password }}"}
+  #     - {name: phpmyadmin/mysql/admin-pass, type: password, val: "{{ mysql_password }}"}
+  #     - {name: phpmyadmin/mysql/app-pass, type: password, val: "{{ mysql_password }}"}
+  #     - {name: phpmyadmin/reconfigure-webserver, type: multiselect, val: apache2}
+  #   become: yes
 
   - name: first round of HSS apt install
     apt:
@@ -59,7 +59,7 @@
     - python-mysqldb
 # (install database and phpmyadmin)
     - php
-    - phpmyadmin
+    # - phpmyadmin
     - python-pexpect
     - libapache2-mod-php*
 # (first round of MME)
