@@ -116,7 +116,7 @@
 
   - name: freeDiameter - cmake prep
     shell: |
-      cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local ../
+      cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local -DDISABLE_PEER_EXPIRY:BOOL=ON ../
     args:
       chdir: "{{ packages_dir }}/freediameter/build"
 
