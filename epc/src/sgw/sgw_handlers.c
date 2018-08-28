@@ -644,7 +644,17 @@ sgw_handle_sgi_endpoint_updated (
       if (spgw_config.pgw_config.use_gtp_kernel_module) {
         rv = gtp_tunnel_ops->add_tunnel(ue, enb, eps_bearer_ctxt_p->s_gw_teid_S1u_S12_S4_up, eps_bearer_ctxt_p->enb_teid_S1u);
         if (rv < 0) {
-          OAILOG_ERROR (LOG_SPGW_APP, "ERROR in setting up TUNNEL err=%d\n", rv);
+          OAILOG_ERROR (LOG_SPGW_APP, "SMS: got error %d setting up GTP tunnel; tearing down and trying again.\n", rv);
+          rv = gtp_tunnel_ops->del_tunnel(eps_bearer_ctxt_p->s_gw_teid_S1u_S12_S4_up, eps_bearer_ctxt_p->enb_teid_S1u);
+          if (rv < 0) {
+            OAILOG_ERROR (LOG_SPGW_APP, "SMS NESTED: got error %d tearing down GTP tunnel in-between setups.\n", rv);
+          }
+          rv = gtp_tunnel_ops->add_tunnel(ue, enb, eps_bearer_ctxt_p->s_gw_teid_S1u_S12_S4_up, eps_bearer_ctxt_p->enb_teid_S1u);
+          if (rv < 0) {
+            OAILOG_ERROR (LOG_SPGW_APP, "SMS NESTED: got error %d setting up GTP tunnel for second time.\n", rv);
+          } else {
+            OAILOG_ERROR (LOG_SPGW_APP, "SMS NESTED: successfully setup GTP tunnel on second attempt (after teardown).\n", rv);
+          }
         }
       }
 
@@ -1215,7 +1225,17 @@ sgw_handle_create_bearer_response (
                   if (spgw_config.pgw_config.use_gtp_kernel_module) {
                     rv = gtp_tunnel_ops->add_tunnel(ue, enb, eps_bearer_ctxt_p->s_gw_teid_S1u_S12_S4_up, eps_bearer_ctxt_p->enb_teid_S1u);
                     if (rv < 0) {
-                      OAILOG_ERROR (LOG_SPGW_APP, "ERROR in setting up TUNNEL err=%d\n", rv);
+                      OAILOG_ERROR (LOG_SPGW_APP, "SMS2: got error %d setting up GTP tunnel; tearing down and trying again.\n", rv);
+                      rv = gtp_tunnel_ops->del_tunnel(eps_bearer_ctxt_p->s_gw_teid_S1u_S12_S4_up, eps_bearer_ctxt_p->enb_teid_S1u);
+                      if (rv < 0) {
+                        OAILOG_ERROR (LOG_SPGW_APP, "SMS2 NESTED: got error %d tearing down GTP tunnel in-between setups.\n", rv);
+                      }
+                      rv = gtp_tunnel_ops->add_tunnel(ue, enb, eps_bearer_ctxt_p->s_gw_teid_S1u_S12_S4_up, eps_bearer_ctxt_p->enb_teid_S1u);
+                      if (rv < 0) {
+                        OAILOG_ERROR (LOG_SPGW_APP, "SMS2 NESTED: got error %d setting up GTP tunnel for second time.\n", rv);
+                      } else {
+                        OAILOG_ERROR (LOG_SPGW_APP, "SMS2 NESTED: successfully setup GTP tunnel on second attempt (after teardown).\n", rv);
+                      }
                     }
 
                     if (rv < 0) {
