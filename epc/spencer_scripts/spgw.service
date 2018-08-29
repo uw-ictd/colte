@@ -13,6 +13,3 @@ Group=root
 Environment=PATH=/usr/bin:/usr/local/bin:/bin
 Environment=OPENAIRCN_DIR=/home/colte/colte/epc
 WorkingDirectory=/home/colte/colte/epc
-
-[Install]
-WantedBy=epc.service

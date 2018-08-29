@@ -10,6 +10,3 @@ ExecStart=/bin/bash -c "/home/colte/colte/epc/spencer_configs/iptables.sh"
 User=root
 Group=root
 RemainAfterExit=true
-
-[Install]
-WantedBy=epc.service
