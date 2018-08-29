@@ -304,17 +304,6 @@
     - {field: "-C FORWARD -i enp3s0 ", line: "     iptables -C FORWARD -i {{ wan_iface }} -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT"}
     - {field: "-A FORWARD -i enp3s0 ", line: "     iptables -A FORWARD -i {{ wan_iface }} -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT"}
 
-  - name: configure iptables script to run on reboot
-    cron:
-      name: "configure iptables on reboot"
-      special_time: reboot
-      job: "{{ epc_dir }}/spencer_configs/iptables.sh >> /var/log/colte/cron.log 2>&1"
-    become: yes
-
-  - name: run iptables commands
-    shell: "{{ epc_dir }}/spencer_configs/iptables.sh"
-    become: yes
-
   - name: dynamically write hss.service file
     lineinfile:
       dest: "{{ epc_dir }}/spencer_scripts/hss.service"
@@ -324,7 +313,7 @@
       # group: "{{ username }}"
       # mode: 0644
     with_items:
-    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_hss >> /var/log/colte/hss.log 2>&1"'}
+    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_hss"'}
     - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
     - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
 
@@ -337,7 +326,7 @@
       # group: "{{ username }}"
       # mode: 0644
     with_items:
-    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_mme >> /var/log/colte/mme.log 2>&1"'}
+    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_mme"'}
     - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
     - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
 
@@ -347,7 +336,7 @@
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
-    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_spgw >> /var/log/colte/spgw.log 2>&1"'}
+    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_spgw"'}
     - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
     - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
 
