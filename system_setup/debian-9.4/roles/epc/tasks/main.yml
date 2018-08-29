@@ -371,3 +371,11 @@
     - "spgw"
     - "spgw_nat"
     - "epc"
+
+  - name: systemd enable all services
+    systemd:
+      daemon_reload: yes
+      name: epc
+      enabled: yes
+
+
