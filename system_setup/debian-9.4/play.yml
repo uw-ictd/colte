@@ -11,6 +11,7 @@
     build_maps: "{{ ansible_env.COLTE_MAP }}"
     build_chat: "{{ ansible_env.COLTE_CHAT }}"
     build_emergency: "{{ ansible_env.COLTE_EMERGENCY }}"
+    build_zotac: "{{ ansible_env.COLTE_ZOTAC }}"
 
     username: "{{ ansible_env.COLTE_USER }}"
     mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
@@ -57,4 +58,5 @@
     - { role: maps, when: build_maps == '1' }
     - { role: chat, when: build_chat == '1' }
     - { role: emergency, when: build_emergency == '1' }
+    - { role: zotac, when: build_zotac == '1' }
 
