@@ -81,6 +81,7 @@
     - python-dev
     - unzip
     - iperf
+    - tcpdump
 # THIS IS FOR FREEDIAMETER
     - debhelper
     - g++
@@ -252,8 +253,8 @@
       line: "{{ item.line }}"
     with_items:
     - {field: "MME_INTERFACE_NAME_FOR_S1_MME", line: "        MME_INTERFACE_NAME_FOR_S1_MME         = \"{{ enb_iface }}\";"}
-    - {field: "MME_IPV4_ADDRESS_FOR_S1_MME", line: "        MME_IPV4_ADDRESS_FOR_S1_MME         = \"{{ enb_iface_addr }}\";"}
-    # MORE ENTRIES: CAN DYNAMICALLY SET MMC/MNC?!?
+    # SMS: Note that right now we just set it to 0.0.0.0 so that it serves on any address.
+    # - {field: "MME_IPV4_ADDRESS_FOR_S1_MME", line: "        MME_IPV4_ADDRESS_FOR_S1_MME         = \"{{ enb_iface_addr }}\";"}
 
   - name: write information to spgw.conf
     lineinfile:
@@ -347,8 +348,16 @@
       line: "{{ item.line }}"
     with_items:
     - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/spencer_configs/iptables.sh"'}
-    
-  - name: copy .service files to /etc/systemd/system
+
+  - name: dynamically write tcpdump.service file
+    lineinfile:
+      dest: "{{ epc_dir }}/spencer_scripts/tcpdump.service"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: 'ExecStart', line: "ExecStart=/usr/sbin/tcpdump -i {{ enb_iface_addr }} -w '/var/log/colte/tcpdump/sctp_${TCPDUMP_FORMAT}.pcap' sctp"}
+
+  - name: copy all .service files to /etc/systemd/system
     copy: 
       src: "{{ epc_dir }}/spencer_scripts/{{ item }}.service"
       dest: "/etc/systemd/system/{{ item }}.service"
@@ -360,11 +369,8 @@
     - "spgw"
     - "spgw_nat"
     - "epc"
+    - "tcpdump"
 
-  - name: systemd enable all services
+  - name: reload systemd
     systemd:
       daemon_reload: yes
-      name: epc
-      enabled: yes
-
-
