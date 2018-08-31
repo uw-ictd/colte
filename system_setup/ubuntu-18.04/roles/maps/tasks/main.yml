@@ -1,0 +1,104 @@
+# OSM is OpenStreetMaps
+---
+#   tasks:
+#     - name: check for environment vars
+#       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+#       when: coltenv is not defined
+  - name: dynamically point to the omt server in leaflet.osm.js
+    lineinfile:
+      dest: "{{ osm_dir }}/vendor/assets/leaflet/leaflet.osm.js"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: "url: 'http://omt", line: "    url: 'http://omt.{{ network_name }}/styles/osm-bright/{z}/{x}/{y}.png',"}
+
+  - name: add localhost dns pointers in /etc/hosts 
+    lineinfile:
+      dest: "/etc/hosts"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    with_items:
+    - {field: "omt", line: "127.0.0.1 omt.{{ network_name }}"}
+    - {field: "maps", line: "127.0.0.1 maps.{{ network_name }}"}
+
+  - name: remove existing OSM server Vagrant box
+    shell: vagrant box remove osm --force
+    args:
+      chdir: "{{ osm_dir}}"
+    ignore_errors: yes
+
+  - name: import the OSM server Vagrant box
+    shell: vagrant box add osm.box --name osm
+    args:
+      chdir: "{{ osm_dir }}"
+
+  - name: start the OSM main server (Vagrant)
+    shell: vagrant up osm
+    args:
+      chdir: "{{ osm_dir }}"
+
+  - name: copy startup script to /etc/init.d
+    copy:
+      src: "{{ osm_dir }}/vagrant-osm.sh"
+      dest: "/etc/init.d"
+      mode: 0755
+    become: yes
+
+  - name: symlink startup script into /etc/rc5.d
+    file:
+      src: "/etc/init.d/vagrant-osm.sh"
+      dest: "/etc/rc5.d/S01vagrant-osm"
+      state: link
+    become: yes
+
+  - name: symlink rails app log into /var/log/colte
+    file:
+      src: "{{ osm_dir }}/osm_rails.log"
+      dest: "/var/log/colte/osm_rails.log"
+      state: link
+    become: yes
+# STEP 2: install/configure the tile server
+  - name: download docker tile-server image
+    docker_image:
+      name: klokantech/openmaptiles-server
+    become: yes
+
+  - name: start the OSM tile server (Docker)
+    docker_container:
+      name: osm_tileserver
+      image: klokantech/openmaptiles-server
+      ports: 9085:80
+      volumes: "{{ osm_dir }}/ts_data:/data"
+      restart_policy: always
+    become: yes
+#docker run --rm -it -v $(pwd):/data -p 9085:80 klokantech/openmaptiles-server
+
+  - name: write information to osm.conf
+    lineinfile:
+      dest: "{{ osm_dir }}/osm.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: "server_name", line: "  server_name maps.{{ network_name }};"}
+
+  - name: copy website configuration file
+    copy:
+      src: "{{ osm_dir }}/osm.conf"
+      dest: "/etc/nginx/sites-available/osm"
+    become: yes
+
+  - name: symlink website into sites-enabled
+    file:
+      src: "/etc/nginx/sites-available/osm"
+      dest: "/etc/nginx/sites-enabled/osm"
+      state: link
+    become: yes
+
+### SMS TODO: BIND CONFIGURATION
+
+### SMS TODO: LOGGING?!?
+
+  - name: restart nginx
+    service: name=nginx state=reloaded
+    become: yes
