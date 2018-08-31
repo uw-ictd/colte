@@ -41,7 +41,7 @@
     - pkg-config
     - git
     - subversion
-    - libconfig8-dev
+    - libconfig-dev
     - libgcrypt11-dev
     - libidn2-0-dev
     - libidn11-dev
@@ -75,7 +75,7 @@
     - python
     - libgnutls28-dev
     - ethtool
-    - iproute
+    - iproute2
     - vlan
     - tshark
     - python-dev
@@ -374,3 +374,4 @@
   - name: reload systemd
     systemd:
       daemon_reload: yes
+    become: yes
