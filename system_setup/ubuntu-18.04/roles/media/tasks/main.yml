@@ -21,7 +21,10 @@
     - libzen0v5
     become: yes
 
-  # SMS TODO: DO WE NEED TO DYNAMICALLY CONFIGURE ANYTHING?!?
+  - name: ensure .config directory exists
+    file:
+      path: "/home/{{ username }}/.config"
+      state: directory
 
   - name: link ums configs into user/.config/UMS
     file:

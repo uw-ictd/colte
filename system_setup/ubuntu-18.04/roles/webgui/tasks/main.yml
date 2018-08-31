@@ -10,15 +10,16 @@
       cache_valid_time: 3600
     become: yes
 
-  - name: use curl script to fetch/install node and npm
-    shell: curl -sL https://deb.nodesource.com/setup_6.x | bash -
-    become: yes
+    #  - name: use curl script to fetch/install node and npm
+    #    shell: curl -sL https://deb.nodesource.com/setup_6.x | bash -
+    #    become: yes
 
   - name: install node and npm
     apt:
       name: "{{ item }}"
     with_items:
     - nodejs
+    - npm
     become: yes
 
   - name: npm install dependencies
