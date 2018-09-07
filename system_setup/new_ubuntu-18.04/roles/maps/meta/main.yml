@@ -1,0 +1,7 @@
+---
+dependencies:
+  - { role: vagrant }
+  - { role: docker }
+  - { role: nginx }
+  - { role: bind }
+  - { role: system }
