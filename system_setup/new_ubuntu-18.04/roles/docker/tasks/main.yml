@@ -1,0 +1,13 @@
+---
+#     - name: check for environment vars
+#       fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+#       when: coltenv is not defined
+
+  - name: apt-get docker and docker-compose
+    apt:
+      name: "{{ item }}"
+    become: yes
+    with_items:
+    - docker
+    - docker-compose
+

@@ -1,0 +1,26 @@
+---
+  - name: apt-get install mysql
+    apt:
+      name: "{{ item }}"
+    become: yes 
+    with_items:
+    - python-mysqldb
+    - mysql-client
+    - mysql-server
+#      - libmysql-client-dev
+
+  - name: MySQL Configs
+    mysql_user:
+      name: "{{ username }}"
+      password: "{{ mysql_password }}"
+      host: localhost
+      priv: '*.*:ALL'
+    become: yes
+
+  - name: install sample_db into mysql
+    mysql_db:
+      login_user: "{{ username }}"
+      login_password: "{{ mysql_password }}"
+      name: colte_db
+      state: import
+      target: "{{ epc_dir }}/spencer_configs/bokondini.sql"

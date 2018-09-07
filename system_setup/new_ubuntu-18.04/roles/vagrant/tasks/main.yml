@@ -1,0 +1,37 @@
+---
+# - hosts: localhost
+#   vars:
+#     coltenv: "{{ ansible_env.COLTENV }}"
+#     username: "{{ ansible_env.COLTE_USER }}"
+#     colte_dir: "{{ ansible_env.COLTE_DIR }}"
+#     osm_dir: "{{ colte_dir }}/lte_extras/maps"
+
+#   tasks:
+#     - name: check for environment vars
+#       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+#       when: coltenv is not defined
+
+#  - name: add virtualbox repo
+#    lineinfile:
+#      dest: /etc/apt/sources.list.d/virtualbox.list
+#      line: "deb http://download.virtualbox.org/virtualbox/debian stretch contrib"
+#      create: yes
+#    become: yes
+
+# wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
+#  - name: add oracle vbox key to apt
+#    apt_key:
+#      url: https://www.virtualbox.org/download/oracle_vbox_2016.asc
+#      state: present
+#    become: yes
+
+# apt update
+# apt install virtualbox-5.1
+  - name: apt-get virtualbox and vagrant
+    apt:
+      update_cache: yes
+      name: "{{ item }}"
+    become: yes
+    with_items:
+    - virtualbox
+    - vagrant
