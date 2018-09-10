@@ -1,5 +1,10 @@
 ---
 #### SMS TODO: HOW/WHERE DO I WANT TO HANDLE .DEB INSTALLATION?!? (AT BEGINNING!)
+
+  - name: add gpg key for our apt repository
+    shell: wget -O /etc/apt/trusted.gpg.d/example.gpg http://128.208.5.110/keyring.gpg
+    become: yes
+    
   - name: add our apt repository
     apt_repository:
       repo: deb http://128.208.5.110 bionic main
