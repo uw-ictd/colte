@@ -1,22 +1,33 @@
 ---
-#### SMS TODO: HOW/WHERE DO I WANT TO HANDLE .DEB INSTALLATION?!? (AT BEGINNING!)
-
+### SWITCH ON build_epc_source TO DETERMINE WHETHER WE INSTALL FROM APT-GET OR THE LOCALLY BUILT .DEB FILES
   - name: add gpg key for our apt repository
     shell: wget -O /etc/apt/trusted.gpg.d/colte.gpg http://128.208.5.110/keyring.gpg
     become: yes
+    when: build_epc_source == '0'
 
   - name: add our apt repository
     apt_repository:
       repo: deb http://128.208.5.110 bionic main
       state: present
     become: yes
-
-#### SMS TODO: script to dynamically add the right .deb repository once we get ours all setup with freight
+    when: build_epc_source == '0'    
 
   - name: apt-get install EPC
     apt:
       name: colte-epc
     become: yes
+    when: build_epc_source == '0'
+
+  - name: install EPC from built .debs
+    apt: 
+      deb: "{{ package_dir }}/{{ item }}"
+    become: yes
+    when: build_epc_source == '1'
+    with_items:
+    - hss.deb
+    - mme.deb
+    - spgw.deb
+    - epc.deb
 
 # {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} colte_db {{ epc_dir }}/spencer_configs/sample_db.sql
   - name: install sample_db into mysql
