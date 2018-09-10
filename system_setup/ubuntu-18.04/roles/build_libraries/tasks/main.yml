@@ -74,11 +74,11 @@
   - name: freeDiameter - clone from my github copy
     git:
       repo: https://github.com/spencersevilla/freediameter.git
-      dest: "{{ packages_dir }}/freediameter"
+      dest: "/tmp/freediameter"
 
   - name: freeDiameter - create build directory
     file:
-      path: "{{ packages_dir }}/freediameter/build"
+      path: "/tmp/freediameter/build"
       state: directory
       mode: 0755
 
@@ -86,15 +86,15 @@
     shell: |
       cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local -DDISABLE_PEER_EXPIRY:BOOL=ON ../
     args:
-      chdir: "{{ packages_dir }}/freediameter/build"
+      chdir: "/tmp/freediameter/build"
 
   - name: freeDiameter - build
     make:
-      chdir: "{{ packages_dir }}/freediameter/build"
+      chdir: "/tmp/freediameter/build"
 
   - name: freeDiameter - install
     make:
-      chdir: "{{ packages_dir }}/freediameter/build"
+      chdir: "/tmp/freediameter/build"
       target: install
     become: yes
 
@@ -102,22 +102,22 @@
   - name: asn1c - fetch rev 1516 patched from my github copy
     git:
       repo: https://github.com/spencersevilla/asn1c.git
-      dest: "{{ packages_dir }}/asn1c"
+      dest: "/tmp/asn1c"
       force: yes
 
   - name: asn1c - configure
     shell: |
       ./configure
     args:
-      chdir: "{{ packages_dir }}/asn1c"
+      chdir: "/tmp/asn1c"
 
   - name: asn1c - build
     make:
-      chdir: "{{ packages_dir }}/asn1c"
+      chdir: "/tmp/asn1c"
 
   - name: asn1c - install
     make:
-      chdir: "{{ packages_dir }}/asn1c"
+      chdir: "/tmp/asn1c"
       target: install
     become: yes
 
@@ -125,7 +125,7 @@
   - name: libgtpnl - clone from osmocom git
     git:
       repo: git://git.osmocom.org/libgtpnl
-      dest: "{{ packages_dir }}/libgtpnl"
+      dest: "/tmp/libgtpnl"
       force: yes
 
 #    git reset --hard 345d687
@@ -139,15 +139,15 @@
       autoreconf -fi
       ./configure
     args:
-      chdir: "{{ packages_dir }}/libgtpnl"
+      chdir: "/tmp/libgtpnl"
 
   - name: libgtpnl - build
     make:
-      chdir: "{{ packages_dir }}/libgtpnl"
+      chdir: "/tmp/libgtpnl"
 
   - name: libgtpnl - install
     make:
-      chdir: "{{ packages_dir }}/libgtpnl"
+      chdir: "/tmp/libgtpnl"
       target: install
     become: yes
 
@@ -155,14 +155,14 @@
     shell: |
       ldconfig
     args:
-      chdir: "{{ packages_dir }}/libgtpnl"
+      chdir: "/tmp/libgtpnl"
     become: yes
 
 ############ LIB LFDS #################
   - name: liblfds - clone friom github
     git:
       repo: https://github.com/liblfds/liblfds.git
-      dest: "{{ packages_dir }}/liblfds"
+      dest: "/tmp/liblfds"
 
   - name: liblfds - build SHELL SCRIPT
     shell: |
@@ -170,7 +170,7 @@
       sudo rm -f /usr/local/lib/liblfds710.so
       sudo make so_install
     args:
-      chdir: "{{packages_dir }}/liblfds/liblfds/liblfds7.1.0/liblfds710/build/gcc_gnumake"
+      chdir: "/tmp/liblfds/liblfds/liblfds7.1.0/liblfds710/build/gcc_gnumake"
 
 ############ PACKAGE INTO DEBS #################
 # dpkg-deb --build colte-hss
