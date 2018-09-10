@@ -61,6 +61,7 @@ echo "export COLTE_LTE_SUBNET=192.168.151.0/24" | tee --append /usr/local/etc/co
 
 echo "export COLTE_ZOTAC=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_EPC=1" | tee --append /usr/local/etc/colte/coltenv
+echo "export COLTE_BUILD_EPC_SOURCE=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_BILLING=1" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_WEBGUI=1" | tee --append /usr/local/etc/colte/coltenv
 
