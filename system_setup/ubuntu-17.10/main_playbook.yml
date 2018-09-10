@@ -1,8 +1,0 @@
-# NOT REALLY SUPPORTED RIGHT NOW!!!
----
-- hosts: localhost
-
-# If you want to add new packages to default install, just add them to this list!
-- import_playbook: "{{ playbook_dir }}/../../epc/install_scripts/ubuntu-17.10.yml"
-- import_playbook: "{{ playbook_dir }}/../../enbrains/install_scripts/ubuntu-17.10.yml"
-# - import_playbook: "{{ playbook_dir }}/../../emergency/install_scripts/ubuntu-17.10.yml"
