@@ -1,6 +1,0 @@
----
-dependencies:
-  - { role: mysql }
-  - { role: nginx }
-  - { role: bind }
-  - { role: system }

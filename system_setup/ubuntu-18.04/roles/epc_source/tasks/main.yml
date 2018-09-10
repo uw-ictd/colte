@@ -86,6 +86,7 @@
     - {path: "/usr/local/bin/oai_hss"}
     - {path: "/usr/local/bin/mme"}
     - {path: "/usr/local/bin/spgw"}
+    become: yes
 
   - name: create .deb files
     shell: |
