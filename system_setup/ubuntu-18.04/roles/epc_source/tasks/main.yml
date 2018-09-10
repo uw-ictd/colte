@@ -64,6 +64,7 @@
     shell: |
       dpkg -i freediameter_1.2_amd64.deb
       dpkg -i liblfds_0.9_amd64.deb
+      dpkg -i libgtpnl_0.9_amd64.deb
     args:
       chdir: /vagrant
     become: yes
