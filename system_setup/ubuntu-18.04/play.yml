@@ -53,7 +53,7 @@
 
   roles:
     - { role: epc_source, when: build_epc_source == '1' }
-    - { role: epc_deb, when: install_epc == '1' }
+    - { role: epc_install, when: install_epc == '1' }
     - { role: billing, when: build_billing == '1' }
     - { role: webgui, when: build_webgui == '1' }
     - { role: media, when: build_media == '1' }

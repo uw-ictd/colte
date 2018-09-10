@@ -173,5 +173,11 @@
       chdir: "/tmp/liblfds/liblfds/liblfds7.1.0/liblfds710/build/gcc_gnumake"
 
 ############ PACKAGE INTO DEBS #################
-# dpkg-deb --build colte-hss
-#
+  - name: create .deb files
+    shell: |
+      dpkg-deb --build freediameter
+      dpkg-deb --build asn1c
+      dpkg-deb --build libgtpnl
+      dpkg-deb --build liblfds
+    args:
+      chdir: "{{ package_dir }}"
