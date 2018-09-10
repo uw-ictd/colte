@@ -129,6 +129,9 @@
       src: "{{ item.src }}"
       dest: "{{ item.dst }}"
       force: yes
+      mode: 0755
+      owner: root
+      group: root
     with_items:
     - {src: "/usr/local/bin/oai_hss", dst: "{{ package_dir }}/hss/usr/bin/oai_hss"}
     - {src: "/usr/local/bin/mme", dst: "{{ package_dir }}/mme/usr/bin/mme"}

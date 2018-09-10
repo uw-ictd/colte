@@ -3,4 +3,4 @@ Version: 0.9
 Maintainer: sevilla@cs.washington.edu
 Architecture: amd64
 Description: The OpenAirInterface SPGW
-Depends: default-libmysqlclient-dev, libpthread-stubs0-dev, libconfig-dev, gcc, libmnl-dev, colte-lfds, colte-gtpnl
+Depends: default-libmysqlclient-dev, libpthread-stubs0-dev, libconfig-dev, gcc, libmnl-dev, colte-liblfds, colte-libgtpnl
