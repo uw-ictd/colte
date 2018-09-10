@@ -60,6 +60,38 @@
     - unzip
     become: yes
 
+  - name: install our custom libraries
+    shell: |
+      dpkg -i freediameter_1.2_amd64.deb
+      dpkg -i liblfds_0.9_amd64.deb
+    args:
+      chdir: /vagrant
+    become: yes
+
+########## PATCHED ASN1C INSTALLATION #################
+  - name: asn1c - fetch rev 1516 patched from my github copy
+    git:
+      repo: https://github.com/spencersevilla/asn1c.git
+      dest: "/tmp/asn1c"
+      force: yes
+
+  - name: asn1c - configure
+    shell: |
+      ./configure
+    args:
+      chdir: "/tmp/asn1c"
+
+  - name: asn1c - build
+    make:
+      chdir: "/tmp/asn1c"
+
+  - name: asn1c - install
+    make:
+      chdir: "/tmp/asn1c"
+      target: install
+    become: yes
+######################################################
+
   - name: build epc 
     shell: |
       source oaienv
