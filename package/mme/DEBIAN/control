@@ -3,5 +3,5 @@ Version: 0.9
 Maintainer: sevilla@cs.washington.edu
 Architecture: amd64
 Description: The OpenAirInterface MME
-Depends: libpthread-stubs0-dev, libsctp1, libsctp-dev, libgcrypt11-dev, nettle-bin, libconfig-dev, libgnutls28-dev, libhogweed4, libgmp-dev, libidn2-0-dev, libidn11-dev
+Depends: libpthread-stubs0-dev, libsctp1, libsctp-dev, libgcrypt11-dev, nettle-bin, libconfig-dev, libgnutls28-dev, libhogweed4, libgmp-dev, libidn2-0-dev, libidn11-dev, colte-freediameter, colte-lfds
 
