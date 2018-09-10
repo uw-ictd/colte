@@ -1,16 +1,16 @@
 ---
 #### SMS TODO: HOW/WHERE DO I WANT TO HANDLE .DEB INSTALLATION?!? (AT BEGINNING!)
-  - name: apt-get update
-    apt:
-      update_cache: yes
-      cache_valid_time: 3600
+  - name: add our apt repository
+    apt_repository:
+      repo: deb http://128.208.5.110 bionic main
+      state: present
     become: yes
 
 #### SMS TODO: script to dynamically add the right .deb repository once we get ours all setup with freight
 
   - name: apt-get install EPC
     apt:
-      name: oai-epc
+      name: colte-epc
     become: yes
 
 # {{ epc_dir }}/scripts/hss_db_import 127.0.0.1 {{ username }} {{ mysql_password }} colte_db {{ epc_dir }}/spencer_configs/sample_db.sql

@@ -60,13 +60,19 @@
     - unzip
     become: yes
 
-  - name: install our custom libraries
-    shell: |
-      dpkg -i freediameter_1.2_amd64.deb
-      dpkg -i liblfds_0.9_amd64.deb
-      dpkg -i libgtpnl_0.9_amd64.deb
-    args:
-      chdir: /vagrant
+  - name: add our apt repository
+    apt_repository:
+      repo: deb http://128.208.5.110 bionic main
+      state: present
+    become: yes
+
+  - name: apt-get install custom dependencies
+    apt:
+      name: "{{ item }}"
+    with_items:
+    - freediameter
+    - liblfds
+    - libgtpnl
     become: yes
 
 ########## PATCHED ASN1C INSTALLATION #################
