@@ -61,7 +61,7 @@
     become: yes
 
   - name: add gpg key for our apt repository
-    shell: wget -O /etc/apt/trusted.gpg.d/example.gpg http://128.208.5.110/keyring.gpg
+    shell: wget -O /etc/apt/trusted.gpg.d/colte.gpg http://128.208.5.110/keyring.gpg
     become: yes
 
   - name: add our apt repository
@@ -74,9 +74,9 @@
     apt:
       name: "{{ item }}"
     with_items:
-    - freediameter
-    - liblfds
-    - libgtpnl
+    - colte-freediameter
+    - colte-liblfds
+    - colte-libgtpnl
     become: yes
 
 ########## PATCHED ASN1C INSTALLATION #################
