@@ -1,7 +1,7 @@
 [Unit]
 Description=CoLTE HSS
-After=mysqld.service
-Requires=mysqld.service
+After=mysql.service
+Requires=mysql.service
 PartOf=epc.service
 
 [Service]
