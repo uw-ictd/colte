@@ -17,10 +17,10 @@
       mode: 0755
     become: yes
 
-  - name: symlink for oai scripts (needed until we remake build/run scripts)
+  - name: symlink oai epc config files
     file:
-      src: /usr/local/etc/colte
-      dest: /usr/local/etc/oai
+      src: /usr/local/etc/oai
+      dest: /usr/local/etc/colte/oai
       state: link
       owner: "{{ username }}"
       group: "{{ username }}"
