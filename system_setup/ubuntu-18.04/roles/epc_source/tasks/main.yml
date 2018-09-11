@@ -136,6 +136,7 @@
     - {src: "/usr/local/bin/oai_hss", dst: "{{ package_dir }}/hss/usr/bin/oai_hss"}
     - {src: "/usr/local/bin/mme", dst: "{{ package_dir }}/mme/usr/bin/mme"}
     - {src: "/usr/local/bin/spgw", dst: "{{ package_dir }}/spgw/usr/bin/spgw"}
+    become: yes
 
   - name: delete binaries out of /usr/local/bin/
     file: 
