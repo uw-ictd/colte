@@ -10,7 +10,7 @@
       repo: deb http://128.208.5.110 bionic main
       state: present
     become: yes
-    when: build_epc_source == '0'    
+    when: build_epc_source == '0'
 
   - name: apt-get install EPC
     apt:
@@ -38,20 +38,12 @@
       state: import
       target: "{{ epc_dir }}/spencer_configs/bokondini.sql"
 
-  - name: synchronize customer table with users table (just in case there are errors)
-    shell: "python {{ epc_dir }}/spencer_scripts/synchronize_dbs.py"
+#  - name: synchronize customer table with users table (just in case there are errors)
+#    shell: "python {{ epc_dir }}/spencer_scripts/synchronize_dbs.py"
 
-  - name: Install synchronize db job on crontab (daily)
-    cron:
-      name: "Synchronize Database (check for enabled/disabled users)"
-      special_time: daily
-      job: "{{ epc_dir }}/synchronize_dbs.sh >> /var/log/colte/cron.log 2>&1"
-      user: "{{ username }}"
-      disabled: "no"
-      
   - name: write information to hss.conf
     lineinfile:
-      dest: "{{ epc_dir }}/spencer_configs/hss.conf"
+      dest: "/usr/local/etc/oai/hss.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
       # owner: "{{ username }}"
@@ -60,20 +52,22 @@
     with_items:
     - {field: 'MYSQL_pass', line: 'MYSQL_pass   = "{{ mysql_password }}";'}
     - {field: 'MYSQL_user', line: 'MYSQL_user   = "{{ username }}";'}
+    become: yes
 
   - name: write information to mme.conf
     lineinfile:
-      dest: "{{ epc_dir }}/spencer_configs/mme.conf"
+      dest: "/usr/local/etc/oai/mme.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
     - {field: "MME_INTERFACE_NAME_FOR_S1_MME", line: "        MME_INTERFACE_NAME_FOR_S1_MME         = \"{{ enb_iface }}\";"}
     # SMS: Note that right now we just set it to 0.0.0.0 so that it serves on any address.
     # - {field: "MME_IPV4_ADDRESS_FOR_S1_MME", line: "        MME_IPV4_ADDRESS_FOR_S1_MME         = \"{{ enb_iface_addr }}\";"}
+    become: yes
 
   - name: write information to spgw.conf
     lineinfile:
-      dest: "{{ epc_dir }}/spencer_configs/spgw.conf"
+      dest: "/usr/local/etc/oai/spgw.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -86,39 +80,11 @@
 # SMS TODO: THESE VALUES ARE HARD-CODED WE NEED TO SET THEM TO COLTE'S VALUE IF-AND-ONLY-IF BIND OPTION TURNED ON
     - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: '    DEFAULT_DNS_IPV4_ADDRESS = "192.168.151.1";'}
     - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: '    DEFAULT_DNS_SEC_IPV4_ADDRESS = "192.168.151.1";'}
-
-  - name: ensure freeDiameter directory exists
-    file:
-      path: /usr/local/etc/colte/freeDiameter
-      state: directory
-      owner: "{{ username }}"
-      group: "{{ username }}"
-      mode: 0755
     become: yes
 
-  - name: copy config files to /usr/local/etc/colte
-    copy: 
-      src: "{{ item.src }}"
-      dest: "{{ item.dst }}"
-    with_items:
-    - {src: "{{ epc_dir }}/spencer_configs/hss.conf", dst: "/usr/local/etc/colte/"}
-    - {src: "{{ epc_dir }}/spencer_configs/mme.conf", dst: "/usr/local/etc/colte/"}
-    # - {src: "{{ epc_dir }}/spencer_configs/mme_fd.conf", dst: "/usr/local/etc/colte/"}
-    - {src: "{{ epc_dir }}/spencer_configs/spgw.conf", dst: "/usr/local/etc/colte/"}
-    - {src: "{{ epc_dir }}/spencer_configs/freeDiameter/acl.conf", dst: "/usr/local/etc/colte/freeDiameter"}
-    - {src: "{{ epc_dir }}/spencer_configs/freeDiameter/hss_fd.conf", dst: "/usr/local/etc/colte/freeDiameter"}
-    - {src: "{{ epc_dir }}/spencer_configs/freeDiameter/mme_fd.conf", dst: "/usr/local/etc/colte/freeDiameter"}
-
-  - name: generate s6a certificates
-    shell: |
-      source {{ epc_dir }}/oaienv
-      {{ epc_dir }}/scripts/check_hss_s6a_certificate /usr/local/etc/colte/freeDiameter hss.OpenAir5G.Alliance
-      {{ epc_dir }}/scripts/check_mme_s6a_certificate /usr/local/etc/colte/freeDiameter mme.OpenAir5G.Alliance
-    # become: yes
-
-  - name: update iptables script with wan_iface
+  - name: update spgw_nat script with wan_iface
     lineinfile:
-      dest: "{{ epc_dir }}/spencer_configs/iptables.sh"
+      dest: "/usr/bin/spgw_nat.sh"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -128,50 +94,7 @@
     - {field: "-A FORWARD -i gtp0 -o enp3s0", line: "     iptables -A FORWARD -i gtp0 -o {{ wan_iface }} -j ACCEPT"}
     - {field: "-C FORWARD -i enp3s0 ", line: "     iptables -C FORWARD -i {{ wan_iface }} -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT"}
     - {field: "-A FORWARD -i enp3s0 ", line: "     iptables -A FORWARD -i {{ wan_iface }} -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT"}
-
-  - name: dynamically write hss.service file
-    lineinfile:
-      dest: "{{ epc_dir }}/spencer_scripts/hss.service"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-      # owner: "{{ username }}"
-      # group: "{{ username }}"
-      # mode: 0644
-    with_items:
-    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_hss"'}
-    - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
-    - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
-
-  - name: dynamically write mme.service file
-    lineinfile:
-      dest: "{{ epc_dir }}/spencer_scripts/mme.service"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-      # owner: "{{ username }}"
-      # group: "{{ username }}"
-      # mode: 0644
-    with_items:
-    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_mme"'}
-    - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
-    - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
-
-  - name: dynamically write spgw.service file
-    lineinfile:
-      dest: "{{ epc_dir }}/spencer_scripts/spgw.service"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    with_items:
-    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/scripts/run_spgw"'}
-    - {field: 'Environment=OPENAIRCN_DIR', line: 'Environment=OPENAIRCN_DIR={{ epc_dir }}'}
-    - {field: 'WorkingDirectory', line: 'WorkingDirectory={{ epc_dir }}'}
-
-  - name: dynamically write spgw_nat.service file
-    lineinfile:
-      dest: "{{ epc_dir }}/spencer_scripts/spgw_nat.service"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    with_items:
-    - {field: 'ExecStart', line: 'ExecStart=/bin/bash -c "{{ epc_dir }}/spencer_configs/iptables.sh"'}
+    become: yes
 
   - name: dynamically write tcpdump.service file
     lineinfile:
@@ -181,18 +104,13 @@
     with_items:
     - {field: 'ExecStart', line: "ExecStart=/usr/sbin/tcpdump -i {{ enb_iface_addr }} -w '/var/log/colte/tcpdump/sctp_${TCPDUMP_FORMAT}.pcap' sctp"}
 
-  - name: copy all .service files to /etc/systemd/system
+  - name: copy tcpdump.service file to /etc/systemd/system
     copy: 
       src: "{{ epc_dir }}/spencer_scripts/{{ item }}.service"
       dest: "/etc/systemd/system/{{ item }}.service"
       mode: 0644
     become: yes
     with_items:
-    - "hss"
-    - "mme"
-    - "spgw"
-    - "spgw_nat"
-    - "epc"
     - "tcpdump"
 
   - name: reload systemd
