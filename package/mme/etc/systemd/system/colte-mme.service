@@ -1,8 +1,8 @@
 [Unit]
 Description=CoLTE MME
-After=network.target hss.service
-Requires=network.target hss.service
-PartOf=epc.service
+After=network.target colte-hss.service
+Requires=network.target colte-hss.service
+PartOf=colte-epc.service
 
 [Service]
 ExecStartPre=/bin/bash -c "sleep 2"

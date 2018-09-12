@@ -1,7 +1,7 @@
 [Unit]
-Description=SPGW NAT to Internet
-After=network.target spgw.service
-Requires=network.target spgw.service
+Description=CoLTE SPGW NAT to Internet
+After=network.target colte-spgw.service
+Requires=network.target colte-spgw.service
 PartOf=epc.service
 
 [Service]

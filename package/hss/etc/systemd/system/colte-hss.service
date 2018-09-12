@@ -1,11 +1,11 @@
 [Unit]
-Description=CoLTE SPGW
-After=network.target
-Requires=network.target
-PartOf=epc.service
+Description=CoLTE HSS
+After=mysql.service
+Requires=mysql.service
+PartOf=colte-epc.service
 
 [Service]
-ExecStart=/usr/bin/spgw
+ExecStart=/usr/bin/oai_hss
 Restart=always
 RestartSec=2
 User=root

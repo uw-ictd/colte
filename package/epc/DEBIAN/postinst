@@ -1,1 +1,3 @@
 echo "Installed OpenAirInterface EPC"
+
+sudo systemctl daemon-reload

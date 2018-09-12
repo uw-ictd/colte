@@ -24,7 +24,7 @@ Once your network configuration is correct, you need to look at (and change) gen
 Set COLTE_WAN_IFACE to your upstream (Internet) interface, COLTE_ENB_IFACE to the downstream LAN interface, and COLTE_ENB_IFACE_ADDR to the downstream interface's address/subnet. Don't worry about editing COLTE_LTE_SUBNET or matching it to anything, because this subnet is created and assigned to the virtual gtp0 interface once the SPGW brings it up.  COLTE_NETWORK_NAME lets you give your network a specific name for serving DNS entries (e.g. if it's set to "seattle" then connected phones can access the webgui under "http://network.seattle".
 
 ### Compilation Options
-Each macro under this section refers to a different CoLTE feature that you can tun on or off as you please. COLTE_EPC refers to installing the core EPC code (needed for any LTE stuff), COLTE_BILLING refers to our network management and billing software, and COLTE_WEBGUI refers to our webGUI for users to check their balance and purchase credit. Note that COLTE_EPC just fetches the most recent binary release as .deb packages; to build the most recent source enable COLTE_BUILD_EPC_SOURCE (warning: this takes a long time!).
+Each macro under this section refers to a different CoLTE feature that you can tun on or off as you please. COLTE_EPC refers to installing the core EPC code (needed for any LTE stuff), COLTE_BILLING refers to our network management and billing software, and COLTE_WEBGUI refers to our webGUI for users to check their balance and purchase credit. Note that COLTE_EPC just fetches the most recent binary release as .deb packages; to build the most recent source enable COLTE_BUILD_EPC_SOURCE (warning: this takes a long time!)
 
 The final five options (MEDIA, WIKI, MAP, CHAT, and EMERGENCY) all refer to various locally-hosted webservices: a local mediaserver, Wikipedia, a mapping server (powered by OpenStreetMaps), a RocketChat server, and an emergency registration service. For more information about individual web services, check the WEBSERVICES.md document.
 
@@ -34,7 +34,6 @@ Run the following commands to install CoLTE. Depending on the enabled options th
 ```
 source ./generate_coltenv
 ./system_setup/setup.sh
-./system_setup/ansible.sh
 ```
 
 # Running CoLTE
@@ -51,8 +50,8 @@ With each new connected component, you should see them log some startup messages
 We also provide systemd integration. You can start any of these operations as a service, and read the output in journalctl, with the following commands:
 
 ```
-sudo systemctl start {hss|mme|spgw}
-sudo journalctl -f -u {hss|mme|spgw}
+sudo systemctl start colte-{hss|mme|spgw}
+sudo journalctl -f -u colte-{hss|mme|spgw}
 ```
 
 ## WebGUI:
