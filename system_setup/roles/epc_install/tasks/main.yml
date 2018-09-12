@@ -113,7 +113,9 @@
     with_items:
     - "tcpdump"
 
-  - name: reload systemd
+  - name: enable epc service
     systemd:
       daemon_reload: yes
+      name: epc
+      enabled: yes
     become: yes

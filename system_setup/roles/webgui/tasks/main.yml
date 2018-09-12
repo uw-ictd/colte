@@ -1,10 +1,5 @@
 ---
-  - name: install node and npm
-    apt:
-      name: "{{ item }}"
-    with_items:
-    - nodejs
-    become: yes
+
 
 ####### Ubuntu can just apt-get npm, Debian has to use curl script to fetch it ########
   - name: install node and npm
@@ -15,10 +10,24 @@
     become: yes
     when: distro == 'bionic'
 
-  - name: use curl script to fetch/install node and npm
-    shell: curl -sL https://deb.nodesource.com/setup_6.x | bash -
+  - name: download script to install npm
+    get_url:
+      url: https://deb.nodesource.com/setup_6.x
+      dest: /tmp/npm_setup.sh
+      mode: 0755
+    when: distro == 'stretch'
+
+  - name: run script to install npm
+    shell: bash /tmp/npm_setup.sh
     become: yes
     when: distro == 'stretch'
+
+  - name: install node and npm
+    apt:
+      name: "{{ item }}"
+    with_items:
+    - nodejs
+    become: yes    
     
   - name: npm install dependencies
     npm:
