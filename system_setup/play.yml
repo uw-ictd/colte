@@ -47,7 +47,7 @@
       when: coltenv is not defined
 
     - name: check for distro sanity
-      fail: msg= "Killing ansible script, invalid distro! Valid options are bionic (Ubuntu 18.04) and stretch (Debian 9)"
+      fail:
       when: distro != 'bionic' and distro != 'stretch'
 
     - name: apt-get update
