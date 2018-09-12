@@ -7,7 +7,7 @@
 
   - name: add our apt repository
     apt_repository:
-      repo: deb http://128.208.5.110 bionic main
+      repo: "deb http://128.208.5.110 {{ distro }} main"
       state: present
     become: yes
     when: build_epc_source == '0'
