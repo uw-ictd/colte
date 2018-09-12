@@ -8,6 +8,10 @@ rm -rf /usr/local/etc/colte/coltenv
 echo "#!/bin/bash" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTENV=1" | tee --append /usr/local/etc/colte/coltenv
 
+# Target distro for build/install/config/etc.
+# Accepted values are debian-9.4 (stretch) and ubuntu-18.04 (bionic)
+# Cross-compilation IS NOT tested or supported!!!
+echo "export COLTE_DISTRO=bionic" | tee --append /usr/local/etc/colte/coltenv
 
 # Base directory for the whole project source
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -26,11 +30,6 @@ echo "export COLTE_DBPASS=\"horse\"" | tee --append /usr/local/etc/colte/coltenv
 # The following are default values for phpMyAdmin
 echo "export COLTE_PMA_USERNAME=\"admin\"" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_PMA_PASS=\"password\"" | tee --append /usr/local/etc/colte/coltenv
-
-# The following are default values for ntopng.
-# WARNING: DO NOT CHANGE THESE FOR NOW
-echo "export COLTE_NT_USERNAME=\"admin\"" | tee --append /usr/local/etc/colte/coltenv
-echo "export COLTE_NT_PASS=\"correcthorse\"" | tee --append /usr/local/etc/colte/coltenv
 
 echo "export COLTE_RC_ADMIN=\"admin\"" | tee --append /usr/local/etc/colte/coltenv
 echo "export COLTE_RC_PASS=\"horse\"" | tee --append /usr/local/etc/colte/coltenv

@@ -1,2 +1,0 @@
-# Packages
-This directory is intentionally included empty. Building the EPC code uses this directory to clone/build/install other packages/dependencies that need to be built from scratch. Nothing to see here :-)
