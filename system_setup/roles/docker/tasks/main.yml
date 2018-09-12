@@ -1,0 +1,23 @@
+---
+#     - name: check for environment vars
+#       fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+#       when: coltenv is not defined
+
+  - name: apt-get docker-compose
+    apt:
+      name: docker-compose
+    become: yes
+
+  - name: apt-get docker
+    apt:
+      name: docker
+    become: yes
+    when: distro == 'bionic'
+
+##### with debian stretch, apt-get docker apparently doesn't work so we have to manual install
+  - name: manually download/install docker deb
+    apt: 
+      deb: https://download.docker.com/linux/debian/dists/stretch/pool/stable/amd64/docker-ce_17.03.0~ce-0~debian-stretch_amd64.deb
+    become: yes
+    when: distro == 'stretch'
+    

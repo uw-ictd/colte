@@ -1,0 +1,11 @@
+[Unit]
+Description=EPC Meta-Service
+Wants=hss.service mme.service spgw.service spgw_nat.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
