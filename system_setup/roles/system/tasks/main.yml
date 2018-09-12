@@ -8,14 +8,17 @@
       mode: 0755
     become: yes
 
-  - name: ensure config directory exists
+  - name: ensure config directories exist
     file:
-      path: /usr/local/etc/colte
+      path: "{{ item }}"
       state: directory
       owner: "{{ username }}"
       group: "{{ username }}"
       mode: 0755
     become: yes
+    with_items:
+    - "/usr/local/etc/colte"
+    - "/usr/local/etc/oai"
 
   - name: symlink oai epc config files
     file:
