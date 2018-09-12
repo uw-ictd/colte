@@ -1,0 +1,158 @@
+#### SMS TODO: PACKAGE UP INTO .DEB FILES
+
+---
+  - name: apt-get update
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+    become: yes
+
+  - name: apt-get install build dependencies
+    apt:
+      name: "{{ item }}"
+    with_items:
+    - autoconf
+    - automake
+    - bison
+    - build-essential
+    - cmake
+    - cmake-curses-gui
+    - doxygen
+    - doxygen-gui
+    - flex
+#    - gdb
+    - pkg-config
+    - git
+#    - subversion
+    - libconfig-dev
+    - libgcrypt11-dev
+    - libidn2-0-dev
+    - libidn11-dev
+    - default-libmysqlclient-dev
+    - libpthread-stubs0-dev
+    - libsctp1
+    - libsctp-dev
+    - libssl-dev
+    - libtool
+    - openssl
+    - nettle-dev
+    - nettle-bin
+    - php
+    - python-pexpect
+    - castxml
+    - guile-2.0-dev
+    - libgmp-dev
+    - libhogweed?
+    - libgtk-3-dev
+    - libxml2
+    - libxml2-dev
+    - mscgen
+    - check
+    - python
+    - libgnutls28-dev
+#    - ethtool
+#    - iproute2
+#    - vlan
+#    - tshark
+    - python-dev
+    - unzip
+    - libmnl-dev
+    become: yes
+
+  - name: add gpg key for our apt repository
+    shell: wget -O /etc/apt/trusted.gpg.d/colte.gpg http://128.208.5.110/keyring.gpg
+    become: yes
+
+  - name: add our apt repository
+    apt_repository:
+      repo: "deb http://128.208.5.110 {{ distro }} main"
+      state: present
+    become: yes
+
+  - name: apt-get install custom dependencies
+    apt:
+      name: "{{ item }}"
+    with_items:
+    - colte-freediameter
+    - colte-liblfds
+    - colte-libgtpnl
+    become: yes
+
+########## PATCHED ASN1C INSTALLATION #################
+  - name: asn1c - fetch rev 1516 patched from my github copy
+    git:
+      repo: https://github.com/spencersevilla/asn1c.git
+      dest: "/tmp/asn1c"
+      force: yes
+
+  - name: asn1c - configure
+    shell: |
+      ./configure
+    args:
+      chdir: "/tmp/asn1c"
+
+  - name: asn1c - build
+    make:
+      chdir: "/tmp/asn1c"
+
+  - name: asn1c - install
+    make:
+      chdir: "/tmp/asn1c"
+      target: install
+    become: yes
+######################################################
+
+  - name: build epc 
+    shell: |
+      source oaienv
+      ./scripts/build_hss -c
+      ./scripts/build_mme -c
+      ./scripts/build_spgw -c
+    args:
+      chdir: "{{ epc_dir }}"
+
+  - name: ensure /usr/bin destination directories exist for packaging
+    file:
+      path: "{{ package_dir }}/{{ item }}/usr/bin/"
+      state: directory
+      owner: "{{ username }}"
+      group: "{{ username }}"
+      mode: 0755
+    with_items:
+    - hss
+    - mme
+    - spgw
+
+  - name: copy binaries for packaging
+    copy: 
+      src: "{{ item.src }}"
+      dest: "{{ item.dst }}"
+      force: yes
+      mode: 0755
+      owner: root
+      group: root
+    with_items:
+    - {src: "/usr/local/bin/oai_hss", dst: "{{ package_dir }}/hss/usr/bin/oai_hss"}
+    - {src: "/usr/local/bin/mme", dst: "{{ package_dir }}/mme/usr/bin/mme"}
+    - {src: "/usr/local/bin/spgw", dst: "{{ package_dir }}/spgw/usr/bin/spgw"}
+    become: yes
+
+  - name: delete binaries out of /usr/local/bin/
+    file: 
+      path: "{{ item.path }}"
+      state: absent
+    with_items:
+    - {path: "/usr/local/bin/oai_hss"}
+    - {path: "/usr/local/bin/mme"}
+    - {path: "/usr/local/bin/spgw"}
+    become: yes
+
+  - name: create .deb files
+    shell: |
+      dpkg-deb --build hss
+      dpkg-deb --build mme
+      dpkg-deb --build spgw
+      dpkg-deb --build epc
+    args:
+      chdir: "{{ package_dir }}"
+      
