@@ -195,7 +195,7 @@
     shell: |
       dpkg-deb --build freediameter
       dpkg-deb --build asn1c
-      dpkg-deb --build libgtpnl
-      dpkg-deb --build liblfds
+      dpkg-deb --build gtpnl
+      dpkg-deb --build lfds
     args:
       chdir: "{{ package_dir }}/libraries"
