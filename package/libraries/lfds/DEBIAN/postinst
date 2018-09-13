@@ -1,0 +1,7 @@
+#!/bin/bash
+
+sudo ln -s /usr/lib/liblfds710.so.1.0.0 /usr/lib/liblfds710.so.1
+sudo ln -s /usr/lib/liblfds710.so.1 /usr/lib/liblfds710.so
+sudo ldconfig
+
+echo "Installed OAI-Specific LibLFDS"

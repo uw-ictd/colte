@@ -1,0 +1,7 @@
+Package: colte-libgtpnl
+Version: 0.9.1
+Maintainer: sevilla@cs.washington.edu
+Architecture: amd64
+License: BSD
+Installed-Size: 69
+Description: libgtpnl fork that is known to work with OAI codebase
