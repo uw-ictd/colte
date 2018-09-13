@@ -1,5 +1,3 @@
-#### SMS TODO: PACKAGE UP INTO .DEB FILES
-
 ---
   - name: apt-get update
     apt:
@@ -20,10 +18,8 @@
     - doxygen
     - doxygen-gui
     - flex
-#    - gdb
     - pkg-config
     - git
-#    - subversion
     - libconfig-dev
     - libgcrypt11-dev
     - libidn2-0-dev
@@ -50,24 +46,23 @@
     - check
     - python
     - libgnutls28-dev
-#    - ethtool
-#    - iproute2
-#    - vlan
-#    - tshark
     - python-dev
     - unzip
     - libmnl-dev
     become: yes
 
+########### switch on build_libraries to decide whether we install built libs or apt-get them
   - name: add gpg key for our apt repository
     shell: wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
     become: yes
+    when: build_libraries == '0'
 
   - name: add our apt repository
     apt_repository:
       repo: "deb http://colte.cs.washington.edu {{ distro }} main"
       state: present
     become: yes
+    when: build_libraries == '0'
 
   - name: apt-get install custom dependencies
     apt:
@@ -76,31 +71,21 @@
     - colte-freediameter
     - colte-liblfds
     - colte-libgtpnl
+    - colte-asn1c
     become: yes
+    when: build_libraries == '0'
 
-########## PATCHED ASN1C INSTALLATION #################
-  - name: asn1c - fetch rev 1516 patched from my github copy
-    git:
-      repo: https://github.com/spencersevilla/asn1c.git
-      dest: "/tmp/asn1c"
-      force: yes
-
-  - name: asn1c - configure
-    shell: |
-      ./configure
-    args:
-      chdir: "/tmp/asn1c"
-
-  - name: asn1c - build
-    make:
-      chdir: "/tmp/asn1c"
-
-  - name: asn1c - install
-    make:
-      chdir: "/tmp/asn1c"
-      target: install
+  - name: install EPC from built .debs
+    apt: 
+      deb: "{{ package_dir }}/libraries/{{ item }}"
     become: yes
-######################################################
+    when: build_libraries == '1'
+    with_items:
+    - freediameter.deb
+    - asn1c.deb
+    - gtpnl.deb
+    - lfds.deb
+################### switch ends here
 
   - name: build epc 
     shell: |

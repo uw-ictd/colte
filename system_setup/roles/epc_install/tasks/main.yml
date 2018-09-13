@@ -1,5 +1,5 @@
 ---
-### SWITCH ON build_epc_source TO DETERMINE WHETHER WE INSTALL FROM APT-GET OR THE LOCALLY BUILT .DEB FILES
+### Branch on build_epc_source TO DETERMINE WHETHER WE INSTALL FROM APT-GET OR THE LOCALLY BUILT .DEB FILES
   - name: add gpg key for our apt repository
     shell: wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
     become: yes
