@@ -84,7 +84,7 @@
 
   - name: freeDiameter - cmake prep
     shell: |
-      cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local -DDISABLE_PEER_EXPIRY:BOOL=ON ../
+      "cmake -DCMAKE_INSTALL_PREFIX:PATH={{ colte_dir }}/package/libraries/freediameter/usr -DDISABLE_PEER_EXPIRY:BOOL=ON ../"
     args:
       chdir: "/tmp/freediameter/build"
 
@@ -96,7 +96,6 @@
     make:
       chdir: "/tmp/freediameter/build"
       target: install
-    become: yes
 
 ########## PATCHED ASN1C INSTALLATION #################
   - name: asn1c - fetch rev 1516 patched from my github copy
@@ -110,16 +109,21 @@
       ./configure
     args:
       chdir: "/tmp/asn1c"
+    environment:
+      DESTDIR: "{{ colte_dir }}/package/libraries/asn1c"
 
   - name: asn1c - build
     make:
       chdir: "/tmp/asn1c"
+    environment:
+      DESTDIR: "{{ colte_dir }}/package/libraries/asn1c"
 
   - name: asn1c - install
     make:
       chdir: "/tmp/asn1c"
       target: install
-    become: yes
+    environment:
+      DESTDIR: "{{ colte_dir }}/package/libraries/asn1c"
 
 ############ LIBGTPNL ######################
   - name: libgtpnl - clone from osmocom git
@@ -137,7 +141,7 @@
       git reset --hard 345d687
       patch --verbose -p1  < {{ epc_dir }}/build/tools/libgtpnl.LTE_dedicated_bearer.v0.patch 
       autoreconf -fi
-      ./configure
+      ./configure --prefix={{ colte_dir }}/package/libraries/gtpnl/usr --exec-prefix={{ colte_dir }}/package/libraries/gtpnl/usr
     args:
       chdir: "/tmp/libgtpnl"
 
@@ -164,6 +168,15 @@
       repo: https://github.com/liblfds/liblfds.git
       dest: "/tmp/liblfds"
 
+  - name: liblfds - edit Makefile to change install target
+    lineinfile:
+      dest: "/tmp/liblfds/liblfds/liblfds7.1.0/liblfds710/build/gcc_gnumake/Makefile"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    with_items:
+    - {field: "INSINCDIR ", line: "INSINCDIR := {{ colte_dir }}/package/libraries/lfds/usr/include/"}
+    - {field: "INSLIBDIR ", line: "INSLIBDIR := {{ colte_dir }}/package/libraries/lfds/usr/lib/"}
+
   - name: liblfds - build SHELL SCRIPT
     shell: |
       make so_dbg
@@ -180,4 +193,4 @@
       dpkg-deb --build libgtpnl
       dpkg-deb --build liblfds
     args:
-      chdir: "{{ package_dir }}"
+      chdir: "{{ package_dir }}/libraries"

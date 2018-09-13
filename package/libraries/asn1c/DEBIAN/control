@@ -1,0 +1,6 @@
+Package: colte-asn1c
+Version: 0.9.0
+Maintainer: sevilla@cs.washington.edu
+Architecture: amd64
+License: BSD
+Description: asn1c fork/patch that is known to work with OAI codebase. Used only for OAI compilation, not running.

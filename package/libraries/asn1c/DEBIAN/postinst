@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo "Installed OAI-Specific ASN1C"

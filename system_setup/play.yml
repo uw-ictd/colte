@@ -3,6 +3,7 @@
   vars:
     coltenv: "{{ ansible_env.COLTENV }}"
 
+    build_libraries: "{{ ansible_env.COLTE_BUILD_LIBRARIES }}"
     build_epc_source: "{{ ansible_env.COLTE_BUILD_EPC_SOURCE }}"
     distro: "{{ ansible_env.COLTE_DISTRO }}"
     install_epc: "{{ ansible_env.COLTE_EPC }}"
@@ -57,6 +58,7 @@
       become: yes
 
   roles:
+    - { role: build_libraries, when: build_libraries == '1' }
     - { role: epc_source, when: build_epc_source == '1' }
     - { role: epc_install, when: install_epc == '1' }
     - { role: billing, when: build_billing == '1' }

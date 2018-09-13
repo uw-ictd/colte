@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo "Uninstalled OAI-Specific ASN1C"
