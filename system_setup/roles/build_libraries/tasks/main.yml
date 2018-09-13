@@ -83,8 +83,7 @@
       mode: 0755
 
   - name: freeDiameter - cmake prep
-    shell: |
-      "cmake -DCMAKE_INSTALL_PREFIX:PATH={{ colte_dir }}/package/libraries/freediameter/usr -DDISABLE_PEER_EXPIRY:BOOL=ON ../"
+    shell: cmake -DCMAKE_INSTALL_PREFIX:PATH={{ package_dir }}/libraries/freediameter/usr -DDISABLE_PEER_EXPIRY:BOOL=ON ../
     args:
       chdir: "/tmp/freediameter/build"
 
@@ -110,20 +109,20 @@
     args:
       chdir: "/tmp/asn1c"
     environment:
-      DESTDIR: "{{ colte_dir }}/package/libraries/asn1c"
+      DESTDIR: "{{ package_dir }}/libraries/asn1c"
 
   - name: asn1c - build
     make:
       chdir: "/tmp/asn1c"
     environment:
-      DESTDIR: "{{ colte_dir }}/package/libraries/asn1c"
+      DESTDIR: "{{ package_dir }}/libraries/asn1c"
 
   - name: asn1c - install
     make:
       chdir: "/tmp/asn1c"
       target: install
     environment:
-      DESTDIR: "{{ colte_dir }}/package/libraries/asn1c"
+      DESTDIR: "{{ package_dir }}/libraries/asn1c"
 
 ############ LIBGTPNL ######################
   - name: libgtpnl - clone from osmocom git
@@ -141,7 +140,7 @@
       git reset --hard 345d687
       patch --verbose -p1  < {{ epc_dir }}/build/tools/libgtpnl.LTE_dedicated_bearer.v0.patch 
       autoreconf -fi
-      ./configure --prefix={{ colte_dir }}/package/libraries/gtpnl/usr --exec-prefix={{ colte_dir }}/package/libraries/gtpnl/usr
+      ./configure --prefix={{ package_dir }}/libraries/gtpnl/usr --exec-prefix={{ package_dir }}/libraries/gtpnl/usr
     args:
       chdir: "/tmp/libgtpnl"
 
@@ -167,6 +166,7 @@
     git:
       repo: https://github.com/liblfds/liblfds.git
       dest: "/tmp/liblfds"
+      force: yes
 
   - name: liblfds - edit Makefile to change install target
     lineinfile:
@@ -174,14 +174,18 @@
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
-    - {field: "INSINCDIR ", line: "INSINCDIR := {{ colte_dir }}/package/libraries/lfds/usr/include/"}
-    - {field: "INSLIBDIR ", line: "INSLIBDIR := {{ colte_dir }}/package/libraries/lfds/usr/lib/"}
+    - {field: "INSINCDIR ", line: "INSINCDIR := {{ package_dir }}/libraries/lfds/usr/include/"}
+    - {field: "INSLIBDIR ", line: "INSLIBDIR := {{ package_dir }}/libraries/lfds/usr/lib/"}
+
+  - name: liblfds - create lib directory
+    file:
+      path: "{{ package_dir }}/libraries/lfds/usr/lib"
+      state: directory
 
   - name: liblfds - build SHELL SCRIPT
     shell: |
       make so_dbg
-      sudo rm -f /usr/local/lib/liblfds710.so
-      sudo make so_install
+      make so_install
     args:
       chdir: "/tmp/liblfds/liblfds/liblfds7.1.0/liblfds710/build/gcc_gnumake"
 
