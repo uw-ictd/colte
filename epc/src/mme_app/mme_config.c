@@ -250,12 +250,12 @@ static int mme_config_parse_file (mme_config_t * config_pP)
      * Read the file. If there is an error, report it and exit.
      */
     if (!config_read_file (&cfg, bdata(config_pP->config_file))) {
-      OAILOG_ERROR (LOG_CONFIG, ": %s:%d - %s\n", bdata(config_pP->config_file), config_error_line (&cfg), config_error_text (&cfg));
+       OAI_FPRINTF_ERR(": %s:%d - %s\n", bdata(config_pP->config_file), config_error_line (&cfg), config_error_text (&cfg));
       config_destroy (&cfg);
       AssertFatal (1 == 0, "Failed to parse MME configuration file %s!\n", bdata(config_pP->config_file));
     }
   } else {
-    OAILOG_ERROR (LOG_CONFIG, " No MME configuration file provided!\n");
+    OAI_FPRINTF_ERR(" No MME configuration file provided!\n");
     config_destroy (&cfg);
     AssertFatal (0, "No MME configuration file provided!\n");
   }
@@ -625,7 +625,7 @@ static int mme_config_parse_file (mme_config_t * config_pP)
         config_pP->ipv4.netmask_s1_mme = atoi ((const char*)mask->data);
         bstrListDestroy(list);
         in_addr_var.s_addr = config_pP->ipv4.s1_mme.s_addr;
-        OAILOG_INFO (LOG_MME_APP, "Parsing configuration file found S1-MME: %s/%d on %s\n",
+        OAI_FPRINTF_INFO("Parsing configuration file found S1-MME: %s/%d on %s\n",
                        inet_ntoa (in_addr_var), config_pP->ipv4.netmask_s1_mme, bdata(config_pP->ipv4.if_name_s1_mme));
         bdestroy_wrapper(&cidr);
 
@@ -640,7 +640,7 @@ static int mme_config_parse_file (mme_config_t * config_pP)
         bstrListDestroy(list);
         bdestroy_wrapper(&cidr);
         in_addr_var.s_addr = config_pP->ipv4.s11.s_addr;
-        OAILOG_INFO (LOG_MME_APP, "Parsing configuration file found S11: %s/%d on %s\n",
+        OAI_FPRINTF_INFO("Parsing configuration file found S11: %s/%d on %s\n",
                        inet_ntoa (in_addr_var), config_pP->ipv4.netmask_s11, bdata(config_pP->ipv4.if_name_s11));
       }
     }
@@ -762,7 +762,7 @@ static int mme_config_parse_file (mme_config_t * config_pP)
       if (sub2setting != NULL) {
         const char                             *id = NULL;
         if (!(config_setting_lookup_string (sub2setting, MME_CONFIG_STRING_ID, &id))) {
-          OAILOG_ERROR (LOG_SPGW_APP, "Could not get SGW ID item %d in %s\n", i, MME_CONFIG_STRING_SGW_LIST_SELECTION);
+           OAI_FPRINTF_ERR("Could not get SGW ID item %d in %s\n", i, MME_CONFIG_STRING_SGW_LIST_SELECTION);
           break;
         }
         config_pP->e_dns_emulation.sgw_id[i] = bfromcstr(id);
@@ -778,7 +778,7 @@ static int mme_config_parse_file (mme_config_t * config_pP)
           IPV4_STR_ADDR_TO_INADDR (bdata(address), config_pP->e_dns_emulation.sgw_ip_addr[i], "BAD IP ADDRESS FORMAT FOR SGW S11 !\n");
           bstrListDestroy(list);
           bdestroy_wrapper(&cidr);
-          OAILOG_INFO (LOG_SPGW_APP, "Parsing configuration file found S-GW S11: %s\n", inet_ntoa (config_pP->e_dns_emulation.sgw_ip_addr[i]));
+          OAI_FPRINTF_INFO("Parsing configuration file found S-GW S11: %s\n", inet_ntoa (config_pP->e_dns_emulation.sgw_ip_addr[i]));
         }
       }
       config_pP->e_dns_emulation.nb_sgw_entries++;
