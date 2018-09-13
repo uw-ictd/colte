@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo rm -rf /usr/bin/freeDiameterd
+echo "Uninstalled OAI-Specific freeDiameter"
