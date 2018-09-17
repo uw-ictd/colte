@@ -1,0 +1,11 @@
+[Unit]
+Description=Universal Media Server (UMS)
+
+[Service]
+ExecStart=/bin/bash -c "/usr/bin/ums/UMS.sh"
+Restart=always
+Environment=PATH=/usr/bin:/usr/local/bin
+WorkingDirectory=/usr/bin/ums
+
+[Install]
+WantedBy=multi-user.target
