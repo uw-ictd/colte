@@ -1,4 +1,5 @@
 #!/bin/bash
 
 ln -s /usr/bin/ums-7.3.1 /usr/bin/ums
+systemctl daemon-reload
 echo "Installed CoLTE UMS"
