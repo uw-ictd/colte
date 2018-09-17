@@ -59,7 +59,7 @@
       line: "export UMS_PROFILE=/etc/ums/UMS.conf"
       insertafter: "#!/bin/sh"
 
-  - name: edit UMS.sh to look in /etc/ums (for stretch)
+  - name: edit DEBIAN/control package dependencies (for stretch)
     lineinfile:
       dest: "{{ package_dir }}/extras/ums/DEBIAN/control"
       regexp: "Depends:"
