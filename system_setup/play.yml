@@ -9,6 +9,7 @@
     install_epc: "{{ ansible_env.COLTE_EPC }}"
     build_billing: "{{ ansible_env.COLTE_BILLING }}"
     build_webgui: "{{ ansible_env.COLTE_WEBGUI }}"
+    build_media_source: "{{ ansible_env.COLTE_MEDIA_SOURCE }}"
     build_media: "{{ ansible_env.COLTE_MEDIA }}"
     build_wiki: "{{ ansible_env.COLTE_WIKI }}"
     build_maps: "{{ ansible_env.COLTE_MAP }}"
@@ -63,6 +64,7 @@
     - { role: epc_install, when: install_epc == '1' }
     - { role: billing, when: build_billing == '1' }
     - { role: webgui, when: build_webgui == '1' }
+    - { role: media_source, when: build_media_source == '1' }
     - { role: media, when: build_media == '1' }
     - { role: wiki, when: build_wiki == '1' }
     - { role: maps, when: build_maps == '1' }
