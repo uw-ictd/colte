@@ -1,0 +1,48 @@
+# This script is to be run on the actual host machine (i.e. no Vagrant BS here.)
+# It installs/configures Apache and Docker, then sets up and turns on all the services one-by-one
+# If you don't want a specific webservice just comment out the appropriate include_tasks.yml file
+
+---
+  # - name: check for environment vars
+  #   fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
+  #   when: coltenv is not defined
+      
+  - name: apt-get update
+    apt:
+      update-cache: yes
+      cache_valid_time: 3600
+    become: yes
+
+  - name: install ums prereqs
+    apt:
+      name: "{{ item }}"
+    with_items:
+    - mediainfo
+    - libzen0v5
+    - openjdk-11-jre
+    become: yes
+
+  - name: download ums source
+    get_url:
+      url: https://colte.cs.washington.edu/tars/UMS-7.3.1.tgz
+      dest: /tmp/UMS-7.3.1.tgz
+      mode: 0755
+
+  - name: unzip ums source
+    unarchive:
+      src: /tmp/UMS-7.3.1.tgz
+      dst: "{{ package_dir }}/extras/ums/usr/bin/ums"
+
+  - name: edit UMS.sh to look in /etc/ums
+    lineinfile:
+      path: "{{ package_dir }}/extras/ums/usr/bin/ums/UMS.sh"
+      line: "UMS_PROFILE=/etc/ums/UMS.conf"
+      insertafter: DIRNAME
+
+  # SMS TODO: dynamically download test media to the "files" folder?!?
+
+  - name: create .deb file
+    shell: dpkg-deb --build ums
+    args:
+      chdir: "{{ package_dir }}/extras"
+

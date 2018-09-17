@@ -1,0 +1,7 @@
+Package: colte-ums
+Version: 0.9.0
+Maintainer: sevilla@cs.washington.edu
+Architecture: amd64
+License: BSD
+Description: UMS (Universal Media Server) packaged into a .deb file for CoLTE
+Depends: openjdk-11-jre, libzen0v5, mediainfo
