@@ -19,8 +19,23 @@
     with_items:
     - mediainfo
     - libzen0v5
+    become: yes
+
+  - name: install JDK (stretch)
+    apt:
+      name: "{{ item }}"
+    with_items:
+    - openjdk-8-jre
+    become: yes
+    when: distro == 'stretch'
+
+  - name: install JDK (bionic)
+    apt:
+      name: "{{ item }}"
+    with_items:
     - openjdk-11-jre
     become: yes
+    when: distro == 'bionic'
 
   - name: download ums source
     get_url:
@@ -42,10 +57,7 @@
     lineinfile:
       path: "{{ package_dir }}/extras/ums/usr/bin/ums-7.3.1/UMS.sh"
       line: "export UMS_PROFILE=/etc/ums/UMS.conf"
-      insertafter: DIRNAME
-      firstmatch: yes
-
-  # SMS TODO: dynamically download test media to the "files" folder?!?
+      insertafter: "#!/bin/sh"
 
   - name: create .deb file
     shell: dpkg-deb --build ums
