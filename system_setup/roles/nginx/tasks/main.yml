@@ -1,12 +1,11 @@
 ---
-  # tasks:
-    # - name: check for environment vars
-    #   fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
-    #   when: coltenv is not defined
-
-  - name: stop apache2 sevice (IMPORTANT BEFORE INSTALLING nginx)
-    service: name=apache2 state=stopped
+  - name: stop apache2 sevice if running (IMPORTANT before installing nginx)
+    service:
+      name: apache2
+      state: stopped
+      enabled: no
     become: yes
+    ignore_errors: yes # needed because command will fail if apache2 is not installed
 
   - name: apt-get nginx
     apt:
@@ -21,9 +20,7 @@
       state: absent
     become: yes
 
-    # normally just have to issue a "reloaded" but this is better practice
-    # given that we also just installed nginx from apache
   - name: restart nginx
-    service: name=nginx state=restarted
+    service: name=nginx state=reloaded
     become: yes
 
