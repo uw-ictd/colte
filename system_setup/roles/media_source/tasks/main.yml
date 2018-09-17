@@ -59,6 +59,12 @@
       line: "export UMS_PROFILE=/etc/ums/UMS.conf"
       insertafter: "#!/bin/sh"
 
+  - name: edit UMS.sh to look in /etc/ums (for stretch)
+    lineinfile:
+      dest: "{{ package_dir }}/extras/ums/DEBIAN/control"
+      regex: "Depends:"
+      line: "Depends: openjdk-8-jre-headless, libzen0v5, mediainfo"
+
   - name: create .deb file
     shell: dpkg-deb --build ums
     args:
