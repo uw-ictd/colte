@@ -28,16 +28,28 @@
       dest: /tmp/UMS-7.3.1.tgz
       mode: 0755
 
+  - name: make ums directory
+    file:
+      path: "{{ package_dir }}/extras/ums/usr/bin/"
+      state: directory
+
   - name: unzip ums source
     unarchive:
       src: /tmp/UMS-7.3.1.tgz
-      dst: "{{ package_dir }}/extras/ums/usr/bin/ums"
+      dest: "{{ package_dir }}/extras/ums/usr/bin/"
+  
+  - name: symlink ums into ums-7.3.1
+    file:
+      src: "{{ package_dir }}/extras/ums/usr/bin/ums-7.3.1"
+      dest: "{{ package_dir }}/extras/ums/usr/bin/ums"
+      state: link
 
   - name: edit UMS.sh to look in /etc/ums
     lineinfile:
       path: "{{ package_dir }}/extras/ums/usr/bin/ums/UMS.sh"
-      line: "UMS_PROFILE=/etc/ums/UMS.conf"
+      line: "export UMS_PROFILE=/etc/ums/UMS.conf"
       insertafter: DIRNAME
+      firstmatch: yes
 
   # SMS TODO: dynamically download test media to the "files" folder?!?
 
