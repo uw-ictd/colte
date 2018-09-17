@@ -30,7 +30,7 @@
     nginx_dir: "{{ colte_dir }}/lte_extras/nginx"
     bind_dir: "{{ colte_dir }}/lte_extras/bind"
     webgui_dir: "{{ colte_dir }}/lte_extras/webgui"
-    ums_dir: "{{ colte_dir }}/lte_extras/media"
+    media_dir: "{{ colte_dir }}/lte_extras/media"
     wiki_dir: "{{ colte_dir }}/lte_extras/wiki"
     epc_dir: "{{ colte_dir }}/epc"
     packages_dir: "{{ colte_dir }}/packages"

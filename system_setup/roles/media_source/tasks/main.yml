@@ -64,6 +64,7 @@
       dest: "{{ package_dir }}/extras/ums/DEBIAN/control"
       regexp: "Depends:"
       line: "Depends: openjdk-8-jre-headless, libzen0v5, mediainfo"
+    when: distro == 'stretch'
 
   - name: create .deb file
     shell: dpkg-deb --build ums

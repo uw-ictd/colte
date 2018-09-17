@@ -1,19 +1,28 @@
 ---
+  - name: add gpg key for our apt repository
+    shell: wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
+    become: yes
+
+  - name: add our apt repository
+    apt_repository:
+      repo: "deb http://colte.cs.washington.edu {{ distro }} main"
+      state: present
+    become: yes
+
   - name: apt-get install ums
     apt:
       name: colte-ums
     become: yes
 
-#### SYMLINK THE FILES DIRECTORY INTO COLTE
   - name: symlink website into sites-enabled
     file:
       src: "/etc/ums/files"
-      dest: "/usr/local/etc/colte/media" # link
+      dest: "/usr/local/etc/colte/media"
       state: link
 
   - name: write information to ums.conf (used for nginx)
     lineinfile:
-      dest: "{{ ums_dir }}/ums.conf"
+      dest: "{{ media_dir }}/ums.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -21,7 +30,7 @@
     
   - name: copy website configuration file
     copy:
-      src: "{{ ums_dir }}/ums.conf"
+      src: "{{ media_dir }}/ums.conf"
       dest: "/etc/nginx/sites-available/ums"
     become: yes
 
