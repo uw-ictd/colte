@@ -1,9 +1,0 @@
----
-- hosts: localhost
-
-# If you want to add new packages to default install, just add them to this list!
-- import_playbook: "{{ playbook_dir }}/../../epc/install_scripts/run.yml"
-# - import_playbook: "{{ playbook_dir }}/../../enbrains/install_scripts/run.yml"
-# - import_playbook: "{{ playbook_dir }}/../../emergency/install_scripts/run.yml"
-- import_playbook: "{{ playbook_dir }}/../../webservices/node/install_scripts/run.yml"
-- import_playbook: "{{ playbook_dir }}/../../webservices/billing/install_scripts/run.yml"
