@@ -22,7 +22,7 @@
 
   - name: write information to ums.conf (used for nginx)
     lineinfile:
-      dest: "{{ media_dir }}/ums.conf"
+      dest: "{{ extras_dir }}/ums.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -30,7 +30,7 @@
     
   - name: copy website configuration file
     copy:
-      src: "{{ media_dir }}/ums.conf"
+      src: "{{ extras_dir }}/ums.conf"
       dest: "/etc/nginx/sites-available/ums"
     become: yes
 

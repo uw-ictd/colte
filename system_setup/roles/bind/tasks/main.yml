@@ -10,7 +10,7 @@
 
   - name: write information to named.conf.options
     lineinfile:
-      dest: "{{ bind_dir }}/named.conf.options"
+      dest: "{{ extras_dir }}/named.conf.options"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -18,7 +18,7 @@
 
   - name: write network name to named.conf.local
     lineinfile:
-      dest: "{{ bind_dir }}/named.conf.local"
+      dest: "{{ extras_dir }}/named.conf.local"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -27,7 +27,7 @@
 
   - name: write network name to zonefile
     lineinfile:
-      dest: "{{ bind_dir }}/db"
+      dest: "{{ extras_dir }}/bind_db"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -53,9 +53,9 @@
       mode: 0644
     become: yes
     with_items:
-    - {src: "{{ bind_dir }}/named.conf.local", dst: "/etc/bind/named.conf.local"}
-    - {src: "{{ bind_dir }}/named.conf.options", dst: "/etc/bind/named.conf.options"}
-    - {src: "{{ bind_dir }}/db", dst: "/etc/bind/zones/db.{{ network_name }}"}
+    - {src: "{{ extras_dir }}/named.conf.local", dst: "/etc/bind/named.conf.local"}
+    - {src: "{{ extras_dir }}/named.conf.options", dst: "/etc/bind/named.conf.options"}
+    - {src: "{{ extras_dir }}/bind_db", dst: "/etc/bind/zones/db.{{ network_name }}"}
 
   - name: restart bind9
     service: name=bind9 state=restarted

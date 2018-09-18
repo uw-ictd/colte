@@ -15,7 +15,7 @@
   # SMS BIG NOTE: CHANGE THESE DOWNLOAD SCRIPTS INTO SOME SEPARATE FILE
   # - name: make storage directory
   #   file:
-  #     path: "{{ wiki_dir }}/storage/{{ item }}"
+  #     path: "{{ system_dir }}/wiki/{{ item }}"
   #     state: directory
   #     recurse: yes
   #   with_items:
@@ -90,7 +90,7 @@
       name: xowa
       image: quantumobject/docker-xowa
       ports: 9082:8080
-      volumes: "{{ wiki_dir }}/storage:/opt/xowa/wiki"
+      volumes: "{{ system_dir }}/wiki:/opt/xowa/wiki"
       # detach: true
       restart_policy: always
     become: yes
@@ -99,7 +99,7 @@
 
   - name: write information to xowa.conf
     lineinfile:
-      dest: "{{ wiki_dir }}/xowa.conf"
+      dest: "{{ extras_dir }}/xowa.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     with_items:
@@ -108,7 +108,7 @@
 
   - name: copy website configuration file
     copy:
-      src: "{{ wiki_dir }}/xowa.conf"
+      src: "{{ extras_dir }}/xowa.conf"
       dest: "/etc/nginx/sites-available/xowa"
     become: yes
 

@@ -24,18 +24,17 @@
     colte_rc_email: "{{ ansible_env.COLTE_RC_EMAIL }}"
 
     colte_dir: "{{ ansible_env.COLTE_DIR }}"
-    chat_dir: "{{ colte_dir }}/lte_extras/chat"
+    extras_dir: "{{ colte_dir }}/lte_extras"
     osm_dir: "{{ colte_dir }}/lte_extras/maps"
     emergency_dir: "{{ colte_dir }}/emergency"
-    nginx_dir: "{{ colte_dir }}/lte_extras/nginx"
-    bind_dir: "{{ colte_dir }}/lte_extras/bind"
     webgui_dir: "{{ colte_dir }}/lte_extras/webgui"
-    media_dir: "{{ colte_dir }}/lte_extras/media"
-    wiki_dir: "{{ colte_dir }}/lte_extras/wiki"
     epc_dir: "{{ colte_dir }}/epc"
     packages_dir: "{{ colte_dir }}/packages"
     package_dir: "{{ colte_dir }}/package"
     billing_dir: "{{ colte_dir }}/lte_extras/billing"
+
+    system_dir: "/usr/local/etc/colte"
+
 
     enb_iface: "{{ ansible_env.COLTE_ENB_IFACE }}"
     enb_iface_addr: "{{ ansible_env.COLTE_ENB_IFACE_ADDR }}"
