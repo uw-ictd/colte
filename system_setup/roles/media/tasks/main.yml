@@ -3,13 +3,13 @@
     apt:
       name: colte-ums
     become: yes
-    when: build_media == '0'
+    when: build_media is not defined
 
   - name: install UMS from built .deb
     apt: 
       deb: "{{ package_dir }}/extras/ums.deb"
     become: yes
-    when: build_media == '1'
+    when: build_media is defined
 
   - name: symlink ums files directory into /usr/local/etc/colte
     file:

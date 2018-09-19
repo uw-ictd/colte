@@ -199,3 +199,8 @@
       dpkg-deb --build lfds
     args:
       chdir: "{{ package_dir }}/libraries"
+
+  - name: export build_libraries variable
+    set_fact:
+      build_libraries: "1"
+
