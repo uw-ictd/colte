@@ -88,8 +88,6 @@
     file:
       path: "{{ package_dir }}/{{ item }}/usr/bin/"
       state: directory
-      owner: "{{ username }}"
-      group: "{{ username }}"
       mode: 0755
     with_items:
     - hss
