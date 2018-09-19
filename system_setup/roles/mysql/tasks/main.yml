@@ -7,7 +7,6 @@
     - python-mysqldb
     - mysql-client
     - mysql-server
-#      - libmysql-client-dev
 
   - name: MySQL Configs
     mysql_user:
@@ -17,7 +16,7 @@
       priv: '*.*:ALL'
     become: yes
 
-  - name: install sample_db into mysql
+  - name: install sample database into mysql
     mysql_db:
       login_user: "{{ username }}"
       login_password: "{{ mysql_password }}"

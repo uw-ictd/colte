@@ -52,18 +52,6 @@
     become: yes
 
 ########### switch on build_libraries to decide whether we install built libs or apt-get them
-  - name: add gpg key for our apt repository
-    shell: wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
-    become: yes
-    when: build_libraries == '0'
-
-  - name: add our apt repository
-    apt_repository:
-      repo: "deb http://colte.cs.washington.edu {{ distro }} main"
-      state: present
-    become: yes
-    when: build_libraries == '0'
-
   - name: apt-get install custom dependencies
     apt:
       name: "{{ item }}"

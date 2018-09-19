@@ -32,7 +32,6 @@
       name: "{{ item }}"
     become: yes
     with_items:
-    - linux-headers-4.9.0-6-amd64
     - virtualbox-5.1
     - vagrant
     when: distro == 'stretch'
