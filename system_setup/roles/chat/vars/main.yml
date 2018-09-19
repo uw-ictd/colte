@@ -1,0 +1,2 @@
+---
+extras_dir: "{{ colte_dir }}/lte_extras"

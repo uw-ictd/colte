@@ -10,22 +10,28 @@
 
   - name: ensure config directories exist
     file:
-      path: "{{ item }}"
+      path: "/usr/local/etc/colte"
       state: directory
       owner: "{{ username }}"
       group: "{{ username }}"
       mode: 0755
     become: yes
-    with_items:
-    - "/usr/local/etc/colte"
-    - "/usr/local/etc/oai"
 
-  - name: symlink oai epc config files
+  - name: copy default configuration to /usr/local/etc/colte
     file:
-      src: /usr/local/etc/oai
-      dest: /usr/local/etc/colte/oai
-      state: link
+      src: "{{ colte_dir }}/system_setup/default_config.yml"
+      dest: "/usr/local/etc/colte/config.yml"
       owner: "{{ username }}"
       group: "{{ username }}"
-      mode: 0755
+      mode: 0644
+      force: no
+
+  - name: add gpg key for our apt repository
+    shell: wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
+    become: yes
+
+  - name: add our apt repository
+    apt_repository:
+      repo: "deb http://colte.cs.washington.edu {{ distro }} main"
+      state: present
     become: yes

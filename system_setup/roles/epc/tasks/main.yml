@@ -1,0 +1,27 @@
+---
+### Switch on build_epc TO DETERMINE WHETHER WE INSTALL FROM APT-GET OR THE LOCALLY BUILT .DEB FILES
+  - name: apt-get install EPC
+    apt:
+      name: colte-epc
+    become: yes
+    when: build_epc == '0'
+
+  - name: install EPC from built .debs
+    apt: 
+      deb: "{{ package_dir }}/{{ item }}"
+    become: yes
+    when: build_epc == '1'
+    with_items:
+    - hss.deb
+    - mme.deb
+    - spgw.deb
+    - epc.deb
+### end switch
+
+  - name: copy tcpdump.service file to /etc/systemd/system
+    copy: 
+      src: "{{ epc_dir }}/spencer_scripts/tcpdump.service"
+      dest: "/etc/systemd/system/tcpdump.service"
+      mode: 0644
+      force: no
+    become: yes

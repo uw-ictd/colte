@@ -1,0 +1,4 @@
+---
+package_dir: "{{ colte_dir }}/package"
+extras_dir: "{{ colte_dir }}/lte_extras"
+webgui_dir: "{{ colte_dir }}/lte_extras/webgui"

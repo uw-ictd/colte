@@ -1,51 +1,17 @@
 ---
 - hosts: localhost
+
   vars:
-    coltenv: "{{ ansible_env.COLTENV }}"
+    colte_dir: "{{ playbook_dir | dirname }}"
+    username: "{{ ansible_user_id }}"
 
-    build_libraries: "{{ ansible_env.COLTE_BUILD_LIBRARIES }}"
-    build_epc_source: "{{ ansible_env.COLTE_BUILD_EPC_SOURCE }}"
-    distro: "{{ ansible_env.COLTE_DISTRO }}"
-    install_epc: "{{ ansible_env.COLTE_EPC }}"
-    build_billing: "{{ ansible_env.COLTE_BILLING }}"
-    build_webgui: "{{ ansible_env.COLTE_WEBGUI }}"
-    build_media_source: "{{ ansible_env.COLTE_MEDIA_SOURCE }}"
-    build_media: "{{ ansible_env.COLTE_MEDIA }}"
-    build_wiki: "{{ ansible_env.COLTE_WIKI }}"
-    build_maps: "{{ ansible_env.COLTE_MAP }}"
-    build_chat: "{{ ansible_env.COLTE_CHAT }}"
-    build_emergency: "{{ ansible_env.COLTE_EMERGENCY }}"
-    build_zotac: "{{ ansible_env.COLTE_ZOTAC }}"
-
-    username: "{{ ansible_env.COLTE_USER }}"
-    mysql_password: "{{ ansible_env.COLTE_DBPASS }}"
-    colte_rc_admin: "{{ ansible_env.COLTE_RC_ADMIN }}"
-    colte_rc_pass: "{{ ansible_env.COLTE_RC_PASS }}"
-    colte_rc_email: "{{ ansible_env.COLTE_RC_EMAIL }}"
-
-    colte_dir: "{{ ansible_env.COLTE_DIR }}"
-    extras_dir: "{{ colte_dir }}/lte_extras"
-    osm_dir: "{{ colte_dir }}/lte_extras/maps"
-    emergency_dir: "{{ colte_dir }}/emergency"
-    webgui_dir: "{{ colte_dir }}/lte_extras/webgui"
-    epc_dir: "{{ colte_dir }}/epc"
-    packages_dir: "{{ colte_dir }}/packages"
-    package_dir: "{{ colte_dir }}/package"
-    billing_dir: "{{ colte_dir }}/lte_extras/billing"
-
-    system_dir: "/usr/local/etc/colte"
-
-
-    enb_iface: "{{ ansible_env.COLTE_ENB_IFACE }}"
-    enb_iface_addr: "{{ ansible_env.COLTE_ENB_IFACE_ADDR }}"
-    wan_iface: "{{ ansible_env.COLTE_WAN_IFACE }}"
-    lte_subnet: "{{ ansible_env.COLTE_LTE_SUBNET }}"
-    network_name: "{{ ansible_env.COLTE_NETWORK_NAME }}"
+    distro: "set_distro_here" # VALID OPTIONS: "bionic" or "stretch"
+    mysql_password: "horse" # set to whatever you want.
 
   pre_tasks:
     - name: check for environment vars
-      fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
-      when: coltenv is not defined
+      fail: msg= "Killing ansible script, environment variables not set! COLTE_DIR = {{ ansible_env.COLTE_DIR }}"
+      when: colte_dir is not defined
 
     - name: check for distro sanity
       fail:
@@ -58,16 +24,17 @@
       become: yes
 
   roles:
-    - { role: build_libraries, when: build_libraries == '1' }
-    - { role: epc_source, when: build_epc_source == '1' }
-    - { role: epc_install, when: install_epc == '1' }
-    - { role: billing, when: build_billing == '1' }
-    - { role: webgui, when: build_webgui == '1' }
-    - { role: media_source, when: build_media_source == '1' }
-    - { role: media, when: build_media == '1' }
-    - { role: wiki, when: build_wiki == '1' }
-    - { role: maps, when: build_maps == '1' }
-    - { role: chat, when: build_chat == '1' }
-    - { role: emergency, when: build_emergency == '1' }
-    - { role: zotac, when: build_zotac == '1' }
+    - { role: build_libraries}
+    - { role: build_epc}
+    - { role: build_media}
 
+    - { role: epc}
+    - { role: billing}
+    - { role: webgui}
+    - { role: media}
+    - { role: wiki}
+    - { role: maps}
+    - { role: chat}
+#    - { role: emergency}
+    - { role: zotac}
+    - { role: configure}

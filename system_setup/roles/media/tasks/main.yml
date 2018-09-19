@@ -1,53 +1,25 @@
 ---
-  - name: add gpg key for our apt repository
-    shell: wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
-    become: yes
-
-  - name: add our apt repository
-    apt_repository:
-      repo: "deb http://colte.cs.washington.edu {{ distro }} main"
-      state: present
-    become: yes
-
   - name: apt-get install ums
     apt:
       name: colte-ums
     become: yes
+    when: build_media == '0'
 
-  - name: symlink website into sites-enabled
+  - name: install UMS from built .deb
+    apt: 
+      deb: "{{ package_dir }}/extras/ums.deb"
+    become: yes
+    when: build_media == '1'
+
+  - name: symlink ums files directory into /usr/local/etc/colte
     file:
       src: "/etc/ums/files"
       dest: "/usr/local/etc/colte/media"
       state: link
 
-  - name: write information to ums.conf (used for nginx)
-    lineinfile:
-      dest: "{{ extras_dir }}/ums.conf"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    with_items:
-    - {field: "server_name", line: "  server_name media.{{ network_name }};"}
-    
   - name: copy website configuration file
     copy:
       src: "{{ extras_dir }}/ums.conf"
-      dest: "/etc/nginx/sites-available/ums"
-    become: yes
-
-  - name: symlink website into sites-enabled
-    file:
-      src: "/etc/nginx/sites-available/ums"
-      dest: "/etc/nginx/sites-enabled/ums"
-      state: link
-    become: yes
-
-  - name: add localhost dns pointers in /etc/hosts 
-    lineinfile:
-      dest: "/etc/hosts"
-      regexp: "media"
-      line: "127.0.0.1 media.{{ network_name }}"
-    become: yes
-
-  - name: restart nginx
-    service: name=nginx state=reloaded
+      dest: "/etc/nginx/sites-available/ums.conf"
+      force: no
     become: yes

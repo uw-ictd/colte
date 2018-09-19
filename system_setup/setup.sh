@@ -1,9 +1,8 @@
 #!/bin/bash
 
-if [ -z "$COLTENV" ]; then
-	echo "COLTENV not set, you must run generate_coltenv before proceeding"
-	exit
-fi
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+export COLTE_DIR=$BASEDIR
+export COLTE_USER=$USER
 
 sudo apt-get update
 sudo apt-get install -y ansible

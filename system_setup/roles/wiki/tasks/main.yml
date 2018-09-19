@@ -12,6 +12,26 @@
     - quantumobject/docker-xowa
     become: yes
 
+  - name: configure xowa docker container
+    docker_container:
+      name: xowa
+      image: quantumobject/docker-xowa
+      ports: 9082:8080
+      volumes: "{{ system_dir }}/wiki:/opt/xowa/wiki"
+      # detach: true
+      restart_policy: always
+      state: present
+    become: yes
+# command: -v yours/storage:/opt/xowa/wiki
+# note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
+
+  - name: copy website configuration file
+    copy:
+      src: "{{ extras_dir }}/xowa.conf"
+      dest: "/etc/nginx/sites-available/xowa.conf"
+      force: no
+    become: yes
+
   # SMS BIG NOTE: CHANGE THESE DOWNLOAD SCRIPTS INTO SOME SEPARATE FILE
   # - name: make storage directory
   #   file:
@@ -84,53 +104,3 @@
 
   # - name: cleanup temp folder
   #   file: path='{{ emergency_dir }}/xowa_storage/temp' state=absent
-
-  - name: start xowa docker image
-    docker_container:
-      name: xowa
-      image: quantumobject/docker-xowa
-      ports: 9082:8080
-      volumes: "{{ system_dir }}/wiki:/opt/xowa/wiki"
-      # detach: true
-      restart_policy: always
-    become: yes
-# command: -v yours/storage:/opt/xowa/wiki
-# note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
-
-  - name: write information to xowa.conf
-    lineinfile:
-      dest: "{{ extras_dir }}/xowa.conf"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    with_items:
-    - {field: "server_name wiki", line: "  server_name wiki.{{ network_name }};"}
-    - {field: "server_name xowa", line: "  server_name xowa.{{ network_name }};"}
-
-  - name: copy website configuration file
-    copy:
-      src: "{{ extras_dir }}/xowa.conf"
-      dest: "/etc/nginx/sites-available/xowa"
-    become: yes
-
-  - name: symlink website into sites-enabled
-    file:
-      src: "/etc/nginx/sites-available/xowa"
-      dest: "/etc/nginx/sites-enabled/xowa"
-      state: link
-    become: yes
-
-  - name: add localhost dns pointers in /etc/hosts 
-    lineinfile:
-      dest: "/etc/hosts"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    become: yes
-    with_items:
-    - {field: "xowa", line: "127.0.0.1 xowa.{{ network_name }}"}
-    - {field: "wiki", line: "127.0.0.1 wiki.{{ network_name }}"}
-
-  - name: restart nginx
-    service: name=nginx state=reloaded
-    become: yes
-
-# docker run -d -v yours/storage:/opt/xowa/wiki -p 9082 quantumobject/docker-xowa
