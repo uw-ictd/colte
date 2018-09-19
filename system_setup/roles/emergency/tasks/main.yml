@@ -83,12 +83,12 @@
       dest: "{{ emergency_dir }}/registry/registry.service"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
-      owner: "{{ username }}"
-      group: "{{ username }}"
+      owner: "{{ ansible_user_id }}"
+      group: "{{ ansible_user_id }}"
     with_items:
     - {field: "ExecStart", line: "ExecStart=/bin/bash -c \"python {{ emergency_dir }}/registry/manage.py runserver 9083 >> /var/log/colte/emergencell_registry.log 2>&1\""}
-    - {field: "User", line: "User={{ username }}"}
-    - {field: "Group", line: "Group={{ username }}"}
+    - {field: "User", line: "User={{ ansible_user_id }}"}
+    - {field: "Group", line: "Group={{ ansible_user_id }}"}
     - {field: "WorkingDirectory", line: "WorkingDirectory={{ emergency_dir }}/registry"}
 
   - name: copy registry.service to /etc/systemd/system

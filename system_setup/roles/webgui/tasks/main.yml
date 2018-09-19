@@ -35,8 +35,8 @@
     copy: 
       src: "{{ webgui_dir }}/production.env"
       dest: "{{ webgui_dir }}/.env"
-      owner: "{{ username }}"
-      group: "{{ username }}"
+      owner: "{{ ansible_user_id }}"
+      group: "{{ ansible_user_id }}"
       mode: 0755
       force: no
 
@@ -52,12 +52,12 @@
       dest: "{{ webgui_dir }}/install_scripts/colte_webgui.service"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
-      owner: "{{ username }}"
-      group: "{{ username }}"
+      owner: "{{ ansible_user_id }}"
+      group: "{{ ansible_user_id }}"
     with_items:
     - {field: "ExecStart", line: "ExecStart=/bin/bash -c \"{{ webgui_dir }}/bin/www >> /var/log/colte/webgui.log 2>&1\""}
-    - {field: "User", line: "User={{ username }}"}
-    - {field: "Group", line: "Group={{ username }}"}
+    - {field: "User", line: "User={{ ansible_user_id }}"}
+    - {field: "Group", line: "Group={{ ansible_user_id }}"}
     - {field: "WorkingDirectory", line: "WorkingDirectory={{ webgui_dir }}"}
 
   - name: copy webgui.service to /etc/systemd/system

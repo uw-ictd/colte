@@ -10,7 +10,7 @@
 
   - name: MySQL Configs
     mysql_user:
-      name: "{{ username }}"
+      name: "{{ ansible_user_id }}"
       password: "{{ mysql_password }}"
       host: localhost
       priv: '*.*:ALL'
@@ -18,7 +18,7 @@
 
   - name: install sample database into mysql
     mysql_db:
-      login_user: "{{ username }}"
+      login_user: "{{ ansible_user_id }}"
       login_password: "{{ mysql_password }}"
       name: colte_db
       state: import
