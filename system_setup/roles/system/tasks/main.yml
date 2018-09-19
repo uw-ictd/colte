@@ -18,12 +18,9 @@
     become: yes
 
   - name: copy default configuration to /usr/local/etc/colte
-    file:
+    copy:
       src: "{{ colte_dir }}/system_setup/default_config.yml"
       dest: "/usr/local/etc/colte/config.yml"
-      owner: "{{ username }}"
-      group: "{{ username }}"
-      mode: 0644
       force: no
 
   - name: add gpg key for our apt repository

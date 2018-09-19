@@ -71,3 +71,6 @@
     args:
       chdir: "{{ package_dir }}/extras"
 
+  - name: export build_media variable
+    set_fact:
+      build_media: "1"

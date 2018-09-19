@@ -61,13 +61,13 @@
     - colte-libgtpnl
     - colte-asn1c
     become: yes
-    when: build_libraries == '0'
+    when: build_libraries is not defined
 
   - name: install EPC from built .debs
     apt: 
       deb: "{{ package_dir }}/libraries/{{ item }}"
     become: yes
-    when: build_libraries == '1'
+    when: build_libraries is defined
     with_items:
     - freediameter.deb
     - asn1c.deb
@@ -129,3 +129,6 @@
     args:
       chdir: "{{ package_dir }}"
       
+  - name: set build_epc variable
+    set_fact:
+      build_epc: "1"

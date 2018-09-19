@@ -4,13 +4,13 @@
     apt:
       name: colte-epc
     become: yes
-    when: build_epc == '0'
+    when: build_epc is not defined
 
   - name: install EPC from built .debs
     apt: 
       deb: "{{ package_dir }}/{{ item }}"
     become: yes
-    when: build_epc == '1'
+    when: build_epc is defined
     with_items:
     - hss.deb
     - mme.deb

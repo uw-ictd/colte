@@ -5,7 +5,7 @@
     colte_dir: "{{ playbook_dir | dirname }}"
     username: "{{ ansible_user_id }}"
 
-    distro: "set_distro_here" # VALID OPTIONS: "bionic" or "stretch"
+    distro: "bionic" # VALID OPTIONS: "bionic" or "stretch"
     mysql_password: "horse" # set to whatever you want.
 
   pre_tasks:
@@ -24,17 +24,17 @@
       become: yes
 
   roles:
-    - { role: build_libraries}
-    - { role: build_epc}
-    - { role: build_media}
+          #    - { role: build_libraries}
+          #    - { role: build_epc}
+          #    - { role: build_media}
 
-    - { role: epc}
-    - { role: billing}
-    - { role: webgui}
-    - { role: media}
-    - { role: wiki}
-    - { role: maps}
-    - { role: chat}
+          #    - { role: epc}
+          #    - { role: billing}
+          #    - { role: webgui}
+          #    - { role: media}
+          #    - { role: wiki}
+      #    - { role: maps}
+      #    - { role: chat}
 #    - { role: emergency}
-    - { role: zotac}
+#    - { role: zotac}
     - { role: configure}
