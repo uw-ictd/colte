@@ -1,15 +1,15 @@
 ---
-  - name: check for environment vars
-    fail: msg= "Killing ansible script, environment variables not set! COLTE_DIR = {{ ansible_env.COLTE_DIR }}"
-    when: colte_dir is not defined
+  - name: set common vars colte_dir and distro
+    set_fact:
+      colte_dir: "{{ role_path/../../../..}}"
+      distro: "{{ ansible_distribution_release }}" # VALID OPTIONS: "bionic" or "stretch"
+
+  - name: echo colte_dir
+    shell: "echo {{ colte_dir }}"
 
   - name: check for distro sanity
     fail:
     when: distro != 'bionic' and distro != 'stretch'
-
-  - name: set colte_dir
-    set_fact:
-      colte_dir: "{{ role_path/../../../..}}"
 
   - name: apt-get update
     apt:
