@@ -1,5 +1,5 @@
 ---
 dependencies:
+  - { role: system }
   - { role: nginx }
   - { role: bind }
-  - { role: system }
