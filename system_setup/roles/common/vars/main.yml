@@ -1,2 +1,0 @@
----
-distro: "{{ ansible_distribution_release }}" # VALID OPTIONS: "bionic" or "stretch"
