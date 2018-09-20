@@ -5,7 +5,6 @@
     mysql_password: "horse" # set to whatever you want.
 
   roles:
-    - { role: common}
     - { role: epc}
     - { role: billing}
     - { role: webgui}
