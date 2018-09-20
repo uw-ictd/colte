@@ -18,17 +18,17 @@
 
   - name: test for database existence
     mysql_db:
-      login_user: "colte_installer"
-      login_password: "colte_installer"
+      login_user: "colte_db"
+      login_password: "colte_db"
       name: colte_db
       state: present
     register: dbstatus
 
   - name: install default database
     mysql_db:
-      login_user: "colte_installer"
-      login_password: "colte_installer"
+      login_user: "colte_db"
+      login_password: "colte_db"
       name: colte_db
       state: import
       target: "{{ epc_dir }}/spencer_configs/bokondini.sql"
-    when: dbstatus.rc != 0
+    when: dbstatus.changed == True #this means that we just created colte_db and should populate it
