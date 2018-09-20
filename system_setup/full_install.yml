@@ -1,9 +1,6 @@
 ---
 - hosts: localhost
 
-  vars:
-    mysql_password: "horse" # set to whatever you want.
-
   roles:
 # you can build any of our debs from scratch if you choose (not needed)
 #    - { role: build_libraries}
