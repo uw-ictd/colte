@@ -214,12 +214,10 @@
 
   - name: write environment information to production.env
     lineinfile:
-      dest: "{{ colte_dir }}/lte_extras/webgui/.env"
+      dest: "/usr/local/etc/colte/webgui.env"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
-      owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_id }}"
-      mode: 0755
+    become: yes
     when: webgui_installed is defined
     with_items:
     - {field: 'DB_USER', line: 'DB_USER=colte_db'}

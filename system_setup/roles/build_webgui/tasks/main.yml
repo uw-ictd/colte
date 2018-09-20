@@ -31,41 +31,36 @@
     npm:
       path: "{{ webgui_dir }}"
 
+  - name: make /usr/bin/webgui directory
+    file:
+      path: "{{ package_dir }}/extras/webgui/usr/bin/"
+      state: directory
+
   - name: copy production.env file to .env
     copy: 
       src: "{{ webgui_dir }}/production.env"
       dest: "{{ webgui_dir }}/.env"
-      owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_id }}"
-      mode: 0755
       force: no
 
-  - name: copy website configuration file
-    copy:
-      src: "{{ webgui_dir }}/install_scripts/webgui.conf"
-      dest: "/etc/nginx/sites-available/webgui.conf"
-      force: no
-    become: yes
-
-  - name: dynamically write colte_webgui.service
-    lineinfile:
-      dest: "{{ webgui_dir }}/install_scripts/colte_webgui.service"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-      owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_id }}"
-    with_items:
-    - {field: "ExecStart", line: "ExecStart=/bin/bash -c \"{{ webgui_dir }}/bin/www >> /var/log/colte/webgui.log 2>&1\""}
-    - {field: "User", line: "User={{ ansible_user_id }}"}
-    - {field: "Group", line: "Group={{ ansible_user_id }}"}
-    - {field: "WorkingDirectory", line: "WorkingDirectory={{ webgui_dir }}"}
-
-  - name: copy webgui.service to /etc/systemd/system
+  - name: copy webgui files to package
     copy: 
-      src: "{{ webgui_dir }}/install_scripts/colte_webgui.service"
-      dest: "/etc/systemd/system/colte_webgui.service"
-      mode: 0644
-      force: no
-    become: yes
+      src: "{{ webgui_dir }}"
+      dest: "{{ package_dir }}/extras/webgui/usr/bin/colte-webgui"
 
+  - name: remove unneeded files from package
+    file:
+      path: "{{ package_dir }}/extras/webgui/usr/bin/colte-webgui/{{ item }}"
+      state: absent
+    with_items:
+    - "production.env"
+    - "local_dev.env"
+    - "README.md"
 
+  - name: create .deb file
+    shell: dpkg-deb --build webgui
+    args:
+      chdir: "{{ package_dir }}/extras"
+
+  - name: set build_webgui variable
+    set_fact:
+      build_webgui: "1"
