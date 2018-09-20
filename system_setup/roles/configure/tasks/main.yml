@@ -214,7 +214,7 @@
 
   - name: write environment information to production.env
     lineinfile:
-      dest: "{{ webgui_dir }}/.env"
+      dest: "{{ colte_dir }}/lte_extras/webgui/.env"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
       owner: "{{ ansible_user_id }}"
@@ -239,6 +239,7 @@
       dest: "/etc/nginx/sites-available/rocketchat.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
+    become: yes
     when: chat_installed is defined
     with_items:
     - {field: "server_name", line: "  server_name chat.{{ network_name }};"}
@@ -267,6 +268,7 @@
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     when: osm_installed is defined
+    become: yes
     with_items:
     - {field: "url: 'http://omt", line: "    url: 'http://omt.{{ network_name }}/styles/osm-bright/{z}/{x}/{y}.png',"}
 
