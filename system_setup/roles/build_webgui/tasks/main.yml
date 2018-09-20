@@ -43,8 +43,8 @@
       force: no
 
   - name: copy webgui files to package
-    copy: 
-      src: "{{ webgui_dir }}"
+    synchronize: 
+      src: "{{ webgui_dir }}/"
       dest: "{{ package_dir }}/extras/webgui/usr/bin/colte-webgui"
 
   - name: remove unneeded files from package
