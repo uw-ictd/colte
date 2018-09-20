@@ -104,7 +104,7 @@
 
   - name: update mysql password/privileges
     mysql_user:
-      name: "{{ ansible_user_id }}"
+      name: "colte_db"
       password: "{{ mysql_password }}"
       host: localhost
       priv: 'colte_db.*:ALL'
@@ -138,7 +138,7 @@
       # group: "{{ ansible_user_id }}"
       # mode: 0644
     with_items:
-    - {field: 'MYSQL_user', line: 'MYSQL_user   = "{{ ansible_user_id }}";'}
+    - {field: 'MYSQL_user', line: 'MYSQL_user   = "colte_db";'}
     - {field: 'MYSQL_pass', line: 'MYSQL_pass   = "{{ mysql_password }}";'}
     become: yes
 
@@ -163,7 +163,7 @@
     - {field: "SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP", line: "        SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP         = \"{{ enb_iface_addr }}\";"}
     - {field: "PGW_INTERFACE_NAME_FOR_SGI", line: "        PGW_INTERFACE_NAME_FOR_SGI            = \"{{ wan_iface }}\";"}
     - {field: "IPV4_LIST", line: "        IPV4_LIST = (\"{{ lte_subnet }}\");"}
-    - {field: 'MYSQL_user', line: '    MYSQL_user   = "{{ ansible_user_id }}";'}
+    - {field: 'MYSQL_user', line: '    MYSQL_user   = "colte_db";'}
     - {field: 'MYSQL_pass', line: '    MYSQL_pass   = "{{ mysql_password }}";'}
 # SMS TODO: THESE VALUES ARE HARD-CODED WE NEED TO SET THEM TO COLTE'S VALUE IF-AND-ONLY-IF BIND OPTION TURNED ON
     - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: '    DEFAULT_DNS_IPV4_ADDRESS = "192.168.151.1";'}
@@ -222,7 +222,7 @@
       mode: 0755
     when: webgui_installed is defined
     with_items:
-    - {field: 'DB_USER', line: 'DB_USER={{ ansible_user_id }}'}
+    - {field: 'DB_USER', line: 'DB_USER=colte_db'}
     - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
 
 
