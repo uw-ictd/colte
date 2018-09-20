@@ -1,11 +1,8 @@
 ---
   - name: set common vars colte_dir and distro
     set_fact:
-      colte_dir: "{{ role_path/../../../..}}"
+      colte_dir: "{{ role_path | dirname | dirname | dirname }}"
       distro: "{{ ansible_distribution_release }}" # VALID OPTIONS: "bionic" or "stretch"
-
-  - name: echo colte_dir
-    shell: "echo {{ colte_dir }}"
 
   - name: check for distro sanity
     fail:
