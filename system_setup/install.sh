@@ -16,3 +16,4 @@ fi
 sudo apt-get update
 sudo apt-get install -y ansible
 ansible-playbook -K -v -i "localhost," -c local $BASEDIR/$1.yml
+# ansible-playbook -v -i "localhost," -c local --extra-vars "ansible_become_pass=SUDO_PASSWORD" $BASEDIR/$1.yml

@@ -8,18 +8,27 @@
     - mysql-client
     - mysql-server
 
-  - name: MySQL Configs
+  - name: create user to install db
     mysql_user:
-      name: "{{ ansible_user_id }}"
-      password: "{{ mysql_password }}"
+      name: "colte_installer"
+      password: "colte_installer"
       host: localhost
-      priv: '*.*:ALL'
+      priv: 'colte_db.*:ALL'
     become: yes
 
-  - name: install sample database into mysql
+  - name: test for database existence
     mysql_db:
-      login_user: "{{ ansible_user_id }}"
-      login_password: "{{ mysql_password }}"
+      login_user: "colte_installer"
+      login_password: "colte_installer"
+      name: colte_db
+      state: present
+    register: dbstatus
+
+  - name: install default database
+    mysql_db:
+      login_user: "colte_installer"
+      login_password: "colte_installer"
       name: colte_db
       state: import
       target: "{{ epc_dir }}/spencer_configs/bokondini.sql"
+    when: dbstatus.rc != 0

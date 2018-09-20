@@ -1,9 +1,6 @@
 ---
 - hosts: localhost
 
-  vars:
-    mysql_password: "horse" # set to whatever you want.
-
   roles:
     - { role: epc}
     - { role: billing}
