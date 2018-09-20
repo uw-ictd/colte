@@ -2,25 +2,7 @@
 - hosts: localhost
 
   vars:
-    colte_dir: "{{ playbook_dir | dirname }}"
-
-    distro: "bionic" # VALID OPTIONS: "bionic" or "stretch"
     mysql_password: "horse" # set to whatever you want.
-
-  pre_tasks:
-    - name: check for environment vars
-      fail: msg= "Killing ansible script, environment variables not set! COLTE_DIR = {{ ansible_env.COLTE_DIR }}"
-      when: colte_dir is not defined
-
-    - name: check for distro sanity
-      fail:
-      when: distro != 'bionic' and distro != 'stretch'
-
-    - name: apt-get update
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-      become: yes
 
   roles:
 # you can build any of our debs from scratch if you choose (not needed)
