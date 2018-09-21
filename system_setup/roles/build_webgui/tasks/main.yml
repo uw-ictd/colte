@@ -8,14 +8,21 @@
     become: yes
     when: distro == 'bionic'
 
-  - name: download script to install npm
+  - name: ensure nodejs not already installed (stretch)
+    apt:
+      name: nodejs
+      state: absent
+    become: yes
+    when: distro == 'stretch'
+
+  - name: manually download npm (stretch)
     get_url:
       url: https://deb.nodesource.com/setup_6.x
       dest: /tmp/npm_setup.sh
       mode: 0755
     when: distro == 'stretch'
 
-  - name: run script to install npm
+  - name: manually install npm (stretch)
     shell: bash /tmp/npm_setup.sh
     become: yes
     when: distro == 'stretch'
