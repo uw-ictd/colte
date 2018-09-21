@@ -120,6 +120,7 @@
 
   - name: create .deb files
     shell: |
+      dpkg-deb --build db
       dpkg-deb --build hss
       dpkg-deb --build mme
       dpkg-deb --build spgw
