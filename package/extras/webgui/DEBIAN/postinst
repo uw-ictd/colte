@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p /usr/local/etc/colte
 ln -s /usr/bin/colte-webgui/.env /usr/local/etc/colte/webgui.env
 systemctl daemon-reload
+systemctl start colte-webgui
 echo "Installed CoLTE WebGUI"
