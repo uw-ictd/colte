@@ -1,0 +1,6 @@
+# remove oai_test user and database
+sudo mysql -e "DROP DATABASE IF EXISTS oai_test;"
+sudo mysql -e "DROP USER IF EXISTS oai_test@localhost;"
+sudo mysql -e "FLUSH PRIVILEGES;"
+
+echo "Uninstalled CoLTE Test Database"
