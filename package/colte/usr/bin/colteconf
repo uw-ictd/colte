@@ -1,26 +1,20 @@
 #!/bin/bash
 
-config_file=/usr/local/etc/colte/config.yml
-playbook=/usr/bin/colte_reconf.yml
+interactive=/usr/bin/colte/colte_interactive.py
+playbook=/usr/bin/colte/colte_reconf.yml
+
+#interactive=colte/colte_interactive.py
+#playbook=colte/colte_reconf.yml
+
 echo "CoLTE Configuration Tool (v0.9.2)"
 
 if [ "$#" -ne 1 ]; then
-	echo "HELP MESSAGE"
+	echo "Usage: colteconf {prompt | update}"
 	exit 1
 fi
 
 if [ "$1" = "prompt" ]; then
-	read -p 'network interface that eNB connects to (default eth0): ' enb_iface
-	read -p 'address of network interface mentioned above (default 1.2.3.4/24): ' enb_iface_addr
-	read -p 'network interface that connects to Internet (default eth0): ' wan_iface
-	read -p 'subnet for assigning LTE addresses (default 192.168.151.0/24): ' lte_subnet
-	read -p 'name of LTE network (default colte): ' network_name
-
-	sed -i "s/enb_iface:.*/enb_iface: \"$enb_iface\"/" $config_file
-	sed -i "s/enb_iface_addr:.*/enb_iface_addr: \"$enb_iface_addr\"/" $config_file
-	sed -i "s/wan_iface:.*/wan_iface: \"$wan_iface\"/" $config_file
-	sed -i "s/lte_subnet:.*/lte_subnet: \"$lte_subnet\"/" $config_file
-	sed -i "s/network_name:.*/network_name: \"$network_name\"/" $config_file
+	python $interactive
 fi
 
 if [ "$1" = "prompt" ] || [ "$1" = "update" ] ; then
@@ -30,4 +24,4 @@ if [ "$1" = "prompt" ] || [ "$1" = "update" ] ; then
 	exit 0
 fi
 
-echo "HELP MESSAGE"
+echo "Usage: colteconf {prompt | update}"
