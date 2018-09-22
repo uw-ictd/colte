@@ -1,19 +1,29 @@
 # CoLTE
-CoLTE is the Community LTE Project. Its goal is to be an all-in-one turnkey solution to setting up a small-scale locally-run community LTE network. CoLTE consists of several main elements working together:
+CoLTE is the Community LTE Project. It is designed to be an all-in-one turnkey solution that sets up a small-scale locally-run LTE network. CoLTE consists of several main elements working together:
 1) An all-in-one software EPC powered by OpenAirInterface (OAI).
-2) Network monitoring software (powered by ntopng) that keeps track of how many bytes each user uses and takes action at certain thresholds.
+2) Network monitoring software (powered by [haulage](https://github.com/uw-ictd/haulage)) that keeps track of how many bytes each user uses and takes action at certain thresholds.
 3) A Web GUI that lets users check the status of their account, top up, transfer/resell credit, and buy data packages.
-4) Local Web and DNS serving/caching via BIND and Nginx.
+4) Local Web and DNS serving/caching via Nginx and BIND.
 5) Locally-hosted web services that include Rocketchat, Wikipedia, OpenStreetMaps, a media server, and more.
 
 # Installation
-
-## Get The Code:
-Our "master" branch should always compile, but is updated frequently with small feature-adds. For maximum stability, we recommend cloning the most recently tagged release.
-
 ## Basic System Requirements:
 Currently we support and test Debian 9 (stretch) and Ubuntu 18.04 (bionic).
 
+## Quickstart: Introducing Debian Packages!
+We've recently released .deb packages for Ubuntu 18.04 (bionic) and Debian 9 (stretch). To add our apt repository and clone them, use the following commands:
+```
+echo "deb http://colte.cs.washington.edu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/colte.list
+sudo wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
+sudo apt-get update
+sudo apt-get -y install colte
+```
+The `colte` package is a meta-package consisting of `colte-epc` and `colte-webgui`. `colte-epc` consists of four packages: `colte-hss`, `colte-mme`, `colte-spgw`, and `colte-db`. These packages come with a default database configuration that lets you start and operate every component; after installation you still will have to configure CoLTE to do what you want. After installation, the webgui will be automatically listening on [http://localhost:7999](http://localhost:7999); the other components can be started with `sudo {oai_hss | mme | spgw}` or `sudo systemctl start {oai_hss | mme | spgw}`.
+
+## Install From Source:
+Our "master" branch should always compile, but is updated frequently with small feature-adds. For maximum stability, we recommend cloning the most recently tagged release. Once cloned, you can install the basic colte package (equivalent to `apt-get colte`) by running `./system_setup/install.sh basic_install`.
+
+# Configuration
 ## Step 1: Configure Your Network
 Your machine will need two network connections: one to the Internet (the upstream WAN) and another to the eNodeB (the downstream LAN). These can be set to the same interface, it doesn't matter. Both of these connections must be already configured with IP addresses (doesn't matter if Static or Dynamic) and must be up. Note that if the LAN interface is down, you won't be able to start the MME, and if the WAN interface is down, you won't be able to start the SPGW.
 
@@ -28,16 +38,7 @@ Each macro under this section refers to a different CoLTE feature that you can t
 
 The final five options (MEDIA, WIKI, MAP, CHAT, and EMERGENCY) all refer to various locally-hosted webservices: a local mediaserver, Wikipedia, a mapping server (powered by OpenStreetMaps), a RocketChat server, and an emergency registration service. For more information about individual web services, check the WEBSERVICES.md document.
 
-## Step 3: Install Everything.
-Run the following commands to install CoLTE. Depending on the enabled options this may take a while, but at the end you should see an Ansible success message.
-
-```
-source ./generate_coltenv
-./system_setup/setup.sh
-```
-
 # Running CoLTE
-
 ## EPC:
 The EPC has three separate components: the hss, mme, and spgw. I recommend starting them in that order. Once installed, you can start or stop each component by typing the following command in a terminal window:
 
