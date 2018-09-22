@@ -184,15 +184,6 @@
     - {field: "-A FORWARD -i enp3s0 ", line: "     iptables -A FORWARD -i {{ wan_iface }} -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT"}
     become: yes
 
-  - name: dynamically write tcpdump.service file
-    lineinfile:
-      dest: "/etc/systemd/system/tcpdump.service"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    become: yes
-    with_items:
-    - {field: 'ExecStart', line: "ExecStart=/usr/sbin/tcpdump -i {{ enb_iface_addr }} -w '/var/log/colte/tcpdump/sctp_${TCPDUMP_FORMAT}.pcap' sctp"}
-
 
 
 

@@ -1,0 +1,8 @@
+---
+enb_iface: "enp3s0"
+enb_iface_addr: "172.28.5.93/24"
+wan_iface: "enp3s0"
+lte_subnet: "192.168.151.0/24"
+network_name: "bokondini"
+mysql_password: "horse"
+
