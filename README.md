@@ -10,33 +10,25 @@ CoLTE is the Community LTE Project. It is designed to be an all-in-one turnkey s
 ## Basic System Requirements:
 Currently we support and test Debian 9 (stretch) and Ubuntu 18.04 (bionic).
 
-## Quickstart: Introducing Debian Packages!
-We've recently released .deb packages for Ubuntu 18.04 (bionic) and Debian 9 (stretch). To add our apt repository and clone them, use the following commands:
+## Quickstart: Debian Packages!
+Starting with Release 0.9.2, we've switched over to using .deb packages for Ubuntu 18.04 (bionic) and Debian 9 (stretch). To add our apt repository and clone them, use the following commands:
 ```
 echo "deb http://colte.cs.washington.edu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/colte.list
 sudo wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
 sudo apt-get update
 sudo apt-get -y install colte
 ```
-The `colte` package is a meta-package consisting of `colte-epc` and `colte-webgui`. `colte-epc` consists of four packages: `colte-hss`, `colte-mme`, `colte-spgw`, and `colte-db`. These packages come with a default database configuration that lets you start and operate every component; after installation you still will have to configure CoLTE to do what you want. After installation, the webgui will be automatically listening on [http://localhost:7999](http://localhost:7999); the other components can be started with `sudo {oai_hss | mme | spgw}` or `sudo systemctl start {oai_hss | mme | spgw}`.
+The `colte` package is a meta-package consisting of `colte-epc` and `colte-webgui`. `colte-epc` consists of four packages: `colte-hss`, `colte-mme`, `colte-spgw`, and `colte-db`. These packages come with a default database configuration that lets you start and operate every component; after installation you still will have to configure CoLTE to do what you want. After installation, the webgui will be automatically listening on [http://localhost:7999](http://localhost:7999); the other components can be started with `sudo {oai_hss | mme | spgw}` or `sudo systemctl start {oai_hss | mme | spgw | colte-webgui}`.
 
 ## Install From Source:
-Our "master" branch should always compile, but is updated frequently with small feature-adds. For maximum stability, we recommend cloning the most recently tagged release. Once cloned, you can install the basic colte package (equivalent to `apt-get colte`) by running `./system_setup/install.sh basic_install`.
+Our "master" branch should always compile, but is updated frequently with small feature-adds. For maximum stability, we recommend cloning the most recently tagged release (which usually corresponds to the latest apt-get version above). Once cloned, you can install the basic colte package by running `./system_setup/install.sh basic_install`.
 
 # Configuration
-## Step 1: Configure Your Network
+All configurable options can be found in `/usr/local/etc/colte/config.yml`. After you edit any of these options, you must run `colteconf update` to reconfigure all components. `colteconf prompt` provides an interactive configuration utility to help, but you can also edit `config.yml` directly. Note that you *must* run colteconf at least once after installing CoLTE, because there is no way for us to pre-set some of the default options (e.g. upstream and downstream interfaces).
+
 Your machine will need two network connections: one to the Internet (the upstream WAN) and another to the eNodeB (the downstream LAN). These can be set to the same interface, it doesn't matter. Both of these connections must be already configured with IP addresses (doesn't matter if Static or Dynamic) and must be up. Note that if the LAN interface is down, you won't be able to start the MME, and if the WAN interface is down, you won't be able to start the SPGW.
 
-## Step 2: Configure CoLTE
-Once your network configuration is correct, you need to look at (and change) generate_coltenv. Most of the options can and should be left alone (unless you know what you're doing), but you must look at and change the Network Configuration and Compilation Options sections. Please know that (1) reading through these options in detail will dramatically simplify your life down the road, because (2) we do NOT currently support dynamically changing these configured values after they're set.
-
-### Network Configuration
-Set COLTE_WAN_IFACE to your upstream (Internet) interface, COLTE_ENB_IFACE to the downstream LAN interface, and COLTE_ENB_IFACE_ADDR to the downstream interface's address/subnet. Don't worry about editing COLTE_LTE_SUBNET or matching it to anything, because this subnet is created and assigned to the virtual gtp0 interface once the SPGW brings it up.  COLTE_NETWORK_NAME lets you give your network a specific name for serving DNS entries (e.g. if it's set to "seattle" then connected phones can access the webgui under "http://network.seattle".
-
-### Compilation Options
-Each macro under this section refers to a different CoLTE feature that you can tun on or off as you please. COLTE_EPC refers to installing the core EPC code (needed for any LTE stuff), COLTE_BILLING refers to our network management and billing software, and COLTE_WEBGUI refers to our webGUI for users to check their balance and purchase credit. Note that COLTE_EPC just fetches the most recent binary release as .deb packages; to build the most recent libraries and/or source enable COLTE_BUILD_LIBRARIES and/or COLTE_BUILD_EPC (warning: this takes a long time!)
-
-The final five options (MEDIA, WIKI, MAP, CHAT, and EMERGENCY) all refer to various locally-hosted webservices: a local mediaserver, Wikipedia, a mapping server (powered by OpenStreetMaps), a RocketChat server, and an emergency registration service. For more information about individual web services, check the WEBSERVICES.md document.
+Set `wan_iface` to your upstream (Internet) interface, `enb_iface` to the downstream LAN interface, and `enb_iface_addr` to the downstream interface's address/subnet. Don't worry about matching `lte_subnet` to any value in particular, because this subnet is created and assigned to the virtual gtp0 interface once the SPGW brings it up. Finally, `network_name` lets you give your network a specific name for serving DNS entries (e.g. if it's set to "seattle" then connected phones can access the webgui under "http://network.seattle".
 
 # Running CoLTE
 ## EPC:
