@@ -1,5 +1,15 @@
 # OSM is OpenStreetMaps
 ---
+  - name: check if osm.box exists
+    stat: 
+      path: "{{ item.path }}"
+    register: osm_box
+    with_items:
+    - {path: "/usr/local/etc/colte/boxes/osm.box"}
+
+  - fail: msg="OSM box doesn't exist. Download from colte.cs.washington.edu/boxes/osm.box"
+    when: osm_box.stat.exists == False
+
   - name: import the OSM server Vagrant box
     shell: vagrant box add osm.box --name osm
     args:
