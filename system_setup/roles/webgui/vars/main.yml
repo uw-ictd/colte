@@ -1,2 +1,2 @@
 ---
-webgui_dir: "{{ colte_dir }}/lte_extras/webgui"
+webgui_dir: "{{ colte_dir }}/webgui"
