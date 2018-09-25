@@ -1,6 +1,5 @@
 ---
 dependencies:
-  - { role: system }
   - { role: vagrant }
   - { role: docker }
   - { role: nginx }

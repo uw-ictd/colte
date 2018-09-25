@@ -8,30 +8,6 @@
     fail:
     when: distro != 'bionic' and distro != 'stretch'
 
-  - name: ensure log directory exists
-    file:
-      path: /var/log/colte
-      state: directory
-      owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_id }}"
-      mode: 0755
-    become: yes
-
-  - name: ensure config directories exist
-    file:
-      path: "/usr/local/etc/colte"
-      state: directory
-      owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_id }}"
-      mode: 0755
-    become: yes
-
-  - name: copy default configuration to /usr/local/etc/colte
-    copy:
-      src: "{{ colte_dir }}/system_setup/default_config.yml"
-      dest: "/usr/local/etc/colte/config.yml"
-      force: no
-
   - name: add gpg key for our apt repository
     shell: wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
     become: yes

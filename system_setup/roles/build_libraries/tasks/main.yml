@@ -193,10 +193,10 @@
 ############ PACKAGE INTO DEBS #################
   - name: create .deb files
     shell: |
-      dpkg-deb --build freediameter
-      dpkg-deb --build asn1c
-      dpkg-deb --build gtpnl
-      dpkg-deb --build lfds
+      dpkg-deb --build freediameter colte-freediameter_{{ fd_version }}{{ distro }}_amd64.deb
+      dpkg-deb --build asn1c colte-asn1c_{{ asn1c_version }}{{ distro }}_amd64.deb
+      dpkg-deb --build gtpnl colte-libgtpnl_{{ gtpnl_version }}{{ distro }}_amd64.deb
+      dpkg-deb --build lfds colte-liblfds_{{ lfds_version }}{{ distro }}_amd64.deb
     args:
       chdir: "{{ package_dir }}/libraries"
 

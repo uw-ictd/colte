@@ -1,0 +1,29 @@
+---
+# package/colte/usr/bin/colte
+
+  - name: update version in DEBIAN/control
+    lineinfile:
+      dest: "{{ package_dir }}/colte/DEBIAN/control"
+      regexp: "Version:"
+      line: "Version: {{ colte_version }}"
+
+  - name: update version in colteconf
+    lineinfile:
+      dest: "{{ package_dir }}/colte/usr/bin/colteconf"
+      regexp: "version="
+      line: "version={{ colte_version }}"
+
+  - name: create roles directory
+    file:
+      path: "{{ colte_dir }}/package/colte/usr/bin/colte/roles"
+      state: directory
+
+  - name: copy configure role
+    copy:
+      src: "{{ colte_dir }}/system_setup/roles/configure"
+      dest: "{{ colte_dir }}/package/colte/usr/bin/colte/roles/configure"
+
+  - name: create .deb file
+    shell: "dpkg-deb --build colte colte_{{ colte_version }}{{ distro }}_amd64.deb"
+    args:
+      chdir: "{{ package_dir }}"

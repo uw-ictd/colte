@@ -2,4 +2,3 @@
 dependencies:
   - { role: nginx }
   - { role: bind }
-  - { role: system }  

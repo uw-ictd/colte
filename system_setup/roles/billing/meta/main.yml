@@ -1,4 +1,3 @@
 ---
 dependencies:
-  - { role: system }
   - { role: mysql }
