@@ -120,11 +120,11 @@
 
   - name: create .deb files
     shell: |
-      dpkg-deb --build db
-      dpkg-deb --build hss
-      dpkg-deb --build mme
-      dpkg-deb --build spgw
-      dpkg-deb --build epc
+      dpkg-deb --build db colte-db_{{ db_version }}{{ distro }}_amd64.deb
+      dpkg-deb --build hss colte-hss_{{ hss_version }}{{ distro }}_amd64.deb
+      dpkg-deb --build mme colte-mme_{{ mme_version }}{{ distro }}_amd64.deb
+      dpkg-deb --build spgw colte-spgw_{{ spgw_version }}{{ distro }}_amd64.deb
+      dpkg-deb --build epc colte-epc_{{ epc_version }}{{ distro }}_amd64.deb
     args:
       chdir: "{{ package_dir }}"
       

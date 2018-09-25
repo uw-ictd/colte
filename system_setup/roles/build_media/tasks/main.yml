@@ -67,7 +67,7 @@
     when: distro == 'stretch'
 
   - name: create .deb file
-    shell: dpkg-deb --build ums
+    shell: dpkg-deb --build ums colte-media_{{ media_version }}{{ distro }}_amd64.deb
     args:
       chdir: "{{ package_dir }}/extras"
 

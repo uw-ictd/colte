@@ -1,7 +1,11 @@
 #!/bin/bash
 
+# link config file so that we can access it from /usr/local/etc/colte
 mkdir -p /usr/local/etc/colte
 ln -s /usr/bin/colte-webgui/.env /usr/local/etc/colte/webgui.env
+
+# systemctl start as service
 systemctl daemon-reload
 systemctl start colte-webgui
+
 echo "Installed CoLTE WebGUI"

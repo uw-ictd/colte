@@ -1,6 +1,3 @@
 #!/bin/bash
 
-sudo rm -rf /usr/lib/liblfds710.so.1
-sudo rm -rf /usr/lib/liblfds710.so
-
 echo "Uninstalled OAI-Specific LibLFDS"

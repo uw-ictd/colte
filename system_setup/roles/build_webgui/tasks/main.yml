@@ -40,7 +40,7 @@
 
   - name: make /usr/bin/webgui directory
     file:
-      path: "{{ package_dir }}/extras/webgui/usr/bin/"
+      path: "{{ package_dir }}/webgui/usr/bin/"
       state: directory
 
   - name: copy production.env file to .env
@@ -52,11 +52,11 @@
   - name: copy webgui files to package
     synchronize: 
       src: "{{ webgui_dir }}/"
-      dest: "{{ package_dir }}/extras/webgui/usr/bin/colte-webgui"
+      dest: "{{ package_dir }}/webgui/usr/bin/colte-webgui"
 
   - name: remove unneeded files from package
     file:
-      path: "{{ package_dir }}/extras/webgui/usr/bin/colte-webgui/{{ item }}"
+      path: "{{ package_dir }}/webgui/usr/bin/colte-webgui/{{ item }}"
       state: absent
     with_items:
     - "production.env"
@@ -64,9 +64,9 @@
     - "README.md"
 
   - name: create .deb file
-    shell: dpkg-deb --build webgui
+    shell: dpkg-deb --build webgui colte-webgui_{{ webgui_version }}{{ distro }}_amd64.deb
     args:
-      chdir: "{{ package_dir }}/extras"
+      chdir: "{{ package_dir }}"
 
   - name: set build_webgui variable
     set_fact:
