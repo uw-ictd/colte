@@ -13,12 +13,11 @@
     - {package: "webservices", version: "{{ colte_webservices_version }}"}
 
   - name: create .deb file
-    shell: "dpkg-deb --build colte {{ item }}_{{ colte_version }}{{ distro }}_amd64.deb"
+    shell: "dpkg-deb --build colte {{ item.package }}_{{ item.version }}{{ distro }}_amd64.deb"
     args:
       chdir: "{{ package_dir }}"
     with_items:
-    - "colte"
-    - "colteconf"
-    - "db"
-    - "webservices"
-
+    - {package: "colte", version: "{{ colte_version }}"}
+    - {package: "colteconf", version: "{{ colteconf_version }}"}
+    - {package: "db", version: "{{ colte_db_version }}"}
+    - {package: "webservices", version: "{{ colte_webservices_version }}"}
