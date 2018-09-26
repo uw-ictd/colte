@@ -241,7 +241,7 @@
       dest: "/etc/hosts"
       regexp: "#COLTEWEBGUI"
       line: "127.0.0.1 network.{{ network_name }} #COLTEWEBGUI"
-    when: chat_installed is defined
+    when: webgui_installed is defined
     become: yes
 
 
