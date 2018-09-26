@@ -1,10 +1,10 @@
 # create colte_db user and database
 sudo mysql -e "CREATE DATABASE colte_db;"
-sudo mysql -e "CREATE USER colte_db@localhost;"
+sudo mysql -e "CREATE USER colte_db@localhost IDENTIFIED BY 'colte_db';"
 sudo mysql -e "GRANT ALL PRIVILEGES ON colte_db.* TO colte_db@localhost;"
 sudo mysql -e "FLUSH PRIVILEGES;"
 
 # import test database
-mysql -u colte_db colte_db < /tmp/colte_db/sample_db.sql
+mysql -u colte_db -pcolte_db colte_db < /tmp/colte_db/sample_db.sql
 
 echo "Installed CoLTE Test Database"
