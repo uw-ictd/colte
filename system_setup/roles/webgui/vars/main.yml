@@ -1,2 +1,0 @@
----
-webgui_dir: "{{ colte_dir }}/webgui"

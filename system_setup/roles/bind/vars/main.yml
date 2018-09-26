@@ -1,3 +1,0 @@
----
-# colte_dir: "{{ role_path }}/../../.."
-extras_dir: "{{ colte_dir }}/lte_extras"

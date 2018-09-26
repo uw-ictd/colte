@@ -1,0 +1,8 @@
+---
+# YOU CAN ADD ANY CONFIG VARIABLES YOU WANT HERE
+enb_iface: "eth0"
+enb_iface_addr: "1.2.3.4/24"
+wan_iface: "eth0"
+lte_subnet: "192.168.151.0/24"
+network_name: "colte"
+mysql_password: "horse"
