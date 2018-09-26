@@ -8,8 +8,6 @@
       line: "Version: {{ item.version }}"
     with_items:
     - {package: "colte", version: "{{ colte_version }}"}
-    - {package: "colteconf", version: "{{ colteconf_version }}"}
-    - {package: "db", version: "{{ colte_db_version }}"}
     - {package: "webservices", version: "{{ colte_webservices_version }}"}
 
   - name: create .deb file
@@ -18,6 +16,4 @@
       chdir: "{{ package_dir }}"
     with_items:
     - {package: "colte", version: "{{ colte_version }}"}
-    - {package: "colteconf", version: "{{ colteconf_version }}"}
-    - {package: "db", version: "{{ colte_db_version }}"}
     - {package: "webservices", version: "{{ colte_webservices_version }}"}
