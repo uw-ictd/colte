@@ -2,7 +2,9 @@
 - hosts: localhost
 
   roles:
-     - { role: build_libraries}
+     # - { role: build_libraries}
      - { role: build_epc}
      - { role: build_webgui}
-     - { role: build_media}
+     - { role: build_webconf}
+     - { role: build_colte}
+     # - { role: build_media}
