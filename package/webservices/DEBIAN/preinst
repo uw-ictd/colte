@@ -1,2 +1,1 @@
 mkdir -p /var/log/colte
-systemctl stop nginx
