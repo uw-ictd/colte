@@ -124,6 +124,7 @@
       dpkg-deb --build hss colte-hss_{{ hss_version }}{{ distro }}_amd64.deb
       dpkg-deb --build mme colte-mme_{{ mme_version }}{{ distro }}_amd64.deb
       dpkg-deb --build spgw colte-spgw_{{ spgw_version }}{{ distro }}_amd64.deb
+      dpkg-deb --build colteconf colte-conf_{{ colteconf_version }}{{ distro }}_amd64.deb
       dpkg-deb --build epc colte-epc_{{ epc_version }}{{ distro }}_amd64.deb
     args:
       chdir: "{{ package_dir }}"

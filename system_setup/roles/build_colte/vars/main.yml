@@ -1,8 +1,4 @@
 ---
 colte_version: "0.9.4"
-
-colteconf_version: "0.9.0"
-colte_db_version: "0.9.0"
 colte_webservices_version: "0.9.0"
-
 package_dir: "{{ colte_dir }}/package"
