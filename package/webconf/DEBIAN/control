@@ -1,0 +1,7 @@
+Package: colte-webconf
+Version: 0.9.0
+Maintainer: sevilla@cs.washington.edu
+Architecture: amd64
+License: BSD
+Description: CoLTE Web Configuration Utility
+Depends: nodejs, colte-db, colte-conf

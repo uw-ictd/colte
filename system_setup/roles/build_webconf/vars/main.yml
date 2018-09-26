@@ -1,6 +1,6 @@
 ---
-webgui_version: "0.9.4"
+webconf_version: "0.9.0"
 
 package_dir: "{{ colte_dir }}/package"
 extras_dir: "{{ colte_dir }}/lte_extras"
-webgui_dir: "{{ colte_dir }}/webgui"
+webconf_dir: "{{ colte_dir }}/webconf"

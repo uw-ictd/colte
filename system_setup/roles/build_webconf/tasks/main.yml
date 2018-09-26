@@ -1,0 +1,73 @@
+---
+####### Ubuntu can just apt-get npm, Debian has to use curl script to fetch it ########
+  - name: install node and npm
+    apt:
+      name: "{{ item }}"
+    with_items:
+    - npm
+    become: yes
+    when: distro == 'bionic'
+
+  - name: ensure nodejs not already installed (stretch)
+    apt:
+      name: nodejs
+      state: absent
+    become: yes
+    when: distro == 'stretch'
+
+  - name: manually download npm (stretch)
+    get_url:
+      url: https://deb.nodesource.com/setup_6.x
+      dest: /tmp/npm_setup.sh
+      mode: 0755
+    when: distro == 'stretch'
+
+  - name: manually install npm (stretch)
+    shell: bash /tmp/npm_setup.sh
+    become: yes
+    when: distro == 'stretch'
+
+  - name: install node and npm
+    apt:
+      name: "{{ item }}"
+    with_items:
+    - nodejs
+    become: yes    
+    
+  - name: npm install dependencies
+    npm:
+      path: "{{ webconf_dir }}"
+
+  - name: make /usr/bin/webconf directory
+    file:
+      path: "{{ package_dir }}/webconf/usr/bin/"
+      state: directory
+
+  - name: copy production.env file to .env
+    copy: 
+      src: "{{ webconf_dir }}/production.env"
+      dest: "{{ webconf_dir }}/.env"
+      force: no
+
+  - name: copy webconf files to package
+    synchronize: 
+      src: "{{ webconf_dir }}/"
+      dest: "{{ package_dir }}/webconf/usr/bin/colte-webconf"
+
+  - name: remove unneeded files from package
+    file:
+      path: "{{ package_dir }}/webconf/usr/bin/colte-webconf/{{ item }}"
+      state: absent
+    with_items:
+    - "production.env"
+    - "local_dev.env"
+    - "README.md"
+
+  - name: create .deb file
+    shell: dpkg-deb --build webconf colte-webconf_{{ webconf_version }}{{ distro }}_amd64.deb
+    args:
+      chdir: "{{ package_dir }}"
+
+  - name: set build_webconf variable
+    set_fact:
+      build_webconf: "1"

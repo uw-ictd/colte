@@ -1,8 +1,8 @@
 Package: colte-webgui
-Version: 0.9.3
+Version: 0.9.4
 Maintainer: sevilla@cs.washington.edu
 Architecture: amd64
 License: BSD
 Description: WebGUI for CoLTE users to check balance, buy/sell data, etc.
-Depends: nodejs, colte-db
+Depends: nodejs, colte-db, colte-conf
 

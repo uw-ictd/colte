@@ -1,3 +1,0 @@
----
-epc_dir: "{{ colte_dir }}/epc"
-# SMS: username and/or database password?!?

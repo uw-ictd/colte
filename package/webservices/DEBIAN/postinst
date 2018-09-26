@@ -1,0 +1,6 @@
+#!/bin/bash
+
+rm -rf /etc/nginx/sites-enabled/default
+colteconf update
+
+echo "Installed CoLTE Basic Webservices"
