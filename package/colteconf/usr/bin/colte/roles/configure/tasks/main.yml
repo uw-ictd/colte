@@ -7,7 +7,7 @@
     register: files
     with_items:
     - {path: "/etc/bind/zones/bind_db"}
-    - {path: "/usr/local/etc/oai/hss.conf"}
+    - {path: "/usr/local/etc/oai/mme.conf"}
     - {path: "/etc/nginx/sites-available/webgui.conf"}
     - {path: "/etc/nginx/sites-available/rocketchat.conf"}
     - {path: "/etc/nginx/sites-available/osm.conf"}  
@@ -127,6 +127,7 @@
       owner: "{{ ansible_user_id }}"
       group: "{{ ansible_user_id }}"
       mode: 0755
+    when: epc_installed is defined
     become: yes
 
   - name: write information to hss.conf
@@ -137,6 +138,7 @@
       # owner: "{{ ansible_user_id }}"
       # group: "{{ ansible_user_id }}"
       # mode: 0644
+    when: epc_installed is defined
     with_items:
     - {field: 'MYSQL_user', line: 'MYSQL_user   = "colte_db";'}
     - {field: 'MYSQL_pass', line: 'MYSQL_pass   = "{{ mysql_password }}";'}
@@ -147,6 +149,7 @@
       dest: "/usr/local/etc/oai/mme.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
+    when: epc_installed is defined
     with_items:
     - {field: "MME_INTERFACE_NAME_FOR_S1_MME", line: "        MME_INTERFACE_NAME_FOR_S1_MME         = \"{{ enb_iface }}\";"}
     # SMS: Note that right now we just set it to 0.0.0.0 so that it serves on any address.
@@ -158,6 +161,7 @@
       dest: "/usr/local/etc/oai/spgw.conf"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
+    when: epc_installed is defined
     with_items:
     - {field: "SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP", line: "        SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP         = \"{{ enb_iface }}\";"}
     - {field: "SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP", line: "        SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP         = \"{{ enb_iface_addr }}\";"}
@@ -175,6 +179,7 @@
       dest: "/usr/bin/spgw_nat.sh"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
+    when: epc_installed is defined
     with_items:
     - {field: "-C POSTROUTING -o enp3s0", line: "     iptables -t nat -C POSTROUTING -o {{ wan_iface }} -j MASQUERADE"}
     - {field: "-A POSTROUTING -o enp3s0", line: "     iptables -t nat -A POSTROUTING -o {{ wan_iface }} -j MASQUERADE"}
@@ -190,6 +195,7 @@
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     become: yes
+    when: epc_installed is defined
     with_items:
     - {field: 'ExecStart', line: "ExecStart=/usr/sbin/tcpdump -i {{ enb_iface_addr }} -w '/var/log/colte/tcpdump/sctp_${TCPDUMP_FORMAT}.pcap' sctp"}
 
