@@ -1,6 +1,11 @@
 #!/bin/bash
 
+mv /tmp/colte-webservices/named.conf.local /etc/bind/named.conf.local
+mv /tmp/colte-webservices/named.conf.options /etc/bind/named.conf.options
+rm -rf /tmp/colte-webservices
+
 rm -rf /etc/nginx/sites-enabled/default
+
 colteconf update
 
 echo "Installed CoLTE Basic Webservices"
