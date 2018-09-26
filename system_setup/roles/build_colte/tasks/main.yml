@@ -13,7 +13,7 @@
     - {package: "webservices", version: "{{ colte_webservices_version }}"}
 
   - name: create .deb file
-    shell: "dpkg-deb --build colte {{ item.package }}_{{ item.version }}{{ distro }}_amd64.deb"
+    shell: "dpkg-deb --build {{ item.package }} {{ item.package }}_{{ item.version }}{{ distro }}_amd64.deb"
     args:
       chdir: "{{ package_dir }}"
     with_items:
