@@ -1,19 +1,24 @@
 ---
 # package/colte/usr/bin/colte
 
-#  - name: update version in DEBIAN/control
-#    lineinfile:
-#      dest: "{{ package_dir }}/colte/DEBIAN/control"
-#      regexp: "Version:"
-#      line: "Version: {{ colte_version }}"
-
-#  - name: update version in colteconf
-#    lineinfile:
-#      dest: "{{ package_dir }}/colte/usr/bin/colteconf"
-#     regexp: "version="
-#      line: "version={{ colte_version }}"
+  - name: update version in DEBIAN/control
+    lineinfile:
+      dest: "{{ package_dir }}/{{ item.package }}/DEBIAN/control"
+      regexp: "Version:"
+      line: "Version: {{ item.version }}"
+    with_items:
+    - {package: "colte", version: "{{ colte_version }}"}
+    - {package: "colteconf", version: "{{ colteconf_version }}"}
+    - {package: "db", version: "{{ colte_db_version }}"}
+    - {package: "webservices", version: "{{ colte_webservices_version }}"}
 
   - name: create .deb file
-    shell: "dpkg-deb --build colte colte_{{ colte_version }}{{ distro }}_amd64.deb"
+    shell: "dpkg-deb --build colte {{ item }}_{{ colte_version }}{{ distro }}_amd64.deb"
     args:
       chdir: "{{ package_dir }}"
+    with_items:
+    - "colte"
+    - "colteconf"
+    - "db"
+    - "webservices"
+
