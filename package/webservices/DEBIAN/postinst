@@ -5,8 +5,7 @@ mv /tmp/colte-webservices/named.conf.local /etc/bind/named.conf.local
 mv /tmp/colte-webservices/named.conf.options /etc/bind/named.conf.options
 rm -rf /tmp/colte-webservices
 
-# remove nginx default site and make log(s) directory
-mkdir -p /var/log/colte
+# remove nginx default site and restart
 rm -rf /etc/nginx/sites-enabled/default
 systemctl restart nginx
 
