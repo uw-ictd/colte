@@ -47,7 +47,7 @@
     copy: 
       src: "{{ webgui_dir }}/production.env"
       dest: "{{ webgui_dir }}/.env"
-      force: no
+      force: yes
 
   - name: copy webgui files to package
     synchronize: 

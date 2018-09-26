@@ -47,7 +47,7 @@
     copy: 
       src: "{{ webconf_dir }}/production.env"
       dest: "{{ webconf_dir }}/.env"
-      force: no
+      force: yes
 
   - name: copy webconf files to package
     synchronize: 
