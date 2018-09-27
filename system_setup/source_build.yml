@@ -5,6 +5,6 @@
      # - { role: build_libraries}
      - { role: build_epc}
      - { role: build_webgui}
-     - { role: build_webconf}
-     - { role: build_colte}
+     # - { role: build_webconf}
+     - { role: build_metapackages}
      # - { role: build_media}

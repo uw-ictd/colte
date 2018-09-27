@@ -1,3 +1,0 @@
----
-epc_dir: "{{ colte_dir }}/epc"
-package_dir: "{{ colte_dir }}/package"

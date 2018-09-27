@@ -1,3 +1,2 @@
-sudo systemctl daemon-reload
-
+systemctl daemon-reload
 echo "Installed OpenAirInterface SPGW"

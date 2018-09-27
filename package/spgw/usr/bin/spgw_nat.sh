@@ -14,17 +14,17 @@ if [ $? != 0 ] ; then
 	iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 fi
 
-iptables -t nat -C POSTROUTING -o enp3s0 -j MASQUERADE
+iptables -t nat -C POSTROUTING -o eth0 -j MASQUERADE
 if [ $? != 0 ] ; then
-     iptables -t nat -A POSTROUTING -o enp3s0 -j MASQUERADE
+     iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 fi
 
-iptables -C FORWARD -i gtp0 -o enp3s0 -j ACCEPT
+iptables -C FORWARD -i gtp0 -o eth0 -j ACCEPT
 if [ $? != 0 ] ; then
-     iptables -A FORWARD -i gtp0 -o enp3s0 -j ACCEPT
+     iptables -A FORWARD -i gtp0 -o eth0 -j ACCEPT
 fi
 
-iptables -C FORWARD -i enp3s0 -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -C FORWARD -i eth0 -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 if [ $? != 0 ] ; then
-     iptables -A FORWARD -i enp3s0 -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+     iptables -A FORWARD -i eth0 -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 fi
