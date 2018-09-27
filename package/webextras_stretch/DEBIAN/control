@@ -1,0 +1,6 @@
+Package: colte-webextras
+Version: 0.9.0
+Maintainer: sevilla@cs.washington.edu
+Architecture: amd64
+Description: The Community LTE Project
+Depends: colteport-docker, docker-compose, colteport-virtualbox-5.1, vagrant, colte-webgui
