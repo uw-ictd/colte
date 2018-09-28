@@ -28,6 +28,13 @@
         state: link
       become: yes
 
+### STEP THREE: WRITE DOWN THAT WE'VE INSTALLED WIKI
+  - name: write to installed_services.txt
+    lineinfile:
+      dest: "/usr/local/etc/colte/installed_services.txt"
+      regexp: "wiki:"
+      line: "wiki: 1"
+    become: yes
 
 
 
