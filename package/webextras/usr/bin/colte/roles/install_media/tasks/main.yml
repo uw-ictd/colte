@@ -13,9 +13,9 @@
 
 ### STEP TWO: SYMLINK NGINX INTO SITES-ENABLED
     - name: link website configuration file
-      copy:
-        src: "/etc/nginx/sites-enabled/ums.conf"
-        dest: "/etc/nginx/sites-available/ums.conf"
+      file:
+        src: "/etc/nginx/sites-available/ums.conf"
+        dest: "/etc/nginx/sites-enabled/ums.conf"
         state: link
       become: yes
 
