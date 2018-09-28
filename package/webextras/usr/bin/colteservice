@@ -1,22 +1,21 @@
 #!/bin/bash
-BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 version=0.9.0
 
 echo "CoLTE Webservice Tool ($version)"
 
 if [ "$EUID" -ne 0 ]; then
-	echo "colteconf: Must run as root!"
+	echo "colteservice: Must run as root!"
 	exit 1
 fi
 
 if [ "$#" -ne 2 ]; then
-	echo "Usage: colteservice {install | remove} servicename"
+	echo "colteservice usage: {install | remove} servicename"
 	exit 1
 fi
 
 if [ "$1" = "install" ]; then
-	ansible-playbook -v -i "localhost," -c local $BASEDIR/install_$1.yml
+	ansible-playbook -v -i "localhost," -c local /usr/bin/colte/install_$2.yml
 	exit 0
 fi
 
@@ -25,4 +24,4 @@ if [ "$1" = "remove" ]; then
 	exit 0
 fi
 
-echo "Usage: colteservice {install | remove} servicename"
+echo "colteservice usage: {install | remove} servicename"

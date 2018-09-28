@@ -22,9 +22,9 @@
 
 ### STEP TWO: SYMLINK NGINX INTO SITES-ENABLED
     - name: link website configuration file
-      copy:
-        src: "/etc/nginx/sites-enabled/xowa.conf"
-        dest: "/etc/nginx/sites-available/xowa.conf"
+      file:
+        src: "/etc/nginx/sites-available/xowa.conf"
+        dest: "/etc/nginx/sites-enabled/xowa.conf"
         state: link
       become: yes
 

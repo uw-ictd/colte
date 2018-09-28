@@ -34,9 +34,9 @@
 
 ### STEP TWO: SYMLINK NGINX INTO SITES-ENABLED
     - name: link website configuration file
-      copy:
-        src: "/etc/nginx/sites-enabled/rocketchat.conf"
-        dest: "/etc/nginx/sites-available/rocketchat.conf"
+      file:
+        src: "/etc/nginx/sites-available/rocketchat.conf"
+        dest: "/etc/nginx/sites-enabled/rocketchat.conf"
         state: link
       become: yes
 
