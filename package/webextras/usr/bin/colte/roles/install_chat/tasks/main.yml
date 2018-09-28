@@ -1,22 +1,11 @@
-# Rocketchat is a free/opensource/docker-ized version of slack
 ---
-    # - name: check for environment vars
-    #   fail: msg= "Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
-    #   when: coltenv is not defined
-    
+### STEP ONE: DOWNLOAD/INSTALL DOCKER IMAGES AND START THEM    
     - name: fetch docker images
       docker_image:
         name: "{{ item }}"
       with_items:
       - mongo:3.0
       - rocket.chat
-      become: yes
-
-    - name: copy website configuration file
-      copy:
-        src: "{{ extras_dir }}/rocketchat.conf"
-        dest: "/etc/nginx/sites-available/rocketchat.conf"
-        force: no
       become: yes
 
 # docker run --name db -d mongo:3.0 --smallfiles
@@ -43,4 +32,10 @@
         state: present
       become: yes
 
-
+### STEP TWO: SYMLINK NGINX INTO SITES-ENABLED
+    - name: link website configuration file
+      copy:
+        src: "/etc/nginx/sites-enabled/rocketchat.conf"
+        dest: "/etc/nginx/sites-available/rocketchat.conf"
+        state: link
+      become: yes

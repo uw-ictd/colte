@@ -40,9 +40,3 @@
     become: yes
 #docker run --rm -it -v $(pwd):/data -p 9085:80 klokantech/openmaptiles-server
 
-  - name: copy website configuration file
-    copy:
-      src: "{{ osm_dir }}/osm.conf"
-      dest: "/etc/nginx/sites-available/osm.conf"
-      force: no
-    become: yes

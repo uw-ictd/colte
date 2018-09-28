@@ -1,0 +1,20 @@
+---
+### STEP ONE: DOWNLOAD/INSTALL/START UMS
+    - name: apt-get UMS package
+      apt:
+        name: "colte-ums"
+      become: yes
+
+    - name: run UMS
+      systemd:
+        state: started
+        name: ums
+      become: yes
+
+### STEP TWO: SYMLINK NGINX INTO SITES-ENABLED
+    - name: link website configuration file
+      copy:
+        src: "/etc/nginx/sites-enabled/ums.conf"
+        dest: "/etc/nginx/sites-available/ums.conf"
+        state: link
+      become: yes

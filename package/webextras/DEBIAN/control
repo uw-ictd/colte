@@ -3,4 +3,4 @@ Version: 0.9.0
 Maintainer: sevilla@cs.washington.edu
 Architecture: amd64
 Description: The Community LTE Project
-Depends: docker, docker-compose, virtualbox-5.1, vagrant, colte-webgui
+Depends: docker, docker-compose, colte-webservices

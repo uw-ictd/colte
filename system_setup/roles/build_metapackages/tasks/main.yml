@@ -12,7 +12,7 @@
     shell: |
       dpkg-deb --build colte colte_{{ colte_version }}{{ distro }}_amd64.deb
       dpkg-deb --build webservices colte-webservices_{{ colte_webservices_version }}{{ distro }}_amd64.deb
-      dpkg-deb --build webextras_{{ distro }} colte-webextras_{{ colte_webextras_version }}{{ distro }}_amd64.deb
+      dpkg-deb --build webextras colte-webextras_{{ colte_webextras_version }}{{ distro }}_amd64.deb
       dpkg-deb --build oai-deps oai-deps_{{ oaideps_version }}{{ distro }}_amd64.deb
     args:
       chdir: "{{ package_dir }}"
