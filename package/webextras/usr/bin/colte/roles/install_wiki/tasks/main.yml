@@ -15,7 +15,7 @@
       volumes: "{{ system_dir }}/wiki:/opt/xowa/wiki"
       # detach: true
       restart_policy: always
-      state: present
+      state: started
     become: yes
 # command: -v yours/storage:/opt/xowa/wiki
 # note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
