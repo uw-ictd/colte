@@ -21,12 +21,12 @@
 # note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
 
 ### STEP TWO: SYMLINK NGINX INTO SITES-ENABLED
-    - name: link website configuration file
-      file:
-        src: "/etc/nginx/sites-available/xowa.conf"
-        dest: "/etc/nginx/sites-enabled/xowa.conf"
-        state: link
-      become: yes
+  - name: link website configuration file
+    file:
+      src: "/etc/nginx/sites-available/xowa.conf"
+      dest: "/etc/nginx/sites-enabled/xowa.conf"
+      state: link
+    become: yes
 
 ### STEP THREE: WRITE DOWN THAT WE'VE INSTALLED WIKI
   - name: write to installed_services.txt

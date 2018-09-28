@@ -1,3 +1,0 @@
----
-system_dir: "/usr/local/etc/colte"
-extras_dir: "{{ colte_dir }}/lte_extras"

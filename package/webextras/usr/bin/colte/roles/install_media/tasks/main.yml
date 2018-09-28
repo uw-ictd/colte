@@ -20,9 +20,9 @@
       become: yes
 
 ### STEP THREE: WRITE DOWN THAT WE'VE INSTALLED UMS
-  - name: write to installed_services.txt
-    lineinfile:
-      dest: "/usr/local/etc/colte/installed_services.txt"
+    - name: write to installed_services.txt
+      lineinfile:
+        dest: "/usr/local/etc/colte/installed_services.txt"
       regexp: "media:"
-      line: "media: 1"
-    become: yes
+        line: "media: 1"
+      become: yes
