@@ -12,7 +12,7 @@
       name: xowa
       image: quantumobject/docker-xowa
       ports: 9082:8080
-      volumes: "{{ system_dir }}/wiki:/opt/xowa/wiki"
+      volumes: "/usr/local/etc/colte/wiki:/opt/xowa/wiki"
       # detach: true
       restart_policy: always
       state: started
