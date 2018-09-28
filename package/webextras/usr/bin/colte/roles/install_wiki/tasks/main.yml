@@ -1,10 +1,5 @@
-# Xowa is an offline pre-packaged wikipedia. We're just including "simple" here for size constraints
----
-#   tasks:
-#     - name: check for environment vars
-#       fail: msg="Killing ansible script, environment variables not set! COLTENV = {{ ansible_env.COLTENV }}"
-#       when: coltenv is not defined
-      
+---      
+### STEP ONE: DOWNLOAD/INSTALL/START DOCKER IMAGES
   - name: fetch docker images
     docker_image:
       name: "{{ item }}"
@@ -25,12 +20,20 @@
 # command: -v yours/storage:/opt/xowa/wiki
 # note: -v yours/storage:/opt/xowa/wiki ==> to add,and/or to keep the differents wikipedia after upgrading , replacing your container.
 
-  - name: copy website configuration file
-    copy:
-      src: "{{ extras_dir }}/xowa.conf"
-      dest: "/etc/nginx/sites-available/xowa.conf"
-      force: no
-    become: yes
+### STEP TWO: SYMLINK NGINX INTO SITES-ENABLED
+    - name: link website configuration file
+      copy:
+        src: "/etc/nginx/sites-enabled/xowa.conf"
+        dest: "/etc/nginx/sites-available/xowa.conf"
+        state: link
+      become: yes
+
+
+
+
+
+
+
 
   # SMS BIG NOTE: CHANGE THESE DOWNLOAD SCRIPTS INTO SOME SEPARATE FILE
   # - name: make storage directory

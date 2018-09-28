@@ -51,6 +51,6 @@
       become: yes
 
     - name: restart nginx
-      service: name=nginx state=reloaded
+      service: name=nginx state=restarted
       become: yes
 

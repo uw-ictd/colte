@@ -1,5 +1,6 @@
 #!/bin/bash
 
-rm -f /usr/bin/ums
+systemctl stop ums
 systemctl daemon-reload
+rm -f /usr/bin/ums
 echo "Uninstalled CoLTE UMS"

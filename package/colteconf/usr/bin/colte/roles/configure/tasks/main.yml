@@ -271,6 +271,9 @@
     when: chat_installed is defined
     become: yes
 
+  - name: restart nginx
+    systemd: name=nginx state=restarted
+    become: yes
 
 
 
@@ -344,6 +347,9 @@
     when: media_installed is defined
     become: yes
 
+  - name: restart nginx
+    systemd: name=nginx state=restarted
+    become: yes
 
 
 
