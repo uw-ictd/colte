@@ -39,3 +39,11 @@
         dest: "/etc/nginx/sites-available/rocketchat.conf"
         state: link
       become: yes
+
+### STEP THREE: WRITE DOWN THAT WE'VE INSTALLED CHAT
+  - name: write to installed_services.txt
+    lineinfile:
+      dest: "/usr/local/etc/colte/installed_services.txt"
+      regexp: "chat:"
+      line: "chat: 1"
+    become: yes
