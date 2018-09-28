@@ -15,7 +15,7 @@
         image: mongo:3.0
         command: --smallfiles
         restart_policy: always
-        state: present
+        state: started
       become: yes
 
 # docker run --name rocketchat -p 9081:3000 --env ROOT_URL=http://localhost --link db -d rocket.chat
@@ -29,7 +29,7 @@
             ROOT_URL: http://localhost:9081
             Show_Setup_Wizard: completed
         restart_policy: always
-        state: present
+        state: started
       become: yes
 
 ### STEP TWO: SYMLINK NGINX INTO SITES-ENABLED
