@@ -1,34 +1,12 @@
 # OSM is OpenStreetMaps
 ---
-  - name: check if osm.box exists
-    stat: 
-      path: "{{ item.path }}"
-    register: osm_box
-    with_items:
-    - {path: "/usr/local/etc/colte/boxes/osm.box"}
-
-  - fail: msg="OSM box doesn't exist. Download from colte.cs.washington.edu/boxes/osm.box"
-    when: osm_box.stat.exists == False
-
-  - name: import the OSM server Vagrant box
-    shell: vagrant box add osm.box --name osm
-    args:
-      chdir: "{{ osm_dir }}"
-    ignore_errors: yes
-
-  - name: symlink rails app log into /var/log/colte
-    file:
-      src: "{{ osm_dir }}/osm_rails.log"
-      dest: "/var/log/colte/osm_rails.log"
-      state: link
-    become: yes
-
-# STEP 2: install/configure the tile server
+### STEP ONE: DOWNLOAD/INSTALL/START DOCKER IMAGES
   - name: download docker tile-server image
     docker_image:
       name: klokantech/openmaptiles-server
     become: yes
 
+#docker run --rm -it -v $(pwd):/data -p 9085:80 klokantech/openmaptiles-server
   - name: configure the OSM tile server image (Docker)
     docker_container:
       name: osm_tileserver
@@ -36,7 +14,48 @@
       ports: 9085:80
       volumes: "/usr/local/etc/colte/osm_tiles:/data"
       restart_policy: always
-      state: present
+      state: started
     become: yes
-#docker run --rm -it -v $(pwd):/data -p 9085:80 klokantech/openmaptiles-server
 
+  # - name: check if osm.box exists
+  #   stat: 
+  #     path: "{{ item.path }}"
+  #   register: osm_box
+  #   with_items:
+  #   - {path: "/usr/local/etc/colte/boxes/osm.box"}
+
+  # - fail: msg="OSM box doesn't exist. Download from colte.cs.washington.edu/boxes/osm.box"
+  #   when: osm_box.stat.exists == False
+
+  # - name: import the OSM server Vagrant box
+  #   shell: vagrant box add osm.box --name osm
+  #   args:
+  #     chdir: "/usr/local/etc/colte/boxes/osm.box"
+  #   ignore_errors: yes
+
+### STEP TWO: SYMLINK NGINX INTO SITES-ENABLED
+  - name: link website configuration file
+    file:
+      src: "/etc/nginx/sites-available/osm.conf"
+      dest: "/etc/nginx/sites-enabled/osm.conf"
+      state: link
+    become: yes
+
+### STEP THREE: WRITE DOWN THAT WE'VE INSTALLED WIKI
+  - name: write to installed_services.txt
+    lineinfile:
+      dest: "/usr/local/etc/colte/installed_services.txt"
+      regexp: "maps:"
+      line: "maps: 1"
+    become: yes
+
+
+
+
+
+  # - name: symlink rails app log into /var/log/colte
+  #   file:
+  #     src: "{{ osm_dir }}/osm_rails.log"
+  #     dest: "/var/log/colte/osm_rails.log"
+  #     state: link
+  #   become: yes
