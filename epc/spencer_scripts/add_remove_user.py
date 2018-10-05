@@ -1,10 +1,3 @@
-# synchronize_dbs.py
-# This script is to be run once, after both databases (oai_hss and customers) are installed.
-# The script uses the "customers" db as the master, runs some sanity checks on it, and then
-# uses it to configure the oai_hss database. This means the following rules:
-# (1) every entry in "customers" MUST have valid (+0) balance, or it will be disabled
-# (2) every entry in "oai_hss" MUST have an enabled entry in customers database or will be disabled
-
 import MySQLdb
 import os
 import sys
