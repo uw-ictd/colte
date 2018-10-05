@@ -25,6 +25,7 @@ router.get('/', function(req, res, next) {
       // raw_down_str: raw_down_str,
       // balance: data[0].balance,
       // data_balance_str: data_balance_str,
+      admin: data[0].admin,
       // msisdn: data[0].msisdn,
     });
   });
