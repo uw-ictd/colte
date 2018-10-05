@@ -26,9 +26,9 @@ router.get('/', function(req, res, next) {
   customer.find_by_ip(ip).then((data) => {
     // console.log(data);
 
-    raw_up_str = convertBytes(data[0].raw_up);
-    raw_down_str = convertBytes(data[0].raw_down);
-    data_balance_str = convertBytes(data[0].data_balance);
+    var raw_up_str = convertBytes(data[0].raw_up);
+    var raw_down_str = convertBytes(data[0].raw_down);
+    var data_balance_str = convertBytes(data[0].data_balance);
 
     res.render('status', {
       title: 'Home',
@@ -37,6 +37,7 @@ router.get('/', function(req, res, next) {
       balance: data[0].balance,
       data_balance_str: data_balance_str,
       msisdn: data[0].msisdn,
+      admin: data[0].admin,
     });
   });
 });

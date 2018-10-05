@@ -18,7 +18,8 @@ router.get('/', function(req, res, next) {
       title: 'Home',
       raw_up: data[0].raw_up,
       raw_down: data[0].raw_down,
-      balance: data[0].balance
+      balance: data[0].balance,
+      admin: data[0].admin
     });
   });
 });

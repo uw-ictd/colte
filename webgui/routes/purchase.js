@@ -26,20 +26,21 @@ router.get('/', function(req, res, next) {
   customer.find_by_ip(ip).then((data) => {
     // console.log(data);
 
-    data_balance_str = convertBytes(data[0].data_balance);
+    var data_balance_str = convertBytes(data[0].data_balance);
 
     res.render('purchase', {
       title: 'Purchase',
       data_balance_str: data_balance_str,
-      balance: data[0].balance
+      balance: data[0].balance,
+      admin: data[0].admin
     });
   });
 });
   
 router.post('/purchase', function(req,res) {
   var ip = req.ip
-  var package = req.body.package;
-  console.log("PACKAGE = " + package)
+  var purchase = req.body.package;
+  console.log("PACKAGE = " + purchase)
 
   if (ip.substr(0,7) == "::ffff:") {
     ip = ip.substr(7)
@@ -48,17 +49,17 @@ router.post('/purchase', function(req,res) {
   }
   customer.find_by_ip(ip).then((data) => {
     
-    if (package == 0) {
+    if (purchase == 0) {
       var cost = 5;
       var bytes_purchased = 10000000;
-    } else if (package == 1) {
+    } else if (purchase == 1) {
       var cost = 15;
       var bytes_purchased = 100000000;
-    } else if (package == 2) {
+    } else if (purchase == 2) {
       var cost = 25;
       var bytes_purchased = 1000000000;
     } else {
-      console.log("Invalid PackageNo: " + package);
+      console.log("Invalid PackageNo: " + purchase);
       res.redirect('/purchase');
       return;
     }
