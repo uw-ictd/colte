@@ -1,0 +1,65 @@
+{
+     "Home": {
+         "id": "X"
+     },
+
+
+     "Account": {
+         "id": "X"
+     },
+     "Transfer": {
+         "id": "X"
+     },
+     "Purchase": {
+         "id": "X"
+     },
+     "Admin": {
+         "id": "X"
+     },
+     "Free Services": {
+         "id": "X"
+     },
+
+
+
+     "Account Information": {
+         "id": "X"
+     },
+     "Phone Number: ": {
+         "id": "X"
+     },
+     "Current Balance: $": {
+         "id": "X:"
+     },
+     "Data Balance: ": {
+         "id": "X:"
+     },
+     "Total Downloaded: ": {
+         "id": "X:"
+     },
+     "Total Uploaded: ": {
+         "id": "X:"
+     },
+
+
+
+
+     "Recipient Phone Number": {
+         "id": "X"
+     },
+     "Amount To Send": {
+         "id": "X"
+     },
+     "Submit": {
+         "id": "X"
+     },
+     "Movies": {
+         "id": "X"
+     },
+     "Maps": {
+         "id": "X"
+     },
+     "Chat": {
+         "id": "X"
+     }
+}

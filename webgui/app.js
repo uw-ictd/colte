@@ -2,6 +2,22 @@ require('dotenv').config();
 var port = process.env.PORT || 3000;
 var env = process.env.NODE_ENV || 'development';
 
+var locale = process.env.LOCALE || "en";
+var Localize = require('localize');
+var myLocalize = new Localize('./localize/');
+myLocalize.setLocale(locale);
+module.exports.translate = function (x) {
+  return myLocalize.translate(x);
+}
+
+// console.log(myLocalize.strings); // Testing...
+// console.log(myLocalize.translate("Substitution: $[1]", 5)); // Substitution: 5
+// myLocalize.setLocale("es");
+// console.log(myLocalize.translate("Testing...")); // Pruebas...
+// myLocalize.setLocale("sr");
+// console.log(myLocalize.translate("Substitution: $[1]", 5)); // замена: 5
+// console.log(myLocalize.strings); // Testing...
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
