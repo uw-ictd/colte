@@ -5,12 +5,7 @@ var app = require('../app');
 
 router.get('/', function(req, res, next) {
 
-  var ip = req.ip
-  if (ip.substr(0,7) == "::ffff:") {
-    ip = ip.substr(7)
-  } else if (ip.substr(0,3) == "::1") {
-    ip = "127.0.0.1"
-  }
+  var ip = app.generateIP(req.ip);
   console.log("Web Request From: " + ip)
 
   customer.find_by_ip(ip).then((data) => {
@@ -28,15 +23,10 @@ router.get('/', function(req, res, next) {
   
 router.post('/transfer', function(req,res) {
 
-  var ip = req.ip
+  var ip = app.generateIP(req.ip);
   var amount = req.body.amount;
   var msisdn = req.body.msisdn;
 
-  if (ip.substr(0,7) == "::ffff:") {
-    ip = ip.substr(7)
-  } else if (ip.substr(0,3) == "::1") {
-    ip = "127.0.0.1"
-  }
   customer.find_by_ip(ip).then((data) => {
 
     customer.transfer_balance(data[0].imsi, msisdn, amount).catch((error) => {

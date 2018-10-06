@@ -10,13 +10,25 @@ module.exports.translate = function (x) {
   return myLocalize.translate(x);
 }
 
-// console.log(myLocalize.strings); // Testing...
-// console.log(myLocalize.translate("Substitution: $[1]", 5)); // Substitution: 5
-// myLocalize.setLocale("es");
-// console.log(myLocalize.translate("Testing...")); // Pruebas...
-// myLocalize.setLocale("sr");
-// console.log(myLocalize.translate("Substitution: $[1]", 5)); // замена: 5
-// console.log(myLocalize.strings); // Testing...
+module.exports.convertBytes = function (size) {
+    var i = -1;
+    var byteUnits = [' kB', ' MB', ' GB', ' TB']
+    do {
+          size = size / 1000;
+          i++;
+        } while (size > 1000 && i < 3);
+
+    return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
+};
+
+module.exports.generateIP = function (ip) {
+  if (ip.substr(0,7) == "::ffff:") {
+    ip = ip.substr(7)
+  } else if (ip.substr(0,3) == "::1") {
+    ip = "127.0.0.1"
+  }
+  return ip;
+}
 
 var express = require('express');
 var path = require('path');
