@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var customer = require('../models/customer');
+var app = require('../app');
 
 function convertBytes(size) {
 		var i = -1;
@@ -29,6 +30,7 @@ router.get('/', function(req, res, next) {
     var data_balance_str = convertBytes(data[0].data_balance);
 
     res.render('purchase', {
+      translate: app.translate,
       title: 'Purchase',
       data_balance_str: data_balance_str,
       balance: data[0].balance,

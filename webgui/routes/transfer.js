@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var customer = require('../models/customer');
+var app = require('../app');
 
 router.get('/', function(req, res, next) {
 
@@ -15,7 +16,8 @@ router.get('/', function(req, res, next) {
   customer.find_by_ip(ip).then((data) => {
     // console.log(data);
     res.render('transfer', {
-      title: 'Home',
+      translate: app.translate,
+      title: app.translate('Home'),
       raw_up: data[0].raw_up,
       raw_down: data[0].raw_down,
       balance: data[0].balance,

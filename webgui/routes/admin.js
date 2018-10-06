@@ -1,13 +1,23 @@
 var express = require('express');
 var router = express.Router();
 var customer = require('../models/customer');
+var app = require('../app');
+
+var Localize = require('localize');
+var myLocalize = new Localize('./localize/');
+myLocalize.setLocale("id");
+function translate(x) {
+  return myLocalize.translate(x);
+}
 
 router.get('/', function(req, res, next) {
   customer.all().then((data) => {
     res.render('admin', { 
-      title: 'Home',
+      admin: 1,
+      translate: app.translate,
+      title: app.translate('Home'),
       customers_list: data,
-      layout: 'admin_layout',
+      layout: 'layout',
     });
   });
 });

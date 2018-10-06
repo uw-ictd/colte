@@ -1,20 +1,20 @@
 <main role="main" class="container">
     <div class="card mb-3">
       <div class="card-header">
-        Transfer
+        {{translate "Transfer"}}
       </div>
       <div class="card-body">
-        <p>Current Balance: ${{balance}}</p>
+        <p>{{translate "Current Balance: $"}}{{balance}}</p>
         <form method="post" action="/transfer/transfer"> 
           <div class="form-group">
-            <label for="recipient">Recipient Phone Number</label>
+            <label for="recipient">{{translate "Recipient Phone Number"}}</label>
             <input type="tel" class="form-control" placeholder="phone number" name="msisdn"></input>
           </div>
           <div class="form-group">
-            <label for="amount">Amount To Send</label>
+            <label for="amount">{{translate "Amount To Send"}}</label>
             <input type="text" class="form-control" placeholder="$" name="amount">
           </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <button type="submit" class="btn btn-primary">{{translate "Submit"}}</button>
         </form>
       </div>
     </div>
