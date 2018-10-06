@@ -3,35 +3,16 @@ var router = express.Router();
 var customer = require('../models/customer');
 var app = require('../app');
 
-function convertBytes(size) {
-		var i = -1;
-		var byteUnits = [' kB', ' MB', ' GB', ' TB']
-		do {
-					size = size / 1000;
-					i++;
-				} while (size > 1000 && i < 3);
-
-		return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
-};
-
 router.get('/', function(req, res, next) {
 
-  var ip = req.ip
-  if (ip.substr(0,7) == "::ffff:") {
-    ip = ip.substr(7)
-  } else if (ip.substr(0,3) == "::1") {
-    ip = "127.0.0.1"
-  }
+  var ip = app.generateIP(req.ip);
   console.log("Web Request From: " + ip)
-
   customer.find_by_ip(ip).then((data) => {
-    // console.log(data);
-
-    var data_balance_str = convertBytes(data[0].data_balance);
+    var data_balance_str = app.convertBytes(data[0].data_balance);
 
     res.render('purchase', {
       translate: app.translate,
-      title: 'Purchase',
+      title: app.translate('Purchase'),
       data_balance_str: data_balance_str,
       balance: data[0].balance,
       admin: data[0].admin
@@ -40,15 +21,8 @@ router.get('/', function(req, res, next) {
 });
   
 router.post('/purchase', function(req,res) {
-  var ip = req.ip
+  var ip = app.generateIP(req.ip);
   var purchase = req.body.package;
-  console.log("PACKAGE = " + purchase)
-
-  if (ip.substr(0,7) == "::ffff:") {
-    ip = ip.substr(7)
-  } else if (ip.substr(0,3) == "::1") {
-    ip = "127.0.0.1"
-  }
   customer.find_by_ip(ip).then((data) => {
     
     if (purchase == 0) {
