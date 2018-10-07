@@ -13,8 +13,11 @@ This folder is for essential webservices. Same basic architecture as emergency (
 ### /admin 
 - [x] customer activation/deactivation
 - [x] editing customer's balance 
-- [ ] request log 
+- [ ] password (and IP) verification
+- [ ] easier interface (as opposed to table)
 ### /user 
-- [ ] credit transfer
-- [ ] pin verification
-- [ ] request log
+- [x] credit transfer
+- [x] localization
+- [ ] pin verification(???)
+### /system
+- [ ] 
