@@ -1,65 +1,67 @@
 {
      "Home": {
-         "id": "X"
+         "id": "Beranda"
      },
 
 
      "Account": {
-         "id": "X"
+         "id": "Akun Saya"
      },
      "Transfer": {
-         "id": "X"
+         "id": "Transfer"
      },
      "Purchase": {
-         "id": "X"
+         "id": "Donasi"
      },
      "Admin": {
-         "id": "X"
+         "id": "Admin"
      },
      "Free Services": {
-         "id": "X"
+         "id": "Free Services"
      },
-
 
 
      "Account Information": {
-         "id": "X"
+         "id": "Informasi Akun"
      },
-     "Phone Number: ": {
-         "id": "X"
+     "Phone Number": {
+         "id": "Nomor HP"
      },
      "Current Balance: $": {
-         "id": "X:"
+         "id": "Saldo Sekarang: Rp"
+     },
+     "$": {
+         "id": "Rp"
      },
      "Data Balance: ": {
-         "id": "X:"
+         "id": "Sisa Data: "
      },
      "Total Downloaded: ": {
-         "id": "X:"
+         "id": "Jumlah Download: "
      },
      "Total Uploaded: ": {
-         "id": "X:"
+         "id": "Jumlah Upload: "
      },
 
 
 
 
      "Recipient Phone Number": {
-         "id": "X"
+         "id": "Nomor HP Penerima"
      },
      "Amount To Send": {
-         "id": "X"
+         "id": "Jumlah Dikirim"
      },
      "Submit": {
-         "id": "X"
+         "id": "Kirim"
      },
      "Movies": {
-         "id": "X"
+         "id": "Movies"
      },
      "Maps": {
-         "id": "X"
+         "id": "Maps"
      },
      "Chat": {
-         "id": "X"
+         "id": "Chat"
      }
 }

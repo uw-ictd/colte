@@ -26,14 +26,14 @@ router.post('/purchase', function(req,res) {
   customer.find_by_ip(ip).then((data) => {
     
     if (purchase == 0) {
-      var cost = 5;
-      var bytes_purchased = 10000000;
+      var cost = 2560;
+      var bytes_purchased = 10485760;
     } else if (purchase == 1) {
-      var cost = 15;
-      var bytes_purchased = 100000000;
+      var cost = 25600;
+      var bytes_purchased = 104857600;
     } else if (purchase == 2) {
-      var cost = 25;
-      var bytes_purchased = 1000000000;
+      var cost = 262144;
+      var bytes_purchased = 1073741824;
     } else {
       console.log("Invalid PackageNo: " + purchase);
       res.redirect('/purchase');

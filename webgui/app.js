@@ -7,16 +7,17 @@ var Localize = require('localize');
 var myLocalize = new Localize('./localize/');
 myLocalize.setLocale(locale);
 module.exports.translate = function (x) {
-  return myLocalize.translate(x);
+  var str = myLocalize.translate(x);
+  return str;
 }
 
 module.exports.convertBytes = function (size) {
     var i = -1;
-    var byteUnits = [' kB', ' MB', ' GB', ' TB']
+    var byteUnits = [' KB', ' MB', ' GB', ' TB']
     do {
-          size = size / 1000;
+          size = size / 1024;
           i++;
-        } while (size > 1000 && i < 3);
+        } while (size > 1024 && i < 3);
 
     return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
 };
