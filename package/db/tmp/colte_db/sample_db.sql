@@ -148,7 +148,7 @@ CREATE TABLE `customers` (
   `raw_down` int(10) unsigned DEFAULT '0',
   `raw_up` int(10) unsigned DEFAULT '0',
   `data_balance` bigint(15) DEFAULT '0',
-  `balance` float(10,2) DEFAULT '0' COMMENT 'in USD for now',
+  `balance` decimal(13,4) DEFAULT '0' COMMENT 'this value is currency-less',
   `bridged` tinyint(1) DEFAULT '0',
   `enabled` tinyint(1) DEFAULT '0',
   `admin` tinyint(1) DEFAULT '0',
