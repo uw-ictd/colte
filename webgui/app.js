@@ -15,9 +15,9 @@ module.exports.convertBytes = function (size) {
     var i = -1;
     var byteUnits = [' KB', ' MB', ' GB', ' TB']
     do {
-          size = size / 1024;
+          size = size / 1000;
           i++;
-        } while (size > 1024 && i < 3);
+        } while (size > 1000 && i < 3);
 
     return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
 };
@@ -38,6 +38,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var fs = require('fs');
+
+var content = fs.readFileSync("pricing.json");
+module.exports.pricing = JSON.parse(content);
 
 var app = express();
 
