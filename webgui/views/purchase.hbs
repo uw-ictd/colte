@@ -15,10 +15,13 @@
       </div>
       <div class="card-body">
         <form action="/purchase/purchase" method="post">
-          <p><button name="package" value="0" type="submit" class="btn btn-primary btn-sm" style="width: 80px">10 MB</button> Rp2.560</p>
-          <p><button name="package" value="1" type="submit" class="btn btn-primary btn-sm"  style="width: 80px">100 MB</button> Rp25.600</p>
-          <p><button name="package" value="2" type="submit" class="btn btn-primary btn-sm" style="width: 80px">1 GB</button> Rp262.144</p>
+        {{#each pack}}
+          <p><button name="package" value="{{ this.bytes }}" type="submit" class="btn btn-primary btn-sm" style="width: 80px">{{ this.print_bytes }}</button> {{ this.print_cost }}</p>
+        {{/each}}
         </form>
+        <p>
+        
+        </p>
       </div>
     </div>
 </main>

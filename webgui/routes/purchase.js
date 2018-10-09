@@ -15,32 +15,32 @@ router.get('/', function(req, res, next) {
       title: app.translate('Purchase'),
       data_balance_str: data_balance_str,
       balance: data[0].balance,
-      admin: data[0].admin
+      admin: data[0].admin,
+      pack: app.pricing.packages,
     });
   });
 });
   
 router.post('/purchase', function(req,res) {
   var ip = app.generateIP(req.ip);
-  var purchase = req.body.package;
+  var bytes = req.body.package;
+  var cost = 0;
   customer.find_by_ip(ip).then((data) => {
     
-    if (purchase == 0) {
-      var cost = 2560;
-      var bytes_purchased = 10485760;
-    } else if (purchase == 1) {
-      var cost = 25600;
-      var bytes_purchased = 104857600;
-    } else if (purchase == 2) {
-      var cost = 262144;
-      var bytes_purchased = 1073741824;
-    } else {
-      console.log("Invalid PackageNo: " + purchase);
+    for (var i in app.pricing.packages) {
+      if (app.pricing.packages[i].bytes == bytes) {
+        cost = app.pricing.packages[i].cost;
+        break;
+      }
+    }
+    // handle no match here
+    if (cost == 0) {
+      console.log("Package Not Found?!?");
       res.redirect('/purchase');
       return;
     }
 
-    customer.purchase_package(data[0].imsi, cost, bytes_purchased).catch((error) => {
+    customer.purchase_package(data[0].imsi, cost, bytes).catch((error) => {
       console.log("Purchase error: " + error);
     })
     .then(function() {
