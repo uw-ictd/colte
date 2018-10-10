@@ -12,6 +12,10 @@ module.exports.translate = function (x) {
 }
 
 module.exports.convertBytes = function (size) {
+    if (size < 100) {
+      return "0.0 KB";
+    }
+
     var i = -1;
     var byteUnits = [' KB', ' MB', ' GB', ' TB']
     do {
