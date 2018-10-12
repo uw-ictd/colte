@@ -12,6 +12,7 @@
     - {path: "/usr/local/etc/colte/webgui.env"}
     - {path: "/etc/nginx/sites-available/webgui.conf"}
     - {path: "/etc/nginx/sites-available/webconf.conf"}
+    - {path: "/etc/haulage/config.yml"}    
     - {path: "/etc/nginx/sites-available/rocketchat.conf"}
     - {path: "/etc/nginx/sites-available/osm.conf"}  
     - {path: "/etc/nginx/sites-available/osm.conf"}  
@@ -29,12 +30,13 @@
       webgui_installed: files.results[4].stat.exists
       webgui_site_installed: files.results[5].stat.exists
       webconf_installed: files.results[6].stat.exists
+      haulage_installed: files.results[7].stat.exists
 
-      chat_installed: files.results[7].stat.exists
-      osm_installed: files.results[8].stat.exists
-      osm_site_installed: files.results[9].stat.exists
-      media_installed: files.results[10].stat.exists
-      wiki_installed: files.results[11].stat.exists
+      chat_installed: files.results[8].stat.exists
+      osm_installed: files.results[9].stat.exists
+      osm_site_installed: files.results[10].stat.exists
+      media_installed: files.results[11].stat.exists
+      wiki_installed: files.results[12].stat.exists
 
 
 
@@ -220,6 +222,27 @@
       regexp: "#COLTEWEBGUI"
       line: "127.0.0.1 network.{{ network_name }} #COLTEWEBGUI"
     when: webgui_site_installed
+    become: yes
+
+
+
+
+
+######################################
+############ HAULAGE CONF ############
+######################################
+
+  - name: write information to haulage config.yml
+    lineinfile:
+      dest: "/etc/haulage/config.yml"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: haulage_installed
+    with_items:
+    - {field: "dbLocation", line: "dbLocation: \"{{ mysql_db }}\""}
+    - {field: "dbUser", line: "dbUser: \"{{ mysql_user }}\""}
+    - {field: "dbPass", line: "dbPass: \"{{ mysql_password }}\""}
+    - {field: "interface", line: "interface: \"{{ wan_iface }}\""}
     become: yes
 
 
