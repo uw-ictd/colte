@@ -3,4 +3,4 @@ Version: 0.9.5
 Maintainer: sevilla@cs.washington.edu
 Architecture: amd64
 Description: The Community LTE Project
-Depends: colte-epc (>= 0.9.3), colte-webservices
+Depends: colte-epc (>= 0.9.3), colte-webservices, haulage
