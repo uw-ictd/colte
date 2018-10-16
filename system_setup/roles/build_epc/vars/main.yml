@@ -3,11 +3,11 @@ epc_dir: "{{ colte_dir }}/epc"
 package_dir: "{{ colte_dir }}/package"
 
 colteconf_version: "0.9.1"
-db_version: "0.9.1"
+db_version: "0.9.2"
 
-hss_version: "0.9.4"
+hss_version: "0.9.5"
 mme_version: "0.9.3"
-spgw_version: "0.9.4"
+spgw_version: "0.9.5"
 
 epc_version: "0.9.5"
 

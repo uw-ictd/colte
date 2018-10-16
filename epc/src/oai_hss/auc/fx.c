@@ -352,15 +352,15 @@ ComputeOPc (
   uint8_t                                 i;
 
   RijndaelKeySchedule (kP);
-  FPRINTF_DEBUG ("Compute opc:\n\tK:\t%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n", kP[0], kP[1], kP[2], kP[3], kP[4], kP[5], kP[6], kP[7], kP[8], kP[9], kP[10], kP[11], kP[12], kP[13], kP[14], kP[15]);
+  // FPRINTF_DEBUG ("Compute opc:\n\tK:\t%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n", kP[0], kP[1], kP[2], kP[3], kP[4], kP[5], kP[6], kP[7], kP[8], kP[9], kP[10], kP[11], kP[12], kP[13], kP[14], kP[15]);
   RijndaelEncrypt (opP, opcP);
-  FPRINTF_DEBUG ("\tIn:\t%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n\tRinj:\t%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",
-          opP[0], opP[1], opP[2], opP[3], opP[4], opP[5], opP[6], opP[7],
-          opP[8], opP[9], opP[10], opP[11], opP[12], opP[13], opP[14], opP[15], opcP[0], opcP[1], opcP[2], opcP[3], opcP[4], opcP[5], opcP[6], opcP[7], opcP[8], opcP[9], opcP[10], opcP[11], opcP[12], opcP[13], opcP[14], opcP[15]);
+  // FPRINTF_DEBUG ("\tIn:\t%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n\tRinj:\t%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",
+          // opP[0], opP[1], opP[2], opP[3], opP[4], opP[5], opP[6], opP[7],
+          // opP[8], opP[9], opP[10], opP[11], opP[12], opP[13], opP[14], opP[15], opcP[0], opcP[1], opcP[2], opcP[3], opcP[4], opcP[5], opcP[6], opcP[7], opcP[8], opcP[9], opcP[10], opcP[11], opcP[12], opcP[13], opcP[14], opcP[15]);
 
   for (i = 0; i < 16; i++)
     opcP[i] ^= opP[i];
 
-  FPRINTF_DEBUG ("\tOut:\t%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n", opcP[0], opcP[1], opcP[2], opcP[3], opcP[4], opcP[5], opcP[6], opcP[7], opcP[8], opcP[9], opcP[10], opcP[11], opcP[12], opcP[13], opcP[14], opcP[15]);
+  // FPRINTF_DEBUG ("\tOut:\t%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n", opcP[0], opcP[1], opcP[2], opcP[3], opcP[4], opcP[5], opcP[6], opcP[7], opcP[8], opcP[9], opcP[10], opcP[11], opcP[12], opcP[13], opcP[14], opcP[15]);
   return;
 }                               /* end of function ComputeOPc */

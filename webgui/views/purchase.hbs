@@ -1,24 +1,27 @@
 <main role="main" class="container">
     <div class="card mb-3">
       <div class="card-header">
-        Account
+        {{translate "Account"}}
       </div>
       <div class="card-body">
-        <p>Current Balance: ${{balance}}</p>
-        <p>Current Data: {{data_balance_str}}</p>
+        <p>{{translate "Current Balance: $"}}{{balance}}</p>
+        <p>{{translate "Data Balance: "}}{{data_balance_str}}</p>
       </div>
     </div>
 
     <div class="card mb-3">
       <div class="card-header">
-        Packages
+        {{translate "Purchase"}}
       </div>
       <div class="card-body">
         <form action="/purchase/purchase" method="post">
-          <p><button name="package" value="0" type="submit" class="btn btn-primary btn-sm">Purchase</button> 10MB for $5</p>
-          <p><button name="package" value="1" type="submit" class="btn btn-primary btn-sm">Purchase</button> 100MB for $15</p>
-          <p><button name="package" value="2" type="submit" class="btn btn-primary btn-sm">Purchase</button> 1GB for $25</p>
+        {{#each pack}}
+          <p><button name="package" value="{{ this.bytes }}" type="submit" class="btn btn-primary btn-sm" style="width: 80px">{{ this.print_bytes }}</button> {{ this.print_cost }}</p>
+        {{/each}}
         </form>
+        <p>
+        
+        </p>
       </div>
     </div>
 </main>

@@ -84,7 +84,7 @@ RijndaelKeySchedule (
   int                                     i,
                                           j;
 
-  FPRINTF_DEBUG ("RijndaelKeySchedule: K %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n", key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15]);
+  // FPRINTF_DEBUG ("RijndaelKeySchedule: K %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n", key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15]);
 
   /*
    * first round key equals key
