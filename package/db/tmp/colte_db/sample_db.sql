@@ -154,7 +154,7 @@ CREATE TABLE `customers` (
   `admin` tinyint(1) DEFAULT '0',
   `msisdn` varchar(16) DEFAULT 'NotUsed',
   PRIMARY KEY (`imsi`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `customers` VALUES
 ('000000000000001', 0, 0, 10000000, 500, 1, 1, 1, '1'),
