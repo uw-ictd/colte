@@ -43,6 +43,31 @@
 
 
 ######################################
+############# SYSTEM CONF ############
+######################################
+
+  - name: update mysql password/privileges
+    mysql_user:
+      name: "{{ mysql_user }}"
+      password: "{{ mysql_password }}"
+      host: localhost
+      priv: "{{ mysql_db }}.*:ALL"
+    become: yes
+
+  - name: dynamically write tcpdump.service file
+    lineinfile:
+      dest: "/etc/systemd/system/colte-tcpdump.service"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    with_items:
+    - {field: 'ExecStart', line: "ExecStart=/bin/bash -c \"/usr/sbin/tcpdump -i {{ enb_iface }} -w /var/log/colte/tcpdump/sctp_$(/bin/date +\"%%Y-%%m-%%d-%%H%%MZ\").pcap\""}
+
+
+
+
+
+######################################
 ############# BIND CONF ##############
 ######################################
 
@@ -89,32 +114,6 @@
     systemd: name=bind9 state=started
     become: yes
     when: bind_installed
-
-
-
-
-
-
-######################################
-############# SYSTEM CONF ############
-######################################
-
-  - name: update mysql password/privileges
-    mysql_user:
-      name: "{{ mysql_user }}"
-      password: "{{ mysql_password }}"
-      host: localhost
-      priv: "{{ mysql_db }}.*:ALL"
-    become: yes
-
-  - name: dynamically write tcpdump.service file
-    lineinfile:
-      dest: "/etc/systemd/system/colte-tcpdump.service"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    become: yes
-    with_items:
-    - {field: 'ExecStart', line: "ExecStart=/bin/bash -c \"/usr/sbin/tcpdump -i {{ enb_iface }} -w /var/log/colte/tcpdump/sctp_$(/bin/date +\"%%Y-%%m-%%d-%%H%%MZ\").pcap\""}
 
 
 
@@ -247,6 +246,8 @@
   - name: reload nginx
     systemd: name=nginx state=reloaded
     become: yes
+    ignore_errors: yes
+
 
 
 
@@ -382,4 +383,5 @@
   - name: reload nginx
     systemd: name=nginx state=reloaded
     become: yes
+    ignore_errors: yes
 
