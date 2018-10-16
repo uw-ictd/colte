@@ -33,7 +33,8 @@
       haulage_installed: files.results[7].stat.exists
 
       chat_installed: files.results[8].stat.exists
-      osm_installed: files.results[9].stat.exists
+      # SMS TODO: re-enable OSM once we dockerize it
+      # osm_installed: files.results[9].stat.exists
       osm_site_installed: files.results[10].stat.exists
       media_installed: files.results[11].stat.exists
       wiki_installed: files.results[12].stat.exists
