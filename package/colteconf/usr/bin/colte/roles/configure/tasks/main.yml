@@ -96,7 +96,7 @@
 
 
 ######################################
-############# MYSQL CONF #############
+############# SYSTEM CONF ############
 ######################################
 
   - name: update mysql password/privileges
@@ -107,6 +107,14 @@
       priv: "{{ mysql_db }}.*:ALL"
     become: yes
 
+  - name: dynamically write tcpdump.service file
+    lineinfile:
+      dest: "/etc/systemd/system/colte-tcpdump.service"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    with_items:
+    - {field: 'ExecStart', line: "ExecStart=/bin/bash -c \"/usr/sbin/tcpdump -i {{ enb_iface }} -w /var/log/colte/tcpdump/sctp_$(/bin/date +\"%%Y-%%m-%%d-%%H%%MZ\").pcap\""}
 
 
 
@@ -177,16 +185,6 @@
     - {field: "-A FORWARD -i enp3s0 ", line: "     iptables -A FORWARD -i {{ wan_iface }} -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT"}
     become: yes
 
-  - name: dynamically write tcpdump.service file
-    lineinfile:
-      dest: "/etc/systemd/system/colte-tcpdump.service"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    become: yes
-    when: spgw_installed
-    with_items:
-    - {field: 'ExecStart', line: "ExecStart=/usr/sbin/tcpdump -i {{ enb_iface_addr }} -w '/var/log/colte/tcpdump/sctp_${TCPDUMP_FORMAT}.pcap' sctp"}
-
 
 
 
@@ -203,8 +201,9 @@
     become: yes
     when: webgui_installed
     with_items:
-    - {field: 'DB_USER', line: 'DB_USER=colte_db'}
+    - {field: 'DB_USER', line: 'DB_USER={{ mysql_user }}'}
     - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
+    - {field: 'DB_NAME', line: 'DB_NAME={{ mysql_db }}'}
 
   - name: write information to webgui.conf
     lineinfile:
@@ -245,6 +244,9 @@
     - {field: "interface", line: "interface: \"{{ wan_iface }}\""}
     become: yes
 
+  - name: reload nginx
+    systemd: name=nginx state=reloaded
+    become: yes
 
 
 
