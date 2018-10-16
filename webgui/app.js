@@ -2,6 +2,39 @@ require('dotenv').config();
 var port = process.env.PORT || 3000;
 var env = process.env.NODE_ENV || 'development';
 
+var locale = process.env.LOCALE || "en";
+var Localize = require('localize');
+var myLocalize = new Localize('./localize/');
+myLocalize.setLocale(locale);
+module.exports.translate = function (x) {
+  var str = myLocalize.translate(x);
+  return str;
+}
+
+module.exports.convertBytes = function (size) {
+    if (size < 100) {
+      return "0.0 KB";
+    }
+
+    var i = -1;
+    var byteUnits = [' KB', ' MB', ' GB', ' TB']
+    do {
+          size = size / 1000;
+          i++;
+        } while (size > 1000 && i < 3);
+
+    return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
+};
+
+module.exports.generateIP = function (ip) {
+  if (ip.substr(0,7) == "::ffff:") {
+    ip = ip.substr(7)
+  } else if (ip.substr(0,3) == "::1") {
+    ip = "127.0.0.1"
+  }
+  return ip;
+}
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -9,6 +42,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var fs = require('fs');
+
+var content = fs.readFileSync("pricing.json");
+module.exports.pricing = JSON.parse(content);
 
 var app = express();
 

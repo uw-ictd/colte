@@ -1,0 +1,67 @@
+{
+     "Home": {
+         "id": "Beranda"
+     },
+
+
+     "Account": {
+         "id": "Akun Saya"
+     },
+     "Transfer": {
+         "id": "Transfer"
+     },
+     "Purchase": {
+         "id": "Donasi"
+     },
+     "Admin": {
+         "id": "Admin"
+     },
+     "Free Services": {
+         "id": "Free Services"
+     },
+
+
+     "Account Information": {
+         "id": "Informasi Akun"
+     },
+     "Phone Number": {
+         "id": "Nomor HP"
+     },
+     "Current Balance: $": {
+         "id": "Saldo Sekarang: Rp"
+     },
+     "$": {
+         "id": "Rp"
+     },
+     "Data Balance: ": {
+         "id": "Sisa Data: "
+     },
+     "Total Downloaded: ": {
+         "id": "Jumlah Download: "
+     },
+     "Total Uploaded: ": {
+         "id": "Jumlah Upload: "
+     },
+
+
+
+
+     "Recipient Phone Number": {
+         "id": "Nomor HP Penerima"
+     },
+     "Amount To Send": {
+         "id": "Jumlah Dikirim"
+     },
+     "Submit": {
+         "id": "Kirim"
+     },
+     "Movies": {
+         "id": "Movies"
+     },
+     "Maps": {
+         "id": "Maps"
+     },
+     "Chat": {
+         "id": "Chat"
+     }
+}

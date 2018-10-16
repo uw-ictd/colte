@@ -598,7 +598,7 @@ hss_mysql_check_opc_keys (
   }
 
   sprintf (query, "SELECT `imsi`,`key`,`OPc` FROM `users` ");
-  FPRINTF_DEBUG ("Query: %s\n", query);
+  // FPRINTF_DEBUG ("Query: %s\n", query);
   pthread_mutex_lock (&db_desc->db_cs_mutex);
 
   if (mysql_query (db_desc->db_conn, query)) {
@@ -617,16 +617,16 @@ hss_mysql_check_opc_keys (
       ret = EINVAL;
     } else {
       if (row[0] != NULL) {
-        printf ("IMSI: %s", (uint8_t *) row[0]);
+        // printf ("IMSI: %s", (uint8_t *) row[0]);
       }
 
       if (row[1] != NULL) {
-        print_buffer ("Key: ", (uint8_t *) row[1], KEY_LENGTH);
+        // print_buffer ("Key: ", (uint8_t *) row[1], KEY_LENGTH);
         memcpy (k, row[1], KEY_LENGTH);
       }
       //if (row[3] != NULL)
       {
-        print_buffer ("OPc: ", (uint8_t *) row[2], KEY_LENGTH);
+        // print_buffer ("OPc: ", (uint8_t *) row[2], KEY_LENGTH);
         //} else {
         ComputeOPc (k, opP, opc);
         update_length = sprintf (update, "UPDATE `users` SET `OPc`=UNHEX('");
@@ -636,24 +636,24 @@ hss_mysql_check_opc_keys (
         }
 
         update_length += sprintf (&update[update_length], "') WHERE `users`.`imsi`='%s'", (uint8_t *) row[0]);
-        FPRINTF_DEBUG ("Query: %s\n", update);
+        // FPRINTF_DEBUG ("Query: %s\n", update);
 
         if (mysql_query (db_desc->db_conn, update)) {
           FPRINTF_ERROR ( "Query execution failed: %s\n", mysql_error (db_desc->db_conn));
         } else {
-          printf ("IMSI %s Updated OPc ", (uint8_t *) row[0]);
+          // printf ("IMSI %s Updated OPc ", (uint8_t *) row[0]);
 
-          for (i = 0; i < KEY_LENGTH; i++) {
-            printf ("%02x", (uint8_t) (row[2][i]));
-          }
+          // for (i = 0; i < KEY_LENGTH; i++) {
+          //   printf ("%02x", (uint8_t) (row[2][i]));
+          // }
 
-          printf (" -> ");
+          // printf (" -> ");
 
-          for (i = 0; i < KEY_LENGTH; i++) {
-            printf ("%02x", opc[i]);
-          }
+          // for (i = 0; i < KEY_LENGTH; i++) {
+          //   printf ("%02x", opc[i]);
+          // }
 
-          printf ("\n");
+          // printf ("\n");
 
           /*
            * process each statement result
@@ -671,7 +671,7 @@ hss_mysql_check_opc_keys (
               mysql_free_result (res2);
             } else {            /* no result set or error */
               if (mysql_field_count (db_desc->db_conn) == 0) {
-                FPRINTF_ERROR ( "%lld rows affected\n", mysql_affected_rows (db_desc->db_conn));
+                // FPRINTF_ERROR ( "%lld rows affected\n", mysql_affected_rows (db_desc->db_conn));
               } else {          /* some error occurred */
                 FPRINTF_ERROR ( "Could not retrieve result set\n");
                 break;
