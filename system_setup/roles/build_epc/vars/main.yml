@@ -5,7 +5,7 @@ package_dir: "{{ colte_dir }}/package"
 colteconf_version: "0.9.1"
 db_version: "0.9.3"
 
-hss_version: "0.9.5"
+hss_version: "0.9.6"
 mme_version: "0.9.3"
 spgw_version: "0.9.5"
 
