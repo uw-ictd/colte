@@ -1,6 +1,7 @@
 [Unit]
 Description=TCPDump all SCTP Traffic
 After=network.target
+Requires=network.target
 
 [Service]
 Type=simple
