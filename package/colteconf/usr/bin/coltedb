@@ -111,7 +111,8 @@ if [ "$1" = "noadmin" ]; then
 fi
 
 if [ "$1" = "reset" ]; then
-	mysql -u $user -p$pass $db < /usr/local/etc/colte/sample_db.sql	
+	mysql -u $user -p$pass $db < /usr/local/etc/colte/sample_db.sql
+	echo "coltedb: reset database."
 	exit 0
 fi
 
