@@ -75,7 +75,7 @@ int mme_app_statistics_display (
 void update_mme_app_stats_connected_enb_add(void)
 {
   mme_stats_write_lock (&mme_app_desc);
-m  (mme_app_desc.nb_enb_connected)++;
+  (mme_app_desc.nb_enb_connected)++;
   (mme_app_desc.nb_enb_connected_since_last_stat)++;
   mme_stats_unlock(&mme_app_desc);
   return;
