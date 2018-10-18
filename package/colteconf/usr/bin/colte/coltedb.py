@@ -7,9 +7,9 @@ import sys
 ############### SETUP: LOAD YAML VARS AND CONNECT TO DB #################
 #########################################################################
 
-db_user = X
-db_pass = Y
-db = Z
+db_user = sys.argv[1]
+db_pass = sys.argv[2]
+db = sys.argv[3]
 
 db = MySQLdb.connect(host="localhost",
                      user=os.environ.get('COLTE_USER'),
@@ -18,16 +18,16 @@ db = MySQLdb.connect(host="localhost",
 cursor = db.cursor()
 
 num_args = len(sys.argv)
-command = sys.argv[1]
+command = sys.argv[4]
 
 #########################################################################
 ############### OPTION ONE: ADD A USER TO THE DATABASE ##################
 #########################################################################
 if (command == "add"):
-	imsi = sys.argv[2]
-	msisdn = sys.argv[3]
-	key = sys.argv[4]
-	opc = sys.argv[5]
+	imsi = sys.argv[5]
+	msisdn = sys.argv[6]
+	key = sys.argv[7]
+	opc = sys.argv[8]
 
 	# commit_str = "INSERT INTO pdn (apn, pgw_id, users_imsi) VALUES ('ltebox', 3, " + imsi + ")"
 	commit_str = "INSERT INTO pdn (users_imsi) VALUES ('ltebox', 3, " + imsi + ")"
@@ -54,7 +54,7 @@ if (command == "add"):
 ############### OPTION TWO: REMOVE USER FROM THE DATABASE ###############
 #########################################################################
 if (command == "remove"):
-	imsi = sys.argv[2]
+	imsi = sys.argv[5]
 	commit_str = "DELETE FROM pdn WHERE users_imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
@@ -75,8 +75,8 @@ if (command == "remove"):
 ############### OPTION THREE: TOPUP (ADD BALANCE TO USER) ###############
 #########################################################################
 if (command == "topup"):
-	imsi = sys.argv[2]
-	amount = sys.argv[3]
+	imsi = sys.argv[5]
+	amount = sys.argv[6]
 	new_balance = amount
 
 	#STEP ONE: query information
@@ -97,31 +97,31 @@ if (command == "topup"):
 ############### OPTION FOUR: DISABLE A USER (AND ZERO-OUT BALANCE???) ###
 #########################################################################
 if (command == "disable"):
-	imsi = sys.argv[2]
+	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET enabled = 0, data_balance = 0 WHERE imsi = " imsi
 	cursor.execute(commit_str)
 	print commit_str
 
 if (command == "enable"):
-	imsi = sys.argv[2]
+	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET enabled = 1, data_balance = 10000000 WHERE imsi = " imsi
 	cursor.execute(commit_str)
 	print commit_str
 
 if (command == "admin"):
-	imsi = sys.argv[2]
+	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET admin = 1 WHERE imsi = " imsi
 	cursor.execute(commit_str)
 	print commit_str
 
 if (command == "noadmin"):
-	imsi = sys.argv[2]
+	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET admin = 0 WHERE imsi = " imsi
 	cursor.execute(commit_str)
 	print commit_str
 
-# SMS TODO: sync and reset!!
+# SMS TODO: sync ?!?

@@ -35,12 +35,24 @@ if [ "$EUID" -ne 0 ]; then
 	exit 1
 fi
 
+load_yml() {
+	local var=$1
+	local str=$(grep "$var" /usr/bin/colte/roles/configure/vars/main.yml)
+	local val=${str//*$var: /}
+	local res="${val%\"}"
+	local res="${res#\"}"
+	echo $res
+}
+user=$(load_yml "mysql_user")
+pass=$(load_yml "mysql_password")
+db=$(load_yml "mysql_db")
+
 if [ "$1" = "add" ]; then
 	if [ "$#" -ne 5 ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb add imsi msisdn key opc\""
 		exit 1
 	fi
-	python script $1 $2 $3 $4 $5
+	python script $user $pass $db $1 $2 $3 $4 $5
 fi
 
 if [ "$1" = "remove" ]; then
@@ -48,7 +60,7 @@ if [ "$1" = "remove" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb remove imsi\""
 		exit 1
 	fi
-	python script $1 $2
+	python script $user $pass $db $1 $2
 fi
 
 if [ "$1" = "topup" ]; then
@@ -56,7 +68,7 @@ if [ "$1" = "topup" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb topup imsi money\""
 		exit 1
 	fi
-	python script $1 $2 $3
+	python script $user $pass $db $1 $2 $3
 fi
 
 if [ "$1" = "disable" ]; then
@@ -64,7 +76,7 @@ if [ "$1" = "disable" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb disable imsi\""
 		exit 1
 	fi
-	python script $1 $2
+	python script $user $pass $db $1 $2
 fi
 
 if [ "$1" = "enable" ]; then
@@ -72,7 +84,7 @@ if [ "$1" = "enable" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb enable imsi\""
 		exit 1
 	fi
-	python script $1 $2
+	python script $user $pass $db $1 $2
 fi
 
 if [ "$1" = "admin" ]; then
@@ -80,7 +92,7 @@ if [ "$1" = "admin" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb admin imsi\""
 		exit 1
 	fi
-	python script $1 $2
+	python script $user $pass $db $1 $2
 fi
 
 if [ "$1" = "noadmin" ]; then
@@ -88,7 +100,7 @@ if [ "$1" = "noadmin" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb noadmin imsi\""
 		exit 1
 	fi
-	python script $1 $2
+	python script $user $pass $db $1 $2
 fi
 
 # if [ "$1" = "sync" ]; then
@@ -99,8 +111,7 @@ fi
 # 	python script sync
 # fi
 
-# if [ "$1" = "reset" ]; then
-# # HOW DO I LOAD THE USERNAME/PASSWORD VALUES HERE?!?
-# 	mysql -u colte_db -pcolte_db colte_db < /tmp/colte_db/sample_db.sql	
-# fi
+if [ "$1" = "reset" ]; then
+	mysql -u $user -p$pass $db < /usr/local/etc/colte/sample_db.sql	
+fi
 
