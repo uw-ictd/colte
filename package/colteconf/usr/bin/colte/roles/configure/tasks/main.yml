@@ -131,7 +131,7 @@
     with_items:
     - {field: 'MYSQL_user', line: 'MYSQL_user   = "{{ mysql_user }}";'}
     - {field: 'MYSQL_pass', line: 'MYSQL_pass   = "{{ mysql_password }}";'}
-    - {field: 'MYSQL_db', line: 'MYSQL_db   = "{{ mysql_db }}";'}
+    - {field: 'MYSQL_db', line: 'MYSQL_db     = "{{ mysql_db }}";'}
     become: yes
 
   - name: write information to mme.conf
