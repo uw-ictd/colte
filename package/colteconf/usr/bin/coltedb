@@ -12,7 +12,7 @@ display_help() {
     echo "   enable {imsi}: gives a user 10MB of data and adds them to the network"
     echo "   admin {imsi}: gives a user administrative privileges"
     echo "   noadmin {imsi}: removes a user's administrative privileges"
-    echo "   sync: runs a sync script to ensure that the database configuration is sane"
+    # echo "   sync: runs a sync script to ensure that the database configuration is sane"
     echo "   reset: WIPES OUT the database and restores it to the sample default"
     echo "   help: displays this message and exits"
     # ANY OTHER VALUES?!?!?!
@@ -53,6 +53,7 @@ if [ "$1" = "add" ]; then
 		exit 1
 	fi
 	python script $user $pass $db $1 $2 $3 $4 $5
+	exit 0
 fi
 
 if [ "$1" = "remove" ]; then
@@ -61,6 +62,7 @@ if [ "$1" = "remove" ]; then
 		exit 1
 	fi
 	python script $user $pass $db $1 $2
+	exit 0
 fi
 
 if [ "$1" = "topup" ]; then
@@ -69,6 +71,7 @@ if [ "$1" = "topup" ]; then
 		exit 1
 	fi
 	python script $user $pass $db $1 $2 $3
+	exit 0
 fi
 
 if [ "$1" = "disable" ]; then
@@ -77,6 +80,7 @@ if [ "$1" = "disable" ]; then
 		exit 1
 	fi
 	python script $user $pass $db $1 $2
+	exit 0
 fi
 
 if [ "$1" = "enable" ]; then
@@ -85,6 +89,7 @@ if [ "$1" = "enable" ]; then
 		exit 1
 	fi
 	python script $user $pass $db $1 $2
+	exit 0
 fi
 
 if [ "$1" = "admin" ]; then
@@ -93,6 +98,7 @@ if [ "$1" = "admin" ]; then
 		exit 1
 	fi
 	python script $user $pass $db $1 $2
+	exit 0
 fi
 
 if [ "$1" = "noadmin" ]; then
@@ -101,6 +107,12 @@ if [ "$1" = "noadmin" ]; then
 		exit 1
 	fi
 	python script $user $pass $db $1 $2
+	exit 0
+fi
+
+if [ "$1" = "reset" ]; then
+	mysql -u $user -p$pass $db < /usr/local/etc/colte/sample_db.sql	
+	exit 0
 fi
 
 # if [ "$1" = "sync" ]; then
@@ -111,7 +123,4 @@ fi
 # 	python script sync
 # fi
 
-if [ "$1" = "reset" ]; then
-	mysql -u $user -p$pass $db < /usr/local/etc/colte/sample_db.sql	
-fi
-
+display_help
