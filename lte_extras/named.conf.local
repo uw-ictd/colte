@@ -8,6 +8,6 @@
 
 zone "bokondini" {
 	type master;
-  file "/etc/bind/zones/bind_db";
+  file "/etc/bind/zones/colte_db";
 };
 
