@@ -99,28 +99,28 @@ if (command == "topup"):
 if (command == "disable"):
 	imsi = sys.argv[5]
 
-	commit_str = "UPDATE customers SET enabled = 0, data_balance = 0 WHERE imsi = " imsi
+	commit_str = "UPDATE customers SET enabled = 0, data_balance = 0 WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
 if (command == "enable"):
 	imsi = sys.argv[5]
 
-	commit_str = "UPDATE customers SET enabled = 1, data_balance = 10000000 WHERE imsi = " imsi
+	commit_str = "UPDATE customers SET enabled = 1, data_balance = 10000000 WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
 if (command == "admin"):
 	imsi = sys.argv[5]
 
-	commit_str = "UPDATE customers SET admin = 1 WHERE imsi = " imsi
+	commit_str = "UPDATE customers SET admin = 1 WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
 if (command == "noadmin"):
 	imsi = sys.argv[5]
 
-	commit_str = "UPDATE customers SET admin = 0 WHERE imsi = " imsi
+	commit_str = "UPDATE customers SET admin = 0 WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
