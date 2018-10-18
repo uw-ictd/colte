@@ -1,5 +1,5 @@
 Package: colte-spgw
-Version: 0.9.5
+Version: 0.9.6
 Maintainer: sevilla@cs.washington.edu
 Architecture: amd64
 Description: The OpenAirInterface SPGW
