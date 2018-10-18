@@ -26,27 +26,29 @@ command = sys.argv[4]
 if (command == "add"):
 	imsi = sys.argv[5]
 	msisdn = sys.argv[6]
-	key = sys.argv[7]
-	opc = sys.argv[8]
+	ip = sys.argv[7]
+	key = sys.argv[8]
+	opc = sys.argv[9]
+
 
 	# commit_str = "INSERT INTO pdn (apn, pgw_id, users_imsi) VALUES ('ltebox', 3, " + imsi + ")"
-	commit_str = "INSERT INTO pdn (users_imsi) VALUES ('ltebox', 3, " + imsi + ")"
+	commit_str = "INSERT INTO pdn (users_imsi) VALUES (" + imsi + ")"
 	cursor.execute(commit_str)
 	print commit_str
 
 	# commit_str = "INSERT INTO users (imsi, msisdn, `key`, OPc, sqn, rand) VALUES ('" + imsi + "', '" + msisdn + "', " + key + ", " + opc + ", 351, 0x0)"
-	commit_str = "INSERT INTO users (imsi, msisdn, `key`, OPc) VALUES ('" + imsi + "', '" + msisdn + "', " + key + ", " + opc + ", 351, 0x0)"
+	commit_str = "INSERT INTO users (imsi, msisdn, `key`, OPc) VALUES (" + imsi + ", " + msisdn + ", " + key + ", " + opc + ")"
 	cursor.execute(commit_str)
 	print commit_str
 
 	# commit_str = "INSERT INTO customers (imsi, raw_down, raw_up, data_balance, balance, bridged, enabled, msisdn) VALUES (" + imsi + ", 0, 0, 10000000, 500, 1, 1, '" + msisdn + "')"
-	commit_str = "INSERT INTO customers (imsi, msisdn) VALUES (" + imsi + ", 0, 0, 10000000, 500, 1, 1, '" + msisdn + "')"
+	commit_str = "INSERT INTO customers (imsi, msisdn) VALUES (" + imsi + ", 0, 0, 10000000, 500, 1, 1, " + msisdn + ")"
 	cursor.execute(commit_str)
 	print commit_str
 
 	# ip = GENERATE IP ADDRESS
 	# commit_str = "INSERT INTO static_ips (imsi, ip) VALUES ('" + imsi + "', '" + ip + "')"
-	commit_str = "INSERT INTO static_ips (imsi, ip) VALUES ('" + imsi + "', '" + ip + "')"
+	commit_str = "INSERT INTO static_ips (imsi, ip) VALUES (" + imsi + ", '" + ip + "')"
 	cursor.execute(commit_str)
 	print commit_str
 
