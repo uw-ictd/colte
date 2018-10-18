@@ -1,7 +1,7 @@
 import MySQLdb
 import os
 import sys
-
+import decimal
 
 #########################################################################
 ############### SETUP: LOAD YAML VARS AND CONNECT TO DB #################
@@ -9,12 +9,12 @@ import sys
 
 db_user = sys.argv[1]
 db_pass = sys.argv[2]
-db = sys.argv[3]
+dbname = sys.argv[3]
 
 db = MySQLdb.connect(host="localhost",
-                     user=os.environ.get('COLTE_USER'),
-                     passwd=os.environ.get('COLTE_DBPASS'),
-		     	 	 db="colte_db")
+                     user=db_user,
+                     passwd=db_pass,
+		     	 	 db=dbname)
 cursor = db.cursor()
 
 num_args = len(sys.argv)
@@ -86,10 +86,10 @@ if (command == "topup"):
 	numrows = cursor.execute(commit_str)
 	for row in cursor:
 		balance = row[0]
-		new_balance = new_balance + balance
+		new_balance = decimal.Decimal(new_balance) + balance
 
 	# STEP TWO: update balance
-	commit_str = "UPDATE customers SET balance = " + new_balance + " WHERE imsi = " + imsi
+	commit_str = "UPDATE customers SET balance = " + str(new_balance) + " WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
@@ -125,3 +125,7 @@ if (command == "noadmin"):
 	print commit_str
 
 # SMS TODO: sync ?!?
+
+db.commit()
+cursor.close()
+db.close()
