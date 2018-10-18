@@ -1,3 +1,2 @@
-systemctl stop colte-epc colte-tcpdump
 systemctl daemon-reload
 echo "Uninstalled OpenAirInterface EPC"

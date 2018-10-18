@@ -5,7 +5,7 @@ Requires=network.target colte-hss.service
 PartOf=colte-epc.service
 
 [Service]
-ExecStartPre=/bin/bash -c "sleep 3"
+ExecStartPre=/bin/bash -c "sleep 5"
 ExecStart=/usr/bin/mme
 Restart=always
 RestartSec=5

@@ -1,3 +1,2 @@
-systemctl stop colte-hss
 systemctl daemon-reload
 echo "Uninstalled OpenAirInterface HSS"

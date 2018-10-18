@@ -61,6 +61,7 @@
       dest: "/etc/systemd/system/colte-tcpdump.service"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
+    notify: reload systemd
     become: yes
     with_items:
     - {field: 'ExecStart', line: "ExecStart=/bin/bash -c \"/usr/sbin/tcpdump -i {{ enb_iface }} -w /var/log/colte/tcpdump/sctp_$(/bin/date +\"%%Y-%%m-%%d-%%H%%MZ\").pcap\""}
@@ -80,6 +81,7 @@
       line: "{{ item.line }}"
     when: bind_installed
     become: yes
+    notify: reload bind9
     with_items:
     - {field: "#SUBNET", line: "  {{ lte_subnet }}; #SUBNET"}
 
@@ -90,32 +92,24 @@
       line: "{{ item.line }}"
     when: bind_installed
     become: yes
+    notify: reload bind9
     with_items:
     - {field: "zone ", line: "zone \"{{ network_name }}\" {"}
 
   - name: write network name to zonefile
     lineinfile:
-      dest: "/etc/bind/zones/bind_db"
+      dest: "/etc/bind/zones/colte_db"
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     when: bind_installed
     become: yes
+    notify: reload bind9
     with_items:
     - {field: "admin", line: "@ IN  SOA colte.{{ network_name }}. admin.{{ network_name }}. ("}
     - {field: "N1", line: " IN  NS  colte.{{ network_name }}. ;N1"}
 # SMS TODO: DYNAMICALLY WRITE/REPLACE 192.168.151.1?!?
     - {field: "A1", line: "colte.{{ network_name }}.  IN  A 192.168.151.1 ;A1"}
     - {field: "A2", line: "network.{{ network_name }}.  IN  A 192.168.151.1 ;A2"}
-
-  - name: reload bind9
-    systemd: name=bind9 state=reloaded
-    become: yes
-    when: bind_installed
-
-  - name: start bind9
-    systemd: name=bind9 state=started
-    become: yes
-    when: bind_installed
 
 
 
@@ -212,6 +206,7 @@
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     become: yes
+    notify: reload nginx
     when: webgui_site_installed
     with_items:
     - {field: "server_name", line: "  server_name network.{{ network_name }};"}
@@ -245,11 +240,6 @@
     - {field: "interface", line: "interface: \"{{ wan_iface }}\""}
     become: yes
 
-  - name: reload nginx
-    systemd: name=nginx state=reloaded
-    become: yes
-    ignore_errors: yes
-
 
 
 
@@ -264,6 +254,7 @@
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     become: yes
+    notify: reload nginx
     when: chat_installed
     with_items:
     - {field: "server_name", line: "  server_name chat.{{ network_name }};"}
@@ -300,6 +291,7 @@
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     become: yes
+    notify: reload nginx
     when: osm_site_installed
     with_items:
     - {field: "server_name omt", line: "  server_name omt.{{ network_name }};"}
@@ -332,6 +324,7 @@
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     become: yes
+    notify: reload nginx
     when: media_installed
     with_items:
     - {field: "server_name", line: "  server_name media.{{ network_name }};"}
@@ -359,6 +352,7 @@
       regexp: "{{ item.field }}"
       line: "{{ item.line }}"
     become: yes
+    notify: reload nginx
     when: wiki_installed
     with_items:
     - {field: "server_name wiki", line: "  server_name wiki.{{ network_name }};"}
@@ -374,16 +368,3 @@
     with_items:
     - {field: "#COLTEWIKI", line: "127.0.0.1 wiki.{{ network_name }} #COLTEWIKI"}
     - {field: "#COLTEXOWA", line: "127.0.0.1 xowa.{{ network_name }} #COLTEXOWA"}
-
-
-
-
-
-######################################
-############# NGINX ##################
-######################################
-  - name: reload nginx
-    systemd: name=nginx state=reloaded
-    become: yes
-    ignore_errors: yes
-

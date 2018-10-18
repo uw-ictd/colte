@@ -7,5 +7,6 @@ rm -rf /etc/nginx/sites-enabled/default
 systemctl restart nginx
 
 colteconf update
+sudo systemctl start bind9
 
 echo "Installed CoLTE Basic Webservices"

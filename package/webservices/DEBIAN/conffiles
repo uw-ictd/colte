@@ -1,0 +1,3 @@
+/etc/bind/zones/colte_db
+/etc/nginx/sites-available/webconf.conf
+/etc/nginx/sites-available/webgui.conf
