@@ -52,7 +52,7 @@ if [ "$1" = "add" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb add imsi msisdn key opc\""
 		exit 1
 	fi
-	python script $user $pass $db $1 $2 $3 $4 $5
+	python $script $user $pass $db $1 $2 $3 $4 $5
 	exit 0
 fi
 
@@ -61,7 +61,7 @@ if [ "$1" = "remove" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb remove imsi\""
 		exit 1
 	fi
-	python script $user $pass $db $1 $2
+	python $script $user $pass $db $1 $2
 	exit 0
 fi
 
@@ -70,7 +70,7 @@ if [ "$1" = "topup" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb topup imsi money\""
 		exit 1
 	fi
-	python script $user $pass $db $1 $2 $3
+	python $script $user $pass $db $1 $2 $3
 	exit 0
 fi
 
@@ -79,7 +79,7 @@ if [ "$1" = "disable" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb disable imsi\""
 		exit 1
 	fi
-	python script $user $pass $db $1 $2
+	python $script $user $pass $db $1 $2
 	exit 0
 fi
 
@@ -88,7 +88,7 @@ if [ "$1" = "enable" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb enable imsi\""
 		exit 1
 	fi
-	python script $user $pass $db $1 $2
+	python $script $user $pass $db $1 $2
 	exit 0
 fi
 
@@ -97,7 +97,7 @@ if [ "$1" = "admin" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb admin imsi\""
 		exit 1
 	fi
-	python script $user $pass $db $1 $2
+	python $script $user $pass $db $1 $2
 	exit 0
 fi
 
@@ -106,7 +106,7 @@ if [ "$1" = "noadmin" ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb noadmin imsi\""
 		exit 1
 	fi
-	python script $user $pass $db $1 $2
+	python $script $user $pass $db $1 $2
 	exit 0
 fi
 
@@ -120,7 +120,7 @@ fi
 # 		echo "coltedb: incorrect number of args, format is \"coltedb sync\""
 # 		exit 1
 # 	fi
-# 	python script sync
+# 	python $script sync
 # fi
 
 display_help
