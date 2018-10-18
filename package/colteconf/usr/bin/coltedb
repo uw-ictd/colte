@@ -5,7 +5,7 @@ version=0.9.3
 
 display_help() {
     echo "COMMANDS:" >&2
-    echo "   add {imsi msisdn key opc}: adds a user to the network"
+    echo "   add {imsi msisdn ip key opc}: adds a user to the network"
     echo "   remove {imsi}: removes a user from the network"
     echo "   topup {imsi} {money}: adds money to a user's account"
     echo "   disable {imsi}: sets a user's balance to 0 and kicks them off the network"
@@ -48,11 +48,11 @@ pass=$(load_yml "mysql_password")
 db=$(load_yml "mysql_db")
 
 if [ "$1" = "add" ]; then
-	if [ "$#" -ne 5 ]; then
-		echo "coltedb: incorrect number of args, format is \"coltedb add imsi msisdn key opc\""
+	if [ "$#" -ne 6 ]; then
+		echo "coltedb: incorrect number of args, format is \"coltedb add imsi msisdn ip key opc\""
 		exit 1
 	fi
-	python $script $user $pass $db $1 $2 $3 $4 $5
+	python $script $user $pass $db $1 $2 $3 $4 $5 $6
 	exit 0
 fi
 
