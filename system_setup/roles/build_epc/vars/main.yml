@@ -2,8 +2,8 @@
 epc_dir: "{{ colte_dir }}/epc"
 package_dir: "{{ colte_dir }}/package"
 
-colteconf_version: "0.9.3"
-db_version: "0.9.3"
+colteconf_version: "0.9.4"
+db_version: "0.9.4"
 
 hss_version: "0.9.6"
 mme_version: "0.9.3"
