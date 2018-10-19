@@ -92,7 +92,7 @@ CREATE TABLE `users` (
   `ue_ambr_ul` bigint(20) unsigned DEFAULT '50000000' COMMENT 'The Maximum Aggregated uplink MBRs to be shared across all Non-GBR bearers according to the subscription of the user.',
   `ue_ambr_dl` bigint(20) unsigned DEFAULT '100000000' COMMENT 'The Maximum Aggregated downlink MBRs to be shared across all Non-GBR bearers according to the subscription of the user.',
   `access_restriction` int(10) unsigned DEFAULT '47' COMMENT 'Indicates the access restriction subscription information. 3GPP TS.29272 #7.3.31',
-  `mme_cap` int(10) unsigned zerofill DEFAULT NULL COMMENT 'Indicates the capabilities of the MME with respect to core functionality e.g. regional access restrictions.',
+  `mme_cap` int(10) unsigned zerofill DEFAULT 0 COMMENT 'Indicates the capabilities of the MME with respect to core functionality e.g. regional access restrictions.',
   `mmeidentity_idmmeidentity` int(11) NOT NULL DEFAULT '1',
   `key` varbinary(16) NOT NULL DEFAULT '0' COMMENT 'UE security key',
   `RFSP-Index` smallint(5) unsigned NOT NULL DEFAULT '1' COMMENT 'An index to specific RRM configuration in the E-UTRAN. Possible values from 1 to 256',
