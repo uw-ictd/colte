@@ -38,7 +38,7 @@ if (command == "add"):
 	cursor.execute(commit_str)
 	print commit_str
 
-	commit_str = "INSERT INTO customers (imsi, msisdn) VALUES ('" + imsi + "', '" + msisdn + "'')"
+	commit_str = "INSERT INTO customers (imsi, msisdn) VALUES ('" + imsi + "', '" + msisdn + "')"
 	cursor.execute(commit_str)
 	print commit_str
 
