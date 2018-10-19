@@ -1,5 +1,5 @@
 Package: colte-db
-Version: 0.9.3
+Version: 0.9.4
 Maintainer: sevilla@cs.washington.edu
 Architecture: amd64
 Description: Sample database for use with CoLTE
