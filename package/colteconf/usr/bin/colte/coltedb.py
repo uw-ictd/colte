@@ -50,7 +50,7 @@ if (command == "add"):
 #########################################################################
 ############### OPTION TWO: REMOVE USER FROM THE DATABASE ###############
 #########################################################################
-if (command == "remove"):
+else if (command == "remove"):
 	imsi = sys.argv[5]
 	commit_str = "DELETE FROM pdn WHERE users_imsi = " + imsi
 	cursor.execute(commit_str)
@@ -71,7 +71,7 @@ if (command == "remove"):
 #########################################################################
 ############### OPTION THREE: TOPUP (ADD BALANCE TO USER) ###############
 #########################################################################
-if (command == "topup"):
+else if (command == "topup"):
 	imsi = sys.argv[5]
 	amount = sys.argv[6]
 	new_balance = amount
@@ -79,11 +79,11 @@ if (command == "topup"):
 	#STEP ONE: query information
 	# SMS TODO #1: check for decimal overflow
 	# SMS TODO #2: improve this for-loop code
-	commit_str = "SELECT balance FROM customers WHERE imsi = " + imsi
+	commit_str = "SELECT balance FROM customers WHERE imsi = " + imsi + " FOR UPDATE"
 	numrows = cursor.execute(commit_str)
 	for row in cursor:
 		balance = row[0]
-		new_balance = decimal.Decimal(new_balance) + balance
+		new_balance = decimal.Decimal(new_balance) + decimal.Decimal(balance)
 
 	# STEP TWO: update balance
 	commit_str = "UPDATE customers SET balance = " + str(new_balance) + " WHERE imsi = " + imsi
@@ -93,28 +93,28 @@ if (command == "topup"):
 #########################################################################
 ############### OPTION FOUR: DISABLE A USER (AND ZERO-OUT BALANCE???) ###
 #########################################################################
-if (command == "disable"):
+else if (command == "disable"):
 	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET enabled = 0, data_balance = 0 WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
-if (command == "enable"):
+else if (command == "enable"):
 	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET enabled = 1, data_balance = 10000000 WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
-if (command == "admin"):
+else if (command == "admin"):
 	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET admin = 1 WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
-if (command == "noadmin"):
+else if (command == "noadmin"):
 	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET admin = 0 WHERE imsi = " + imsi
