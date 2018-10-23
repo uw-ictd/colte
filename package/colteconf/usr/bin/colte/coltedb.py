@@ -50,7 +50,7 @@ if (command == "add"):
 #########################################################################
 ############### OPTION TWO: REMOVE USER FROM THE DATABASE ###############
 #########################################################################
-else if (command == "remove"):
+elif (command == "remove"):
 	imsi = sys.argv[5]
 	commit_str = "DELETE FROM pdn WHERE users_imsi = " + imsi
 	cursor.execute(commit_str)
@@ -71,7 +71,7 @@ else if (command == "remove"):
 #########################################################################
 ############### OPTION THREE: TOPUP (ADD BALANCE TO USER) ###############
 #########################################################################
-else if (command == "topup"):
+elif (command == "topup"):
 	imsi = sys.argv[5]
 	amount = sys.argv[6]
 	new_balance = amount
@@ -93,28 +93,28 @@ else if (command == "topup"):
 #########################################################################
 ############### OPTION FOUR: DISABLE A USER (AND ZERO-OUT BALANCE???) ###
 #########################################################################
-else if (command == "disable"):
+elif (command == "disable"):
 	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET enabled = 0, data_balance = 0 WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
-else if (command == "enable"):
+elif (command == "enable"):
 	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET enabled = 1, data_balance = 10000000 WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
-else if (command == "admin"):
+elif (command == "admin"):
 	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET admin = 1 WHERE imsi = " + imsi
 	cursor.execute(commit_str)
 	print commit_str
 
-else if (command == "noadmin"):
+elif (command == "noadmin"):
 	imsi = sys.argv[5]
 
 	commit_str = "UPDATE customers SET admin = 0 WHERE imsi = " + imsi
