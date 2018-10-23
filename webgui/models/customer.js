@@ -62,15 +62,15 @@ var customer = {
   // returns promise with no data
   // currently logs success/error to console
   transfer_balance(sender_imsi, receiver_msisdn, amount) {
-    function fetch_bals() {
-      return knex.select('balance').where('imsi', sender_imsi).from('customers').then((sender_bal) => {
-        return knex.select('balance').where('msisdn', receiver_msisdn).from('customers')
+    function fetch_bals(trx) {
+      return knex.select('balance').where('imsi', sender_imsi).from('customers').transacting(trx).then((sender_bal) => {
+        return knex.select('balance').where('msisdn', receiver_msisdn).from('customers').transacting(trx)
           .then((receiver_bal) => { return [sender_bal, receiver_bal]; });
       });
     }
 
     function transfer_func(trx) {
-      return fetch_bals().then((data) => {
+      return fetch_bals(trx).then((data) => {
         var err = null;
         var sender_bal;
         var receiver_bal;
@@ -92,17 +92,18 @@ var customer = {
         }
         sender_bal = Number(sender_bal) - Number(amount);
         receiver_bal = Number(receiver_bal) + Number(amount);
-        return trx.update({ balance: sender_bal }).where('imsi', sender_imsi).from('customers')
+        return trx.update({ balance: sender_bal }).where('imsi', sender_imsi).from('customers').transacting(trx)
         .then((unused_data) => {
           // note we're still using the data argument from the fetch_bals promise
-          return knex.update({ balance: receiver_bal }).where('msisdn', receiver_msisdn).from('customers')
-        })
+          return knex.update({ balance: receiver_bal }).where('msisdn', receiver_msisdn).from('customers').transacting(trx).then(trx.commit, trx.rollback)
+        }) 
         .then((data2) => {
           var result = "Transfered " + amount + ". New balances are " + sender_bal + " and " + receiver_bal;
           console.log(result);
         })
       });
     }
+
     return knex.transaction(transfer_func);
   },
 
@@ -110,30 +111,35 @@ var customer = {
 // We can cancel the transaction if (for some reason) the user doesn't 
 // have enough funds, otherwise no logic is really needed.
   purchase_package(imsi, cost, data) {
-    console.log("IMSI = " + imsi + " cost = " + cost + " data = " + data)
-    return knex.select('balance', 'data_balance').where('imsi', imsi).from('customers')
-    .catch(function(error) {
-      throw new Error(error.sqlMessage);
-    })
-    .then(function(rows) {
-      if (rows.length != 1) {
-        throw new Error("IMSI error");
-      }
-      return rows;
-    })
-    .then(function(rows) {
-      var newBalance = parseInt(rows[0].balance) - parseInt(cost);
-      var newData = parseInt(rows[0].data_balance) + parseInt(data);
 
-      if (newBalance < 0) {
-        throw new Error("Insufficient funds for transfer!");
-      }      
-
-      return knex.update({balance: newBalance, data_balance: newData}).where('imsi', imsi).from('customers')
-      .catch(function (error) {
+    function purchase_func(trx) {
+      console.log("IMSI = " + imsi + " cost = " + cost + " data = " + data);
+      return knex.select('balance', 'data_balance').where('imsi', imsi).from('customers').transacting(trx)
+      .catch(function(error) {
         throw new Error(error.sqlMessage);
-      });
-    })
+      })
+      .then(function(rows) {
+        if (rows.length != 1) {
+          throw new Error("IMSI error");
+        }
+        return rows;
+      })
+      .then(function(rows) {
+        var newBalance = parseInt(rows[0].balance) - parseInt(cost);
+        var newData = parseInt(rows[0].data_balance) + parseInt(data);
+
+        if (newBalance < 0) {
+          throw new Error("Insufficient funds for transfer!");
+        }      
+
+        return knex.update({balance: newBalance, data_balance: newData}).where('imsi', imsi).from('customers').transacting(trx).then(trx.commit, trx.rollback)
+        .catch(function (error) {
+          throw new Error(error.sqlMessage);
+        });
+      })
+    }
+
+    return knex.transaction(purchase_func)
   }
 }
 
