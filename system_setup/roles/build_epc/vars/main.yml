@@ -7,7 +7,7 @@ db_version: "0.9.5"
 
 hss_version: "0.9.6"
 mme_version: "0.9.3"
-spgw_version: "0.9.6"
+spgw_version: "0.9.7"
 
 epc_version: "0.9.5"
 
