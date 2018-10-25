@@ -1,0 +1,2 @@
+systemctl daemon-reload
+echo "Uninstalled OpenAirInterface HSS"
