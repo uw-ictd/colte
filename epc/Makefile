@@ -142,6 +142,8 @@ conf:
 		--name colte-conf \
 		--version $(CONF_VERSION) \
 		--depends 'ansible, python-mysqldb, colte-db' \
+		--after-install ./package/conf/postinst \
+		--after-remove ./package/conf/postrm \
 		./package/conf/colteconf=/usr/bin/ \
 		./package/conf/coltedb=/usr/bin/ \
 		./package/conf/colte=/usr/bin/
