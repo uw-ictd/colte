@@ -1,0 +1,20 @@
+#!/bin/bash
+
+### ONLY create database if it doesn't already exist!
+mysqlshow | grep colte_db
+if [ $? == 1 ]; then
+	# create colte_db user and database
+	sudo mysql -e "CREATE DATABASE colte_db;"
+	sudo mysql -e "CREATE USER colte_db@localhost IDENTIFIED BY 'colte_db';"
+	sudo mysql -e "GRANT ALL PRIVILEGES ON colte_db.* TO colte_db@localhost;"
+	sudo mysql -e "FLUSH PRIVILEGES;"
+	# import test database
+	mysql -u colte_db -pcolte_db colte_db < /usr/local/etc/colte/sample_db.sql
+	echo "created CoLTE Test Database"
+else
+	echo "warning: colte_db already exists even though debian package was not installed? colte-db not changing anything, just to be safe."
+fi
+
+### ADD MIGRATIONS HERE?!?
+
+echo "Installed colte-db"

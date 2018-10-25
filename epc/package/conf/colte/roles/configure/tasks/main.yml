@@ -1,0 +1,370 @@
+---
+#### CHECK/DEFINE WHAT COMPONENTS ARE INSTALLED
+  - name: check for file existence
+    stat: 
+      path: "{{ item.path }}"
+    register: files
+    with_items:
+    - {path: "/etc/bind/named.conf.options"}
+    - {path: "/usr/local/etc/oai/hss.conf"}
+    - {path: "/usr/local/etc/oai/mme.conf"}
+    - {path: "/usr/local/etc/oai/spgw.conf"}
+    - {path: "/usr/local/etc/colte/webgui.env"}
+    - {path: "/etc/nginx/sites-available/webgui.conf"}
+    - {path: "/etc/nginx/sites-available/webconf.conf"}
+    - {path: "/etc/haulage/config.yml"}    
+    - {path: "/etc/nginx/sites-available/rocketchat.conf"}
+    - {path: "/etc/nginx/sites-available/osm.conf"}  
+    - {path: "/etc/nginx/sites-available/osm.conf"}  
+    - {path: "/etc/nginx/sites-available/ums.conf"}
+    - {path: "/etc/nginx/sites-available/xowa.conf"}
+
+  - name: set variables
+    set_fact:
+      bind_installed: files.results[0].stat.exists
+
+      hss_installed: files.results[1].stat.exists
+      mme_installed: files.results[2].stat.exists
+      spgw_installed: files.results[3].stat.exists
+
+      webgui_installed: files.results[4].stat.exists
+      webgui_site_installed: files.results[5].stat.exists
+      webconf_installed: files.results[6].stat.exists
+      haulage_installed: files.results[7].stat.exists
+
+      chat_installed: files.results[8].stat.exists
+      # SMS TODO: re-enable OSM once we dockerize it
+      # osm_installed: files.results[9].stat.exists
+      osm_installed: false
+      osm_site_installed: files.results[10].stat.exists
+      media_installed: files.results[11].stat.exists
+      wiki_installed: files.results[12].stat.exists
+
+
+
+
+
+######################################
+############# SYSTEM CONF ############
+######################################
+
+  - name: update mysql password/privileges
+    mysql_user:
+      name: "{{ mysql_user }}"
+      password: "{{ mysql_password }}"
+      host: localhost
+      priv: "{{ mysql_db }}.*:ALL"
+    become: yes
+
+  - name: dynamically write tcpdump.service file
+    lineinfile:
+      dest: "/etc/systemd/system/colte-tcpdump.service"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    notify: reload systemd
+    become: yes
+    with_items:
+    - {field: 'ExecStart', line: "ExecStart=/bin/bash -c \"/usr/sbin/tcpdump -i {{ enb_iface }} -w /var/log/colte/tcpdump/sctp_$(/bin/date +\"%%Y-%%m-%%d-%%H%%MZ\").pcap\""}
+
+
+
+
+
+######################################
+############# BIND CONF ##############
+######################################
+
+  - name: write information to named.conf.options
+    lineinfile:
+      dest: "/etc/bind/named.conf.options"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: bind_installed
+    become: yes
+    notify: reload bind9
+    with_items:
+    - {field: "#SUBNET", line: "  {{ lte_subnet }}; #SUBNET"}
+
+  - name: write network name to named.conf.local
+    lineinfile:
+      dest: "/etc/bind/named.conf.local"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: bind_installed
+    become: yes
+    notify: reload bind9
+    with_items:
+    - {field: "zone ", line: "zone \"{{ network_name }}\" {"}
+
+  - name: write network name to zonefile
+    lineinfile:
+      dest: "/etc/bind/zones/colte_db"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: bind_installed
+    become: yes
+    notify: reload bind9
+    with_items:
+    - {field: "admin", line: "@ IN  SOA colte.{{ network_name }}. admin.{{ network_name }}. ("}
+    - {field: "N1", line: " IN  NS  colte.{{ network_name }}. ;N1"}
+# SMS TODO: DYNAMICALLY WRITE/REPLACE 192.168.151.1?!?
+    - {field: "A1", line: "colte.{{ network_name }}.  IN  A 192.168.151.1 ;A1"}
+    - {field: "A2", line: "network.{{ network_name }}.  IN  A 192.168.151.1 ;A2"}
+
+
+
+
+
+######################################
+############# EPC CONF ###############
+######################################
+
+  - name: write information to hss.conf
+    lineinfile:
+      dest: "/usr/local/etc/oai/hss.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+      # owner: "{{ ansible_user_id }}"
+      # group: "{{ ansible_user_id }}"
+      # mode: 0644
+    when: hss_installed
+    with_items:
+    - {field: 'MYSQL_user', line: 'MYSQL_user   = "{{ mysql_user }}";'}
+    - {field: 'MYSQL_pass', line: 'MYSQL_pass   = "{{ mysql_password }}";'}
+    - {field: 'MYSQL_db', line: 'MYSQL_db     = "{{ mysql_db }}";'}
+    become: yes
+
+  - name: write information to mme.conf
+    lineinfile:
+      dest: "/usr/local/etc/oai/mme.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: mme_installed
+    with_items:
+    - {field: "MME_INTERFACE_NAME_FOR_S1_MME", line: "        MME_INTERFACE_NAME_FOR_S1_MME         = \"{{ enb_iface }}\";"}
+    # SMS: Note that right now we just set it to 0.0.0.0 so that it serves on any address.
+    # - {field: "MME_IPV4_ADDRESS_FOR_S1_MME", line: "        MME_IPV4_ADDRESS_FOR_S1_MME         = \"{{ enb_iface_addr }}\";"}
+    become: yes
+
+  - name: write information to spgw.conf
+    lineinfile:
+      dest: "/usr/local/etc/oai/spgw.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: spgw_installed
+    with_items:
+    - {field: "SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP", line: "        SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP         = \"{{ enb_iface }}\";"}
+    - {field: "SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP", line: "        SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP         = \"{{ enb_iface_addr }}\";"}
+    - {field: "PGW_INTERFACE_NAME_FOR_SGI", line: "        PGW_INTERFACE_NAME_FOR_SGI            = \"{{ wan_iface }}\";"}
+    - {field: "IPV4_LIST", line: "        IPV4_LIST = (\"{{ lte_subnet }}\");"}
+    - {field: 'MYSQL_user', line: '    MYSQL_user   = "{{ mysql_user }}";'}
+    - {field: 'MYSQL_pass', line: '    MYSQL_pass   = "{{ mysql_password }}";'}
+    - {field: 'MYSQL_db', line: '    MYSQL_db   = "{{ mysql_db }}";'}
+# SMS TODO: THESE VALUES ARE HARD-CODED WE NEED TO SET THEM TO COLTE'S VALUE IF-AND-ONLY-IF BIND OPTION TURNED ON
+    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: '    DEFAULT_DNS_IPV4_ADDRESS = "192.168.151.1";'}
+    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: '    DEFAULT_DNS_SEC_IPV4_ADDRESS = "192.168.151.1";'}
+    become: yes
+
+  - name: update spgw_nat script with wan_iface
+    lineinfile:
+      dest: "/usr/bin/spgw_nat.sh"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: spgw_installed
+    with_items:
+    - {field: "-C POSTROUTING -o", line: "iptables -t nat -C POSTROUTING -o {{ wan_iface }} -j MASQUERADE"}
+    - {field: "-A POSTROUTING -o", line: "     iptables -t nat -A POSTROUTING -o {{ wan_iface }} -j MASQUERADE"}
+    - {field: "-C FORWARD -i gtp0 -o", line: "iptables -C FORWARD -i gtp0 -o {{ wan_iface }} -j ACCEPT"}
+    - {field: "-A FORWARD -i gtp0 -o", line: "     iptables -A FORWARD -i gtp0 -o {{ wan_iface }} -j ACCEPT"}
+    - {field: "-C FORWARD -i .* -o gtp0", line: "iptables -C FORWARD -i {{ wan_iface }} -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT"}
+    - {field: "-A FORWARD -i .* -o gtp0", line: "     iptables -A FORWARD -i {{ wan_iface }} -o gtp0 -m state --state RELATED,ESTABLISHED -j ACCEPT"}
+    become: yes
+
+
+
+
+
+######################################
+############# WEBGUI CONF ############
+######################################
+
+  - name: write environment information to webgui.env
+    lineinfile:
+      dest: "/usr/local/etc/colte/webgui.env"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    when: webgui_installed
+    with_items:
+    - {field: 'DB_USER', line: 'DB_USER={{ mysql_user }}'}
+    - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
+    - {field: 'DB_NAME', line: 'DB_NAME={{ mysql_db }}'}
+
+  - name: write information to webgui.conf
+    lineinfile:
+      dest: "/etc/nginx/sites-available/webgui.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    notify: reload nginx
+    when: webgui_site_installed
+    with_items:
+    - {field: "server_name", line: "  server_name network.{{ network_name }};"}
+
+  - name: add webgui pointer in /etc/hosts
+    lineinfile:
+      dest: "/etc/hosts"
+      regexp: "#COLTEWEBGUI"
+      line: "127.0.0.1 network.{{ network_name }} #COLTEWEBGUI"
+    when: webgui_site_installed
+    become: yes
+
+
+
+
+
+######################################
+############ HAULAGE CONF ############
+######################################
+
+  - name: write information to haulage config.yml
+    lineinfile:
+      dest: "/etc/haulage/config.yml"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: haulage_installed
+    with_items:
+    - {field: "dbLocation", line: "dbLocation: \"{{ mysql_db }}\""}
+    - {field: "dbUser", line: "dbUser: \"{{ mysql_user }}\""}
+    - {field: "dbPass", line: "dbPass: \"{{ mysql_password }}\""}
+    - {field: "interface", line: "interface: \"{{ wan_iface }}\""}
+    become: yes
+
+
+
+
+
+######################################
+############# CHAT CONF ##############
+######################################
+
+  - name: write information to rocketchat.conf
+    lineinfile:
+      dest: "/etc/nginx/sites-available/rocketchat.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    notify: reload nginx
+    when: chat_installed
+    with_items:
+    - {field: "server_name", line: "  server_name chat.{{ network_name }};"}
+
+  - name: add chat pointer in /etc/hosts
+    lineinfile:
+      dest: "/etc/hosts"
+      regexp: "#COLTECHAT"
+      line: "127.0.0.1 chat.{{ network_name }} #COLTECHAT"
+    when: chat_installed
+    become: yes
+
+
+
+
+
+######################################
+############# OSM CONF ###############
+######################################
+
+  - name: dynamically point to the omt server in leaflet.osm.js
+    lineinfile:
+      dest: "{{ osm_dir }}/vendor/assets/leaflet/leaflet.osm.js"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: osm_installed
+    become: yes
+    with_items:
+    - {field: "url: 'http://omt", line: "    url: 'http://omt.{{ network_name }}/styles/osm-bright/{z}/{x}/{y}.png',"}
+
+  - name: write information to osm.conf
+    lineinfile:
+      dest: "/etc/nginx/sites-available/osm.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    notify: reload nginx
+    when: osm_site_installed
+    with_items:
+    - {field: "server_name omt", line: "  server_name omt.{{ network_name }};"}
+    - {field: "server_name maps", line: "  server_name maps.{{ network_name }};"}
+
+  - name: add maps pointers in /etc/hosts
+    lineinfile:
+      dest: "/etc/hosts"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    when: osm_site_installed
+    with_items:
+    - {field: "#COLTEOMT", line: "127.0.0.1 omt.{{ network_name }} #COLTEOMT"}
+    - {field: "#COLTEMAPS", line: "127.0.0.1 maps.{{ network_name }} #COLTEMAPS"}
+
+## SMS TODO: BIND?!?
+
+
+
+
+
+######################################
+############# MEDIA CONF #############
+######################################
+
+  - name: write information to ums.conf (used for nginx)
+    lineinfile:
+      dest: "/etc/nginx/sites-available/ums.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    notify: reload nginx
+    when: media_installed
+    with_items:
+    - {field: "server_name", line: "  server_name media.{{ network_name }};"}
+
+  - name: add media pointer in /etc/hosts
+    lineinfile:
+      dest: "/etc/hosts"
+      regexp: "#COLTEMEDIA"
+      line: "127.0.0.1 media.{{ network_name }} #COLTEMEDIA"
+    when: media_installed
+    become: yes
+
+
+
+
+
+
+######################################
+############# XOWA CONF ##############
+######################################
+
+  - name: write information to xowa.conf
+    lineinfile:
+      dest: "/etc/nginx/sites-available/xowa.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    notify: reload nginx
+    when: wiki_installed
+    with_items:
+    - {field: "server_name wiki", line: "  server_name wiki.{{ network_name }};"}
+    - {field: "server_name xowa", line: "  server_name xowa.{{ network_name }};"}
+
+  - name: add wiki pointers in /etc/hosts
+    lineinfile:
+      dest: "/etc/hosts"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    when: wiki_installed
+    with_items:
+    - {field: "#COLTEWIKI", line: "127.0.0.1 wiki.{{ network_name }} #COLTEWIKI"}
+    - {field: "#COLTEXOWA", line: "127.0.0.1 xowa.{{ network_name }} #COLTEXOWA"}

@@ -1,0 +1,11 @@
+[Unit]
+Description=CoLTE EPC Meta-Service
+Wants=colte-hss.service colte-mme.service colte-spgw.service colte-spgw_nat.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
