@@ -2,16 +2,22 @@
 USER_EMAIL=$(shell git config --get user.email)
 
 HSS_VERSION=0.9.6
-HSS_LOCATION=/usr/local/bin/oai_hss
-HSS_CONF_LOCATION=./package/hss/hss.conf
-HSS_FREEDIAMETER_LOCATION=./package/hss/freeDiameter
-HSS_SERVICE_LOCATION=./package/hss/colte-hss.service
+MME_VERSION=0.9.3
+SPGW_VERSION=0.9.7
+EPC_VERSION=0.9.5
+COLTE_VERSION=0.9.5
+DB_VERSION=0.9.5
+CONF_VERSION=0.9.5
+OAI_DEPS_VERSION=0.9.0
+
 hss:
 	fpm --input-type dir \
 		--output-type deb \
 		--force \
 		--vendor uw-ictd \
 		--config-files /usr/local/etc/oai/hss.conf \
+		--config-files /usr/local/etc/oai/freeDiameter/acl.conf \
+		--config-files /usr/local/etc/oai/freeDiameter/hss_fd.conf \
 		--maintainer sevilla@cs.washington.edu \
 		--description "The OpenAirInterface HSS" \
 		--url "https://github.com/uw-ictd/colte" \
@@ -21,22 +27,18 @@ hss:
 		--depends 'default-libmysqlclient-dev, libconfig9, libsctp1, colte-freediameter, colte-db' \
 		--after-install ./package/hss/postinst \
 		--after-remove ./package/hss/postrm \
-		$(HSS_LOCATION)=/usr/bin/ \
-		$(HSS_CONF_LOCATION)=/usr/local/etc/oai/hss.conf \
+		/usr/local/bin/oai_hss=/usr/bin/ \
+		./package/hss/hss.conf=/usr/local/etc/oai/hss.conf \
 		./package/hss/colte-hss.service=/etc/systemd/system/colte-hss.service \
-		$(HSS_FREEDIAMETER_LOCATION)=/usr/local/etc/oai/
+		./package/hss/freeDiameter=/usr/local/etc/oai/
 
-MME_VERSION=0.9.3
-MME_LOCATION=/usr/local/bin/mme
-MME_CONF_LOCATION=./package/mme/mme.conf
-MME_FREEDIAMETER_LOCATION=./package/mme/freeDiameter
-MME_SERVICE_LOCATION=./package/mme/colte-mme.service
 mme:
 	fpm --input-type dir \
 		--output-type deb \
 		--force \
 		--vendor uw-ictd \
 		--config-files /usr/local/etc/oai/mme.conf \
+		--config-files /usr/local/etc/oai/freeDiameter/mme_fd.conf \
 		--maintainer sevilla@cs.washington.edu \
 		--description "The OpenAirInterface MME" \
 		--url "https://github.com/uw-ictd/colte" \
@@ -46,16 +48,11 @@ mme:
 		--depends 'libsctp1, libconfig9, colte-freediameter, colte-liblfds' \
 		--after-install ./package/mme/postinst \
 		--after-remove ./package/mme/postrm \
-		$(MME_LOCATION)=/usr/bin/ \
-		$(MME_CONF_LOCATION)=/usr/local/etc/oai/mme.conf \
+		/usr/local/bin/mme=/usr/bin/ \
+		./package/mme/mme.conf=/usr/local/etc/oai/mme.conf \
 		./package/mme/colte-mme.service=/etc/systemd/system/colte-mme.service \
-		$(MME_FREEDIAMETER_LOCATION)=/usr/local/etc/oai/
+		./package/mme/freeDiameter=/usr/local/etc/oai/
 
-SPGW_VERSION=0.9.7
-SPGW_LOCATION=/usr/local/bin/spgw
-SPGW_CONF_LOCATION=./package/spgw/spgw.conf
-SPGW_SERVICE_LOCATION=./package/spgw/colte-spgw.service
-SPGW_NAT_LOCATION=./package/spgw/spgw_nat.sh
 spgw:
 	fpm --input-type dir \
 		--output-type deb \
@@ -72,13 +69,12 @@ spgw:
 		--depends 'default-libmysqlclient-dev, libconfig9, colte-liblfds, colte-libgtpnl, colte-db' \
 		--after-install ./package/spgw/postinst \
 		--after-remove ./package/spgw/postrm \
-		$(SPGW_LOCATION)=/usr/bin/ \
-		$(SPGW_NAT_LOCATION)=/usr/bin/ \
-		$(SPGW_CONF_LOCATION)=/usr/local/etc/oai/spgw.conf \
+		/usr/local/bin/spgw=/usr/bin/ \
+		./package/spgw/spgw_nat.sh=/usr/bin/ \
+		./package/spgw/spgw.conf=/usr/local/etc/oai/spgw.conf \
 		./package/spgw/colte-spgw.service=/etc/systemd/system/colte-spgw.service \
 		./package/spgw/colte-spgw_nat.service=/etc/systemd/system/colte-spgw_nat.service
 
-EPC_VERSION=0.9.5
 epc:
 	fpm --input-type dir \
 		--output-type deb \
@@ -96,7 +92,6 @@ epc:
 		./package/epc/colte-epc.service=/etc/systemd/system/colte-epc.service \
 		./package/epc/oai=/usr/local/etc/colte/oai
 
-COLTE_VERSION=0.9.5
 colte:
 	fpm --input-type empty \
 		--output-type deb \
@@ -110,7 +105,6 @@ colte:
 		--version $(COLTE_VERSION) \
 		--depends 'colte-epc (>= 0.9.3), colte-webservices, haulage'
 
-DB_VERSION=0.9.5
 db:
 	fpm --input-type dir \
 		--output-type deb \
@@ -127,7 +121,6 @@ db:
 		--after-remove ./package/db/postrm \
 		./package/db/sample_db.sql=/usr/local/etc/colte
 
-CONF_VERSION=0.9.5
 conf:
 	fpm --input-type dir \
 		--output-type deb \
@@ -149,7 +142,6 @@ conf:
 		./package/conf/colte-tcpdump.service=/etc/systemd/system/colte-tcpdump.service \
 		./package/conf/config.yml=/usr/local/etc/colte/config.yml
 
-OAI_DEPS_VERSION=0.9.0
 oai-deps:
 	fpm --input-type empty \
 		--output-type deb \
