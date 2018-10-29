@@ -87,6 +87,7 @@
 # define TRACKING_AREA_UPDATE_REQUEST_SUPPORTED_CODECS_PRESENT                              (1<<15)
 # define TRACKING_AREA_UPDATE_REQUEST_ADDITIONAL_UPDATE_TYPE_PRESENT                        (1<<16)
 # define TRACKING_AREA_UPDATE_REQUEST_OLD_GUTI_TYPE_PRESENT                                 (1<<17)
+# define TRACKING_AREA_UPDATE_REQUEST_VOICE_DOMAIN_PREFERENCE_AND_UE_USAGE_SETTING_PRESENT  (1<<18)
 
 typedef enum tracking_area_update_request_iei_tag {
   TRACKING_AREA_UPDATE_REQUEST_NONCURRENT_NATIVE_NAS_KEY_SET_IDENTIFIER_IEI       = 0xB0, /* 0xB0 = 176 */
@@ -144,6 +145,7 @@ typedef struct tracking_area_update_request_msg_tag {
   supported_codec_list_t                   supportedcodecs;
   additional_update_type_t                 additionalupdatetype;
   guti_type_t                              oldgutitype;
+  voice_domain_preference_and_ue_usage_setting_t voicedomainpreferenceandueusagesetting;
 } tracking_area_update_request_msg;
 
 int decode_tracking_area_update_request(tracking_area_update_request_msg *trackingareaupdaterequest, uint8_t *buffer, uint32_t len);

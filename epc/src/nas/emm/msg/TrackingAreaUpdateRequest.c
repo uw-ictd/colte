@@ -275,6 +275,17 @@ decode_tracking_area_update_request (
       tracking_area_update_request->presencemask |= TRACKING_AREA_UPDATE_REQUEST_OLD_GUTI_TYPE_PRESENT;
       break;
 
+    case GMM_VOICE_DOMAIN_PREFERENCE_AND_UE_USAGE_SETTING_IEI:
+      if ((decoded_result = decode_voice_domain_preference_and_ue_usage_setting (&tracking_area_update_request->voicedomainpreferenceandueusagesetting, GMM_VOICE_DOMAIN_PREFERENCE_AND_UE_USAGE_SETTING_IEI, buffer + decoded, len - decoded)) <= 0)
+        return decoded_result;
+
+      decoded += decoded_result;
+      /*
+       * Set corresponding mask to 1 in presencemask
+       */
+      tracking_area_update_request->presencemask |= TRACKING_AREA_UPDATE_REQUEST_VOICE_DOMAIN_PREFERENCE_AND_UE_USAGE_SETTING_PRESENT;
+      break;
+
     default:
       errorCodeDecoder = TLV_UNEXPECTED_IEI;
       return TLV_UNEXPECTED_IEI;
