@@ -196,6 +196,7 @@ static int _emm_cn_pdn_config_res (emm_cn_pdn_config_res_t * msg_pP)
 
   if (emm_ctx == NULL) {
     OAILOG_ERROR (LOG_NAS_EMM, "EMMCN-SAP  - " "Failed to find UE associated to id " MME_UE_S1AP_ID_FMT "...\n", msg_pP->ue_id);
+    unlock_ue_contexts(ue_mm_context);
     OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
   }
 
@@ -328,6 +329,7 @@ static int _emm_cn_pdn_connectivity_res (emm_cn_pdn_res_t * msg_pP)
 
   if (emm_ctx == NULL) {
     OAILOG_ERROR (LOG_NAS_EMM, "EMMCN-SAP  - " "Failed to find UE associated to id " MME_UE_S1AP_ID_FMT "...\n", msg_pP->ue_id);
+    unlock_ue_contexts(ue_mm_context);
     OAILOG_FUNC_RETURN (LOG_NAS_EMM, rc);
   }
 
