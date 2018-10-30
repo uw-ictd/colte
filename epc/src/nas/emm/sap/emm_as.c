@@ -1712,6 +1712,7 @@ static int _emm_as_establish_cnf (const emm_as_establish_t * msg, nas_establish_
   case EMM_AS_NAS_INFO_NONE:  //Response to SR
     as_msg->err_code = AS_SUCCESS;
     ret_val = AS_NAS_ESTABLISH_CNF;
+    emm_context_unlock(emm_ctx);
     OAILOG_FUNC_RETURN (LOG_NAS_EMM, ret_val);
   default:
     OAILOG_WARNING (LOG_NAS_EMM, "EMMAS-SAP - Type of initial NAS " "message 0x%.2x is not valid\n", msg->nas_info);
