@@ -240,6 +240,7 @@ function main()
       $SUDO cp -upv $OPENAIRCN_DIR/build/mme/build/mme /usr/local/bin && echo_success "mme installed" 
     fi
   else
+    mkdir -p $OPENAIRCN_DIR/BUILD
     cp -upv $OPENAIRCN_DIR/build/mme/build/mme $OPENAIRCN_DIR/BUILD/mme
   fi
 }

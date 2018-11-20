@@ -184,6 +184,7 @@ function main()
       $SUDO cp -upv $OPENAIRCN_DIR/build/hss/build/oai_hss /usr/local/bin/ && echo_success "oai_hss installed"
     fi
   else
+    mkdir -p $OPENAIRCN_DIR/BUILD
     cp -upv $OPENAIRCN_DIR/build/hss/build/oai_hss $OPENAIRCN_DIR/BUILD/oai_hss
   fi
 }

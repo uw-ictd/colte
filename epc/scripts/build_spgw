@@ -171,6 +171,7 @@ function main()
       $SUDO cp -upv $OPENAIRCN_DIR/build/spgw/build/spgw /usr/local/bin && echo_success "spgw installed"
     fi
   else
+    mkdir -p $OPENAIRCN_DIR/BUILD
     cp -upv $OPENAIRCN_DIR/build/spgw/build/spgw $OPENAIRCN_DIR/BUILD/spgw
   fi
 }
