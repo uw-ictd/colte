@@ -8,7 +8,7 @@ EPC_VERSION=0.9.5
 COLTE_VERSION=0.9.5
 DB_VERSION=0.9.5
 CONF_VERSION=0.9.5
-OAI_DEPS_VERSION=0.9.0
+OAI_DEPS_VERSION=0.9.1
 TARGET_DIR=./BUILD/
 
 target:
@@ -32,7 +32,7 @@ hss: target
 		--depends 'default-libmysqlclient-dev, libconfig9, libsctp1, colte-freediameter, colte-db' \
 		--after-install ./package/hss/postinst \
 		--after-remove ./package/hss/postrm \
-		/usr/local/bin/oai_hss=/usr/bin/ \
+		./BUILD/oai_hss=/usr/bin/ \
 		./package/hss/hss.conf=/usr/local/etc/oai/hss.conf \
 		./package/hss/colte-hss.service=/etc/systemd/system/colte-hss.service \
 		./package/hss/freeDiameter=/usr/local/etc/oai/
@@ -54,7 +54,7 @@ mme: target
 		--depends 'libsctp1, libconfig9, colte-freediameter, colte-liblfds' \
 		--after-install ./package/mme/postinst \
 		--after-remove ./package/mme/postrm \
-		/usr/local/bin/mme=/usr/bin/ \
+		./BUILD/mme=/usr/bin/ \
 		./package/mme/mme.conf=/usr/local/etc/oai/mme.conf \
 		./package/mme/colte-mme.service=/etc/systemd/system/colte-mme.service \
 		./package/mme/freeDiameter=/usr/local/etc/oai/
@@ -76,7 +76,7 @@ spgw: target
 		--depends 'default-libmysqlclient-dev, libconfig9, colte-liblfds, colte-libgtpnl, colte-db' \
 		--after-install ./package/spgw/postinst \
 		--after-remove ./package/spgw/postrm \
-		/usr/local/bin/spgw=/usr/bin/ \
+		./BUILD/spgw=/usr/bin/ \
 		./package/spgw/spgw_nat.sh=/usr/bin/ \
 		./package/spgw/spgw.conf=/usr/local/etc/oai/spgw.conf \
 		./package/spgw/colte-spgw.service=/etc/systemd/system/colte-spgw.service \
@@ -165,7 +165,8 @@ oai-deps: target
 		--name oai-deps \
 		--version $(OAI_DEPS_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'autoconf, automake, bison, build-essential, cmake, cmake-curses-gui, doxygen, doxygen-gui, flex, pkg-config, git, libconfig-dev, libgcrypt11-dev, libidn2-0-dev, libidn11-dev, default-libmysqlclient-dev, libpthread-stubs0-dev, libsctp1, libsctp-dev, libssl-dev, libtool, openssl, nettle-dev, nettle-bin, php, python-pexpect, castxml, guile-2.0-dev, libgmp-dev, libhogweed4, libgtk-3-dev, libxml2, libxml2-dev, mscgen, check, python, libgnutls28-dev, python-dev, unzip, libmnl-dev, colte-freediameter, colte-liblfds, colte-libgtpnl, colte-asn1c'
+		--after-install ./package/oai_deps/postinst \
+		--depends 'autoconf, automake, bison, build-essential, cmake, cmake-curses-gui, doxygen, doxygen-gui, flex, pkg-config, git, libconfig-dev, libgcrypt11-dev, libidn2-0-dev, libidn11-dev, default-libmysqlclient-dev, libpthread-stubs0-dev, libsctp1, libsctp-dev, libssl-dev, libtool, openssl, nettle-dev, nettle-bin, php, python-pexpect, castxml, guile-2.0-dev, libgmp-dev, libhogweed4, libgtk-3-dev, libxml2, libxml2-dev, mscgen, check, python, libgnutls28-dev, python-dev, unzip, libmnl-dev, colte-freediameter, colte-liblfds, colte-libgtpnl, colte-asn1c, libevent-dev, ruby, ruby-dev, rubygems'
 
 all: hss mme spgw epc colte db conf oai-deps
 
