@@ -2,7 +2,7 @@
 Description=CoLTE SPGW
 After=network.target
 Requires=network.target
-PartOf=colte-epc.service
+PartOf=colte-epc.service colte-mme.service
 
 [Service]
 ExecStart=/usr/bin/spgw
@@ -12,3 +12,6 @@ User=root
 Group=root
 Environment=PATH=/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/bin:/sbin
 Type=simple
+
+[Install]
+WantedBy=multi-user.target
