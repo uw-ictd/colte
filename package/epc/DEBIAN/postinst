@@ -1,3 +1,0 @@
-colteconf update
-systemctl daemon-reload
-echo "Installed OpenAirInterface EPC"

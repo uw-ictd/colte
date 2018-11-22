@@ -1,6 +1,0 @@
-Package: colte-spgw
-Version: 0.9.7
-Maintainer: sevilla@cs.washington.edu
-Architecture: amd64
-Description: The OpenAirInterface SPGW
-Depends: default-libmysqlclient-dev, libconfig9, colte-liblfds, colte-libgtpnl, colte-db
