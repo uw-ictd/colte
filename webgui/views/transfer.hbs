@@ -8,13 +8,13 @@
         <form method="post" action="/transfer/transfer"> 
           <div class="form-group">
             <label for="recipient">{{translate "Recipient Phone Number"}}</label>
-            <input type="tel" class="form-control" placeholder="{{translate "Phone Number"}}" name="msisdn"></input>
+            <input type="tel" id="formnumber" class="form-control" placeholder="{{translate "Phone Number"}}" name="msisdn"></input>
           </div>
           <div class="form-group">
             <label for="amount">{{translate "Amount To Send"}}</label>
-            <input type="text" class="form-control" placeholder="{{translate "$"}}" name="amount">
+            <input type="text" id="formamount" class="form-control" placeholder="{{translate "$"}}" name="amount">
           </div>
-          <button type="submit" class="btn btn-primary">{{translate "Submit"}}</button>
+          <button type="submit" class="btn btn-primary" onclick="return confirm({{ translate "'Are you sure you want to send ' + document.getElementById('formamount').value + ' dollars to user ' + document.getElementById('formnumber').value + '?'"}});">{{translate "Submit"}}</button>
         </form>
       </div>
     </div>

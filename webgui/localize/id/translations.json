@@ -43,8 +43,16 @@
          "id": "Jumlah Upload: "
      },
 
+     "'Are you sure you want to send ' + document.getElementById('formamount').value + ' dollars to user ' + document.getElementById('formnumber').value + '?'": {
+         "id": "'Apa anda setujuh transfer saldo sebesar ' + document.getElementById('formamount').value + ' rupiah ke User ' + document.getElementById('formnumber').value + '?'"
+     },
 
-
+     "'Are you sure you want to donate '": {
+        "id": "'Apa anda setujuh membuat donasi sebesar '"
+     },
+     "' for '": {
+        "id": "' untuk quota '"
+     },
 
      "Recipient Phone Number": {
          "id": "Nomor HP Penerima"
