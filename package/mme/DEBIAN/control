@@ -1,6 +1,0 @@
-Package: colte-mme
-Version: 0.9.3
-Maintainer: sevilla@cs.washington.edu
-Architecture: amd64
-Description: The OpenAirInterface MME
-Depends: libsctp1, libconfig9, colte-freediameter, colte-liblfds

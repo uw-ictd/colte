@@ -1,7 +1,0 @@
-Package: colte-hss
-Version: 0.9.6
-Maintainer: sevilla@cs.washington.edu
-Architecture: amd64
-Description: The OpenAirInterface HSS
-Depends: default-libmysqlclient-dev, libconfig9, libsctp1, colte-freediameter, colte-db
-

@@ -1,6 +1,0 @@
-Package: colte-conf
-Version: 0.9.5
-Maintainer: sevilla@cs.washington.edu
-Architecture: amd64
-Description: Configuration Tool for CoLTE
-Depends: ansible, python-mysqldb, colte-db
