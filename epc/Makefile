@@ -11,6 +11,10 @@ CONF_VERSION=0.9.5
 OAI_DEPS_VERSION=0.9.1
 TARGET_DIR=./BUILD/
 
+fpm:
+	sudo apt-get install ruby ruby-dev rubygems build-essential
+	sudo gem install --no-ri --no-rdoc fpm
+
 target:
 	mkdir -p $(TARGET_DIR)
 
