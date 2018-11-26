@@ -1,6 +1,0 @@
-Package: colte-epc
-Version: 0.9.5
-Maintainer: sevilla@cs.washington.edu
-Architecture: amd64
-Description: The OpenAirInterface EPC
-Depends: colte-hss, colte-mme, colte-spgw, colte-conf

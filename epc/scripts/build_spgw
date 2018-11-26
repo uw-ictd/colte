@@ -44,6 +44,8 @@ function help()
   echo_error "  -f, --force                               No interactive script for installation of software packages."
   echo_error "  -h, --help                                Print this help."
   echo_error "  -i, --check-installed-software            Check installed software packages necessary to build and run S/P-GW (support $SUPPORTED_DISTRO)."
+  echo_error "  -C, --colte                               Compile with CoLTE support"
+  echo_error "  -I, --install                             Install to /usr/local/bin (otherwise binary goes in ./BUILD"
   echo_error "  -v, --verbose                             Build process verbose."
   echo_error " "
 }
@@ -53,6 +55,7 @@ function main()
   local -i clean=0
   local -i daemon=0
   local -i force=0
+  local -i install=0
   local -i verbose=0
   local -i var_check_install_oai_software=0
   local    cmake_args=" "
@@ -87,6 +90,16 @@ function main()
         echo "Check installed software packages necessary to build and run S/P-GW (support $SUPPORTED_DISTRO):"
         set_openair_env
         var_check_install_oai_software=1
+        shift;
+        ;;
+      -C | --colte)
+        cmake_args="$cmake_args -DCOLTE=1"
+        echo "Colte support enabled"
+        shift;
+        ;;
+      -I | --install)
+        install=1
+        echo "Installing into /usr/local/bin after compilation"
         shift;
         ;;
       -v | --verbose)
@@ -151,11 +164,15 @@ function main()
   $CMAKE $cmake_args .. > /dev/null
   
   compilations spgw spgw spgw $verbose
-  if [ $daemon -ne 0 ]; then
-    # TODO /usr/sbin ?
-    $SUDO cp -upv $OPENAIRCN_DIR/build/spgw/build/spgw /usr/sbin/spgwd && echo_success "spgwd installed"
+  if [ $install -ne 0 ]; then
+    if [ $daemon -ne 0 ]; then
+      $SUDO cp -upv $OPENAIRCN_DIR/build/spgw/build/spgw /usr/sbin/spgwd && echo_success "spgwd installed"
+    else
+      $SUDO cp -upv $OPENAIRCN_DIR/build/spgw/build/spgw /usr/local/bin && echo_success "spgw installed"
+    fi
   else
-    $SUDO cp -upv $OPENAIRCN_DIR/build/spgw/build/spgw /usr/local/bin && echo_success "spgw installed"
+    mkdir -p $OPENAIRCN_DIR/BUILD
+    cp -upv $OPENAIRCN_DIR/build/spgw/build/spgw $OPENAIRCN_DIR/BUILD/spgw
   fi
 }
 
