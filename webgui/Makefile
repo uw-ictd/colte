@@ -11,12 +11,12 @@ fpm:
 # this is UBUNTU
 npm_ubuntu:
 	# step 1: install node/npm
-	sudo apt-get -y install npm nodejs
+	sudo apt-get install npm nodejs
 
 # this is DEBIAN
 npm_debian:
-	curl https://deb.nodesource.com/setup_6.x /tmp/npm_setup.sh
-	/tmp/npm_setup.sh
+	curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+	sudo apt-get install nodejs
 
 webgui:
 	npm install
