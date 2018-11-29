@@ -44,14 +44,14 @@ We also provide systemd integration. You can start any of these operations as a 
 
 ```
 sudo systemctl start colte-{hss|mme|spgw}
-sudo journalctl -f -u colte-{hss|mme|spgw}
+sudo journalctl -f -u colte-{hss|mme|spgw} --output cat
 ```
 
 ## WebGUI:
 The WebGUI is started automatically after installation. You can start/stop it with:
 
 ```
-sudo systemctl {start|stop} colte_webgui
+sudo systemctl {start|stop} colte-webgui
 ```
 
 # Configuration and Log Files
@@ -60,13 +60,12 @@ If you want/need to change any configuration files (for the core or other servic
 # Exposed Webservices and Ports
 There are a bunch of different Web-based services exposed on this machine. Here's an authoritative list of the different services that are exposed, and what port they're assigned to by default.
 
-1. phpMyAdmin: http://localhost/phpmyadmin
-2. ntopng: http://localhost:3002/
-3. Node Webgui: http://localhost:7999/
-4. Emergency Homepage: http://localhost:9080/
-5. Emergency Rocketchat: http://localhost:9081/
-6. Emergency Wikipedia: http://localhost:9082/
-7. Emergency Registration: http://localhost:9083/
-8. Emergency OpenStreetMaps: http://localhost:9084/
-9. OSM Tileserver: http://localhost:9085/
-10. Local Mediaserver: http://localhost:9086/
+1. CoLTE Admin: http://localhost:7998/
+2. User Webgui: http://localhost:7999/
+3. Emergency Homepage: http://localhost:9080/
+4. Emergency Rocketchat: http://localhost:9081/
+5. Emergency Wikipedia: http://localhost:9082/
+6. Emergency Registration: http://localhost:9083/
+7. Emergency OpenStreetMaps: http://localhost:9084/
+8. OSM Tileserver: http://localhost:9085/
+9. Local Mediaserver: http://localhost:9086/

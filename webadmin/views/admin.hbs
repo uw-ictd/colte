@@ -1,0 +1,53 @@
+<link rel='stylesheet' href='/stylesheets/admin.css' />
+<main role="main" class="container">
+  <div class="card mb-3">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Enabled</th>
+            <th>IMSI</th>
+            <th>MSISDN</th>
+            <th>IMSI</th>
+            <th>Upload</th>
+            <th>Download</th>
+            <th>Balance</th>
+            <th>Top Up</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each customers_list}}
+            <tr id="{{this.msisdn}}">
+              {{!-- <td>{{this.enabled}}</td> --}}
+              <td class="center">
+                {{#if this.enabled}}
+                  <input type="checkbox" class="enabled form-check-input" value="" checked>
+                {{else}}
+                  <input type="checkbox" class="enabled form-check-input" value="">
+                {{/if}}
+              </td>
+              <td>{{this.imsi}}</td>
+              <td>{{this.msisdn}}</td>
+              <td>{{this.imsi}}</td>
+              <td>{{this.raw_up}}</td>
+              <td>{{this.raw_down}}</td>
+              <td>{{this.balance}}</td>
+              <td>
+                <div class="input-group">
+                  <input type="text" class="balance form-control" value=""></input>
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary confirm" type="button">
+                      Confirm
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<script src="/javascripts/jquery-3.3.1.min.js"></script>
+<script src="/javascripts/admin.js"></script>

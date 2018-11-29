@@ -1,0 +1,27 @@
+<main role="main" class="container">
+    <div class="card mb-3">
+      <div class="card-header">
+        {{translate "Account"}}
+      </div>
+      <div class="card-body">
+        <p>{{translate "Current Balance: $"}}{{balance}}</p>
+        <p>{{translate "Data Balance: "}}{{data_balance_str}}</p>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header">
+        {{translate "Purchase"}}
+      </div>
+      <div class="card-body">
+        <form action="/purchase/purchase" method="post">
+        {{#each pack}}
+          <p><button name="package" value="{{ this.bytes }}" type="submit" class="btn btn-primary btn-sm" style="width: 80px" onclick="return confirm({{../translate "'Are you sure you want to donate '"}} + '{{ this.print_cost }}' + {{../translate "' for '"}} + '{{ this.print_bytes }}' + '?');">{{ this.print_bytes }}</button> {{ this.print_cost }}</p>
+        {{/each}}
+        </form>
+        <p>
+        
+        </p>
+      </div>
+    </div>
+</main>

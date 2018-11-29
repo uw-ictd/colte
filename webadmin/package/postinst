@@ -1,0 +1,6 @@
+colteconf update
+
+systemctl daemon-reload
+systemctl start colte-webadmin
+
+echo "Installed CoLTE WebAdmin"

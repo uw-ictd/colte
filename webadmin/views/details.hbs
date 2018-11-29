@@ -1,0 +1,26 @@
+<main role="main" class="container">
+    <div class="card mb-3">
+      <div class="card-header">
+        {{translate "Account Information"}}
+      </div>
+      <div class="card-body">
+        <form method="post" action="/details/update"> 
+          <p>{{translate "IMSI"}}: {{imsi}}</p>
+          <p>{{translate "Phone Number"}}: {{msisdn}}</p>
+          <p>{{translate "Total Downloaded: "}}{{raw_down_str}}</p>
+          <p>{{translate "Total Uploaded: "}}{{raw_up_str}}</p>
+
+            <label for="balance" style="display: flex; flex-direction: row; float: left;">{{translate "Current Balance: $"}}</label>
+            <input id="balance" style="display: flex; flex-direction: row; float: left;" placeholder="{{balance}}" name="balance"></input>
+            <br>
+            <br>
+            <label for="data_balance" style="display: flex; flex-direction: row; float: left;">{{translate "Data Balance: "}}</label> <input id="data_balance" style="display: flex; flex-direction: row; float: left;" placeholder="{{data_balance_str}}" name="data_balance"></input>
+            <br>
+            <br>
+
+          <p>{{translate "Internet Access: "}}{{bridged}}</p>
+          <p>{{translate "Admin Privileges: "}}{{admin}}</p>
+        </form>
+      </div>
+    </div>
+</main>

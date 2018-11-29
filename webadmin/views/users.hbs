@@ -1,0 +1,91 @@
+<link rel='stylesheet' href='/stylesheets/admin.css' />
+<main role="main" class="container">
+
+  <div class="card mb-3">
+    <div class="card-header">
+      {{translate "Lookup User By IMSI"}}
+    </div>
+    <div class="card-body">
+      <form method="post" action="/users/details">
+        <div class="form-group">
+          <input id="imsi" name="imsi"></input>
+          <button type="submit" class="btn btn-primary">{{translate "Lookup User"}}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>IMSI</th>
+            <th>Phone Number</th>
+            <th>Total Downloaded</th>
+            <th>Total Uploaded</th>
+            <th>Data Balance</th>
+            <th>Money Balance</th>
+            <th>Internet Access</th>
+            <th>CoLTE Access</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each customers_list}}
+            <tr>
+            <form method="post" action="/users/update/{{this.imsi}}">
+              <td>{{this.imsi}}</td>
+              <td>{{this.msisdn}}</td>
+              <td>{{this.raw_down}}</td>
+              <td>{{this.raw_up}}</td>
+              <td><input style="width: 130px;" name="data_balance" value="{{this.data_balance}}"></input></td>
+              <td><input style="width: 130px;" name="balance" value="{{this.balance}}"></input></td>
+
+              {{!-- <td>{{this.bridged}}</td> --}}
+              <td class="center">
+                {{#if this.bridged}}
+                  <input name="bridged" type="checkbox" checked>
+                {{else}}
+                  <input name="bridged" type="checkbox">
+                {{/if}}
+              </td>
+              <td class="center">
+                {{#if this.enabled}}
+                  <input name="enabled" type="checkbox" checked>
+                {{else}}
+                  <input name="enabled" type="checkbox">
+                {{/if}}
+              </td>
+              <td><button class="btn btn-primary" type="submit">Update</button></td>
+            </form>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+          {{#if has_previous}}
+            <li class="page-item"><a class="page-link" href="1">1</a></li>
+          {{/if}}
+
+          {{#each page_list}}
+            {{#ifequal ../current_page this}}
+              <li class="page-item active"><p class="page-link">{{ this }}<span class="sr-only">(current)</span></p></li>
+            {{else}}
+              <li class="page-item"><a class="page-link" href="{{ this }}">{{ this }}</a></li>
+            {{/ifequal}}
+          {{/each}}
+
+          {{#if has_next}}
+            <li class="page-item"><a class="page-link" href="{{ last_page }}">{{ last_page }}</a></li>
+          {{/if}}
+      </ul>
+    </nav>
+
+
+  </div>
+</main>
+<script src="/javascripts/jquery-3.3.1.min.js"></script>
+<script src="/javascripts/admin.js"></script>
