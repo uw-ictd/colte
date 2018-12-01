@@ -9,8 +9,7 @@ ExecStartPre=/bin/bash -c "sleep 5"
 ExecStart=/usr/bin/mme
 Restart=always
 RestartSec=5
-User=root
-Group=root
+User=colteadmin
 Environment=PATH=/usr/bin:/usr/local/bin:/bin
 Type=simple
 

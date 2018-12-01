@@ -7,7 +7,7 @@ SPGW_VERSION=0.9.8
 EPC_VERSION=0.9.5
 COLTE_VERSION=0.9.5
 DB_VERSION=0.9.5
-CONF_VERSION=0.9.6
+CONF_VERSION=0.9.7
 OAI_DEPS_VERSION=0.9.1
 TARGET_DIR=./BUILD/
 
@@ -34,6 +34,7 @@ hss: target
 		--version $(HSS_VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'default-libmysqlclient-dev, libconfig9, libsctp1, colte-freediameter, colte-db' \
+		# --deb-user colteadmin \
 		--after-install ./package/hss/postinst \
 		--after-remove ./package/hss/postrm \
 		./BUILD/oai_hss=/usr/bin/ \
@@ -56,6 +57,7 @@ mme: target
 		--version $(MME_VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'libsctp1, libconfig9, colte-freediameter, colte-liblfds' \
+		# --deb-user colteadmin \
 		--after-install ./package/mme/postinst \
 		--after-remove ./package/mme/postrm \
 		./BUILD/mme=/usr/bin/ \
@@ -78,6 +80,7 @@ spgw: target
 		--version $(SPGW_VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'default-libmysqlclient-dev, libconfig9, colte-liblfds, colte-libgtpnl, colte-db' \
+		# --deb-user colteadmin \
 		--after-install ./package/spgw/postinst \
 		--after-remove ./package/spgw/postrm \
 		./BUILD/spgw=/usr/bin/ \
@@ -149,6 +152,7 @@ conf: target
 		--version $(CONF_VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'ansible, python-mysqldb, colte-db' \
+		# --deb-user colteadmin \
 		--after-install ./package/conf/postinst \
 		--after-remove ./package/conf/postrm \
 		./package/conf/colteconf=/usr/bin/ \

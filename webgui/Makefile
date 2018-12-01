@@ -34,6 +34,7 @@ webgui:
 		--version $(WEBGUI_VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'nodejs, colte-db (>= 0.9.2), colte-conf' \
+		# --deb-user colteadmin \
 		--after-install ./package/postinst \
 		--after-remove ./package/postrm \
 		./=/usr/bin/colte-webgui \

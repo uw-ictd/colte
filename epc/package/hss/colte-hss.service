@@ -8,8 +8,7 @@ PartOf=colte-epc.service
 ExecStart=/usr/bin/oai_hss
 Restart=always
 RestartSec=2
-User=root
-Group=root
+User=colteadmin
 Environment=PATH=/usr/bin:/usr/local/bin:/bin
 Type=simple
 

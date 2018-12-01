@@ -1,1 +1,6 @@
+adduser --system --quiet colteadmin
+
+echo "colteadmin ALL=(ALL) NOPASSWD: /usr/bin/colteconf" > /etc/sudoers.d/colteadmin
+echo "colteadmin ALL=(ALL) NOPASSWD: /usr/bin/coltedb" > /etc/sudoers.d/colteadmin
+
 echo "Installed colteconf"

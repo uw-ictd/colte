@@ -1,7 +1,7 @@
 #!/bin/bash
 
 script=/usr/bin/colte/coltedb.py
-version=0.9.5
+version=0.9.7
 
 display_help() {
     echo "COMMANDS:" >&2
@@ -30,10 +30,10 @@ if [ "$1" = "help" ]; then
 	exit 1
 fi
 
-if [ "$EUID" -ne 0 ]; then
-	echo "coltedb: Must run as root!"
-	exit 1
-fi
+# if [ "$EUID" -ne 0 ]; then
+# 	echo "coltedb: Must run as root!"
+# 	exit 1
+# fi
 
 load_yml() {
 	local var=$1

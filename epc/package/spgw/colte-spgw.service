@@ -8,8 +8,7 @@ PartOf=colte-epc.service colte-mme.service
 ExecStart=/usr/bin/spgw
 Restart=always
 RestartSec=2
-User=root
-Group=root
+User=colteadmin
 Environment=PATH=/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/bin:/sbin
 Type=simple
 
