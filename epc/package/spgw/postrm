@@ -1,3 +1,0 @@
-systemctl stop colte-mme colte-spgw_nat
-systemctl daemon-reload
-echo "Uninstalled OpenAirInterface SPGW"

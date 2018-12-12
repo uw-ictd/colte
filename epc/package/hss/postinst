@@ -1,6 +1,0 @@
-# create s6a certificate if needed
-/usr/local/etc/oai/freeDiameter/check_hss_s6a_certificate.sh /usr/local/etc/oai/freeDiameter hss.OpenAir5G.Alliance
-
-systemctl daemon-reload
-
-echo "Installed OpenAirInterface HSS"
