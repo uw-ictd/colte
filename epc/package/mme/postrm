@@ -1,2 +1,0 @@
-systemctl daemon-reload
-echo "Uninstalled OpenAirInterface MME"
