@@ -1,7 +1,0 @@
-Package: colte-freediameter
-Version: 1.2.3
-Maintainer: sevilla@cs.washington.edu
-Architecture: amd64
-License: BSD
-Installed-Size: 3480
-Description: freeDiameter fork that is known to work with OAI codebase

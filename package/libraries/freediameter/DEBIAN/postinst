@@ -1,4 +1,0 @@
-#!/bin/bash
-
-sudo ln -s /usr/bin/freeDiameterd-1.2.0 /usr/bin/freeDiameterd
-echo "Installed OAI-Specific freeDiameter"
