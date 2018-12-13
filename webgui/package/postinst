@@ -1,5 +1,3 @@
-colteconf update
-
 systemctl daemon-reload
 systemctl start colte-webgui
 

@@ -1,7 +1,7 @@
 
 USER_EMAIL=$(shell git config --get user.email)
 
-WEBGUI_VERSION=0.9.8
+WEBGUI_VERSION=0.9.9
 TARGET_DIR=./
 
 fpm:
@@ -33,7 +33,7 @@ webgui:
 		--name colte-webgui \
 		--version $(WEBGUI_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'nodejs, colte-db (>= 0.9.2), colte-conf' \
+		--depends 'nodejs, colte-db (>= 0.9.2)' \
 		--after-install ./package/postinst \
 		--after-remove ./package/postrm \
 		./=/usr/bin/colte-webgui \

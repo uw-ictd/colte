@@ -1,4 +1,0 @@
----
-colte_webservices_version: "0.9.1"
-colte_webextras_version: "0.9.0"
-package_dir: "{{ colte_dir }}/package"
