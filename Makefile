@@ -35,13 +35,13 @@ conf: target
 		--version $(CONF_VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'ansible, python-mysqldb, colte-db' \
-		--after-install ./package/conf/postinst \
-		--after-remove ./package/conf/postrm \
-		./package/conf/colteconf=/usr/bin/ \
-		./package/conf/coltedb=/usr/bin/ \
-		./package/conf/colte=/usr/bin/ \
-		./package/conf/colte-tcpdump.service=/etc/systemd/system/colte-tcpdump.service \
-		./package/conf/config.yml=/usr/local/etc/colte/config.yml
+		--after-install ./conf/postinst \
+		--after-remove ./conf/postrm \
+		./conf/colteconf=/usr/bin/ \
+		./conf/coltedb=/usr/bin/ \
+		./conf/colte=/usr/bin/ \
+		./conf/colte-tcpdump.service=/etc/systemd/system/colte-tcpdump.service \
+		./conf/config.yml=/usr/local/etc/colte/config.yml
 
 webservices: target
 	fpm --input-type empty \

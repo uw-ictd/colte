@@ -1,0 +1,14 @@
+[Unit]
+Description=TCPDump all SCTP Traffic
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "/usr/sbin/tcpdump -i eth0 -w /var/log/colte/tcpdump/sctp_$(/bin/date +"%%Y-%%m-%%d-%%H%%MZ").pcap"
+User=root
+Group=root
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

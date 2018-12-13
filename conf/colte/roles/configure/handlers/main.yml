@@ -1,0 +1,12 @@
+---
+  - name: reload nginx
+    systemd: name=nginx state=reloaded
+    become: yes
+
+  - name: reload bind9
+    systemd: name=bind9 state=reloaded
+    become: yes
+
+  - name: reload systemd
+    systemd: daemon_reload=yes
+    become: yes
