@@ -1,9 +1,0 @@
----
-- hosts: localhost
-
-  roles:
-    - { role: media}
-    - { role: wiki}
-    - { role: maps}
-    - { role: chat}
-    - { role: configure}
