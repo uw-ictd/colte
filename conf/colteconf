@@ -1,0 +1,34 @@
+#!/bin/bash
+
+interactive=/usr/bin/colte/colte_interactive.py
+playbook=/usr/bin/colte/colte_reconf.yml
+
+#interactive=./colte/colte_interactive.py
+#playbook=./colte/colte_reconf.yml
+
+version=0.9.0
+
+echo "CoLTE Configuration Tool ($version)"
+
+if [ "$EUID" -ne 0 ]; then
+	echo "colteconf: Must run as root!"
+	exit 1
+fi
+
+if [ "$#" -ne 1 ]; then
+	echo "Usage: colteconf {prompt | update}"
+	exit 1
+fi
+
+if [ "$1" = "prompt" ]; then
+	python $interactive
+fi
+
+if [ "$1" = "prompt" ] || [ "$1" = "update" ] ; then
+	echo "Updating configuration..."
+	ansible-playbook -v -i "localhost," -c local $playbook
+	echo "Configuration updated!"
+	exit 0
+fi
+
+echo "Usage: colteconf {prompt | update}"
