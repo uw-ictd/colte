@@ -1,6 +1,0 @@
-colteconf update
-
-systemctl daemon-reload
-systemctl start colte-webgui
-
-echo "Installed CoLTE WebGUI"

@@ -1,5 +1,0 @@
-#!/bin/bash
-
-sudo ldconfig
-
-echo "Installed OAI-Specific LibLFDS"

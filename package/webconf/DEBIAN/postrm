@@ -1,6 +1,0 @@
-#!/bin/bash
-
-rm -f /usr/local/etc/colte/webgui.env
-systemctl stop colte-webgui
-systemctl daemon-reload
-echo "Uninstalled CoLTE Web Configuration Tool"

@@ -1,6 +1,0 @@
-#!/bin/bash
-
-sudo rm -rf /usr/lib/libgtpnl.so
-sudo rm -rf /usr/lib/libgtpnl.so.0
-
-echo "Uninstalled OAI-Specific LibGTPNL"

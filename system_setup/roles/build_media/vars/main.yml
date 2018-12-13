@@ -1,3 +1,0 @@
----
-media_version: "0.9.3"
-package_dir: "{{ colte_dir }}/package"

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-gem install --no-ri --no-rdoc fpm
-echo "Installed all build dependencies for OpenAirInterface"
