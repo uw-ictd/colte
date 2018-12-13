@@ -1,4 +1,4 @@
-colteconf update
+#!/bin/bash
 
 systemctl daemon-reload
 systemctl start colte-webadmin

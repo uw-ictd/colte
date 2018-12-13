@@ -17,7 +17,7 @@ sudo wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/key
 sudo apt-get update
 sudo apt-get -y install colte
 ```
-The `colte` package is a meta-package consisting of `colte-epc`, `haulage`, `colte-webgui`, and `colte-conf`. `colte-epc` consists of four packages: `colte-hss`, `colte-mme`, `colte-spgw`, and `colte-db`. These packages come with a default database configuration that lets you start and play around with every component. After installation, the webgui will be automatically listening on [http://localhost:7999](http://localhost:7999); the other components can be started with `sudo {oai_hss | mme | spgw}` or `sudo systemctl start {oai_hss | mme | spgw | colte-webgui}`.
+The `colte` package is a meta-package consisting of `colte-epc`, `haulage`, `colte-webgui`, and `colte-conf`. `colte-epc` consists of four packages: `colte-hss`, `colte-mme`, `colte-spgw`, and `colte-db`. These packages come with a default database configuration that lets you start and play around with every component. After installation, the admin tool will be automatically listening on [http://localhost:7998](http://localhost:7998), the user webgui will be automatically listening on [http://localhost:7999](http://localhost:7999), and the other components can be started with `sudo {oai_hss | mme | spgw}` or `sudo systemctl start {oai_hss | mme | spgw | colte-webgui}`.
 
 ### Building Packages From Source:
 The top-level Makefile allows you to build the metapackages `colte` and `colte-webservices` as well as the software packages `colte-conf` and `colte-webgui`. You can edit the source of these packages (and learn more about them) in their respective directories. Once you manually build packages, they will be in `/BUILD`, and you can install them with `sudo dpkg-deb -i package.deb`. Other packages are built via Makefiles in the other repositories mentioned above.
@@ -44,8 +44,15 @@ sudo systemctl start colte-{hss|mme|spgw}
 sudo journalctl -f -u colte-{hss|mme|spgw} --output cat
 ```
 
+## WebAdmin:
+The WebAdmin is a tool for CoLTE network administrators to change account balances, enable or disable specific users, topup accounts, and transfer money from one user to another. It is started automatically after installation. You can start/stop it with:
+```
+sudo systemctl {start|stop} colte-webadmin
+```
+For more details, consult `/webadmin/README`
+
 ## WebGUI:
-The WebGUI is started automatically after installation. You can start/stop it with:
+The WebGUI is a tool for CoLTE users to top up, buy data packages, and send money to other users. It is started automatically after installation. You can start/stop it with:
 ```
 sudo systemctl {start|stop} colte-webgui
 ```

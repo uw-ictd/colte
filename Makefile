@@ -55,7 +55,10 @@ webservices: target
 		--name colte-webservices \
 		--version $(WEBSERVICES_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'colte-webgui'
+		--depends 'colte-webgui, colte-webadmin'
 
 webgui:
 	make -C ./webgui webgui
+
+webadmin:
+	make -C ./webadmin webadmin

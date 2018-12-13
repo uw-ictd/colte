@@ -33,7 +33,7 @@ webadmin:
 		--name colte-webadmin \
 		--version $(WEBADMIN_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'nodejs, colte-conf' \
+		--depends 'nodejs, colte-db (>= 0.9.2), colte-conf' \
 		--after-install ./package/postinst \
 		--after-remove ./package/postrm \
 		./=/usr/bin/colte-webadmin \
