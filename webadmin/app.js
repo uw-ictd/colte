@@ -61,6 +61,20 @@ app.enable('trust proxy');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
+// password-protect the site because it is used for admin.
+var password = process.env.PASSWORD;
+const basicAuth = require('express-basic-auth');
+app.use(basicAuth({
+    users: { 'admin': password },
+    challenge: true,
+    unauthorizedResponse: getUnauthorizedResponse
+}));
+function getUnauthorizedResponse(req) {
+    return req.auth
+        ? ('Credentials ' + req.auth.user + ':' + req.auth.password + ' rejected')
+        : 'No credentials provided'
+};
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
