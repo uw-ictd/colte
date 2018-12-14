@@ -21,7 +21,7 @@ var customer = {
   },
 
   find(imsi) {
-    return knex.select('imsi', 'raw_up', 'raw_down', 'balance', 'data_balance', 'msisdn', 'bridged', 'admin').where('imsi', imsi).from('customers');
+    return knex.select('imsi', 'raw_up', 'raw_down', 'balance', 'data_balance', 'msisdn', 'bridged', 'enabled').where('imsi', imsi).from('customers');
   },
 
   update(imsi, bridged, enabled, balance, data_balance) {
