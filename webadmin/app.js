@@ -50,9 +50,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 
-var content = fs.readFileSync("pricing.json");
-module.exports.pricing = JSON.parse(content);
-
 var app = express();
 
 app.enable('trust proxy');
