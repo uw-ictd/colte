@@ -17,7 +17,7 @@ sudo wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/key
 sudo apt-get update
 sudo apt-get -y install colte
 ```
-The `colte` package is a meta-package consisting of `colte-epc`, `haulage`, `colte-webgui`, and `colte-conf`. `colte-epc` consists of four packages: `colte-hss`, `colte-mme`, `colte-spgw`, and `colte-db`. These packages come with a default database configuration that lets you start and play around with every component. After installation, the webgui will be automatically listening on [http://localhost:7999](http://localhost:7999); the other components can be started with `sudo {oai_hss | mme | spgw}` or `sudo systemctl start {oai_hss | mme | spgw | colte-webgui}`.
+The `colte` package is a meta-package consisting of `colte-epc`, `haulage`, `colte-webgui`, and `colte-conf`. `colte-epc` consists of four packages: `colte-hss`, `colte-mme`, `colte-spgw`, and `colte-db`. These packages come with a default database configuration that lets you start and play around with every component. After installation, the admin tool will be automatically listening on [http://localhost:7998](http://localhost:7998), the user webgui will be automatically listening on [http://localhost:7999](http://localhost:7999), and the other components can be started with `sudo {oai_hss | mme | spgw}` or `sudo systemctl start {oai_hss | mme | spgw | colte-webgui}`.
 
 ### Building Packages From Source:
 The top-level Makefile allows you to build the metapackages `colte` and `colte-webservices` as well as the software packages `colte-conf` and `colte-webgui`. You can edit the source of these packages (and learn more about them) in their respective directories. Once you manually build packages, they will be in `/BUILD`, and you can install them with `sudo dpkg-deb -i package.deb`. Other packages are built via Makefiles in the other repositories mentioned above.
@@ -44,10 +44,17 @@ sudo systemctl start colte-{hss|mme|spgw}
 sudo journalctl -f -u colte-{hss|mme|spgw} --output cat
 ```
 
-## WebGUI:
-The WebGUI is started automatically after installation. You can start/stop it with:
+## WebAdmin:
+The WebAdmin is a tool for CoLTE network administrators to change account balances, enable or disable specific users, topup accounts, and transfer money from one user to another. It is started automatically after installation. You can start/stop it with:
 ```
-sudo systemctl {start|stop} colte_webgui
+sudo systemctl {start|stop} colte-webadmin
+```
+For more details, consult `/webadmin/README`
+
+## WebGUI:
+The WebGUI is a tool for CoLTE users to top up, buy data packages, and send money to other users. It is started automatically after installation. You can start/stop it with:
+```
+sudo systemctl {start|stop} colte-webgui
 ```
 For more details, consult `/webgui/README`
 
@@ -57,11 +64,12 @@ Any service run with `systemd` will have its log in `journalctl`; all other logf
 # Exposed Webservices and Ports
 There are a bunch of different Web-based services exposed on this machine. Here's an authoritative list of the different services that are exposed, and what port they're assigned to by default.
 
-1. Node Webgui: http://localhost:7999/
-2. Emergency Homepage: http://localhost:9080/
-3. Emergency Rocketchat: http://localhost:9081/
-4. Emergency Wikipedia: http://localhost:9082/
-5. Emergency Registration: http://localhost:9083/
-6. Emergency OpenStreetMaps: http://localhost:9084/
-7. OSM Tileserver: http://localhost:9085/
-8. Local Mediaserver: http://localhost:9086/
+1. CoLTE Admin: http://localhost:7998/
+2. User Webgui: http://localhost:7999/
+3. Emergency Homepage: http://localhost:9080/
+4. Emergency Rocketchat: http://localhost:9081/
+5. Emergency Wikipedia: http://localhost:9082/
+6. Emergency Registration: http://localhost:9083/
+7. Emergency OpenStreetMaps: http://localhost:9084/
+8. OSM Tileserver: http://localhost:9085/
+9. Local Mediaserver: http://localhost:9086/

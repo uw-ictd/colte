@@ -1,3 +1,4 @@
 *.retry
 **.DS_Store
 lte_extras/media/app/
+BUILD/
