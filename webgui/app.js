@@ -1,8 +1,33 @@
+var express = require('express');
+var path = require('path');
+var favicon = require('serve-favicon');
+var logger = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var fs = require('fs');
+
+// variables loaded through .env file
 require('dotenv').config();
 var port = process.env.PORT || 3000;
 var env = process.env.NODE_ENV || 'development';
-
 var locale = process.env.LOCALE || "en";
+
+// main app and view engine setup (we use express)
+var app = express();
+app.enable('trust proxy');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'hbs');
+
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+// uncomment after placing your favicon in /public
+//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// introduce localization code via a "translate" function
+// translation files are found in localize/ directory
 var Localize = require('localize');
 var myLocalize = new Localize('./localize/');
 myLocalize.setLocale(locale);
@@ -11,11 +36,12 @@ module.exports.translate = function (x) {
   return str;
 }
 
+// global helper function convertBytes:
+// takes int value like "1500" and outputs string "1.0KB"
 module.exports.convertBytes = function (size) {
     if (size < 100) {
       return "0.0 KB";
     }
-
     var i = -1;
     var byteUnits = [' KB', ' MB', ' GB', ' TB']
     do {
@@ -26,6 +52,9 @@ module.exports.convertBytes = function (size) {
     return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
 };
 
+// global helper function generateIP:
+// takes an IP address string, does a bit of error-handling,
+// parses localhost IPv6, and returns a string.
 module.exports.generateIP = function (ip) {
   if (ip.substr(0,7) == "::ffff:") {
     ip = ip.substr(7)
@@ -35,39 +64,11 @@ module.exports.generateIP = function (ip) {
   return ip;
 }
 
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var fs = require('fs');
-
+// read JSON file pricing.json; spells out the package deals.
 var content = fs.readFileSync("pricing.json");
 module.exports.pricing = JSON.parse(content);
 
-var app = express();
-
-app.enable('trust proxy');
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
-
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// include routes (controller)
-// to do: get ip address and redirect to users or admin   
-const redirectTo = (req, res, next) => {
-  res.redirect('/status');
-}
-
+// setup routes (i.e. a request for /home goes to /routes/home.js)
 fs.readdirSync('./routes').forEach(function(file) {
   if (file.substr(-3) == '.js') {
     var route = require('./routes/' + file);
@@ -76,6 +77,10 @@ fs.readdirSync('./routes').forEach(function(file) {
   }
 });
 
+// homepage: redirect "/" to "/status"
+const redirectTo = (req, res, next) => {
+  res.redirect('/status');
+}
 app.use('/', redirectTo);
 
 // catch 404 and forward to error handler
@@ -85,7 +90,7 @@ app.use(function(req, res, next) {
   next(err);
 });
 
-// error handler
+// error handler (error.hbs)
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
@@ -93,7 +98,9 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error', {
+    layout: false,
+  });
 });
 
 module.exports = app;

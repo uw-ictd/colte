@@ -111,7 +111,7 @@ webadmin: target
 		--name colte-webadmin \
 		--version $(WEBADMIN_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'nodejs, colte-db (>= 0.9.2), colte-conf' \
+		--depends 'nodejs (>= 8.0.0), colte-db (>= 0.9.2), colte-conf' \
 		--after-install ./package/webadmin/postinst \
 		--after-remove ./package/webadmin/postrm \
 		./webadmin/=/usr/bin/colte-webadmin \
