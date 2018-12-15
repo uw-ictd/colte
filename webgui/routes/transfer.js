@@ -9,7 +9,6 @@ router.get('/', function(req, res, next) {
   console.log("Web Request From: " + ip)
 
   customer.find_by_ip(ip).then((data) => {
-    // console.log(data);
     res.render('transfer', {
       translate: app.translate,
       title: app.translate('Home'),
