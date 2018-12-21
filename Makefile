@@ -93,7 +93,8 @@ webgui: target
 		--after-remove ./package/webgui/postrm \
 		./webgui/=/usr/bin/colte-webgui \
 		./package/webgui/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
-		./package/webgui/webgui.env=/usr/local/etc/colte/webgui.env 
+		./package/webgui/webgui.env=/usr/local/etc/colte/webgui.env \
+		./package/webgui/pricing.json=/usr/local/etc/colte/pricing.json 
 
 
 webadmin: target
