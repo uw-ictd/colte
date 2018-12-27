@@ -11,11 +11,11 @@ var customer = {
     //     console.log(paginator.data);
     // });
 
-    return knex.select('imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'data_balance', 'enabled', 'bridged', 'admin').from('customers').paginate(10, page, true);
+    return knex.select('imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'data_balance', 'enabled', 'bridged', 'admin', 'username').from('customers').paginate(10, page, true);
   },
 
   find_by_ip(ip) {
-    return knex.select('customers.imsi', 'raw_up', 'raw_down', 'balance', 'data_balance', 'msisdn', 'admin')
+    return knex.select('customers.imsi', 'raw_up', 'raw_down', 'balance', 'data_balance', 'msisdn', 'admin', 'username')
 		.from('customers').join('static_ips', "customers.imsi", "=", "static_ips.imsi")
 		.where('static_ips.ip', ip);
   },
