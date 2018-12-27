@@ -77,6 +77,8 @@ router.post('/update/:user_id', function(req, res) {
   var balance = req.body.balance;
   var data_balance = req.body.data_balance;
   var bridged = 0;
+  var username = req.body.username;
+
   if (req.body.bridged == "on") {
     bridged = 1;
   }
@@ -89,7 +91,7 @@ router.post('/update/:user_id', function(req, res) {
 
   console.log("UPDATE: imsi = " + imsi + " balance=" + balance + " data_balance=" + data_balance + " bridged=" + bridged + " enabled=" + enabled);
 
-  customer.update(imsi, bridged, enabled, balance, data_balance).then((data) => {
+  customer.update(imsi, bridged, enabled, balance, data_balance, username).then((data) => {
     res.redirect('/users');
   });
 });

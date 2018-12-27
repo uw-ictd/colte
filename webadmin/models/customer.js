@@ -24,8 +24,8 @@ var customer = {
     return knex.select('imsi', 'raw_up', 'raw_down', 'balance', 'data_balance', 'msisdn', 'bridged', 'enabled').where('imsi', imsi).from('customers');
   },
 
-  update(imsi, bridged, enabled, balance, data_balance) {
-      return knex.update({balance: balance, data_balance: data_balance, bridged: bridged, enabled: enabled}).where('imsi', imsi).from('customers')
+  update(imsi, bridged, enabled, balance, data_balance, username) {
+      return knex.update({balance: balance, data_balance: data_balance, bridged: bridged, enabled: enabled, username: username}).where('imsi', imsi).from('customers')
       .catch(function(error) {
         throw new Error(error.sqlMessage);
       });
