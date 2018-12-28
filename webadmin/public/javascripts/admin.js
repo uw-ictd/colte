@@ -78,7 +78,39 @@ $(document).ready(function() {
   });
 });
 
-var submit = function(imsi) {
-  console.log(imsi);
+var submit = function(type, imsi, username, dataBalance, balance) {
+  console.log(document.getElementById(imsi + '-' + 'new-' + type).value);
+  document.getElementById(imsi + '-' + type + '-input').value = document.getElementById(imsi + '-' + 'new-' + type).value;
+
+  if (username) {
+    document.getElementById(imsi + '-username-input').value = username;
+  } 
+  
+  if (dataBalance) {
+    document.getElementById(imsi + '-data-balance-input').value = dataBalance;
+  } 
+  
+  if (balance) {
+    document.getElementById(imsi + '-balance-input').value = balance;
+  }
+
   document.getElementById(imsi + '-submit').click();
+}
+
+var usernameSubmit = function(imsi) {
+  var dataBalance = document.getElementById(imsi + '-data-balance').textContent.trim();
+  var balance = document.getElementById(imsi + '-balance').textContent.trim();
+  submit("username", imsi, undefined, dataBalance, balance);
+}
+
+var balanceSubmit = function(imsi) {
+  var username = document.getElementById(imsi + '-username').textContent.trim();
+  var dataBalance = document.getElementById(imsi + '-data-balance').textContent.trim();
+  submit("balance", imsi, username, dataBalance, undefined);
+}
+
+var dataBalanceSubmit = function(imsi) {
+  var username = document.getElementById(imsi + '-username').textContent.trim();
+  var balance = document.getElementById(imsi + '-balance').textContent.trim();
+  submit("data-balance", imsi, username, undefined, balance);
 }
