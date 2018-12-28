@@ -89,7 +89,7 @@ router.post('/update/:user_id', function(req, res) {
 
   var imsi = req.params.user_id;
 
-  console.log("UPDATE: imsi = " + imsi + " balance=" + balance + " data_balance=" + data_balance + " bridged=" + bridged + " enabled=" + enabled);
+  console.log("UPDATE: imsi = " + imsi + " username=" + username + " balance=" + balance + " data_balance=" + data_balance + " bridged=" + bridged + " enabled=" + enabled);
 
   customer.update(imsi, bridged, enabled, balance, data_balance, username).then((data) => {
     res.redirect('/users');

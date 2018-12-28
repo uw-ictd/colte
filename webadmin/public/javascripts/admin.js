@@ -40,3 +40,45 @@
     });
   }
 })();
+
+$(document).ready(function() {
+  $('[data-toggle="popover"]').popover();
+
+  $(function() {
+    $('[data-toggle="popover"]').popover({
+      animation: true,
+      container: 'body',
+      trigger: 'click focus'
+    });
+  });
+
+  $('body').click(function(event) {
+    if (event.target.classList) {
+      var node = event.target.parentNode;
+      var hide = false;
+      while (node != null) {
+          if (node.classList && node.classList.contains('popover')) {
+            hide = true;
+          }
+          node = node.parentNode;
+      }
+
+      if ($(event.target).attr('data-toggle') === 'popover') {
+        hide = true;
+      }
+
+      if (!hide) {
+        $('[data-toggle="popover"]').popover('hide');
+      }
+    }
+  });
+
+  $('[data-toggle="popover"]').click(function(event) {
+    $(event.target.id).popover('show');
+  });
+});
+
+var submit = function(imsi) {
+  console.log(imsi);
+  document.getElementById(imsi + '-submit').click();
+}

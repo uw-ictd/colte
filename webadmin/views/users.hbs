@@ -36,12 +36,39 @@
             <tr>
             <form method="post" action="/users/update/{{this.imsi}}">
               <td>{{this.imsi}}</td>
-              <td><input style="width: 130px;" name="username" value="{{this.username}}"></td>
+              <td 
+                class="editable" 
+                id="{{this.ismi}}-username" 
+                data-toggle="popover" 
+                title="Edit username" 
+                data-content="<input type='text' name='username' value='{{this.username}}'> </input> <button class='btn btn-danger row-submit' type='submit' onclick='submit(&quot;{{this.imsi}}&quot;)'> OK </button>" data-html="true">
+                
+                {{username}} 
+              </td>
+              {{!-- <td><input style="width: 130px;" name="username" value="{{this.username}}"></td> --}}
               <td>{{this.msisdn}}</td>
               <td>{{this.raw_down}}</td>
               <td>{{this.raw_up}}</td>
-              <td><input style="width: 130px;" name="data_balance" value="{{this.data_balance}}"></input></td>
-              <td><input style="width: 130px;" name="balance" value="{{this.balance}}"></input></td>
+              {{!-- <td><input style="width: 130px;" name="data_balance" value="{{this.data_balance}}"></input></td> --}}
+              <td 
+                class="editable" 
+                id="{{this.ismi}}-data-balance" 
+                data-toggle="popover" 
+                title="Edit data balance" 
+                data-content="<input type='text' name='username' value='{{this.data_balance}}'> </input> <button class='btn btn-danger row-submit' type='submit' onclick='submit(&quot;{{this.imsi}}&quot;)'> OK </button>" data-html="true">
+                
+                {{this.data_balance}}
+              </td>
+              <td 
+                class="editable" 
+                id="{{this.ismi}}-balance" 
+                data-toggle="popover" 
+                title="Edit balance" 
+                data-content="<input type='text' name='username' value='{{this.balance}}'> </input> <button class='btn btn-danger row-submit' type='submit' onclick='submit(&quot;{{this.imsi}}&quot;)'> OK </button>" data-html="true">
+                
+                {{this.balance}}
+              </td>
+              {{!-- <td><input style="width: 130px;" name="balance" value="{{this.balance}}"></input></td> --}}
 
               {{!-- <td>{{this.bridged}}</td> --}}
               <td class="center">
@@ -58,14 +85,13 @@
                   <input name="enabled" type="checkbox">
                 {{/if}}
               </td>
-              <td><button class="btn btn-primary" type="submit">Update</button></td>
+              <td><button class="btn btn-primary invisible" type="submit" id="{{this.imsi}}-submit"></button></td>
             </form>
             </tr>
           {{/each}}
         </tbody>
       </table>
     </div>
-
     <nav aria-label="Page navigation example">
       <ul class="pagination">
           {{#if has_previous}}
@@ -85,9 +111,8 @@
           {{/if}}
       </ul>
     </nav>
-
-
   </div>
 </main>
 <script src="/javascripts/jquery-3.3.1.min.js"></script>
+<script src="/javascripts/bootstrap.bundle.min.js"></script>
 <script src="/javascripts/admin.js"></script>

@@ -2,3 +2,11 @@
   text-align: center;
   vertical-align: middle;
 }
+
+.editable:hover {
+  cursor: pointer
+}
+
+.invisble {
+  visibility: hidden;
+}
