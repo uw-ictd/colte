@@ -74,12 +74,15 @@ $(document).ready(function() {
   });
 
   $('[data-toggle="popover"]').click(function(event) {
-    $(event.target.id).popover('show');
+    // Close all other popovers and open this one
+    $('[data-toggle="popover"]').not('#' + event.target.id).popover('hide');
+    $('#' + event.target.id).popover('show');
   });
 });
 
+// Populate form matching the imsi with the default (given) information about the username, data balance, balance.
+// Update the desired field with user input.
 var submit = function(type, imsi, username, dataBalance, balance) {
-  console.log(document.getElementById(imsi + '-' + 'new-' + type).value);
   document.getElementById(imsi + '-' + type + '-input').value = document.getElementById(imsi + '-' + 'new-' + type).value;
 
   if (username) {
@@ -97,18 +100,21 @@ var submit = function(type, imsi, username, dataBalance, balance) {
   document.getElementById(imsi + '-submit').click();
 }
 
+// Update username
 var usernameSubmit = function(imsi) {
   var dataBalance = document.getElementById(imsi + '-data-balance').textContent.trim();
   var balance = document.getElementById(imsi + '-balance').textContent.trim();
   submit("username", imsi, undefined, dataBalance, balance);
 }
 
+// Update data balance
 var balanceSubmit = function(imsi) {
   var username = document.getElementById(imsi + '-username').textContent.trim();
   var dataBalance = document.getElementById(imsi + '-data-balance').textContent.trim();
   submit("balance", imsi, username, dataBalance, undefined);
 }
 
+// Update balance
 var dataBalanceSubmit = function(imsi) {
   var username = document.getElementById(imsi + '-username').textContent.trim();
   var balance = document.getElementById(imsi + '-balance').textContent.trim();

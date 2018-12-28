@@ -4,10 +4,14 @@
 }
 
 .editable:hover {
-  cursor: pointer
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: blue;
+  background-color: rgb(229, 226, 229);
 }
 
-.invisble {
+.invisible {
   visibility: hidden;
   width: 1px;
   height: 1px;
