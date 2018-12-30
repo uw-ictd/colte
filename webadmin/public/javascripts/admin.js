@@ -84,7 +84,10 @@ $(document).ready(function() {
 // Update the desired field with user input.
 var submit = function(type, imsi, username, dataBalance, balance) {
   document.getElementById(imsi + '-' + type + '-input').value = document.getElementById(imsi + '-' + 'new-' + type).value;
+  submitHelper(imsi, username, dataBalance, balance);
+}
 
+var submitHelper = function(imsi, username, dataBalance, balance) {
   if (username) {
     document.getElementById(imsi + '-username-input').value = username;
   } 
@@ -119,4 +122,11 @@ var dataBalanceSubmit = function(imsi) {
   var username = document.getElementById(imsi + '-username').textContent.trim();
   var balance = document.getElementById(imsi + '-balance').textContent.trim();
   submit("data-balance", imsi, username, undefined, balance);
+}
+
+var checkboxSubmit = function(imsi) {
+  var username = document.getElementById(imsi + '-username').textContent.trim();
+  var balance = document.getElementById(imsi + '-balance').textContent.trim();
+  var dataBalance = document.getElementById(imsi + '-data-balance').textContent.trim();
+  submitHelper(imsi, username, dataBalance, balance);
 }

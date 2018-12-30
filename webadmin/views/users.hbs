@@ -46,11 +46,9 @@
                 {{username}} 
                 <input aria-hidden='true' class="invisible" name="username" id="{{this.imsi}}-username-input"></input>
               </td>
-              {{!-- <td><input style="width: 130px;" name="username" value="{{this.username}}"></td> --}}
               <td>{{this.msisdn}}</td>
               <td>{{this.raw_down}}</td>
               <td>{{this.raw_up}}</td>
-              {{!-- <td><input style="width: 130px;" name="data_balance" value="{{this.data_balance}}"></input></td> --}}
               <td 
                 class="editable" 
                 id="{{this.imsi}}-data-balance" 
@@ -71,24 +69,21 @@
                 {{this.balance}}
                 <input aria-hidden='true' class="invisible" name="balance" id="{{this.imsi}}-balance-input"></input>
               </td>
-              {{!-- <td><input style="width: 130px;" name="balance" value="{{this.balance}}"></input></td> --}}
-
-              {{!-- <td>{{this.bridged}}</td> --}}
               <td class="center">
                 {{#if this.bridged}}
-                  <input name="bridged" type="checkbox" checked>
+                  <input name="bridged" id="{{this.imsi}}-bridged-input" type="checkbox" checked onchange='checkboxSubmit(&quot;{{this.imsi}}&quot;)'>
                 {{else}}
-                  <input name="bridged" type="checkbox">
+                  <input name="bridged" id="{{this.imsi}}-bridged-input" type="checkbox" onchange='checkboxSubmit(&quot;{{this.imsi}}&quot;)'>
                 {{/if}}
               </td>
               <td class="center">
                 {{#if this.enabled}}
-                  <input name="enabled" type="checkbox" checked>
+                  <input name="enabled" id="{{this.imsi}}-enabled-input" type="checkbox" checked onchange='checkboxSubmit(&quot;{{this.imsi}}&quot;)'>
                 {{else}}
-                  <input name="enabled" type="checkbox">
+                  <input name="enabled" id="{{this.imsi}}-enabled-input" type="checkbox" onchange='checkboxSubmit(&quot;{{this.imsi}}&quot;)'>
                 {{/if}}
               </td>
-              <td aria-hidden='true' class="invisible"><button class="btn btn-primary invisible" type="submit" id="{{this.imsi}}-submit"></button></td>
+              <td aria-hidden='true' class="invisible"><button aria-hidden='true' class="btn btn-primary invisible" type="submit" id="{{this.imsi}}-submit"></button></td>
             </form>
             </tr>
           {{/each}}
