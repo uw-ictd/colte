@@ -21,6 +21,7 @@
         <thead>
           <tr>
             <th>IMSI</th>
+            <th>Username</th>
             <th>Phone Number</th>
             <th>Total Downloaded</th>
             <th>Total Uploaded</th>
@@ -35,6 +36,7 @@
             <tr>
             <form method="post" action="/users/update/{{this.imsi}}">
               <td>{{this.imsi}}</td>
+              <td><input style="width: 130px;" name="username" value="{{this.username}}"></td>
               <td>{{this.msisdn}}</td>
               <td>{{this.raw_down}}</td>
               <td>{{this.raw_up}}</td>
