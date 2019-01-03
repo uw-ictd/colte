@@ -28,7 +28,7 @@ router.post('/transfer', function(req,res) {
 
   customer.find_by_ip(ip).then((data) => {
 
-    customer.transfer_balance(data[0].imsi, msisdn, amount).catch((error) => {
+    customer.transfer_balance_msisdn(data[0].imsi, msisdn, amount).catch((error) => {
       console.log("Transfer error: " + error);
     })
     .then(function() {

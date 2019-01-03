@@ -12,6 +12,7 @@ var port = process.env.PORT || 3000;
 var env = process.env.NODE_ENV || 'development';
 var locale = process.env.LOCALE || "en";
 var password = process.env.PASSWORD;
+var transaction_log = process.env.TRANSACTION_LOG || "/var/log/colte/transaction_log.txt";
 
 // main app and view engine setup (we use express)
 var app = express();
@@ -61,6 +62,16 @@ hbs.registerHelper('ifequal', function (a, b, options) {
     if (a == b) { return options.fn(this); }
     return options.inverse(this);
 });
+
+// ensure that we can create/read/open the transaction log file
+fs.appendFile(transaction_log, "", function(err) {
+  if(err) {
+      console.log("Error: Cannot open transaction_log file " + transaction_log);
+      process.exit(1);
+  }
+});
+
+
 
 // password-protect the site because it is used for admin.
 // this approach is not the securest in the world, and 
