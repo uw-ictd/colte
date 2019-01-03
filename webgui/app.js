@@ -11,6 +11,7 @@ require('dotenv').config();
 var port = process.env.PORT || 3000;
 var env = process.env.NODE_ENV || 'development';
 var locale = process.env.LOCALE || "en";
+var transaction_log = process.env.TRANSACTION_LOG || "/var/log/colte/transaction_log.txt";
 
 // main app and view engine setup (we use express)
 var app = express();
@@ -63,6 +64,14 @@ module.exports.generateIP = function (ip) {
   }
   return ip;
 }
+
+// ensure that we can create/read/open the transaction log file
+fs.appendFile(transaction_log, "", function(err) {
+  if(err) {
+      console.log("Error: Cannot open transaction_log file " + transaction_log);
+      process.exit(1);
+  }
+});
 
 // read JSON file pricing.json; spells out the package deals.
 var content = fs.readFileSync("pricing.json");
