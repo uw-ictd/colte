@@ -56,7 +56,7 @@
                 title="Edit data balance" 
                 data-content="<input type='text' value='{{this.data_balance}}' id='{{this.imsi}}-new-data-balance'> </input> <button class='btn btn-danger row-submit' type='submit' onclick='dataBalanceSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>" data-html="true">
                 
-                {{this.data_balance}}
+                {{../convert_bytes this.data_balance}}
                 <input aria-hidden='true' class="invisible" name="data_balance" id="{{this.imsi}}-data-balance-input"></input>
               </td>
               <td 
@@ -66,7 +66,7 @@
                 title="Edit balance" 
                 data-content="<input type='text' value='{{this.balance}}' id='{{this.imsi}}-new-balance'> </input> <button class='btn btn-danger row-submit' type='submit' onclick='balanceSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>" data-html="true">
                 
-                {{this.balance}}
+                {{../print_number this.balance}}
                 <input aria-hidden='true' class="invisible" name="balance" id="{{this.imsi}}-balance-input"></input>
               </td>
               <td class="center">
