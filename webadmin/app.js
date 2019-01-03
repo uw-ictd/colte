@@ -37,6 +37,12 @@ module.exports.translate = function (x) {
   return str;
 }
 
+var commaNumber = require('comma-number');
+module.exports.print_number = function (x) {
+  var str = commaNumber(x);
+  return str;
+}
+
 // global helper function convertBytes:
 // takes int value like "1500" and outputs string "1.0KB"
 module.exports.convertBytes = function (size) {
