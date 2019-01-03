@@ -3,6 +3,9 @@ var env = process.env.NODE_ENV || 'development';
 var knex = require('knex')(require('../knexfile')[env]);
 var setupPaginator = require('knex-paginator');
 setupPaginator(knex);
+var fs = require('fs');
+var dateTime = require('date-time');
+var transaction_log = process.env.TRANSACTION_LOG || "/var/log/colte/transaction_log.txt";
 
 var customer = {
   all(page) {
@@ -64,10 +67,17 @@ var customer = {
     })
     .then(function(rows) {
       var newBalance = parseInt(rows[0].balance) + parseInt(delta);
-      return knex.update({balance: newBalance}).where('imsi', imsi).from('customers')
+      var rval = knex.update({balance: newBalance}).where('imsi', imsi).from('customers')
       .catch(function (error) {
         throw new Error(error.sqlMessage);
       });
+
+      fs.appendFile(transaction_log, dateTime() + " TOPUP " + imsi + " " + delta + "\n", function(err) {
+        if(err) {
+            return console.log(err);
+        }
+      });
+      return rval;
     })
   },
 
@@ -114,6 +124,14 @@ var customer = {
         .then((data2) => {
           var result = "Transfered " + amount + ". New balances are " + sender_bal + " and " + receiver_bal;
           console.log(result);
+
+          fs.appendFile(transaction_log, dateTime() + " ADMINTRANSFER " + sender_imsi + " " + receiver_imsi + " " + amount + "\n", function(err) {
+              if(err) {
+                  return console.log(err);
+              }
+          });
+
+
         })
       });
     }
@@ -136,11 +154,6 @@ var customer = {
       return customer.transfer_balance(sender_imsi, rows[0].imsi, amount);
     })
   },
-
-  transfer_balance_imsi(sender_imsi, receiver_imsi, amount) {
-    return customer.transfer_balance(sender_imsi, receiver_imsi, amount);
-  },
-
 
 // ASSUMPTION: all three of these values are already sanitized/validated.
 // We can cancel the transaction if (for some reason) the user doesn't 
