@@ -3,6 +3,9 @@ var env = process.env.NODE_ENV || 'development';
 var knex = require('knex')(require('../knexfile')[env]);
 var setupPaginator = require('knex-paginator');
 setupPaginator(knex);
+var fs = require('fs');
+var dateTime = require('date-time');
+var transaction_log = process.env.TRANSACTION_LOG || "/var/log/colte/transaction_log.txt";
 
 var customer = {
   all(page) {
@@ -64,21 +67,28 @@ var customer = {
     })
     .then(function(rows) {
       var newBalance = parseInt(rows[0].balance) + parseInt(delta);
-      return knex.update({balance: newBalance}).where('imsi', imsi).from('customers')
+      var rval = knex.update({balance: newBalance}).where('imsi', imsi).from('customers')
       .catch(function (error) {
         throw new Error(error.sqlMessage);
       });
+
+      fs.appendFile(transaction_log, dateTime() + " TOPUP " + imsi + " " + delta + "\n", function(err) {
+        if(err) {
+            return console.log(err);
+        }
+      });
+      return rval;
     })
   },
 
-  // moves "amount" from the customer with sender_imsi to the customer with receiver_msisdn
+  // moves "amount" from the customer with sender_imsi to the customer with receiver_imsi
   // amount must be non-negative
   // returns promise with no data
   // currently logs success/error to console
-  transfer_balance(sender_imsi, receiver_msisdn, amount) {
+  transfer_balance(sender_imsi, receiver_imsi, amount) {
     function fetch_bals(trx) {
       return knex.select('balance').where('imsi', sender_imsi).from('customers').transacting(trx).then((sender_bal) => {
-        return knex.select('balance').where('msisdn', receiver_msisdn).from('customers').transacting(trx)
+        return knex.select('balance').where('imsi', receiver_imsi).from('customers').transacting(trx)
           .then((receiver_bal) => { return [sender_bal, receiver_bal]; });
       });
     }
@@ -91,7 +101,7 @@ var customer = {
         if (data[0].length != 1) {
           err = "Sender IMSI matched " + data[0].length + " entries.";
         } else if (data[1].length != 1) {
-          err = "Receiver MSISDN matched " + data[1].length + " entries.";
+          err = "Receiver IMSI matched " + data[1].length + " entries.";
         } else {
           sender_bal = data[0][0].balance;
           receiver_bal = data[1][0].balance;
@@ -109,11 +119,19 @@ var customer = {
         return trx.update({ balance: sender_bal }).where('imsi', sender_imsi).from('customers').transacting(trx)
         .then((unused_data) => {
           // note we're still using the data argument from the fetch_bals promise
-          return knex.update({ balance: receiver_bal }).where('msisdn', receiver_msisdn).from('customers').transacting(trx).then(trx.commit, trx.rollback)
+          return knex.update({ balance: receiver_bal }).where('imsi', receiver_imsi).from('customers').transacting(trx).then(trx.commit, trx.rollback)
         }) 
         .then((data2) => {
           var result = "Transfered " + amount + ". New balances are " + sender_bal + " and " + receiver_bal;
           console.log(result);
+
+          fs.appendFile(transaction_log, dateTime() + " ADMINTRANSFER " + sender_imsi + " " + receiver_imsi + " " + amount + "\n", function(err) {
+              if(err) {
+                  return console.log(err);
+              }
+          });
+
+
         })
       });
     }
@@ -121,19 +139,19 @@ var customer = {
     return knex.transaction(transfer_func);
   },
 
-  transfer_balance_imsi(sender_imsi, receiver_imsi, amount) {
-    return knex.select('msisdn').where('imsi', receiver_imsi).from('customers')
+  transfer_balance_msisdn(sender_imsi, receiver_msisdn, amount) {
+    return knex.select('imsi').where('msisdn', receiver_msisdn).from('customers')
     .catch(function(error) {
       throw new Error(error.sqlMessage);
     })
     .then(function(rows) {
       if (rows.length != 1) {
-        throw new Error("imsi error");
+        throw new Error("msisdn error");
       }
       return rows;
     })
     .then(function(rows) {
-      return customer.transfer_balance(sender_imsi, rows[0].msisdn, amount);
+      return customer.transfer_balance(sender_imsi, rows[0].imsi, amount);
     })
   },
 
