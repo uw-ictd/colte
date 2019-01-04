@@ -1,0 +1,83 @@
+{{#* inline "network"}}
+    <div class="form-group col-12">
+        <label for="recipient">{{translate "Network Name"}}</label>
+        <input type="text" id="network-name" class="form-control" name="network-name"></input>
+    </div>
+    <div class="form-group col-12">
+        <label for="wan-interface">{{translate "WAN Interface"}}</label>
+        <input type="text" id="wan-interface" class="form-control" name="wan-interface">
+    </div>
+    <div class="form-group col-6">
+        <label for="enb-interface">{{translate "eNB Interface"}}</label>
+        <input type="text" id="enb-interface" class="form-control" name="enb-interface">
+    </div>
+    <div class="form-group col-6">
+        <label for="enb-interface-address">{{translate "eNB Interface Address"}}</label>
+        <input type="text" id="enb-interface-address" class="form-control" name="enb-interface-address">
+    </div>
+    <div class="form-group col-12">
+        <label for="lte-subnet">{{translate "LTE Subnet"}}</label>
+        <input type="text" id="lte-subnet" class="form-control" name="lte-subnet">
+    </div>
+{{/inline}}
+
+{{#* inline "epc"}}
+{{/inline}}
+
+{{#* inline "runningServices"}}
+{{/inline}}
+
+{{#* inline "webServices"}}
+{{/inline}}
+
+<link rel='stylesheet' href='/stylesheets/settings.css' />
+<main role="main" class="container">
+    <div class="container">
+        <div class="row" style="padding:1.5em;">
+            <div class="card mb-3 col-9" style="padding:0">
+                <div class="card-header">
+                    {{translate subtitle}}
+                </div>
+                <div class="card-body">
+                    <form method="post" action=""> 
+                        <div class="container">
+                            <div class="row">
+                                {{#if network}}
+                                    {{> network}}
+                                {{else if epc}}
+                                    {{> epc}}
+                                {{else if runningServices}}
+                                    {{> runningServices}}
+                                {{else if webServices}}
+                                    {{> webServices}}
+                                {{/if}}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-left:15px">{{translate "Submit"}}</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <ul class="nav flex-column">
+                            <li class="nav-item {{network}}">
+                                <a class="nav-link" href="/settings/network">Network</a>
+                            </li>
+                            <li class="nav-item {{epc}}">
+                                <a class="nav-link" href="/settings/epc">ePC</a>
+                            </li>
+                            <li class="nav-item {{runningServices}}">
+                                <a class="nav-link" href="/settings/running-services">Running Services</a>
+                            </li>
+                            <li class="nav-item {{webServices}}">
+                                <a class="nav-link" href="/settings/web-services">Web Services</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
