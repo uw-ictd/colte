@@ -105,28 +105,28 @@ var submitHelper = function(imsi, username, dataBalance, balance) {
 
 // Update username
 var usernameSubmit = function(imsi) {
-  var dataBalance = document.getElementById(imsi + '-data-balance').textContent.trim();
-  var balance = document.getElementById(imsi + '-balance').textContent.trim();
+  var dataBalance = document.getElementById(imsi + '-data-balance-input').value.trim();
+  var balance = document.getElementById(imsi + '-balance-input').value.trim();
   submit("username", imsi, undefined, dataBalance, balance);
 }
 
 // Update data balance
 var balanceSubmit = function(imsi) {
   var username = document.getElementById(imsi + '-username').textContent.trim();
-  var dataBalance = document.getElementById(imsi + '-data-balance').textContent.trim();
+  var dataBalance = document.getElementById(imsi + '-data-balance-input').value.trim();
   submit("balance", imsi, username, dataBalance, undefined);
 }
 
 // Update balance
 var dataBalanceSubmit = function(imsi) {
   var username = document.getElementById(imsi + '-username').textContent.trim();
-  var balance = document.getElementById(imsi + '-balance').textContent.trim();
+  var balance = document.getElementById(imsi + '-balance-input').value.trim();
   submit("data-balance", imsi, username, undefined, balance);
 }
 
 var checkboxSubmit = function(imsi) {
   var username = document.getElementById(imsi + '-username').textContent.trim();
-  var balance = document.getElementById(imsi + '-balance').textContent.trim();
-  var dataBalance = document.getElementById(imsi + '-data-balance').textContent.trim();
+  var balance = document.getElementById(imsi + '-balance-input').value.trim();
+  var dataBalance = document.getElementById(imsi + '-data-balance-input').value.trim();
   submitHelper(imsi, username, dataBalance, balance);
 }
