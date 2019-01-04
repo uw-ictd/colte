@@ -63,6 +63,8 @@ router.get('/:page', function(req, res, next) {
 
     res.render('users', { 
       translate: app.translate,
+      print_number: app.print_number,
+      convert_bytes: app.convertBytes,
       title: app.translate('Home'),
       customers_list: data.data,
       layout: 'layout',
@@ -94,7 +96,7 @@ router.post('/update/:user_id', function(req, res) {
 
   var imsi = req.params.user_id;
 
-  console.log("UPDATE: imsi = " + imsi + " balance=" + balance + " data_balance=" + data_balance + " bridged=" + bridged + " enabled=" + enabled);
+  console.log("UPDATE: imsi = " + imsi + " username=" + username + " balance=" + balance + " data_balance=" + data_balance + " bridged=" + bridged + " enabled=" + enabled);
 
   customer.update(imsi, bridged, enabled, balance, data_balance, username).then((data) => {
     res.redirect('/users');
