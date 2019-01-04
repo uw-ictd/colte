@@ -19,7 +19,7 @@ router.get('/epc', function(req, res, next) {
   res.render('settings', {
     translate: app.translate,
     title: app.translate("Settings"),
-    subtitle: app.translate("ePC Settings"),
+    subtitle: app.translate("EPC Settings"),
     epc: "active"
   });
 });

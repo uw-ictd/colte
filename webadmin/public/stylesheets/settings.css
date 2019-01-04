@@ -2,3 +2,9 @@
     font-weight: 700;
     background-color: #f7f7f7;
 }
+
+.invisible {
+    visibility: hidden;
+    width: 1px;
+    height: 1px;
+}

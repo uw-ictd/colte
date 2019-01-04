@@ -1,33 +1,121 @@
 {{#* inline "network"}}
-    <div class="form-group col-12">
-        <label for="recipient">{{translate "Network Name"}}</label>
-        <input type="text" id="network-name" class="form-control" name="network-name"></input>
+    <div class="row">
+        <div class="form-group col-12">
+            <label for="recipient">{{translate "Network Name"}}</label>
+            <input type="text" id="network-name" class="form-control" name="network-name"></input>
+        </div>
     </div>
-    <div class="form-group col-12">
-        <label for="wan-interface">{{translate "WAN Interface"}}</label>
-        <input type="text" id="wan-interface" class="form-control" name="wan-interface">
+    <div class="row">
+        <div class="form-group col-12">
+            <label for="wan-interface">{{translate "WAN Interface"}}</label>
+            <input type="text" id="wan-interface" class="form-control" name="wan-interface">
+        </div>
     </div>
-    <div class="form-group col-6">
-        <label for="enb-interface">{{translate "eNB Interface"}}</label>
-        <input type="text" id="enb-interface" class="form-control" name="enb-interface">
+    <div class="row">
+        <div class="form-group col-6">
+            <label for="enb-interface">{{translate "eNB Interface"}}</label>
+            <input type="text" id="enb-interface" class="form-control" name="enb-interface">
+        </div>
+        <div class="form-group col-6">
+            <label for="enb-interface-address">{{translate "eNB Interface Address"}}</label>
+            <input type="text" id="enb-interface-address" class="form-control" name="enb-interface-address">
+        </div>
     </div>
-    <div class="form-group col-6">
-        <label for="enb-interface-address">{{translate "eNB Interface Address"}}</label>
-        <input type="text" id="enb-interface-address" class="form-control" name="enb-interface-address">
-    </div>
-    <div class="form-group col-12">
-        <label for="lte-subnet">{{translate "LTE Subnet"}}</label>
-        <input type="text" id="lte-subnet" class="form-control" name="lte-subnet">
+    <div class="row">
+        <div class="form-group col-12">
+            <label for="lte-subnet">{{translate "LTE Subnet"}}</label>
+            <input type="text" id="lte-subnet" class="form-control" name="lte-subnet">
+        </div>
     </div>
 {{/inline}}
 
 {{#* inline "epc"}}
+    <div class="row">
+        <div class="form-group col-6">
+            <label for="max-enb">{{translate "Max eNBs"}}</label>
+            <input type="number" id="max-enb" class="form-control" name="max-enb"></input>
+        </div>
+        <div class="form-group col-6">
+            <label for="max-ue">{{translate "Max UEs"}}</label>
+            <input type="number" id="max-ue" class="form-control" name="max-ue">
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-6">
+            <label for="plmn">{{translate "PLMN"}}</label>
+            <input type="text" id="plmn" placeholder="MCC-MNC" class="form-control" name="plmn">
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-6">
+            <label for="max-ul">{{translate "Max UL Bandwith"}}</label>
+            <input type="number" id="max-ul" class="form-control" name="max-ul"></input>
+        </div>
+        <div class="form-group col-6">
+            <label for="max-dl">{{translate "Max DL Bandwith"}}</label>
+            <input type="number" id="max-dl" class="form-control" name="max-dl">
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-12" style="margin-left:15px">
+            <input type="checkbox" id="dns" class="form-check-input" name="dns">
+            <label for="dns" class="form-check-label">{{translate "Enable local DNS?"}}</label>
+        </div>
+    </div>
+    <div class="row invisible" id="extra-fields">
+        <div class="form-group col-6">
+            <label for="dns-address">{{translate "DNS Address"}}</label>
+            <input type="text" id="dns-address" class="form-control" name="dns-address">
+        </div>
+        <div class="form-group col-6">
+            <label for="dnssec-address">{{translate "DNSSEC Address"}}</label>
+            <input type="text" id="dnssec-address" class="form-control" name="dnssec-address">
+        </div>
+    </div>
 {{/inline}}
 
 {{#* inline "runningServices"}}
+    <div class="row" style="margin-left:15px">
+        <div class="form-group col-3">
+            <input type="checkbox" id="epc" class="form-check-input" name="epc">
+            <label class="form-check-label"  for="epc">{{translate "EPC"}}</label>
+        </div>
+        <div class="form-group col-3">
+            <input type="checkbox" id="haulage" class="form-check-input" name="haulage">
+            <label class="form-check-label"  for="haulage">{{translate "Haulage"}}</label>
+        </div>
+        <div class="form-group col-3">
+            <input type="checkbox" id="web-gui" class="form-check-input" name="web-gui">
+            <label class="form-check-label"  for="web-gui">{{translate "WebGUI"}}</label>
+        </div>
+        <div class="form-group col-3">
+            <input type="checkbox" id="web-services" class="form-check-input" name="web-services">
+            <label class="form-check-label"  for="web-services">{{translate "WebServices"}}</label>
+        </div>
+    </div>
 {{/inline}}
 
 {{#* inline "webServices"}}
+    <div class="row" style="margin-left:15px">
+        <div class="form-group col-4">
+            <input type="checkbox" id="media-server" class="form-check-input" name="media-server">
+            <label class="form-check-label"  for="media-server">{{translate "Media Server"}}</label>
+        </div>
+        <div class="form-group col-4">
+            <input type="checkbox" id="mapping-server" class="form-check-input" name="mapping-server">
+            <label class="form-check-label"  for="mapping-server">{{translate "Mapping Server"}}</label>
+        </div>
+        <div class="form-group col-4">
+            <input type="checkbox" id="chat-server" class="form-check-input" name="chat-server">
+            <label class="form-check-label"  for="chat-server">{{translate "Chat Server"}}</label>
+        </div>
+    </div>
+    <div class="row" style="margin-left:15px">
+        <div class="form-group col-3">
+            <input type="checkbox" id="wiki" class="form-check-input" name="wiki">
+            <label class="form-check-label"  for="wiki">{{translate "Wikipedia"}}</label>
+        </div>
+    </div>
 {{/inline}}
 
 <link rel='stylesheet' href='/stylesheets/settings.css' />
@@ -41,19 +129,21 @@
                 <div class="card-body">
                     <form method="post" action=""> 
                         <div class="container">
-                            <div class="row">
-                                {{#if network}}
-                                    {{> network}}
-                                {{else if epc}}
-                                    {{> epc}}
-                                {{else if runningServices}}
-                                    {{> runningServices}}
-                                {{else if webServices}}
-                                    {{> webServices}}
-                                {{/if}}
-                            </div>
+                            {{#if network}}
+                                {{> network}}
+                            {{else if epc}}
+                                {{> epc}}
+                            {{else if runningServices}}
+                                {{> runningServices}}
+                            {{else if webServices}}
+                                {{> webServices}}
+                            {{/if}}
                         </div>
-                        <button type="submit" class="btn btn-primary" style="margin-left:15px">{{translate "Submit"}}</button>
+                          <ul class="list-group list-group-flush" style="margin-top:5px">
+                            <li class="list-group-item">
+                                <button type="submit" class="btn btn-primary">{{translate "Submit"}}</button>
+                            </li>
+                        </ul>
                     </form>
                 </div>
             </div>
@@ -66,7 +156,7 @@
                                 <a class="nav-link" href="/settings/network">Network</a>
                             </li>
                             <li class="nav-item {{epc}}">
-                                <a class="nav-link" href="/settings/epc">ePC</a>
+                                <a class="nav-link" href="/settings/epc">EPC</a>
                             </li>
                             <li class="nav-item {{runningServices}}">
                                 <a class="nav-link" href="/settings/running-services">Running Services</a>
@@ -81,3 +171,6 @@
         </div>
     </div>
 </main>
+
+<script src="/javascripts/bootstrap.bundle.min.js"></script>
+<script src="/javascripts/settings.js"></script>
