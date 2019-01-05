@@ -94,19 +94,35 @@
 {{#* inline "runningServices"}}
     <div class="row" style="margin-left:15px">
         <div class="form-group col-3">
-            <input type="checkbox" id="epc" class="form-check-input" name="epc">
+            {{#ifTrue epc}}
+                <input type="checkbox" id="epc" class="form-check-input" name="epc" checked>
+            {{else}}
+                <input type="checkbox" id="epc" class="form-check-input" name="epc">
+            {{/ifTrue}}
             <label class="form-check-label"  for="epc">{{translate "EPC"}}</label>
         </div>
         <div class="form-group col-3">
-            <input type="checkbox" id="haulage" class="form-check-input" name="haulage">
+            {{#ifTrue haulage}}
+                <input type="checkbox" id="haulage" class="form-check-input" name="haulage" checked>
+            {{else}}
+                <input type="checkbox" id="haulage" class="form-check-input" name="haulage">
+            {{/ifTrue}}
             <label class="form-check-label"  for="haulage">{{translate "Haulage"}}</label>
         </div>
         <div class="form-group col-3">
-            <input type="checkbox" id="web-gui" class="form-check-input" name="web-gui">
+            {{#ifTrue webGui}}
+                <input type="checkbox" id="web-gui" class="form-check-input" name="web-gui" checked>
+            {{else}}
+                <input type="checkbox" id="web-gui" class="form-check-input" name="web-gui">
+            {{/ifTrue}}
             <label class="form-check-label"  for="web-gui">{{translate "WebGUI"}}</label>
         </div>
         <div class="form-group col-3">
-            <input type="checkbox" id="web-services" class="form-check-input" name="web-services">
+            {{#ifTrue webServices}}
+                <input type="checkbox" id="web-services" class="form-check-input" name="web-services" checked>
+            {{else}}
+                <input type="checkbox" id="web-services" class="form-check-input" name="web-services">
+            {{/ifTrue}}
             <label class="form-check-label"  for="web-services">{{translate "WebServices"}}</label>
         </div>
     </div>
@@ -164,10 +180,10 @@
                         <div class="container">
                             {{#if network}}
                                 {{> network}}
-                            {{else if epc}}
-                                {{> epc}}
                             {{else if runningServices}}
                                 {{> runningServices}}
+                            {{else if epc}}
+                                {{> epc}}
                             {{else if webServices}}
                                 {{> webServices}}
                             {{/if}}
