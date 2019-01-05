@@ -58,15 +58,15 @@
     </div>
     <div class="row">
         <div class="form-group col-12" style="margin-left:15px">
-            {{#ifTrue dns}}
-                <input type="checkbox" id="dns" class="form-check-input" name="dns" checked>
+            {{#ifTrue localDns}}
+                <input type="checkbox" id="dns" class="form-check-input" name="dns" value="1" checked>
             {{else}}
-                <input type="checkbox" id="dns" class="form-check-input" name="dns">
+                <input type="checkbox" id="dns" class="form-check-input" name="dns" value="1">
             {{/ifTrue}}
             <label for="dns" class="form-check-label">{{translate "Enable local DNS?"}}</label>
         </div>
     </div>
-    {{#ifTrue dns}}
+    {{#ifTrue localDns}}
         <div class="row invisible" id="extra-fields">
             <div class="form-group col-6">
                 <label for="dns-address">{{translate "DNS Address"}}</label>
@@ -95,33 +95,33 @@
     <div class="row" style="margin-left:15px">
         <div class="form-group col-3">
             {{#ifTrue epc}}
-                <input type="checkbox" id="epc" class="form-check-input" name="epc" checked>
+                <input type="checkbox" id="epc" class="form-check-input" name="epc" checked value="1"> 
             {{else}}
-                <input type="checkbox" id="epc" class="form-check-input" name="epc">
+                <input type="checkbox" id="epc" class="form-check-input" name="epc" value="1">
             {{/ifTrue}}
             <label class="form-check-label"  for="epc">{{translate "EPC"}}</label>
         </div>
         <div class="form-group col-3">
             {{#ifTrue haulage}}
-                <input type="checkbox" id="haulage" class="form-check-input" name="haulage" checked>
+                <input type="checkbox" id="haulage" class="form-check-input" name="haulage" checked value="1">
             {{else}}
-                <input type="checkbox" id="haulage" class="form-check-input" name="haulage">
+                <input type="checkbox" id="haulage" class="form-check-input" name="haulage" value="1">
             {{/ifTrue}}
             <label class="form-check-label"  for="haulage">{{translate "Haulage"}}</label>
         </div>
         <div class="form-group col-3">
             {{#ifTrue webGui}}
-                <input type="checkbox" id="web-gui" class="form-check-input" name="web-gui" checked>
+                <input type="checkbox" id="web-gui" class="form-check-input" name="web-gui" checked value="1">
             {{else}}
-                <input type="checkbox" id="web-gui" class="form-check-input" name="web-gui">
+                <input type="checkbox" id="web-gui" class="form-check-input" name="web-gui" value="1">
             {{/ifTrue}}
             <label class="form-check-label"  for="web-gui">{{translate "WebGUI"}}</label>
         </div>
         <div class="form-group col-3">
             {{#ifTrue webServices}}
-                <input type="checkbox" id="web-services" class="form-check-input" name="web-services" checked>
+                <input type="checkbox" id="web-services" class="form-check-input" name="web-services" checked value="1">
             {{else}}
-                <input type="checkbox" id="web-services" class="form-check-input" name="web-services">
+                <input type="checkbox" id="web-services" class="form-check-input" name="web-services"  value="1">
             {{/ifTrue}}
             <label class="form-check-label"  for="web-services">{{translate "WebServices"}}</label>
         </div>
@@ -132,25 +132,25 @@
     <div class="row" style="margin-left:15px">
         <div class="form-group col-4">
             {{#ifTrue mediaServer}}
-                <input type="checkbox" id="media-server" class="form-check-input" name="media-server" checked>
+                <input type="checkbox" id="media-server" class="form-check-input" name="media-server" checked value="1">
             {{else}}
-                 <input type="checkbox" id="media-server" class="form-check-input" name="media-server">
+                 <input type="checkbox" id="media-server" class="form-check-input" name="media-server" value="1">
             {{/ifTrue}}
             <label class="form-check-label"  for="media-server">{{translate "Media Server"}}</label>
         </div>
         <div class="form-group col-4">
             {{#ifTrue mappingServer}}
-                <input type="checkbox" id="mapping-server" class="form-check-input" name="mapping-server" checked>
+                <input type="checkbox" id="mapping-server" class="form-check-input" name="mapping-server" checked value="1">
             {{else}}
-                <input type="checkbox" id="mapping-server" class="form-check-input" name="mapping-server">
+                <input type="checkbox" id="mapping-server" class="form-check-input" name="mapping-server" value="1">
             {{/ifTrue}}
             <label class="form-check-label"  for="mapping-server">{{translate "Mapping Server"}}</label>
         </div>
         <div class="form-group col-4">
             {{#ifTrue chatServer}}
-                <input type="checkbox" id="chat-server" class="form-check-input" name="chat-server" checked>
+                <input type="checkbox" id="chat-server" class="form-check-input" name="chat-server" checked value="1">
             {{else}}
-                <input type="checkbox" id="chat-server" class="form-check-input" name="chat-server">            
+                <input type="checkbox" id="chat-server" class="form-check-input" name="chat-server" value="1">            
             {{/ifTrue}}
             <label class="form-check-label"  for="chat-server">{{translate "Chat Server"}}</label>
         </div>
@@ -158,9 +158,9 @@
     <div class="row" style="margin-left:15px">
         <div class="form-group col-3">
             {{#ifTrue wikipedia}}
-                <input type="checkbox" id="wiki" class="form-check-input" name="wiki" checked>
+                <input type="checkbox" id="wiki" class="form-check-input" name="wiki" checked value="1">
             {{else}}
-                <input type="checkbox" id="wiki" class="form-check-input" name="wiki">
+                <input type="checkbox" id="wiki" class="form-check-input" name="wiki" value="1">
             {{/ifTrue}}
             <label class="form-check-label"  for="wiki">{{translate "Wikipedia"}}</label>
         </div>
@@ -176,7 +176,7 @@
                     {{translate subtitle}}
                 </div>
                 <div class="card-body">
-                    <form method="post" action="/settings"> 
+                    <form method="post" action="/settings/{{route}}"> 
                         <div class="container">
                             {{#if network}}
                                 {{> network}}
