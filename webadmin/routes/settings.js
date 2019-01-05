@@ -72,16 +72,22 @@ router.get('/running-services', function(req, res, next) {
     epc: vars["epc"],
     haualge: vars["haulage"],
     webGui: vars["web_gui"],
-    webServices:["web_services"]
+    webServices: vars["web_services"]
   });
 });
 
 router.get('/web-services', function(req, res, next) {
+  console.log()
   res.render('settings', {
     translate: app.translate,
     title: app.translate("Settings"),
     subtitle: app.translate("Web Services Settings"),
-    webServices: "active"
+    webServices: "active",
+
+    mediaServer: vars["media_server"],
+    wikipedia: vars["wikipedia"],
+    mappingServer: vars["mapping_server"],
+    chatServer: vars["chat_server"]
   });
 });
 

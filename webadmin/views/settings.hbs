@@ -115,21 +115,37 @@
 {{#* inline "webServices"}}
     <div class="row" style="margin-left:15px">
         <div class="form-group col-4">
-            <input type="checkbox" id="media-server" class="form-check-input" name="media-server">
+            {{#ifTrue mediaServer}}
+                <input type="checkbox" id="media-server" class="form-check-input" name="media-server" checked>
+            {{else}}
+                 <input type="checkbox" id="media-server" class="form-check-input" name="media-server">
+            {{/ifTrue}}
             <label class="form-check-label"  for="media-server">{{translate "Media Server"}}</label>
         </div>
         <div class="form-group col-4">
-            <input type="checkbox" id="mapping-server" class="form-check-input" name="mapping-server">
+            {{#ifTrue mappingServer}}
+                <input type="checkbox" id="mapping-server" class="form-check-input" name="mapping-server" checked>
+            {{else}}
+                <input type="checkbox" id="mapping-server" class="form-check-input" name="mapping-server">
+            {{/ifTrue}}
             <label class="form-check-label"  for="mapping-server">{{translate "Mapping Server"}}</label>
         </div>
         <div class="form-group col-4">
-            <input type="checkbox" id="chat-server" class="form-check-input" name="chat-server">
+            {{#ifTrue chatServer}}
+                <input type="checkbox" id="chat-server" class="form-check-input" name="chat-server" checked>
+            {{else}}
+                <input type="checkbox" id="chat-server" class="form-check-input" name="chat-server">            
+            {{/ifTrue}}
             <label class="form-check-label"  for="chat-server">{{translate "Chat Server"}}</label>
         </div>
     </div>
     <div class="row" style="margin-left:15px">
         <div class="form-group col-3">
-            <input type="checkbox" id="wiki" class="form-check-input" name="wiki">
+            {{#ifTrue wikipedia}}
+                <input type="checkbox" id="wiki" class="form-check-input" name="wiki" checked>
+            {{else}}
+                <input type="checkbox" id="wiki" class="form-check-input" name="wiki">
+            {{/ifTrue}}
             <label class="form-check-label"  for="wiki">{{translate "Wikipedia"}}</label>
         </div>
     </div>
