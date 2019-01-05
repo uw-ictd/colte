@@ -129,6 +129,13 @@
 {{/inline}}
 
 {{#* inline "webServices"}}
+    {{#ifTrue localDns}}
+    {{else}}
+        <script>
+            alert("Local DNS is disabled. Please enable it to update web services settings.");
+            window.location.replace("/settings/epc");
+        </script>
+    {{/ifTrue}}
     <div class="row" style="margin-left:15px">
         <div class="form-group col-4">
             {{#ifTrue mediaServer}}

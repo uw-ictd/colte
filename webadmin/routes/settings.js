@@ -48,7 +48,9 @@ router.post('/network', function(req, res, next) {
   vars["wan_iface"] = req.body["wan-interface"];
   vars["lte_subnet"] = req.body["lte-subnet"];
 
-  next();
+  fs.writeFile(process.env.SETTINGS_VARS, yaml.safeDump(vars), () => {
+    next();
+  });
 });
 
 router.get('/epc', function(req, res, next) {
@@ -75,12 +77,23 @@ router.post('/epc', function(req, res, next) {
   vars['max_ue'] = parseInt(req.body["max-ue"]);
   vars["plmn"] = req.body["plmn"];
   vars["local_dns"] = toBoolean(req.body["dns"]);
-  vars["dnssec"] = req.body["dnssec-address"];
-  vars["dns"] = req.body["dns-address"];
-  vars["max_dl"] = req.body["max-dl"];
-  vars["max_ul"] = req.body["max-ul"];
+  vars["max_dl"] = parseInt(req.body["max-dl"]);
+  vars["max_ul"] = parseInt(req.body["max-ul"]);
 
-  next();
+  // Disable all web services if local DNS disabled
+  if (!vars["local_dns"]) {
+    vars["dnssec"] = req.body["dnssec-address"];
+    vars["dns"] = req.body["dns-address"];
+
+    vars["media_server"] = false;
+    vars["mapping_server"] = false;
+    vars["chat_server"] = false;
+    vars["wikipedia"] = false;
+  }
+
+  fs.writeFile(process.env.SETTINGS_VARS, yaml.safeDump(vars), () => {
+    next();
+  });
 });
 
 router.get('/running-services', function(req, res, next) {
@@ -104,16 +117,21 @@ router.post('/running-services', function(req, res, next) {
   vars["web_gui"] = toBoolean(req.body["web-gui"]);
   vars["web_services"] = toBoolean(req.body["web-services"]);
 
-  next();
+  fs.writeFile(process.env.SETTINGS_VARS, yaml.safeDump(vars), () => {
+    next();
+  });
 });
 
 router.get('/web-services', function(req, res, next) {
+
   res.render('settings', {
     translate: app.translate,
     title: app.translate("Settings"),
     subtitle: app.translate("Web Services Settings"),
     route: "web-services",
     webServices: "active",
+
+    localDns: vars["local_dns"],
 
     mediaServer: vars["media_server"],
     wikipedia: vars["wikipedia"],
@@ -128,7 +146,9 @@ router.post('/web-services', function(req, res, next) {
   vars["mapping_server"] = toBoolean(req.body["mapping-server"]);
   vars["chat_server"] = toBoolean(req.body["chat-server"]);
 
-  next();
+  fs.writeFile(process.env.SETTINGS_VARS, yaml.safeDump(vars), () => {
+    next();
+  });
 });
 
 var toBoolean = function(num) {

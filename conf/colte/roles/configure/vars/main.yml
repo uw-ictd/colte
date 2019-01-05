@@ -1,11 +1,25 @@
----
-# YOU CAN ADD ANY CONFIG VARIABLES YOU WANT HERE
-enb_iface: "eth0"
-enb_iface_addr: "1.2.3.4/24"
-wan_iface: "eth0"
-lte_subnet: "192.168.151.0/24"
-network_name: "colte"
-
-mysql_user: "colte_db"
-mysql_password: "colte_db"
-mysql_db: "colte_db"
+enb_iface: enp3s0
+enb_iface_addr: 172.28.5.93/24
+wan_iface: enp3s0
+lte_subnet: 192.168.151.0/24
+network_name: bokondini
+max_enb: 4
+max_ue: 32
+plmn: 910-54
+local_dns: true
+dnssec: 8.8.4.4
+dns: 8.8.8.8
+max_ul: 50000000
+max_dl: 100000000
+epc: true
+haulage: true
+web_gui: false
+web_services: true
+media_server: true
+wikipedia: true
+mapping_server: false
+chat_server: false
+mysql_user: colte_db
+mysql_password: colte_db
+mysql_db: colte_db
+wiki: false

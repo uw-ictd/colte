@@ -3,16 +3,24 @@ $.fn.exists = function () {
 }
 
 const positiveErrorMsg = '<small class="error"> Please enter a nonnegative number </small>'
+const power2ErrorMsg = '<small class="error"> Please enter a nonnegative power of 2 </small>'
 const addressErrorMessage = '<small class="error"> Please enter a valid IP address </small>'
 const addressWithMaskErrorMessage = '<small class="error"> Please enter a valid IP address and subnet mask </small>'
 
 $(document).ready(function() {
     $("#dns").change(function(event) {
-        if (event.target.checked) {
-            // TODO: Add warning, disable other services
-        }
-        
-        $("#extra-fields").toggleClass("invisible");
+        if (event.target.checked == false) {
+            var confirmation = confirm("Are you sure you want to disable local DNS? All other web services will be disabled.");
+            if (confirmation == true) {
+                $("#extra-fields").removeClass("invisible");
+            } else {
+                event.preventDefault();
+                $("#extra-fields").addClass("invisible");
+                $("#dns").prop("checked", true);
+            }
+        } else {
+            $("#extra-fields").addClass("invisible");
+        } 
     });
 
     // Prevent users from submitting form by pressing 'enter'
@@ -45,11 +53,11 @@ $(document).ready(function() {
         }
 
         if (maxEnb.exists()) {
-            errors = addErrorMessage(maxEnb, positiveErrorMsg, isNonegative, errors);
+            errors = addErrorMessage(maxEnb, power2ErrorMsg, isPower2, errors);
         }
 
         if (maxUe.exists()) {
-            errors = addErrorMessage(maxUe, positiveErrorMsg, isNonegative, errors);
+            errors = addErrorMessage(maxUe, power2ErrorMsg, isPower2, errors);
         }
 
         if (maxDl.exists()) {
@@ -93,6 +101,10 @@ var isAddress = function(value) {
     }
 
     return address.length === 4;
+}
+
+var isPower2 = function(value) {
+    return Math.log2(value) % 1 === 0;
 }
 
 var addErrorMessage = function(element, message, test, errors) {
