@@ -8,3 +8,9 @@
     width: 1px;
     height: 1px;
 }
+
+.error {
+    color: red;
+    display: block;
+    line-height: 1.25;
+}

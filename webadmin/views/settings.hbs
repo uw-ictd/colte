@@ -176,7 +176,7 @@
                     {{translate subtitle}}
                 </div>
                 <div class="card-body">
-                    <form method="post" action=""> 
+                    <form method="post" action="/settings"> 
                         <div class="container">
                             {{#if network}}
                                 {{> network}}
@@ -190,7 +190,8 @@
                         </div>
                           <ul class="list-group list-group-flush" style="margin-top:5px">
                             <li class="list-group-item">
-                                <button type="submit" class="btn btn-primary">{{translate "Submit"}}</button>
+                                <div class="btn btn-primary" id="validate-btn">{{translate "Submit"}}</div>
+                                <button type="submit" id="submit" class="btn btn-primary invisible" aria-hidden="true">{{translate "Submit"}}</button>
                             </li>
                         </ul>
                     </form>

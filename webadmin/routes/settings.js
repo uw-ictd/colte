@@ -21,7 +21,8 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-  
+  console.log("HELLO")
+  next();
 });
 
 // the variables file lives at /usr/local/etc/colte/config.yml,
