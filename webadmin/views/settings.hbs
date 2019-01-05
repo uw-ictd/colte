@@ -2,29 +2,29 @@
     <div class="row">
         <div class="form-group col-12">
             <label for="recipient">{{translate "Network Name"}}</label>
-            <input type="text" id="network-name" class="form-control" name="network-name"></input>
+            <input type="text" id="network-name" class="form-control" name="network-name" value="{{networkName}}"></input>
         </div>
     </div>
     <div class="row">
         <div class="form-group col-12">
             <label for="wan-interface">{{translate "WAN Interface"}}</label>
-            <input type="text" id="wan-interface" class="form-control" name="wan-interface">
+            <input type="text" id="wan-interface" class="form-control" name="wan-interface" value="{{wanInterface}}">
         </div>
     </div>
     <div class="row">
         <div class="form-group col-6">
             <label for="enb-interface">{{translate "eNB Interface"}}</label>
-            <input type="text" id="enb-interface" class="form-control" name="enb-interface">
+            <input type="text" id="enb-interface" class="form-control" name="enb-interface" value="{{enbInterface}}">
         </div>
         <div class="form-group col-6">
             <label for="enb-interface-address">{{translate "eNB Interface Address"}}</label>
-            <input type="text" id="enb-interface-address" class="form-control" name="enb-interface-address">
+            <input type="text" id="enb-interface-address" class="form-control" name="enb-interface-address" value="{{enbInterfaceAddress}}">
         </div>
     </div>
     <div class="row">
         <div class="form-group col-12">
             <label for="lte-subnet">{{translate "LTE Subnet"}}</label>
-            <input type="text" id="lte-subnet" class="form-control" name="lte-subnet">
+            <input type="text" id="lte-subnet" class="form-control" name="lte-subnet" value="{{lteSubnet}}">
         </div>
     </div>
 {{/inline}}
@@ -33,45 +33,62 @@
     <div class="row">
         <div class="form-group col-6">
             <label for="max-enb">{{translate "Max eNBs"}}</label>
-            <input type="number" id="max-enb" class="form-control" name="max-enb"></input>
+            <input type="number" id="max-enb" class="form-control" name="max-enb" value="{{maxEnb}}"></input>
         </div>
         <div class="form-group col-6">
             <label for="max-ue">{{translate "Max UEs"}}</label>
-            <input type="number" id="max-ue" class="form-control" name="max-ue">
+            <input type="number" id="max-ue" class="form-control" name="max-ue" value="{{maxUe}}">
         </div>
     </div>
     <div class="row">
         <div class="form-group col-6">
             <label for="plmn">{{translate "PLMN"}}</label>
-            <input type="text" id="plmn" placeholder="MCC-MNC" class="form-control" name="plmn">
+            <input type="text" id="plmn" placeholder="MCC-MNC" class="form-control" name="plmn" value="{{plmn}}">
         </div>
     </div>
     <div class="row">
         <div class="form-group col-6">
             <label for="max-ul">{{translate "Max UL Bandwith"}}</label>
-            <input type="number" id="max-ul" class="form-control" name="max-ul"></input>
+            <input type="number" id="max-ul" class="form-control" name="max-ul" placeholder="bits/second" value="{{maxUl}}"></input>
         </div>
         <div class="form-group col-6">
             <label for="max-dl">{{translate "Max DL Bandwith"}}</label>
-            <input type="number" id="max-dl" class="form-control" name="max-dl">
+            <input type="number" id="max-dl" class="form-control" name="max-dl" placeholder="bits/second" value="{{maxDl}}">
         </div>
     </div>
     <div class="row">
         <div class="form-group col-12" style="margin-left:15px">
-            <input type="checkbox" id="dns" class="form-check-input" name="dns">
+            {{#ifTrue dns}}
+                <input type="checkbox" id="dns" class="form-check-input" name="dns" checked>
+            {{else}}
+                <input type="checkbox" id="dns" class="form-check-input" name="dns">
+            {{/ifTrue}}
             <label for="dns" class="form-check-label">{{translate "Enable local DNS?"}}</label>
         </div>
     </div>
-    <div class="row invisible" id="extra-fields">
-        <div class="form-group col-6">
-            <label for="dns-address">{{translate "DNS Address"}}</label>
-            <input type="text" id="dns-address" class="form-control" name="dns-address">
+    {{#ifTrue dns}}
+        <div class="row invisible" id="extra-fields">
+            <div class="form-group col-6">
+                <label for="dns-address">{{translate "DNS Address"}}</label>
+                <input type="text" id="dns-address" class="form-control" name="dns-address" value="{{dns}}">
+            </div>
+            <div class="form-group col-6">
+                <label for="dnssec-address">{{translate "DNSSEC Address"}}</label>
+                <input type="text" id="dnssec-address" class="form-control" name="dnssec-address" value="{{dnssec}}">
+            </div>
         </div>
-        <div class="form-group col-6">
-            <label for="dnssec-address">{{translate "DNSSEC Address"}}</label>
-            <input type="text" id="dnssec-address" class="form-control" name="dnssec-address">
+    {{else}}
+        <div class="row" id="extra-fields">
+            <div class="form-group col-6">
+                <label for="dns-address">{{translate "DNS Address"}}</label>
+                <input type="text" id="dns-address" class="form-control" name="dns-address" value="{{dns}}">
+            </div>
+            <div class="form-group col-6">
+                <label for="dnssec-address">{{translate "DNSSEC Address"}}</label>
+                <input type="text" id="dnssec-address" class="form-control" name="dnssec-address" value="{{dnssec}}">
+            </div>
         </div>
-    </div>
+    {{/ifTrue}}
 {{/inline}}
 
 {{#* inline "runningServices"}}
