@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
   customer.find_by_ip(ip).then((data) => {
     res.render('transfer', {
       translate: app.translate,
-      title: app.translate('Home'),
+      title: app.translate('Transfer'),
       raw_up: data[0].raw_up,
       raw_down: data[0].raw_down,
       balance: data[0].balance,
