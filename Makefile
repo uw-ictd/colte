@@ -36,7 +36,7 @@ colte: target
 		--version $(COLTE_VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'colte-epc (>= 0.9.3), colte-webservices, haulage, colte-conf' \
-		./colte/haulage.yml=/usr/local/etc/colte/haulage.yml
+		./package/colte/haulage.yml=/usr/local/etc/colte/haulage.yml
 
 conf: target
 	fpm --input-type dir \

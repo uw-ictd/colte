@@ -169,8 +169,8 @@
       line: "{{ item.line }}"
     when: haulage_installed
     with_items:
-    - {field: "dbLocation", line: "dbLocation: \"{{ mysql_db }}\""}
-    - {field: "dbUser", line: "dbUser: \"{{ mysql_user }}\""}
-    - {field: "dbPass", line: "dbPass: \"{{ mysql_password }}\""}
+    - {field: "dbLocation", line: "  dbLocation: \"{{ mysql_db }}\""}
+    - {field: "dbUser", line: "  dbUser: \"{{ mysql_user }}\""}
+    - {field: "dbPass", line: "  dbPass: \"{{ mysql_password }}\""}
     - {field: "interface", line: "interface: \"gtp0\""}
     become: yes
