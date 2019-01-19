@@ -8,5 +8,5 @@
     become: yes
 
   - name: reload systemd
-    systemd: daemon_reload=yes
+    command: systemctl daemon-reload
     become: yes
