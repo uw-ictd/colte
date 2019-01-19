@@ -100,6 +100,11 @@
     with_items:
     - {field: "MME_INTERFACE_NAME_FOR_S1_MME", line: "        MME_INTERFACE_NAME_FOR_S1_MME         = \"{{ enb_iface }}\";"}
     - {field: "MME_IPV4_ADDRESS_FOR_S1_MME", line: "        MME_IPV4_ADDRESS_FOR_S1_MME         = \"{{ enb_iface_addr }}\";"}
+    - {field: "MME_CODE", line: "         {MCC=\"{{ mcc }}\" ; MNC=\"{{ mnc }}\"; MME_GID=\"1\" ; MME_CODE=\"1\"; }"}
+    - {field: "TAC =", line: "         {MCC=\"{{ mcc }}\" ; MNC=\"{{ mnc }}\";  TAC = \"1\"; }"}
+    - {field: "SGW_IPV4_ADDRESS_FOR_S11", line: "         {ID=\"tac-lb01.tac-hb00.tac.epc.mnc{{ mnc }}.mcc{{ mcc }}.3gppnetwork.org\" ; SGW_IPV4_ADDRESS_FOR_S11=\"127.0.0.30/8\";}"}
+    - {field: "MAXENB", line: "    MAXENB = {{ max_enb }};"}
+    - {field: "MAXUE", line: "    MAXUE = {{ max_ue }};"}
     become: yes
 
   - name: write information to spgw.conf
@@ -116,9 +121,8 @@
     - {field: 'MYSQL_user', line: '    MYSQL_user   = "{{ mysql_user }}";'}
     - {field: 'MYSQL_pass', line: '    MYSQL_pass   = "{{ mysql_password }}";'}
     - {field: 'MYSQL_db', line: '    MYSQL_db   = "{{ mysql_db }}";'}
-    # SMS TODO: THESE VALUES ARE HARD-CODED WE NEED TO SET THEM TO COLTE'S VALUE IF-AND-ONLY-IF BIND OPTION TURNED ON
-    # - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: '    DEFAULT_DNS_IPV4_ADDRESS = "192.168.151.1";'}
-    # - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: '    DEFAULT_DNS_SEC_IPV4_ADDRESS = "192.168.151.1";'}
+    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: "    DEFAULT_DNS_IPV4_ADDRESS = \"{{ dns }}\";"}
+    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: "    DEFAULT_DNS_SEC_IPV4_ADDRESS = \"{{ dnssec }}\";"}
     become: yes
 
   - name: update spgw_nat script with wan_iface
