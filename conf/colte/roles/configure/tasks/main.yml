@@ -10,6 +10,7 @@
     - {path: "/usr/local/etc/oai/mme.conf"}
     - {path: "/usr/local/etc/oai/spgw.conf"}
     - {path: "/usr/local/etc/colte/webgui.env"}
+    - {path: "/usr/local/etc/colte/webadmin.env"}
     - {path: "/etc/haulage/config.yml"}    
     # - {path: "/etc/nginx/sites-available/webgui.conf"}
     # - {path: "/etc/nginx/sites-available/webconf.conf"}
@@ -28,9 +29,10 @@
       spgw_installed: files.results[2].stat.exists
 
       webgui_installed: files.results[3].stat.exists
+      webadmin_installed: files.results[4].stat.exists
       # webgui_site_installed: files.results[5].stat.exists
       # webconf_installed: files.results[6].stat.exists
-      haulage_installed: files.results[4].stat.exists
+      haulage_installed: files.results[5].stat.exists
 
       # chat_installed: files.results[8].stat.exists
       # SMS TODO: re-enable OSM once we dockerize it
@@ -149,6 +151,26 @@
       line: "{{ item.line }}"
     become: yes
     when: webgui_installed
+    with_items:
+    - {field: 'DB_USER', line: 'DB_USER={{ mysql_user }}'}
+    - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
+    - {field: 'DB_NAME', line: 'DB_NAME={{ mysql_db }}'}
+
+
+
+
+
+######################################
+############# WEBADMIN CONF ##########
+######################################
+
+  - name: write environment information to webadmin.env
+    lineinfile:
+      dest: "/usr/local/etc/colte/webadmin.env"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    become: yes
+    when: webadmin_installed
     with_items:
     - {field: 'DB_USER', line: 'DB_USER={{ mysql_user }}'}
     - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
