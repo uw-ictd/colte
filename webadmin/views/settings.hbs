@@ -1,17 +1,5 @@
 {{#* inline "network"}}
     <div class="row">
-        <div class="form-group col-12">
-            <label for="recipient">{{translate "Network Name"}}</label>
-            <input type="text" id="network-name" class="form-control" name="network-name" value="{{networkName}}"></input>
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group col-12">
-            <label for="wan-interface">{{translate "WAN Interface"}}</label>
-            <input type="text" id="wan-interface" class="form-control" name="wan-interface" value="{{wanInterface}}">
-        </div>
-    </div>
-    <div class="row">
         <div class="form-group col-6">
             <label for="enb-interface">{{translate "eNB Interface"}}</label>
             <input type="text" id="enb-interface" class="form-control" name="enb-interface" value="{{enbInterface}}">
@@ -23,13 +11,20 @@
     </div>
     <div class="row">
         <div class="form-group col-12">
-            <label for="lte-subnet">{{translate "LTE Subnet"}}</label>
-            <input type="text" id="lte-subnet" class="form-control" name="lte-subnet" value="{{lteSubnet}}">
+            <label for="wan-interface">{{translate "WAN Interface"}}</label>
+            <input type="text" id="wan-interface" class="form-control" name="wan-interface" value="{{wanInterface}}">
         </div>
     </div>
-{{/inline}}
-
-{{#* inline "epc"}}
+    <div class="row">
+        <div class="form-group col-6">
+            <label for="mcc">{{translate "MCC"}}</label>
+            <input type="number" id="mcc" class="form-control" name="mcc" value="{{mcc}}"></input>
+        </div>
+        <div class="form-group col-6">
+            <label for="mnc">{{translate "MNC"}}</label>
+            <input type="number" id="mnc" class="form-control" name="mnc" value="{{mnc}}">
+        </div>
+    </div>    
     <div class="row">
         <div class="form-group col-6">
             <label for="max-enb">{{translate "Max eNBs"}}</label>
@@ -40,10 +35,28 @@
             <input type="number" id="max-ue" class="form-control" name="max-ue" value="{{maxUe}}">
         </div>
     </div>
+{{/inline}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{{#* inline "epc"}}
     <div class="row">
-        <div class="form-group col-6">
-            <label for="plmn">{{translate "PLMN"}}</label>
-            <input type="text" id="plmn" placeholder="MCC-MNC" class="form-control" name="plmn" value="{{plmn}}">
+        <div class="form-group col-12">
+            <label for="lte-subnet">{{translate "LTE Subnet"}}</label>
+            <input type="text" id="lte-subnet" class="form-control" name="lte-subnet" value="{{lteSubnet}}">
         </div>
     </div>
     <div class="row">
@@ -210,7 +223,7 @@
                     <div class="card-body">
                         <ul class="nav flex-column">
                             <li class="nav-item {{network}}">
-                                <a class="nav-link" href="/settings/network">Network</a>
+                                <a class="nav-link" href="/settings/network">Basic Settings</a>
                             </li>
                             <li class="nav-item {{epc}}">
                                 <a class="nav-link" href="/settings/epc">EPC</a>

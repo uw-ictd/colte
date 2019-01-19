@@ -29,24 +29,32 @@ router.get('/network', function(req, res, next) {
   res.render('settings', {
     translate: app.translate,
     title: app.translate("Settings"),
-    subtitle: app.translate("System Settings"),
+    subtitle: app.translate("Basic Settings"),
     route: "network",
     network: "active",
-
-    networkName: vars["network_name"],
+    // basic: network
     enbInterface: vars["enb_iface"],
     enbInterfaceAddress: vars["enb_iface_addr"],
     wanInterface: vars["wan_iface"],
-    lteSubnet: vars["lte_subnet"]
+    mcc: vars["mcc"],
+    mnc: vars["mnc"],
+    maxEnb: vars["max_enb"],
+    maxUe: vars["max_ue"],
+    // basic: services
+    epc: vars["epc"],
+    haulage: vars["haulage"],
+    webGui: vars["web_gui"],
   });
 });
 
 router.post('/network', function(req, res, next) {
-  vars['network_name'] = req.body["network-name"];
   vars['enb_iface'] = req.body["enb-interface"];
   vars['enb_iface_addr'] = req.body["enb-interface-address"];
   vars["wan_iface"] = req.body["wan-interface"];
-  vars["lte_subnet"] = req.body["lte-subnet"];
+  vars["mcc"] = req.body["mcc"];
+  vars["mnc"] = req.body["mnc"];
+  vars["max_enb"] = req.body["max-enb"];
+  vars["max_ue"] = req.body["max-ue"];
 
   fs.writeFile(process.env.SETTINGS_VARS, yaml.safeDump(vars), () => {
     next();
@@ -61,9 +69,6 @@ router.get('/epc', function(req, res, next) {
     route: "epc",
     epc: "active",
 
-    maxEnb: vars["max_enb"],
-    maxUe: vars["max_ue"],
-    plmn: vars["plmn"],
     localDns: vars["local_dns"],
     dnssec: vars["dnssec"],
     dns: vars["dns"],
@@ -104,9 +109,7 @@ router.get('/running-services', function(req, res, next) {
     route: "running-services",
     runningServices: "active",
 
-    epc: vars["epc"],
-    haulage: vars["haulage"],
-    webGui: vars["web_gui"],
+
     webServices: vars["web_services"]
   });
 });
