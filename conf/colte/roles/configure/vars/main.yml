@@ -16,24 +16,24 @@ mcc: 460
 mnc: 66
 
 # basic: services
-epc: true
-haulage: true
-web_gui: true
+#epc: true
+#haulage: true
+#web_gui: true
 
 # EPC advanced config settings
-local_dns: false
+#local_dns: false
 dnssec: 8.8.4.4
 dns: 8.8.8.8
-max_ul: 50000000
-max_dl: 100000000
 lte_subnet: 192.168.151.0/24
+#max_ul: 50000000
+#max_dl: 100000000
 
 # locally-hosted webservices
 #web_services: true
-network_name: bokondini
-media_server: false
-wikipedia: false
-mapping_server: false
-chat_server: false
-wiki: false
+#network_name: bokondini
+#media_server: false
+#wikipedia: false
+#mapping_server: false
+#chat_server: false
+#wiki: false
 
