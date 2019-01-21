@@ -1,6 +1,6 @@
 
-COLTE_VERSION=0.9.10
-CONF_VERSION=0.9.10
+COLTE_VERSION=0.9.11
+CONF_VERSION=0.9.12
 WEBSERVICES_VERSION=0.9.10
 WEBGUI_VERSION=0.9.10
 WEBADMIN_VERSION=0.9.1
@@ -24,7 +24,7 @@ target:
 	mkdir -p $(TARGET_DIR)
 
 colte: target
-	fpm --input-type empty \
+	fpm --input-type dir \
 		--output-type deb \
 		--force \
 		--vendor uw-ictd \
@@ -35,7 +35,8 @@ colte: target
 		--name colte \
 		--version $(COLTE_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'colte-epc (>= 0.9.3), colte-webservices, haulage, colte-conf'
+		--depends 'colte-epc (>= 0.9.3), colte-webservices, haulage, colte-conf' \
+		./package/colte/haulage.yml=/usr/local/etc/colte/haulage.yml
 
 conf: target
 	fpm --input-type dir \
