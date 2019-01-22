@@ -102,7 +102,7 @@
     - {field: "MME_IPV4_ADDRESS_FOR_S1_MME", line: "        MME_IPV4_ADDRESS_FOR_S1_MME         = \"{{ enb_iface_addr }}\";"}
     - {field: "MME_CODE", line: "         {MCC=\"{{ mcc }}\" ; MNC=\"{{ mnc }}\"; MME_GID=\"1\" ; MME_CODE=\"1\"; }"}
     - {field: "TAC =", line: "         {MCC=\"{{ mcc }}\" ; MNC=\"{{ mnc }}\";  TAC = \"1\"; }"}
-    - {field: "SGW_IPV4_ADDRESS_FOR_S11", line: "         {ID=\"tac-lb01.tac-hb00.tac.epc.mnc{{ mnc }}.mcc{{ mcc }}.3gppnetwork.org\" ; SGW_IPV4_ADDRESS_FOR_S11=\"127.0.0.30/8\";}"}
+    - {field: "SGW_IPV4_ADDRESS_FOR_S11", line: "         {ID=\"tac-lb01.tac-hb00.tac.epc.mnc0{{ mnc }}.mcc{{ mcc }}.3gppnetwork.org\" ; SGW_IPV4_ADDRESS_FOR_S11=\"127.0.0.30/8\";}"}
     - {field: "MAXENB", line: "    MAXENB = {{ max_enb }};"}
     - {field: "MAXUE", line: "    MAXUE = {{ max_ue }};"}
     become: yes
