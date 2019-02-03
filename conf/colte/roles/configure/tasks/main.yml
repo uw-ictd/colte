@@ -68,6 +68,54 @@
     with_items:
     - {field: 'ExecStart', line: "ExecStart=/bin/bash -c \"/usr/sbin/tcpdump -i {{ enb_iface }} -w /var/log/colte/tcpdump/sctp_$(/bin/date +\"%%Y-%%m-%%d-%%H%%MZ\").pcap\""}
 
+  - name: enable epc
+    systemd:
+      name: colte-epc
+      state: started
+      enabled: yes
+    become: yes
+    when: enable_epc
+
+  - name: disable epc
+    systemd:
+      name: colte-epc
+      state: stopped
+      enabled: no
+    become: yes
+    when: not enable_epc
+
+  - name: enable haulage
+    systemd:
+      name: haulage
+      state: started
+      enabled: yes
+    become: yes
+    when: enable_haulage
+
+  - name: disable haulage
+    systemd:
+      name: haulage
+      state: stopped
+      enabled: no
+    become: yes
+    when: not enable_haulage
+
+  - name: enable webgui
+    systemd:
+      name: colte-webgui
+      state: started
+      enabled: yes
+    become: yes
+    when: enable_webgui
+
+  - name: disable webgui
+    systemd:
+      name: colte-webgui
+      state: stopped
+      enabled: no
+    become: yes
+    when: not enable_webgui
+
 
 
 
