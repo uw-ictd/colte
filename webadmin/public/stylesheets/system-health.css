@@ -1,0 +1,28 @@
+div.card {
+    width: 100%;
+}
+
+.row {
+    padding: 1.5em;
+}
+
+button.btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.dot {
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    display: block;
+    margin: auto;
+}
+
+.green {
+    background-color: green;
+}
+
+.red {
+    background-color: red;
+}

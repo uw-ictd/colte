@@ -1,0 +1,113 @@
+● colte-hss.service - CoLTE HSS
+   Loaded: loaded (/etc/systemd/system/colte-hss.service; enabled; vendor preset: enabled)
+   Active: active (running) since Tue 2019-01-22 21:52:18 UTC; 2 weeks 0 days ago
+ Main PID: 4983 (oai_hss)
+    Tasks: 23 (limit: 4915)
+   CGroup: /system.slice/colte-hss.service
+           └─4983 /usr/bin/oai_hss
+-----
+● colte-mme.service - CoLTE MME
+   Loaded: loaded (/etc/systemd/system/colte-mme.service; disabled; vendor preset: enabled)
+   Active: inactive (dead)
+-----
+● colte-spgw.service - CoLTE SPGW
+   Loaded: loaded (/etc/systemd/system/colte-spgw.service; disabled; vendor preset: enabled)
+   Active: inactive (dead)
+-----
+● haulage.service - CoLTE Billing Suite
+   Loaded: loaded (/lib/systemd/system/haulage.service; enabled; vendor preset: enabled)
+   Active: activating (auto-restart) (Result: exit-code) since Wed 2019-02-06 12:04:08 UTC; 79ms ago
+  Process: 3306 ExecStart=/usr/bin/haulage (code=exited, status=1/FAILURE)
+ Main PID: 3306 (code=exited, status=1/FAILURE)
+-----
+● colte-webgui.service - CoLTE WebGUI
+   Loaded: loaded (/etc/systemd/system/colte-webgui.service; disabled; vendor preset: enabled)
+   Active: active (running) since Tue 2019-01-22 21:47:59 UTC; 2 weeks 0 days ago
+ Main PID: 3467 (nodejs)
+    Tasks: 6 (limit: 4915)
+   CGroup: /system.slice/colte-webgui.service
+           └─3467 nodejs /usr/bin/colte-webgui/bin/www
+-----
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 142
+model name	: Intel(R) Core(TM) i5-7360U CPU @ 2.30GHz
+stepping	: 9
+cpu MHz		: 2303.998
+cache size	: 4096 KB
+physical id	: 0
+siblings	: 1
+core id		: 0
+cpu cores	: 1
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 22
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc pni pclmulqdq monitor ssse3 cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single kaiser fsgsbase avx2 invpcid rdseed clflushopt flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf
+bogomips	: 4607.99
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+-----
+MemTotal:        1020332 kB
+MemFree:          102512 kB
+MemAvailable:     706960 kB
+Buffers:           62540 kB
+Cached:           638016 kB
+SwapCached:            0 kB
+Active:           250308 kB
+Inactive:         554052 kB
+Active(anon):      78200 kB
+Inactive(anon):    37648 kB
+Active(file):     172108 kB
+Inactive(file):   516404 kB
+Unevictable:           0 kB
+Mlocked:               0 kB
+SwapTotal:       1048572 kB
+SwapFree:        1048572 kB
+Dirty:                88 kB
+Writeback:             0 kB
+AnonPages:        103828 kB
+Mapped:            47292 kB
+Shmem:             12048 kB
+Slab:              97520 kB
+SReclaimable:      87292 kB
+SUnreclaim:        10228 kB
+KernelStack:        2280 kB
+PageTables:         3060 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     1558736 kB
+Committed_AS:     946648 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:           0 kB
+VmallocChunk:          0 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:         0 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:       44992 kB
+DirectMap2M:     1003520 kB
+-----
+Filesystem                     1K-blocks      Used Available Use% Mounted on
+udev                              498396         0    498396   0% /dev
+tmpfs                             102036     12048     89988  12% /run
+/dev/mapper/debian--9--vg-root  64509556   1705848  59497008   3% /
+tmpfs                             510164         0    510164   0% /dev/shm
+tmpfs                               5120         0      5120   0% /run/lock
+tmpfs                             510164         0    510164   0% /sys/fs/cgroup
+/dev/sda1                         240972     37344    191187  17% /boot
+vagrant                        118181844 102934948  15246896  88% /vagrant
+tmpfs                             102032         0    102032   0% /run/user/1000

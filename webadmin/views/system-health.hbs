@@ -1,0 +1,77 @@
+{{#* inline "overview"}}
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Search for a service..." aria-label="Search" aria-describedby="search">
+        <div class="input-group-append">
+            <button class="btn btn-outline-primary" type="button" id="search">Button</button>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Name</th>
+                        <th>Loaded</th>
+                        <th>Active Status</th>
+                        <th>Uptime</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>haulage.service</td>
+                        <td>CoLTE Billing Suite</td>
+                        <td><span class="green dot"></span></td>
+                        <td>activating (auto-restart)</td>
+                        <td>2 weeks 0 days</td>
+                    </tr>  
+                    <tr>
+                        <td>colte-mme.service</td>
+                        <td>CoLTE HSS</td>
+                        <td><span class="red dot"></td>
+                        <td>inactive (dead)</td>
+                        <td></td>
+                    </tr>  
+                    <tr>
+                        <td></td>
+                        <td>12345</td>
+                        <td><span class="red dot"></td>
+                        <td>12345</td>
+                        <td>12345</td>
+                    </tr>  
+                </tbody>
+            </table>
+        </div>
+    </div>
+{{/inline}}
+
+{{#* inline "services"}}
+    <h1> Test! </h1>
+{{/inline}}
+
+<link rel='stylesheet' href='/stylesheets/system-health.css' />
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-9">
+            {{#if overview}}
+                {{> overview}}
+            {{else if services}}
+                {{> services}}
+            {{/if}}
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {{overview}}" href="/system-health/overview">Overview</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{services}}" href="/system-health/services">Services</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div> 
+</main>
