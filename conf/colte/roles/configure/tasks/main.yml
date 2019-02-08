@@ -42,7 +42,7 @@
       # media_installed: files.results[11].stat.exists
       # wiki_installed: files.results[12].stat.exists
 
-
+      # epc_snet_addr: "{{ varname | regex_replace('','') }}"
 
 
 
@@ -67,6 +67,54 @@
     become: yes
     with_items:
     - {field: 'ExecStart', line: "ExecStart=/bin/bash -c \"/usr/sbin/tcpdump -i {{ enb_iface }} -w /var/log/colte/tcpdump/sctp_$(/bin/date +\"%%Y-%%m-%%d-%%H%%MZ\").pcap\""}
+
+  - name: enable epc
+    systemd:
+      name: colte-epc
+      state: started
+      enabled: yes
+    become: yes
+    when: enable_epc
+
+  - name: disable epc
+    systemd:
+      name: colte-epc
+      state: stopped
+      enabled: no
+    become: yes
+    when: not enable_epc
+
+  - name: enable haulage
+    systemd:
+      name: haulage
+      state: started
+      enabled: yes
+    become: yes
+    when: enable_haulage
+
+  - name: disable haulage
+    systemd:
+      name: haulage
+      state: stopped
+      enabled: no
+    become: yes
+    when: not enable_haulage
+
+  - name: enable webgui
+    systemd:
+      name: colte-webgui
+      state: started
+      enabled: yes
+    become: yes
+    when: enable_webgui
+
+  - name: disable webgui
+    systemd:
+      name: colte-webgui
+      state: stopped
+      enabled: no
+    become: yes
+    when: not enable_webgui
 
 
 
@@ -100,6 +148,11 @@
     with_items:
     - {field: "MME_INTERFACE_NAME_FOR_S1_MME", line: "        MME_INTERFACE_NAME_FOR_S1_MME         = \"{{ enb_iface }}\";"}
     - {field: "MME_IPV4_ADDRESS_FOR_S1_MME", line: "        MME_IPV4_ADDRESS_FOR_S1_MME         = \"{{ enb_iface_addr }}\";"}
+    - {field: "MME_CODE", line: "         {MCC=\"{{ mcc }}\" ; MNC=\"{{ mnc }}\"; MME_GID=\"1\" ; MME_CODE=\"1\"; }"}
+    - {field: "TAC =", line: "         {MCC=\"{{ mcc }}\" ; MNC=\"{{ mnc }}\";  TAC = \"1\"; }"}
+    - {field: "SGW_IPV4_ADDRESS_FOR_S11", line: "         {ID=\"tac-lb01.tac-hb00.tac.epc.mnc0{{ mnc }}.mcc{{ mcc }}.3gppnetwork.org\" ; SGW_IPV4_ADDRESS_FOR_S11=\"127.0.0.30/8\";}"}
+    - {field: "MAXENB", line: "    MAXENB = {{ max_enb }};"}
+    - {field: "MAXUE", line: "    MAXUE = {{ max_ue }};"}
     become: yes
 
   - name: write information to spgw.conf
@@ -109,6 +162,8 @@
       line: "{{ item.line }}"
     when: spgw_installed
     with_items:
+    - {field: "APN_AMBR_UL", line: "      APN_AMBR_UL                             = {{ max_ul }};"}
+    - {field: "APN_AMBR_DL", line: "      APN_AMBR_DL                             = {{ max_dl }};"}
     - {field: "SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP", line: "        SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP         = \"{{ enb_iface }}\";"}
     - {field: "SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP", line: "        SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP         = \"{{ enb_iface_addr }}\";"}
     - {field: "PGW_INTERFACE_NAME_FOR_SGI", line: "        PGW_INTERFACE_NAME_FOR_SGI            = \"{{ wan_iface }}\";"}
@@ -116,9 +171,6 @@
     - {field: 'MYSQL_user', line: '    MYSQL_user   = "{{ mysql_user }}";'}
     - {field: 'MYSQL_pass', line: '    MYSQL_pass   = "{{ mysql_password }}";'}
     - {field: 'MYSQL_db', line: '    MYSQL_db   = "{{ mysql_db }}";'}
-    # SMS TODO: THESE VALUES ARE HARD-CODED WE NEED TO SET THEM TO COLTE'S VALUE IF-AND-ONLY-IF BIND OPTION TURNED ON
-    # - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: '    DEFAULT_DNS_IPV4_ADDRESS = "192.168.151.1";'}
-    # - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: '    DEFAULT_DNS_SEC_IPV4_ADDRESS = "192.168.151.1";'}
     become: yes
 
   - name: update spgw_nat script with wan_iface
@@ -141,6 +193,36 @@
 
 
 ######################################
+######## LOCAL DNS CONF ##############
+######################################
+
+  - name: write DNS information to spgw.conf
+    lineinfile:
+      dest: "/usr/local/etc/oai/spgw.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: local_dns
+    with_items:
+    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: "    DEFAULT_DNS_IPV4_ADDRESS = \"{{ epc_snet_addr }}\";"}
+    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: "    DEFAULT_DNS_SEC_IPV4_ADDRESS = \"{{ epc_snet_addr }}\";"}
+    become: yes
+
+  - name: write DNS information to spgw.conf
+    lineinfile:
+      dest: "/usr/local/etc/oai/spgw.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: not local_dns
+    with_items:
+    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: "    DEFAULT_DNS_IPV4_ADDRESS = \"{{ dns }}\";"}
+    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: "    DEFAULT_DNS_SEC_IPV4_ADDRESS = \"{{ dnssec }}\";"}
+    become: yes
+
+
+
+
+
+######################################
 ############# WEBGUI CONF ############
 ######################################
 
@@ -155,6 +237,7 @@
     - {field: 'DB_USER', line: 'DB_USER={{ mysql_user }}'}
     - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
     - {field: 'DB_NAME', line: 'DB_NAME={{ mysql_db }}'}
+    - {field: 'LOCALE', line: 'LOCALE={{ webgui_language }}'}
 
 
 
@@ -175,6 +258,7 @@
     - {field: 'DB_USER', line: 'DB_USER={{ mysql_user }}'}
     - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
     - {field: 'DB_NAME', line: 'DB_NAME={{ mysql_db }}'}
+    - {field: 'LOCALE', line: 'LOCALE={{ webadmin_language }}'}
 
 
 
