@@ -42,7 +42,7 @@
       # media_installed: files.results[11].stat.exists
       # wiki_installed: files.results[12].stat.exists
 
-
+      # epc_snet_addr: "{{ varname | regex_replace('','') }}"
 
 
 
@@ -162,6 +162,8 @@
       line: "{{ item.line }}"
     when: spgw_installed
     with_items:
+    - {field: "APN_AMBR_UL", line: "      APN_AMBR_UL                             = {{ max_ul }};"}
+    - {field: "APN_AMBR_DL", line: "      APN_AMBR_DL                             = {{ max_dl }};"}
     - {field: "SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP", line: "        SGW_INTERFACE_NAME_FOR_S1U_S12_S4_UP         = \"{{ enb_iface }}\";"}
     - {field: "SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP", line: "        SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP         = \"{{ enb_iface_addr }}\";"}
     - {field: "PGW_INTERFACE_NAME_FOR_SGI", line: "        PGW_INTERFACE_NAME_FOR_SGI            = \"{{ wan_iface }}\";"}
@@ -169,8 +171,6 @@
     - {field: 'MYSQL_user', line: '    MYSQL_user   = "{{ mysql_user }}";'}
     - {field: 'MYSQL_pass', line: '    MYSQL_pass   = "{{ mysql_password }}";'}
     - {field: 'MYSQL_db', line: '    MYSQL_db   = "{{ mysql_db }}";'}
-    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: "    DEFAULT_DNS_IPV4_ADDRESS = \"{{ dns }}\";"}
-    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: "    DEFAULT_DNS_SEC_IPV4_ADDRESS = \"{{ dnssec }}\";"}
     become: yes
 
   - name: update spgw_nat script with wan_iface
@@ -193,6 +193,36 @@
 
 
 ######################################
+######## LOCAL DNS CONF ##############
+######################################
+
+  - name: write DNS information to spgw.conf
+    lineinfile:
+      dest: "/usr/local/etc/oai/spgw.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: local_dns
+    with_items:
+    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: "    DEFAULT_DNS_IPV4_ADDRESS = \"{{ epc_snet_addr }}\";"}
+    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: "    DEFAULT_DNS_SEC_IPV4_ADDRESS = \"{{ epc_snet_addr }}\";"}
+    become: yes
+
+  - name: write DNS information to spgw.conf
+    lineinfile:
+      dest: "/usr/local/etc/oai/spgw.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: not local_dns
+    with_items:
+    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: "    DEFAULT_DNS_IPV4_ADDRESS = \"{{ dns }}\";"}
+    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: "    DEFAULT_DNS_SEC_IPV4_ADDRESS = \"{{ dnssec }}\";"}
+    become: yes
+
+
+
+
+
+######################################
 ############# WEBGUI CONF ############
 ######################################
 
@@ -207,6 +237,7 @@
     - {field: 'DB_USER', line: 'DB_USER={{ mysql_user }}'}
     - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
     - {field: 'DB_NAME', line: 'DB_NAME={{ mysql_db }}'}
+    - {field: 'LOCALE', line: 'LOCALE={{ webgui_language }}'}
 
 
 
@@ -227,6 +258,7 @@
     - {field: 'DB_USER', line: 'DB_USER={{ mysql_user }}'}
     - {field: 'DB_PASSWORD', line: 'DB_PASSWORD={{ mysql_password }}'}
     - {field: 'DB_NAME', line: 'DB_NAME={{ mysql_db }}'}
+    - {field: 'LOCALE', line: 'LOCALE={{ webadmin_language }}'}
 
 
 

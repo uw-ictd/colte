@@ -21,18 +21,27 @@ enable_haulage: true
 enable_webgui: true
 
 # EPC advanced config settings
+lte_subnet: 192.168.151.0/24
+# TODO: AUTOMATICALLY POPULATE EPC_SNET_ADDR FROM LTE_SUBNET
+epc_snet_addr: 192.168.151.1
+max_ul: 500000
+max_dl: 500000
+
+local_dns: true
+# if local_dns true, it overwrites these settings.
+# (these two vars are only utilized if local_dns == false)
 dnssec: 8.8.4.4
 dns: 8.8.8.8
-lte_subnet: 192.168.151.0/24
-#max_ul: 50000000
-#max_dl: 100000000
+# SMS NOTE: BELOW REQUIRES local_dns AND NGINX!!!
+#webgui_dns: network.colte
 
+webgui_language: en
+webadmin_language: en
 
-
-######### BREAK THIS OUT INTO A SEPARATE CONFIG FILE ###########
+######### BREAK THIS OUT INTO A SEPARATE CONFIG FILE?!?!? ###########
 
 # locally-hosted webservices
-#local_dns: false
+# THESE ARE ALL ONLY POSSIBLE IF LOCAL_DNS == TRUE!!!
 #web_services: true
 #network_name: bokondini
 #media_server: false
