@@ -1,10 +1,1 @@
-● mariadb.service - MariaDB 10.1.37 database server
-   Loaded: loaded (/lib/systemd/system/mariadb.service; enabled; vendor preset: enabled)
-   Active: active (running) since Tue 2019-01-22 21:47:59 UTC; 2 weeks 0 days ago
-     Docs: man:mysqld(8)
-           https://mariadb.com/kb/en/library/systemd/
- Main PID: 3238 (mysqld)
-   Status: "Taking your SQL requests now..."
-    Tasks: 27 (limit: 4915)
-   CGroup: /system.slice/mariadb.service
-           └─3238 /usr/sbin/mysqld
+Unit marfsdf.service could not be found.

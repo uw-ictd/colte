@@ -33,8 +33,15 @@ router.get('/overview', function(req, res, next) {
 });
 
 router.post('/overview', function(req, res, next) {
-    console.log("HEREEEEE");
     var toRender = [];
+    var service = req.body.service;
+    var command = 'systemctl status ' + service + ' > ' + SEARCH_FILE;
+    
+    // shell.exec(command, (code, stdout, stderr) => { 
+
+    // });
+
+    console.log(command);
     getStats(SEARCH_FILE, (err, data) => {
         if (err) {
             throw err;
@@ -60,13 +67,15 @@ router.get('/services', function(req, res, next) {
 
 var getPageData = (data, toRender) => {
     var dataAsString = data.toString();
-    var services = dataAsString.split('-----');
-    services = cleanData(services);
-
-    services.forEach((element) => {
-        var service = getServiceData(element);
-        toRender.push(service);
-    });
+    if (!dataAsString.includes("could not be found")) {
+        var services = dataAsString.split('-----');
+        services = cleanData(services);
+    
+        services.forEach((element) => {
+            var service = getServiceData(element);
+            toRender.push(service);
+        });
+    }
 }
 
 var getServiceData = (element) => {
@@ -75,13 +84,8 @@ var getServiceData = (element) => {
     var loaded = getLoadedData(element[1]);
     var active = getActiveData(element[2]);
 
-    console.log(overview);
-    console.log(loaded);
-    console.log(active);
-
     service["service"] = overview[0].trim();
     service["name"] = overview[1].trim();
-    console.log(loaded[1]);
     service["loaded"] = loaded[1].trim() === 'disabled' ? 'red dot' : 'green dot';
     service["active"] = active[0].trim();
     service["uptime"] = active[1] ? active[1].trim() : active[1];
