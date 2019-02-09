@@ -1,10 +1,12 @@
 {{#* inline "overview"}}
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Search for a service..." aria-label="Search" aria-describedby="search">
-        <div class="input-group-append">
-            <button class="btn btn-outline-primary" type="button" id="search">Button</button>
+    <form method="post" action="/system-health/overview">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Search for a service..." aria-label="Search" aria-describedby="search">
+            <div class="input-group-append">
+                <button class="btn btn-outline-primary" type="submit" id="search">Button</button>
+            </div>
         </div>
-    </div>
+    </form>
     <div class="card mb-3">
         <div class="table-responsive">
             <table class="table">

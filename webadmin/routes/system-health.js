@@ -5,7 +5,8 @@ var app = require('../app');
 const fs = require('fs');
 const shell = require('shelljs');
 
-const file = process.env.SYSTEM_HEALTH_INFO;
+const SERVICES_FILE = process.env.SERVICES_HEALTH_INFO;
+const SEARCH_FILE = process.env.SERVICES_SEARCH_INFO;
 const NUM_SERVICES = 5;
 
 router.get('/', function(req, res, next) {
@@ -14,30 +15,12 @@ router.get('/', function(req, res, next) {
 
 router.get('/overview', function(req, res, next) {
     var toRender = [];
-    shell.exec('../scripts/bash/test.sh', (code, stdout, stderr) => { 
-        getStats((err, data) => {
+    shell.exec('../scripts/bash/CHANGEME', (code, stdout, stderr) => { 
+        getStats(SERVICES_FILE, (err, data) => {
             if (err) {
                 throw err;
             }
-            var dataAsString = data.toString();
-            var services = dataAsString.split('-----');
-            services = cleanData(services);
-    
-            services.forEach((element) => {
-                var service = {};
-                var overview = element[0].split(' - ');
-                var loaded = getLoadedData(element[1]);
-                var active = getActiveData(element[2]);
-    
-                service["service"] = overview[0].trim();
-                service["name"] = overview[1].trim();
-                console.log(loaded[1]);
-                service["loaded"] = loaded[1].trim() === 'disabled' ? 'red dot' : 'green dot';
-                service["active"] = active[0].trim();
-                service["uptime"] = active[1] ? active[1].trim() : active[1];
-    
-                toRender.push(service);
-            });
+            getPageData(data, toRender);
         });
 
         res.render('system-health', {
@@ -50,7 +33,21 @@ router.get('/overview', function(req, res, next) {
 });
 
 router.post('/overview', function(req, res, next) {
+    console.log("HEREEEEE");
+    var toRender = [];
+    getStats(SEARCH_FILE, (err, data) => {
+        if (err) {
+            throw err;
+        }
+        getPageData(data, toRender);
 
+        res.render('system-health', {
+            translate: app.translate,
+            title: app.translate("System Health"),
+            overview: "active",
+            data: toRender
+        });
+    });
 });
 
 router.get('/services', function(req, res, next) {
@@ -60,7 +57,39 @@ router.get('/services', function(req, res, next) {
         services: "active",
     });
 });
-var getStats = function (callback) {
+
+var getPageData = (data, toRender) => {
+    var dataAsString = data.toString();
+    var services = dataAsString.split('-----');
+    services = cleanData(services);
+
+    services.forEach((element) => {
+        var service = getServiceData(element);
+        toRender.push(service);
+    });
+}
+
+var getServiceData = (element) => {
+    var service = {};
+    var overview = element[0].split(' - ');
+    var loaded = getLoadedData(element[1]);
+    var active = getActiveData(element[2]);
+
+    console.log(overview);
+    console.log(loaded);
+    console.log(active);
+
+    service["service"] = overview[0].trim();
+    service["name"] = overview[1].trim();
+    console.log(loaded[1]);
+    service["loaded"] = loaded[1].trim() === 'disabled' ? 'red dot' : 'green dot';
+    service["active"] = active[0].trim();
+    service["uptime"] = active[1] ? active[1].trim() : active[1];
+
+    return service;
+}
+
+var getStats = function (file, callback) {
     return fs.readFile(file, callback);
 }
 

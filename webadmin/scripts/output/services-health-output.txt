@@ -1,0 +1,29 @@
+● colte-hss.service - CoLTE HSS
+   Loaded: loaded (/etc/systemd/system/colte-hss.service; enabled; vendor preset: enabled)
+   Active: active (running) since Tue 2019-01-22 21:52:18 UTC; 2 weeks 0 days ago
+ Main PID: 4983 (oai_hss)
+    Tasks: 23 (limit: 4915)
+   CGroup: /system.slice/colte-hss.service
+           └─4983 /usr/bin/oai_hss
+-----
+● colte-mme.service - CoLTE MME
+   Loaded: loaded (/etc/systemd/system/colte-mme.service; disabled; vendor preset: enabled)
+   Active: inactive (dead)
+-----
+● colte-spgw.service - CoLTE SPGW
+   Loaded: loaded (/etc/systemd/system/colte-spgw.service; disabled; vendor preset: enabled)
+   Active: inactive (dead)
+-----
+● haulage.service - CoLTE Billing Suite
+   Loaded: loaded (/lib/systemd/system/haulage.service; enabled; vendor preset: enabled)
+   Active: activating (auto-restart) (Result: exit-code) since Wed 2019-02-06 12:04:08 UTC; 79ms ago
+  Process: 3306 ExecStart=/usr/bin/haulage (code=exited, status=1/FAILURE)
+ Main PID: 3306 (code=exited, status=1/FAILURE)
+-----
+● colte-webgui.service - CoLTE WebGUI
+   Loaded: loaded (/etc/systemd/system/colte-webgui.service; disabled; vendor preset: enabled)
+   Active: active (running) since Tue 2019-01-22 21:47:59 UTC; 2 weeks 0 days ago
+ Main PID: 3467 (nodejs)
+    Tasks: 6 (limit: 4915)
+   CGroup: /system.slice/colte-webgui.service
+           └─3467 nodejs /usr/bin/colte-webgui/bin/www
