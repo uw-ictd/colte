@@ -23,7 +23,8 @@
     "localize": "^0.4.7",
     "morgan": "~1.9.0",
     "mysql": "^2.15.0",
-    "serve-favicon": "~2.4.5"
+    "serve-favicon": "~2.4.5",
+    "shelljs": "^0.8.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

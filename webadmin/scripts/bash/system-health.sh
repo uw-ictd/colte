@@ -1,6 +1,8 @@
 #!/bin/bash
 FILE=../output/system-health-output.txt
 
+rm $FILE
+
 systemctl status colte-hss >> $FILE
 echo ----- >> $FILE
 

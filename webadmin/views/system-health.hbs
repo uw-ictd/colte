@@ -12,33 +12,21 @@
                     <tr>
                         <th>Service</th>
                         <th>Name</th>
-                        <th>Loaded</th>
+                        <th>Enabled</th>
                         <th>Active Status</th>
                         <th>Uptime</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {{#each data}}
                     <tr>
-                        <td>haulage.service</td>
-                        <td>CoLTE Billing Suite</td>
-                        <td><span class="green dot"></span></td>
-                        <td>activating (auto-restart)</td>
-                        <td>2 weeks 0 days</td>
-                    </tr>  
-                    <tr>
-                        <td>colte-mme.service</td>
-                        <td>CoLTE HSS</td>
-                        <td><span class="red dot"></td>
-                        <td>inactive (dead)</td>
-                        <td></td>
-                    </tr>  
-                    <tr>
-                        <td></td>
-                        <td>12345</td>
-                        <td><span class="red dot"></td>
-                        <td>12345</td>
-                        <td>12345</td>
-                    </tr>  
+                        <td>{{this.service}}</td>
+                        <td>{{this.name}}</td>
+                        <td><span class="{{this.loaded}}"></span></td>
+                        <td>{{this.active}}</td>
+                        <td>{{this.uptime}}</td>
+                    </tr>
+                    {{/each}} 
                 </tbody>
             </table>
         </div>
