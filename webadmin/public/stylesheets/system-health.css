@@ -26,3 +26,7 @@ button.btn {
 .red {
     background-color: red;
 }
+
+ul {
+    list-style-type: none;
+}

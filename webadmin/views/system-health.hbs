@@ -1,5 +1,5 @@
 {{#* inline "overview"}}
-    <form method="post" action="/system-health/overview">
+    <form method="post" action="/system-health/services">
         <div class="input-group mb-3">
             <input type="text" name="service" class="form-control" placeholder="Search for a service..." aria-label="Search" aria-describedby="search">
             <div class="input-group-append">
@@ -36,7 +36,99 @@
 {{/inline}}
 
 {{#* inline "services"}}
-    <h1> Test! </h1>
+    <div class="card mb-3">
+        <div class="card-header">
+            <h4>CPU Information</h4>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{this.service}}</td>
+                        <td>{{this.name}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h4>Memory Information</h4>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Space</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Service</td>
+                        <td>Name</td>
+                    </tr>
+                    <tr>
+                        <td>Service</td>
+                        <td>Name</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h4>Disk Space Information</h4>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Filesystem</th>
+                        <th>Mount Location</th>
+                        <th>Total</th>
+                        <th>Used</th>
+                        <th>Available</th>
+                        <th>% Used</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                    </tr>
+                    <tr>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                    </tr>
+                    <tr>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                        <td>test</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 {{/inline}}
 
 <link rel='stylesheet' href='/stylesheets/system-health.css' />
@@ -55,6 +147,17 @@
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link {{overview}}" href="/system-health/overview">Overview</a>
+                            <ul> 
+                                <li> 
+                                    <a class="nav-link {{services}}" href="/system-health/overview">CPU</a>
+                                </li>
+                                <li> 
+                                    <a class="nav-link {{services}}" href="/system-health/overview">Memory</a>
+                                </li>
+                                <li> 
+                                    <a class="nav-link {{services}}" href="/system-health/overview">Disk Space</a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{services}}" href="/system-health/services">Services</a>

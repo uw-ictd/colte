@@ -13,7 +13,7 @@ router.get('/', function(req, res, next) {
     res.redirect('/system-health/overview');
 });
 
-router.get('/overview', function(req, res, next) {
+router.get('/services', function(req, res, next) {
     var toRender = [];
     shell.exec('../scripts/bash/CHANGEME', (code, stdout, stderr) => { 
         getStats(SERVICES_FILE, (err, data) => {
@@ -32,11 +32,11 @@ router.get('/overview', function(req, res, next) {
     })
 });
 
-router.post('/overview', function(req, res, next) {
+router.post('/services', function(req, res, next) {
     var toRender = [];
     var service = req.body.service;
     var command = 'systemctl status ' + service + ' > ' + SEARCH_FILE;
-    
+
     // shell.exec(command, (code, stdout, stderr) => { 
 
     // });
@@ -57,7 +57,7 @@ router.post('/overview', function(req, res, next) {
     });
 });
 
-router.get('/services', function(req, res, next) {
+router.get('/overview', function(req, res, next) {
     res.render('system-health', {
         translate: app.translate,
         title: app.translate("System Health"),
