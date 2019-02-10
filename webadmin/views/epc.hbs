@@ -1,0 +1,69 @@
+<link rel='stylesheet' href='/stylesheets/settings.css' />
+<main role="main" class="container">
+    <div class="container">
+        <form method="post" action="/settings/{{route}}"> 
+            <div class="row" style="padding:1.5em;">
+                <div class="card mb-3 col-9" style="padding:0">
+                    <div class="card-header">
+                        {{translate subtitle}}
+                    </div>
+                    <div class="card-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="form-group col-12">
+                                    <label for="lte-subnet">{{translate "LTE Subnet"}}</label>
+                                    <input type="text" id="lte-subnet" class="form-control" name="lte-subnet" value="{{lteSubnet}}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-6">
+                                    <label for="max-ul">{{translate "Max UL Bandwith"}}</label>
+                                    <input type="number" id="max-ul" class="form-control" name="max-ul" placeholder="bits/second" value="{{maxUl}}"></input>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="max-dl">{{translate "Max DL Bandwith"}}</label>
+                                    <input type="number" id="max-dl" class="form-control" name="max-dl" placeholder="bits/second" value="{{maxDl}}">
+                                </div>
+                            </div>
+                            <div class="row" id="extra-fields">
+                                <div class="form-group col-3">
+                                    <label for="dns-address">{{translate "DNS Address"}}</label>
+                                    <input type="text" id="dns-address" class="form-control" name="dns-address" value="{{dns}}">
+                                </div>
+                                <div class="form-group col-3">
+                                    <label for="dnssec-address">{{translate "DNSSEC Address"}}</label>
+                                    <input type="text" id="dnssec-address" class="form-control" name="dnssec-address" value="{{dnssec}}">
+                                </div>
+                                <div class="form-group col-2" style="margin-left:30px">
+                                    <input type="checkbox" id="dns" class="form-check-input" name="dns" value="1">
+                                    <label for="dns" class="form-check-label">{{translate "Local DNS"}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <ul class="nav flex-column">
+                                <li class="nav-item {{basic}}">
+                                    <a class="nav-link" href="/settings/basic">Basic Settings</a>
+                                </li>
+                                <li class="nav-item {{epc}}">
+                                    <a class="nav-link" href="/settings/epc">EPC</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:1.5em;">
+                <div class="btn btn-primary" id="validate-btn">{{translate "Update"}}</div>
+                <button type="submit" id="submit" class="btn btn-primary invisible" aria-hidden="true">{{translate "Update"}}</button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script src="/javascripts/bootstrap.bundle.min.js"></script>
+<script src="/javascripts/settings.js"></script>

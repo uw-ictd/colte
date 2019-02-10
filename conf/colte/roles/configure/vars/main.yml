@@ -1,6 +1,9 @@
 ---
 # REMEMBER TO CALL "sudo colteconf update" AFTER CHANGING THIS FILE!
 
+system_name: ungu
+network_name: bokondini
+
 # database connection settings
 mysql_user: colte_db
 mysql_password: colte_db
@@ -22,17 +25,17 @@ enable_webgui: true
 
 # EPC advanced config settings
 lte_subnet: 192.168.151.0/24
-# TODO: AUTOMATICALLY POPULATE EPC_SNET_ADDR FROM LTE_SUBNET
 epc_snet_addr: 192.168.151.1
 max_ul: 500000
 max_dl: 500000
 
-local_dns: true
-# if local_dns true, it overwrites these settings.
-# (these two vars are only utilized if local_dns == false)
+# DNS
+local_dns: false
+# these two variables are only used if local_dns = false
 dnssec: 8.8.4.4
 dns: 8.8.8.8
-# SMS NOTE: BELOW REQUIRES local_dns AND NGINX!!!
+
+# SMS NOTE: THE BELOW VARIABLE REQUIRES local_dns AND NGINX!
 #webgui_dns: network.colte
 
 webgui_language: en
@@ -43,7 +46,6 @@ webadmin_language: en
 # locally-hosted webservices
 # THESE ARE ALL ONLY POSSIBLE IF LOCAL_DNS == TRUE!!!
 #web_services: true
-#network_name: bokondini
 #media_server: false
 #wikipedia: false
 #mapping_server: false

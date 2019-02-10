@@ -1,0 +1,120 @@
+<link rel='stylesheet' href='/stylesheets/settings.css' />
+<main role="main" class="container">
+    <div class="container">
+        <form method="post" action="/settings/{{route}}"> 
+            <div class="row" style="padding:1.5em;">
+                <div class="card mb-3 col-9" style="padding:0">
+                    <div class="card-header">
+                        {{translate "Running Services"}}
+                    </div>
+                    <div class="card-body">
+                            <div class="container">
+                                <div class="row" style="margin-left:15px">
+                                    <div class="form-group col-3">
+                                        {{#ifTrue epc}}
+                                            <input type="checkbox" id="epc" class="form-check-input" name="epc" checked value="1"> 
+                                        {{else}}
+                                            <input type="checkbox" id="epc" class="form-check-input" name="epc" value="1">
+                                        {{/ifTrue}}
+                                        <label class="form-check-label"  for="epc">{{translate "EPC"}}</label>
+                                    </div>
+                                    <div class="form-group col-3">
+                                        {{#ifTrue haulage}}
+                                            <input type="checkbox" id="haulage" class="form-check-input" name="haulage" checked value="1">
+                                        {{else}}
+                                            <input type="checkbox" id="haulage" class="form-check-input" name="haulage" value="1">
+                                        {{/ifTrue}}
+                                        <label class="form-check-label"  for="haulage">{{translate "Haulage"}}</label>
+                                    </div>
+                                    <div class="form-group col-3">
+                                        {{#ifTrue webGui}}
+                                            <input type="checkbox" id="web-gui" class="form-check-input" name="web-gui" checked value="1">
+                                        {{else}}
+                                            <input type="checkbox" id="web-gui" class="form-check-input" name="web-gui" value="1">
+                                        {{/ifTrue}}
+                                        <label class="form-check-label"  for="web-gui">{{translate "WebGUI"}}</label>
+                                    </div>
+                                    <div class="form-group col-3">
+                                        {{#ifTrue webServices}}
+                                            <input type="checkbox" id="web-services" class="form-check-input" name="web-services" checked value="1">
+                                        {{else}}
+                                            <input type="checkbox" id="web-services" class="form-check-input" name="web-services"  value="1">
+                                        {{/ifTrue}}
+                                        <label class="form-check-label"  for="web-services">{{translate "WebServices"}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <ul class="nav flex-column">
+                                <li class="nav-item {{basic}}">
+                                    <a class="nav-link" href="/settings/basic">Basic Settings</a>
+                                </li>
+                                <li class="nav-item {{epc}}">
+                                    <a class="nav-link" href="/settings/epc">EPC</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:1.5em;">
+                <div class="card mb-3 col-9" style="padding:0">
+                    <div class="card-header">
+                        {{translate "Basic EPC Settings"}}
+                    </div>
+                    <div class="card-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="form-group col-6">
+                                    <label for="enb-interface">{{translate "eNB Interface"}}</label>
+                                    <input type="text" id="enb-interface" class="form-control" name="enb-interface" value="{{enbInterface}}">
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="enb-interface-address">{{translate "Address of eNB Interface"}}</label>
+                                    <input type="text" id="enb-interface-address" class="form-control" name="enb-interface-address" value="{{enbInterfaceAddress}}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-12">
+                                    <label for="wan-interface">{{translate "WAN Interface"}}</label>
+                                    <input type="text" id="wan-interface" class="form-control" name="wan-interface" value="{{wanInterface}}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-6">
+                                    <label for="mcc">{{translate "MCC"}}</label>
+                                    <input type="number" id="mcc" class="form-control" name="mcc" value="{{mcc}}"></input>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="mnc">{{translate "MNC"}}</label>
+                                    <input type="number" id="mnc" class="form-control" name="mnc" value="{{mnc}}">
+                                </div>
+                            </div>    
+                            <div class="row">
+                                <div class="form-group col-6">
+                                    <label for="max-enb">{{translate "Max eNBs"}}</label>
+                                    <input type="number" id="max-enb" class="form-control" name="max-enb" value="{{maxEnb}}"></input>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="max-ue">{{translate "Max UEs"}}</label>
+                                    <input type="number" id="max-ue" class="form-control" name="max-ue" value="{{maxUe}}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>              
+                </div>
+            </div>
+            <div class="row" style="padding:1.5em;">
+                <div class="btn btn-primary" id="validate-btn">{{translate "Update"}}</div>
+                <button type="submit" id="submit" class="btn btn-primary invisible" aria-hidden="true">{{translate "Submit"}}</button>
+            </div>
+        </form>        
+    </div>
+</main>
+
+<script src="/javascripts/bootstrap.bundle.min.js"></script>
+<script src="/javascripts/settings.js"></script>

@@ -5,12 +5,12 @@
       path: "{{ item.path }}"
     register: files
     with_items:
-    # - {path: "/etc/bind/named.conf.options"}
     - {path: "/usr/local/etc/oai/hss.conf"}
     - {path: "/usr/local/etc/oai/mme.conf"}
     - {path: "/usr/local/etc/oai/spgw.conf"}
     - {path: "/usr/local/etc/colte/webgui.env"}
     - {path: "/usr/local/etc/colte/webadmin.env"}
+    - {path: "/etc/bind/named.conf.options"}
     - {path: "/etc/haulage/config.yml"}    
     # - {path: "/etc/nginx/sites-available/webgui.conf"}
     # - {path: "/etc/nginx/sites-available/webconf.conf"}
@@ -22,7 +22,6 @@
 
   - name: set variables
     set_fact:
-      # bind_installed: files.results[0].stat.exists
 
       hss_installed: files.results[0].stat.exists
       mme_installed: files.results[1].stat.exists
@@ -30,9 +29,9 @@
 
       webgui_installed: files.results[3].stat.exists
       webadmin_installed: files.results[4].stat.exists
-      # webgui_site_installed: files.results[5].stat.exists
-      # webconf_installed: files.results[6].stat.exists
-      haulage_installed: files.results[5].stat.exists
+
+      bind_installed: files.results[5].stat.exists
+      haulage_installed: files.results[6].stat.exists
 
       # chat_installed: files.results[8].stat.exists
       # SMS TODO: re-enable OSM once we dockerize it
@@ -41,8 +40,6 @@
       # osm_site_installed: files.results[10].stat.exists
       # media_installed: files.results[11].stat.exists
       # wiki_installed: files.results[12].stat.exists
-
-      # epc_snet_addr: "{{ varname | regex_replace('','') }}"
 
 
 
@@ -193,36 +190,6 @@
 
 
 ######################################
-######## LOCAL DNS CONF ##############
-######################################
-
-  - name: write DNS information to spgw.conf
-    lineinfile:
-      dest: "/usr/local/etc/oai/spgw.conf"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    when: local_dns
-    with_items:
-    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: "    DEFAULT_DNS_IPV4_ADDRESS = \"{{ epc_snet_addr }}\";"}
-    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: "    DEFAULT_DNS_SEC_IPV4_ADDRESS = \"{{ epc_snet_addr }}\";"}
-    become: yes
-
-  - name: write DNS information to spgw.conf
-    lineinfile:
-      dest: "/usr/local/etc/oai/spgw.conf"
-      regexp: "{{ item.field }}"
-      line: "{{ item.line }}"
-    when: not local_dns
-    with_items:
-    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: "    DEFAULT_DNS_IPV4_ADDRESS = \"{{ dns }}\";"}
-    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: "    DEFAULT_DNS_SEC_IPV4_ADDRESS = \"{{ dnssec }}\";"}
-    become: yes
-
-
-
-
-
-######################################
 ############# WEBGUI CONF ############
 ######################################
 
@@ -264,6 +231,84 @@
 
 
 
+######################################
+######## LOCAL DNS CONF ##############
+######################################
+
+# FIRST: install + config bind9 if not already installed
+  - name: install bind9
+    apt:
+      name: bind9
+    when: not bind_installed and local_dns
+    become: yes
+
+# SMS TODO: make a sane named.conf.options here
+# SMS TODO: make a sane named.conf.local here?!?
+# SMS TODO: copy a default file to /etc/bind/zones/colte_db !!!
+
+  - name: write non-local DNS information to spgw.conf
+    lineinfile:
+      dest: "/usr/local/etc/oai/spgw.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: not local_dns
+    with_items:
+    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: "    DEFAULT_DNS_IPV4_ADDRESS = \"{{ dns }}\";"}
+    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: "    DEFAULT_DNS_SEC_IPV4_ADDRESS = \"{{ dnssec }}\";"}
+    become: yes
+
+  - name: write local DNS information to spgw.conf
+    lineinfile:
+      dest: "/usr/local/etc/oai/spgw.conf"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: local_dns
+    with_items:
+    - {field: 'DEFAULT_DNS_IPV4_ADDRESS', line: "    DEFAULT_DNS_IPV4_ADDRESS = \"{{ epc_snet_addr }}\";"}
+    - {field: 'DEFAULT_DNS_SEC_IPV4_ADDRESS', line: "    DEFAULT_DNS_SEC_IPV4_ADDRESS = \"{{ epc_snet_addr }}\";"}
+    become: yes
+
+# EVERYTHING BEYOND HERE: ASSUME CONFIG IS ALREADY SANE
+  - name: write information to named.conf.options
+    lineinfile:
+      dest: "/etc/bind/named.conf.options"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: local_dns
+    become: yes
+    notify: reload bind9
+    with_items:
+    - {field: "#SUBNET", line: "  {{ lte_subnet }}; #SUBNET"}
+
+  - name: write network name to named.conf.local
+    lineinfile:
+      dest: "/etc/bind/named.conf.local"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: local_dns
+    become: yes
+    notify: reload bind9
+    with_items:
+    - {field: "zone ", line: "zone \"{{ network_name }}\" {"}
+
+  - name: write network name to zonefile
+    lineinfile:
+      dest: "/etc/bind/zones/colte_db"
+      regexp: "{{ item.field }}"
+      line: "{{ item.line }}"
+    when: local_dns
+    become: yes
+    notify: reload bind9
+    with_items:
+    - {field: "admin", line: "@ IN  SOA colte.{{ network_name }}. admin.{{ network_name }}. ("}
+    - {field: "N1", line: " IN  NS  colte.{{ network_name }}. ;N1"}
+    - {field: "A1", line: "*.{{ network_name }}.  IN  A {{ epc_snet_addr }} ;A1"}
+
+
+
+
+
+### SMS TODO: BREAK THIS OUT INTO A SEPARATE CONFIG FILE?!?!?!?
 ######################################
 ############ HAULAGE CONF ############
 ######################################

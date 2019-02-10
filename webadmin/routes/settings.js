@@ -6,8 +6,11 @@ var handlebars = require('hbs');
 const yaml = require('js-yaml');
 const fs   = require('fs');
 
+var toBoolean = function(num) {
+  return parseInt(num) === 1
+}
+
 var configFile = process.env.SETTINGS_VARS;
-var vars = yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
 
 handlebars.registerHelper('ifTrue', function(value, options) {
   if(value == true) {
@@ -17,7 +20,7 @@ handlebars.registerHelper('ifTrue', function(value, options) {
 });
 
 router.get('/', function(req, res, next) {
-  res.redirect('settings/network');
+  res.redirect('settings/basic');
 });
 
 // the variables file lives at /usr/local/etc/colte/config.yml,
@@ -25,13 +28,16 @@ router.get('/', function(req, res, next) {
 
 // vars: package/colteconf/usr/bin/colte/roles/configure/vars/main.yml
 // script: package/colteconf/usr/bin/colte/roles/configure/tasks/main.yml
-router.get('/network', function(req, res, next) {
-  res.render('settings', {
+router.get('/basic', function(req, res, next) {
+  var vars = yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
+
+  res.render('basic', {
     translate: app.translate,
     title: app.translate("Settings"),
-    subtitle: app.translate("Basic Settings"),
-    route: "network",
-    network: "active",
+    subtitle: app.translate("Network Settings"),
+    route: "basic",
+    basic: "active",
+
     // basic: network
     enbInterface: vars["enb_iface"],
     enbInterfaceAddress: vars["enb_iface_addr"],
@@ -40,14 +46,17 @@ router.get('/network', function(req, res, next) {
     mnc: vars["mnc"],
     maxEnb: vars["max_enb"],
     maxUe: vars["max_ue"],
+
     // basic: services
-    epc: vars["epc"],
-    haulage: vars["haulage"],
-    webGui: vars["web_gui"],
+    epc: vars["enable_epc"],
+    haulage: vars["enable_haulage"],
+    webGui: vars["enable_webgui"],
   });
 });
 
-router.post('/network', function(req, res, next) {
+router.post('/basic', function(req, res, next) {
+  var vars = yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
+
   vars['enb_iface'] = req.body["enb-interface"];
   vars['enb_iface_addr'] = req.body["enb-interface-address"];
   vars["wan_iface"] = req.body["wan-interface"];
@@ -56,19 +65,26 @@ router.post('/network', function(req, res, next) {
   vars["max_enb"] = req.body["max-enb"];
   vars["max_ue"] = req.body["max-ue"];
 
+  vars["enable_epc"] = toBoolean(req.body["epc"]);
+  vars["enable_haulage"] = toBoolean(req.body["haulage"]);
+  vars["enable_webgui"] = toBoolean(req.body["web-gui"]);
+
   fs.writeFile(process.env.SETTINGS_VARS, yaml.safeDump(vars), () => {
     next();
   });
 });
 
 router.get('/epc', function(req, res, next) {
-  res.render('settings', {
+  var vars = yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
+
+  res.render('epc', {
     translate: app.translate,
     title: app.translate("Settings"),
     subtitle: app.translate("EPC Settings"),
     route: "epc",
     epc: "active",
 
+    lteSubnet: vars["lte_subnet"],
     localDns: vars["local_dns"],
     dnssec: vars["dnssec"],
     dns: vars["dns"],
@@ -78,6 +94,8 @@ router.get('/epc', function(req, res, next) {
 });
 
 router.post('/epc', function(req, res, next) {
+  var vars = yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
+
   vars['max_enb'] = parseInt(req.body["max-enb"]);
   vars['max_ue'] = parseInt(req.body["max-ue"]);
   vars["plmn"] = req.body["plmn"];
@@ -101,61 +119,33 @@ router.post('/epc', function(req, res, next) {
   });
 });
 
-router.get('/running-services', function(req, res, next) {
-  res.render('settings', {
-    translate: app.translate,
-    title: app.translate("Settings"),
-    subtitle: app.translate("Running Services Settings"),
-    route: "running-services",
-    runningServices: "active",
+// router.get('/web-services', function(req, res, next) {
 
+//   res.render('settings', {
+//     translate: app.translate,
+//     title: app.translate("Settings"),
+//     subtitle: app.translate("Web Services Settings"),
+//     route: "web-services",
+//     webServices: "active",
 
-    webServices: vars["web_services"]
-  });
-});
+//     localDns: vars["local_dns"],
 
-router.post('/running-services', function(req, res, next) {
-  vars['epc'] = toBoolean(req.body["epc"]);
-  vars['haulage'] = toBoolean(req.body["haulage"]);
-  vars["web_gui"] = toBoolean(req.body["web-gui"]);
-  vars["web_services"] = toBoolean(req.body["web-services"]);
+//     mediaServer: vars["media_server"],
+//     wikipedia: vars["wikipedia"],
+//     mappingServer: vars["mapping_server"],
+//     chatServer: vars["chat_server"]
+//   });
+// });
 
-  fs.writeFile(process.env.SETTINGS_VARS, yaml.safeDump(vars), () => {
-    next();
-  });
-});
+// router.post('/web-services', function(req, res, next) {
+//   vars['media_server'] = toBoolean(req.body["media-server"]);
+//   vars['wikipedia'] = toBoolean(req.body["wiki"]);
+//   vars["mapping_server"] = toBoolean(req.body["mapping-server"]);
+//   vars["chat_server"] = toBoolean(req.body["chat-server"]);
 
-router.get('/web-services', function(req, res, next) {
-
-  res.render('settings', {
-    translate: app.translate,
-    title: app.translate("Settings"),
-    subtitle: app.translate("Web Services Settings"),
-    route: "web-services",
-    webServices: "active",
-
-    localDns: vars["local_dns"],
-
-    mediaServer: vars["media_server"],
-    wikipedia: vars["wikipedia"],
-    mappingServer: vars["mapping_server"],
-    chatServer: vars["chat_server"]
-  });
-});
-
-router.post('/web-services', function(req, res, next) {
-  vars['media_server'] = toBoolean(req.body["media-server"]);
-  vars['wikipedia'] = toBoolean(req.body["wiki"]);
-  vars["mapping_server"] = toBoolean(req.body["mapping-server"]);
-  vars["chat_server"] = toBoolean(req.body["chat-server"]);
-
-  fs.writeFile(process.env.SETTINGS_VARS, yaml.safeDump(vars), () => {
-    next();
-  });
-});
-
-var toBoolean = function(num) {
-  return parseInt(num) === 1
-}
+//   fs.writeFile(process.env.SETTINGS_VARS, yaml.safeDump(vars), () => {
+//     next();
+//   });
+// });
 
 module.exports = router;
