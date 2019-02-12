@@ -1,160 +1,115 @@
-{{#* inline "overview"}}
-    <form method="post" action="/system-health/services">
-        <div class="input-group mb-3">
-            <input type="text" name="service" class="form-control" placeholder="Search for a service..." aria-label="Search" aria-describedby="search">
-            <div class="input-group-append">
-                <button class="btn btn-outline-primary" type="submit" id="search">Button</button>
-            </div>
-        </div>
-    </form>
-    <div class="card mb-3">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Service</th>
-                        <th>Name</th>
-                        <th>Enabled</th>
-                        <th>Active Status</th>
-                        <th>Uptime</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each data}}
-                    <tr>
-                        <td>{{this.service}}</td>
-                        <td>{{this.name}}</td>
-                        <td><span class="{{this.loaded}}"></span></td>
-                        <td>{{this.active}}</td>
-                        <td>{{this.uptime}}</td>
-                    </tr>
-                    {{/each}} 
-                </tbody>
-            </table>
-        </div>
-    </div>
-{{/inline}}
-
-{{#* inline "services"}}
-    <div class="row">
-        <div class="col-6">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h4>CPU Information</h4>
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#each cpuData}}
-                            <tr>
-                                <td>{{this.type}}</td>
-                                <td>{{this.value}}</td>
-                            </tr>
-                            {{/each}}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-6">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h4>Memory Information</h4>
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Space</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#each memoryData}}
-                                <tr>
-                                    <td>{{this.type}}</td>
-                                    <td>{{this.value}}</td>
-                                </tr>
-                            {{/each}}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="card mb-3">
-            <div class="card-header">
-                <h4>Disk Space Information</h4>
-            </div>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Filesystem</th>
-                            <th>Mount Location</th>
-                            <th>Total</th>
-                            <th>Used</th>
-                            <th>Available</th>
-                            <th>% Used</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{#each diskData}}
-                            <tr>
-                                <td>{{this.filesystem}}</td>
-                                <td>{{this.mounted}}</td>
-                                <td>{{this.blocks}} kB</td>
-                                <td>{{this.used}} kB</td>
-                                <td>{{this.available}} kB</td>
-                                <td>{{this.usePercent}}</td>
-                            </tr>
-                        {{/each}}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-{{/inline}}
-
 <link rel='stylesheet' href='/stylesheets/system-health.css' />
 <main role="main" class="container">
     <div class="row">
         <div class="col-9">
-            {{#if overview}}
-                {{> overview}}
-            {{else if services}}
-                {{> services}}
-            {{/if}}
+            <div class="row">
+                <div class="col-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h4>CPU Information</h4>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#each cpuData}}
+                                    <tr>
+                                        <td>{{this.type}}</td>
+                                        <td>{{this.value}}</td>
+                                    </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h4>Memory Information</h4>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Space</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#each memoryData}}
+                                        <tr>
+                                            <td>{{this.type}}</td>
+                                            <td>{{this.value}}</td>
+                                        </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h4>Disk Space Information</h4>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Filesystem</th>
+                                    <th>Mount Location</th>
+                                    <th>Total</th>
+                                    <th>Used</th>
+                                    <th>Available</th>
+                                    <th>% Used</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each diskData}}
+                                    <tr>
+                                        <td>{{this.filesystem}}</td>
+                                        <td>{{this.mounted}}</td>
+                                        <td>{{this.blocks}} kB</td>
+                                        <td>{{this.used}} kB</td>
+                                        <td>{{this.available}} kB</td>
+                                        <td>{{this.usePercent}}</td>
+                                    </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col-3">
             <div class="card">
                 <div class="card-body">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link {{overview}}" href="/system-health/overview">Overview</a>
+                            <a class="nav-link active" href="/system-health/overview">Overview</a>
                             <ul> 
                                 <li> 
-                                    <a class="nav-link {{services}}" href="/system-health/overview">CPU</a>
+                                    <a class="nav-link" href="/system-health/cpu">CPU</a>
                                 </li>
                                 <li> 
-                                    <a class="nav-link {{services}}" href="/system-health/overview">Memory</a>
+                                    <a class="nav-link" href="/system-health/memory">Memory</a>
                                 </li>
                                 <li> 
-                                    <a class="nav-link {{services}}" href="/system-health/overview">Disk Space</a>
+                                    <a class="nav-link" href="/system-health/disk">Disk Space</a>
                                 </li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{services}}" href="/system-health/services">Services</a>
+                            <a class="nav-link" href="/system-health/services">Services</a>
                         </li>
                     </ul>
                 </div>

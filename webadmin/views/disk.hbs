@@ -1,0 +1,63 @@
+<link rel='stylesheet' href='/stylesheets/system-health.css' />
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-9">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4>Disk Space Information</h4>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Filesystem</th>
+                                <th>Mount Location</th>
+                                <th>Total</th>
+                                <th>Used</th>
+                                <th>Available</th>
+                                <th>% Used</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each diskData}}
+                                <tr>
+                                    <td>{{this.filesystem}}</td>
+                                    <td>{{this.mounted}}</td>
+                                    <td>{{this.blocks}} kB</td>
+                                    <td>{{this.used}} kB</td>
+                                    <td>{{this.available}} kB</td>
+                                    <td>{{this.usePercent}}</td>
+                                </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/system-health/overview">Overview</a>
+                            <ul> 
+                                <li> 
+                                    <a class="nav-link" href="/system-health/cpu">CPU</a>
+                                </li>
+                                <li> 
+                                    <a class="nav-link" href="/system-health/memory">Memory</a>
+                                </li>
+                                <li> 
+                                    <a class="nav-link active" href="/system-health/disk">Disk Space</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/system-health/services">Services</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div> 
+</main>

@@ -1,0 +1,66 @@
+<link rel='stylesheet' href='/stylesheets/system-health.css' />
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-9">
+            <form method="post" action="/system-health/services">
+                <div class="input-group mb-3">
+                    <input type="text" name="service" class="form-control" placeholder="Search for a service..." aria-label="Search" aria-describedby="search">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" type="submit" id="search">Button</button>
+                    </div>
+                </div>
+            </form>
+            <div class="card mb-3">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Name</th>
+                                <th>Enabled</th>
+                                <th>Active Status</th>
+                                <th>Uptime</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each data}}
+                            <tr>
+                                <td>{{this.service}}</td>
+                                <td>{{this.name}}</td>
+                                <td><span class="{{this.loaded}}"></span></td>
+                                <td>{{this.active}}</td>
+                                <td>{{this.uptime}}</td>
+                            </tr>
+                            {{/each}} 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/system-health/overview">Overview</a>
+                            <ul> 
+                                <li> 
+                                    <a class="nav-link" href="/system-health/cpu">CPU</a>
+                                </li>
+                                <li> 
+                                    <a class="nav-link" href="/system-health/memory">Memory</a>
+                                </li>
+                                <li> 
+                                    <a class="nav-link" href="/system-health/disk">Disk Space</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/system-health/services">Services</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div> 
+</main>

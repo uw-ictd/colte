@@ -30,3 +30,8 @@ button.btn {
 ul {
     list-style-type: none;
 }
+
+.active {
+    font-weight: 700;
+    background-color: #f7f7f7;
+}

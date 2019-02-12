@@ -24,10 +24,9 @@ router.get('/services', function(req, res, next) {
             getPageData(data, toRender);
         });
 
-        res.render('system-health', {
+        res.render('service-health', {
             translate: app.translate,
             title: app.translate("System Health"),
-            overview: "active",
             data: toRender
         });
     })
@@ -48,10 +47,9 @@ router.post('/services', function(req, res, next) {
         }
         getPageData(data, toRender);
 
-        res.render('system-health', {
+        res.render('service-health', {
             translate: app.translate,
             title: app.translate("System Health"),
-            overview: "active",
             data: toRender
         });
     });
@@ -81,11 +79,85 @@ router.get('/overview', function(req, res, next) {
             res.render('system-health', {
                 translate: app.translate,
                 title: app.translate("System Health"),
-                services: "active",
 
                 cpuData: cpuData,
                 memoryData: memoryData,
                 diskData: diskData
+            });
+        });
+    });
+});
+
+router.get('/cpu', function(req, res, next) {
+    shell.exec('../scripts/bash/system-health.sh', (code, stdout, stderr) => { 
+        getStats(SYSTEM_HEALTH_FILE, (err, data) => {
+            if (err) {
+                throw err;
+            }
+            var cpuData = [];
+
+            var dataAsString = data.toString();
+            var delimited = dataAsString.split("-----");
+
+            cpuData = getCpuMemoryData(delimited[0], undefined);
+
+            console.log(cpuData);
+
+            res.render('cpu', {
+                translate: app.translate,
+                title: app.translate("System Health"),
+
+                cpuData: cpuData,
+            });
+        });
+    });
+});
+
+router.get('/memory', function(req, res, next) {
+    shell.exec('../scripts/bash/system-health.sh', (code, stdout, stderr) => { 
+        getStats(SYSTEM_HEALTH_FILE, (err, data) => {
+            if (err) {
+                throw err;
+            }
+            var memoryData = [];
+
+            var dataAsString = data.toString();
+            var delimited = dataAsString.split("-----");
+
+            memoryData = getCpuMemoryData(delimited[1], undefined);
+
+            console.log(memoryData);
+
+            res.render('memory', {
+                translate: app.translate,
+                title: app.translate("System Health"),
+
+                memoryData: memoryData,
+            });
+        });
+    });
+});
+
+router.get('/disk', function(req, res, next) {
+    shell.exec('../scripts/bash/system-health.sh', (code, stdout, stderr) => { 
+        getStats(SYSTEM_HEALTH_FILE, (err, data) => {
+            if (err) {
+                throw err;
+            }
+            var diskData = [];
+
+            var dataAsString = data.toString();
+            var delimited = dataAsString.split("-----");
+
+            diskData = getDiskData(delimited[2], undefined);
+
+            console.log(diskData);
+
+            res.render('disk', {
+                translate: app.translate,
+                title: app.translate("System Health"),
+
+                diskData: diskData,
             });
         });
     });
@@ -100,8 +172,12 @@ var getCpuMemoryData = (all, filter) => {
             var line = element.split(":");
             var type = capitalize(line[0].trim().replace("_", " "));
             var value = line[1].trim();
-            if (filter.includes(line[0].trim())) {
-                matched.push({type: type, value: value});
+            if (!filter || (filter && filter.includes(line[0].trim()))) {
+                if (type === 'Flags' || type === 'Bugs') {
+                    matched.push({type: type, value: value.split(/\s+/)});
+                } else {
+                    matched.push({type: type, value: value});
+                }
             }
         }
     });
@@ -113,9 +189,9 @@ var getDiskData = (all, filter) => {
     var data = all.split("\n");
     var matched = [];
 
-    for(let i = 1; i < data.length; i++) {
+    for(let i = 2; i < data.length; i++) {
         var line = data[i].split((/\s+/));
-        if (filter.includes(line[5].trim())) {
+        if (!filter || (filter && filter.includes(line[5].trim()))) {
             var obj = {
                 filesystem: line[0].trim(),
                 blocks: line[1].trim(),
@@ -127,7 +203,6 @@ var getDiskData = (all, filter) => {
             matched.push(obj);
         }
     }
-    console.log(matched);
 
     return matched;
 }
@@ -138,7 +213,7 @@ var capitalize = (str) => {
 
     words.forEach(element => {
         var temp = element.trim();
-        if (temp.toLowerCase() === 'id' || temp === 'cpu') {
+        if (temp.toLowerCase() === 'id' || temp.toLowerCase() === 'cpu' || temp.toLowerCase() === 'fpu') {
             result += (temp.toUpperCase() + " ");
         } else {
             result += (temp.charAt(0).toUpperCase() + temp.substring(1) + " ");
