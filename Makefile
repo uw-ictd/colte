@@ -1,4 +1,6 @@
 
+COLTE_LIGHT_VERSION=0.10.0
+COLTE_FULL_VERSION=0.10.0
 COLTE_VERSION=0.9.11
 CONF_VERSION=0.9.13
 WEBSERVICES_VERSION=0.9.10
@@ -23,6 +25,36 @@ web_deps_debian:
 target:
 	mkdir -p $(TARGET_DIR)
 
+light: target
+	fpm --input-type empty \
+		--output-type deb \
+		--force \
+		--vendor uw-ictd \
+		--maintainer sevilla@cs.washington.edu \
+		--description "The Community LTE Project - Light Version (EPC and Conf-tools Only)" \
+		--url "https://github.com/uw-ictd/colte" \
+		--deb-compression xz \
+		--name colte-light \
+		--version $(COLTE_LIGHT_VERSION) \
+		--package $(TARGET_DIR) \
+		--depends 'colte-epc (>= 0.9.3), colte-conf'
+
+full: target
+	fpm --input-type dir \
+		--output-type deb \
+		--force \
+		--vendor uw-ictd \
+		--maintainer sevilla@cs.washington.edu \
+		--description "The Community LTE Project - Full Version (inc. Haulage and Webtools)" \
+		--url "https://github.com/uw-ictd/colte" \
+		--deb-compression xz \
+		--name colte-full \
+		--version $(COLTE_FULL_VERSION) \
+		--package $(TARGET_DIR) \
+		--depends 'colte-epc, colte-webservices, haulage, colte-conf' \
+		./package/colte/haulage.yml=/usr/local/etc/colte/haulage.yml
+
+# deprecate this target?!?!?!?
 colte: target
 	fpm --input-type dir \
 		--output-type deb \
@@ -96,7 +128,6 @@ webgui: target
 		./package/webgui/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
 		./package/webgui/webgui.env=/usr/local/etc/colte/webgui.env \
 		./package/webgui/pricing.json=/usr/local/etc/colte/pricing.json 
-
 
 webadmin: target
 	cd webadmin; npm install
