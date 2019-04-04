@@ -8,7 +8,6 @@
             checked: false,
             service: "",
         };
-        // TODO: Write function to check each service before stuff is started
         $(".checkbox").each(function() {
             var current = this;
             data.checked = current.checked;
