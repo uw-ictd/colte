@@ -15,7 +15,7 @@ router.post('/checkStatus', function(req, res, next) {
   var service = req.body.service;
   var returnString = "";
   console.log("Request Service: " + JSON.stringify(service));
-  exec("echo sudo systemctl is-enabled application " + service, (function(err, out, stderr) {
+  exec("sudo systemctl is-enabled application " + service, (function(err, out, stderr) {
     if (err) {
       console.log("Error on is-enabled call: " + err);
       res.status(500);
@@ -41,7 +41,7 @@ router.post('/updateStatus', function(req, res, next) {
   console.log("Request Checked: " + JSON.stringify(checked));
   if (checked == "true") {
     console.log("Enabling Service");
-    exec("echo sudo systemctl enable application " + service, function(err, out, stderr) {
+    exec("sudo systemctl enable application " + service, function(err, out, stderr) {
       if (err) {
         console.log("Error on enable call: " + err);
         res.status(500);
@@ -51,7 +51,7 @@ router.post('/updateStatus', function(req, res, next) {
     });
   } else {
     console.log("Disabling Service");
-    exec("echo sudo systemctl disable application " + service, function(err, out, stderr) {
+    exec("sudo systemctl disable application " + service, function(err, out, stderr) {
       if (err) {
         console.log("Error on enable call: " + err);
         res.status(500);
