@@ -42,7 +42,7 @@ router.post('/updateStatus', function(req, res, next) {
   var checked = req.body.checked;
   console.log("Request Service: " + JSON.stringify(service));
   console.log("Request Checked: " + JSON.stringify(checked));
-  console.log("Toggling Service");
+  console.log("Toggling Service" + getCall(service, (checked == true)? ENABLE : DISABLE));
   exec(getCall(service, (checked == true) ? ENABLE : DISABLE), function(err, out, stderr) {
     if (err) {
       console.log("Error on enable/disable call: " + err);
