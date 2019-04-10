@@ -3,6 +3,9 @@ var router = express.Router();
 var customer = require('../models/customer');
 var app = require('../app');
 var exec = require('child_process').exec;
+const CHECK_STATUS = 0;
+const ENABLE = 1;
+const DISABLE = 2;
 
 router.get('/', function(req, res, next) {
   res.render('home', {
@@ -15,17 +18,17 @@ router.post('/checkStatus', function(req, res, next) {
   var service = req.body.service;
   var returnString = "";
   console.log("Request Service: " + JSON.stringify(service));
-  exec("sudo systemctl is-enabled " + service, (function(err, out, stderr) {
+  exec(getCall(service, CHECK_STATUS), (function(err, out, stderr) {
     if (err) {
       console.log("Error on is-enabled call: " + err);
       res.status(500);
       res.send("Something went wrong checking the webservices!")
     }
     if (out == "0") {
-      console.log("checkStatus: enabled");
+      console.log("enabled");
       returnString = "enabled";
     } else {
-      console.log("checkStatus: disabled");
+      console.log("disabled");
       returnString = "disabled";
     }
     console.log("Response: " + out);  
@@ -39,27 +42,15 @@ router.post('/updateStatus', function(req, res, next) {
   var checked = req.body.checked;
   console.log("Request Service: " + JSON.stringify(service));
   console.log("Request Checked: " + JSON.stringify(checked));
-  if (checked == "true") {
-    console.log("Enabling Service");
-    exec("sudo systemctl enable " + service, function(err, out, stderr) {
-      if (err) {
-        console.log("Error on enable call: " + err);
-        res.status(500);
-        res.send("Something went wrong checking the webservices!")
-      }
-      console.log("Response: " + out); 
-    });
-  } else {
-    console.log("Disabling Service");
-    exec("sudo systemctl disable " + service, function(err, out, stderr) {
-      if (err) {
-        console.log("Error on enable call: " + err);
-        res.status(500);
-        res.send("Something went wrong checking the webservices!")
-      }
-      console.log("Response: " + out); 
-    });
-  }  
+  console.log("Toggling Service");
+  exec(getCall(service, (checked == true) ? ENABLE : DISABLE), function(err, out, stderr) {
+    if (err) {
+      console.log("Error on enable/disable call: " + err);
+      res.status(500);
+      res.send("Something went wrong checking the webservices!")
+    }
+    console.log("Response: " + out); 
+  });
   res.status(200);
   res.send();
 });
@@ -101,5 +92,25 @@ router.post('/details', function(req, res, next) {
   console.log("DETAILS" + imsi);
   res.redirect('/details/' + imsi);
 });
+
+function getCall(service, status) {
+  if (service == "kolibri") {
+    if (status == CHECK_STATUS) {
+      return "sudo kolibri status";
+    } else if (status == ENABLE) {
+      return "sudo kolibri start";
+    } else {
+      return "sudo kolibri stop";
+    }
+  } else {
+    if (status == CHECK_STATUS) {
+      return "sudo systemctl is-enabled " + service;
+    } else if (status == ENABLE) {
+      return "sudo systemctl enable " + service
+    } else {
+      return "sudo systemctl disable " + service
+    }
+  }
+}
 
 module.exports = router;
