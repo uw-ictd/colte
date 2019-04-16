@@ -19,7 +19,7 @@
                     $(current).prop('checked', !current.checked);
                 } else {
                     var response = response.responseText;
-                    //alert(response);
+                    alert(response);
                     if (response == "enabled") {
                         $(current).prop('checked', true);
                     } else if (response == "not downloaded") {
