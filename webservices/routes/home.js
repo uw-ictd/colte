@@ -19,7 +19,7 @@ router.post('/checkStatus', function(req, res, next) {
   var returnString = "";
   console.log("Request Service: " + JSON.stringify(service));
   try {
-    exec(getCall(service, CHECK_STATUS), (function(err, out, stderr) {
+    exec(getCall(service, CHECK_STATUS), function(err, out, stderr) {
       if (err) {
         console.log("Error on is-enabled call: " + err);
         res.status(500);
@@ -33,7 +33,7 @@ router.post('/checkStatus', function(req, res, next) {
         returnString = "disabled";
       }
       console.log("Response: " + out);  
-    }) () );
+    });
   } catch (error) {
     console.log("Error!: " + error);
   }
