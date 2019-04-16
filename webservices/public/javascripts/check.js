@@ -13,7 +13,6 @@
             data.checked = current.checked;
             data.service = current.id;
             $.post(checkUrl, data, function(data, status, response){
-                alert(JSON.stringify(response));
                 if (status != "success") {
                     alert("Something Went Wrong!");
                     $(current).prop('checked', !current.checked);
@@ -26,25 +25,24 @@
                         $(current).prop('checked', false);
                     }
                 }
+		$(current).prop('disabled', false);
             });
             changeDate(current);
-            $(current).prop('disabled', false);
         });
 
         $(".checkbox").change(function () {
             var current = this;
             data.checked = current.checked;
             data.service = current.id;
-
+	    $(current).prop('disabled', true);
             $.post(updateUrl, data, function(data, status){
-                $(current).prop('disabled', true);
                 alert("STAT " + status);
                 if (status != "success") {
                     alert("Something Went Wrong!");
                     $(current).prop('checked', !current.checked);
                 }
-                $(current).prop('disabled', false);
             });
+	    $(current).prop('disabled', false);
             changeDate(current);
         });
 

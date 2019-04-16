@@ -22,7 +22,7 @@ router.post('/checkStatus', function(req, res, next) {
       if (err != null) {
         console.log("Error: " + err);
         console.log("disabled");
-        res.status(500).send("disabled");
+        res.status(200).send("disabled");
       } else {
         console.log("enabled");
         res.status(200).send("enabled");
