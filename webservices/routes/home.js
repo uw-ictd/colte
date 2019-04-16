@@ -20,11 +20,6 @@ router.post('/checkStatus', function(req, res, next) {
   console.log("Request Service: " + JSON.stringify(service));  
   try {
     exec(getCall(service, CHECK_STATUS), function(err, out, stderr) {
-      if (err) {
-        console.log("Error on is-enabled call: " + err);
-        res.status(500);
-        res.send("Something went wrong checking the webservices!")
-      }
       if (out == "0") {
         console.log("enabled");
         returnString = "enabled";
@@ -36,6 +31,8 @@ router.post('/checkStatus', function(req, res, next) {
     });
   } catch (error) {
     console.log("Error!: " + error);
+    res.status(500);
+    res.send("Something went wrong checking the webservices!")
   }
   res.status(200);
   res.send(returnString);
