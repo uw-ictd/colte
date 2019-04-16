@@ -16,17 +16,19 @@ router.get('/', function(req, res, next) {
 
 router.post('/checkStatus', function(req, res, next) {
   var service = req.body.service;
-  var returnString = "";
   console.log("Request Service: " + JSON.stringify(service));  
   exec(getCall(service, CHECK_STATUS), function(err, out, stderr) {
-    if (err != null) {
-      console.log("Error: " + err);
-      returnString = "disabled";
-      res.status(500).send(returnString);
+    if (service == "kolibri") {
+      if (err != null) {
+        console.log("Error: " + err);
+        console.log("disabled");
+        res.status(500).send("disabled");
+      } else {
+        console.log("enabled");
+        res.status(200).send("enabled");
+      }
     } else {
-      console.log("enabled");
-      returnString = "enabled";
-      res.status(200).send(returnString);
+      res.status(200).send("disabled");
     }
   });
 });
