@@ -13,17 +13,17 @@
             data.checked = current.checked;
             data.service = current.id;
             $.post(checkUrl, data, function(data, status, response){
-                //alert(JSON.stringify(response));
+                alert(JSON.stringify(response));
                 if (status != "success") {
-                   // alert("Something Went Wrong!");
+                    alert("Something Went Wrong!");
                     $(current).prop('checked', !current.checked);
                 } else {
                     var response = response.responseText;
                     alert("RES " + response);
                     if (response == "enabled") {
                         $(current).prop('checked', true);
-                    } else if (response == "not downloaded") {
-                        //Do Something
+                    } else if (response == "disabled") {
+                        $(current).prop('checked', false);
                     }
                 }
             });
@@ -35,15 +35,14 @@
             data.checked = current.checked;
             data.service = current.id;
 
-            //alert(data.checked);
-            //alert(data.service);
-
             $.post(updateUrl, data, function(data, status){
+                $(current).prop('disabled', true);
                 alert("STAT " + status);
                 if (status != "success") {
                     alert("Something Went Wrong!");
                     $(current).prop('checked', !current.checked);
                 }
+                $(current).prop('disabled', false);
             });
             changeDate(current);
         });

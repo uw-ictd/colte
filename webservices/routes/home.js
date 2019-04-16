@@ -42,13 +42,12 @@ router.post('/updateStatus', function(req, res, next) {
   exec(getCall(service, (checked == "true") ? ENABLE : DISABLE), function(err, out, stderr) {
     if (err) {
       console.log("Error on enable/disable call: " + err);
-      res.statusCode = 500;
-      res.send("Something went wrong checking the webservices!");
+      res.status(500).send("Something went wrong checking the webservices!");
+    } else {
+      console.log("Response: " + out); 
+      res.status(200).send();
     }
-    console.log("Response: " + out); 
   });
-  res.status(200);
-  res.send();
 });
 
 router.post('/transfer', function(req,res) {
