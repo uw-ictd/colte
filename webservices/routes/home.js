@@ -17,25 +17,26 @@ router.get('/', function(req, res, next) {
 router.post('/checkStatus', function(req, res, next) {
   var service = req.body.service;
   var returnString = "";
-  console.log("Request Service: " + JSON.stringify(service));
-  console.log("CALL: " + getCall(service, CHECK_STATUS));
-  exec(getCall(service, CHECK_STATUS), function(err, stdout, stderr) {
-    console.log("STDERR: " + stderr);
-    if (err) {
-      console.log("Error on is-enabled call: " + err);
-      res.status(500);
-      res.send("Something went wrong checking the webservices!");
-    }
-    console.log("OUT: " + stdout + JSON.stringify(stdout));
-    if (stdout == "0") {
-      console.log("enabled");
-      returnString = "enabled";
-    } else {
-      console.log("disabled");
-      returnString = "disabled";
-    }
-    console.log("Response: " + stdout);  
-  });
+  console.log("Request Service: " + JSON.stringify(service));  
+  try {
+    exec(getCall(service, CHECK_STATUS), (function(err, out, stderr) {
+      if (err) {
+        console.log("Error on is-enabled call: " + err);
+        res.status(500);
+        res.send("Something went wrong checking the webservices!")
+      }
+      if (out == "0") {
+        console.log("enabled");
+        returnString = "enabled";
+      } else {
+        console.log("disabled");
+        returnString = "disabled";
+      }
+      console.log("Response: " + out);  
+    }) () );
+  } catch (error) {
+    console.log("Error!: " + error);
+  }
   res.status(200);
   res.send(returnString);
 });
