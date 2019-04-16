@@ -28,6 +28,7 @@
                 }
             });
             changeDate(current);
+            $(current).prop('disabled', false);
         });
 
         $(".checkbox").change(function () {
