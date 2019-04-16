@@ -19,7 +19,7 @@
                     $(current).prop('checked', !current.checked);
                 } else {
                     var response = response.responseText;
-                    alert(response);
+                    alert("RES " + response);
                     if (response == "enabled") {
                         $(current).prop('checked', true);
                     } else if (response == "not downloaded") {
@@ -39,7 +39,7 @@
             //alert(data.service);
 
             $.post(updateUrl, data, function(data, status){
-                //alert(status);
+                alert("STAT " + status);
                 if (status != "success") {
                     alert("Something Went Wrong!");
                     $(current).prop('checked', !current.checked);
