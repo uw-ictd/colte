@@ -18,22 +18,21 @@ router.post('/checkStatus', function(req, res, next) {
   var service = req.body.service;
   var returnString = "";
   console.log("Request Service: " + JSON.stringify(service));  
-  try {
-    exec(getCall(service, CHECK_STATUS), function(err, out, stderr) {
+  
+  res.status(200);
+  exec(getCall(service, CHECK_STATUS), function(err, out, stderr) {
+    if (err != null) {
+      console.log("Error: " + err);
+      returnString = "disabled";
+      res.status(500);
+      res.send("Something went wrong checking the webservices!");
+    } else {
       console.log("enabled");
       returnString = "enabled";
-      console.log("Error: " + err);
-      console.log("Response: " + out);  
-    });
-    res.status(200);
-  } catch (error) {
-    console.log("Error Log: " + error);
-    returnString = "disabled";
-    res.status(500);
-    res.send("Something went wrong checking the webservices!")
-  } finally {
-    res.send(returnString);
-  }
+    }
+    console.log("Response: " + out);  
+  });
+  res.send(returnString);
 });
 
 router.post('/updateStatus', function(req, res, next) {
