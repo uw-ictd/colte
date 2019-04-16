@@ -31,8 +31,9 @@ router.post('/checkStatus', function(req, res, next) {
     returnString = "disabled";
     res.status(500);
     res.send("Something went wrong checking the webservices!")
+  } finally {
+    res.send(returnString);
   }
-  res.send(returnString);
 });
 
 router.post('/updateStatus', function(req, res, next) {
