@@ -18,21 +18,24 @@ router.post('/checkStatus', function(req, res, next) {
   var service = req.body.service;
   var returnString = "";
   console.log("Request Service: " + JSON.stringify(service));
-  exec(getCall(service, CHECK_STATUS), (function(err, out, stderr) {
+  console.log("CALL: " + getCall(service, CHECK_STATUS));
+  exec(getCall(service, CHECK_STATUS), function(err, stdout, stderr) {
+    console.log("STDERR: " + stderr);
     if (err) {
       console.log("Error on is-enabled call: " + err);
       res.status(500);
-      res.send("Something went wrong checking the webservices!")
+      res.send("Something went wrong checking the webservices!");
     }
-    if (out == "0") {
+    console.log("OUT: " + stdout + JSON.stringify(stdout));
+    if (stdout == "0") {
       console.log("enabled");
       returnString = "enabled";
     } else {
       console.log("disabled");
       returnString = "disabled";
     }
-    console.log("Response: " + out);  
-  }) () );
+    console.log("Response: " + stdout);  
+  });
   res.status(200);
   res.send(returnString);
 });
@@ -42,12 +45,12 @@ router.post('/updateStatus', function(req, res, next) {
   var checked = req.body.checked;
   console.log("Request Service: " + JSON.stringify(service));
   console.log("Request Checked: " + JSON.stringify(checked));
-  console.log("Toggling Service" + getCall(service, (checked == true)? ENABLE : DISABLE));
-  exec(getCall(service, (checked == true) ? ENABLE : DISABLE), function(err, out, stderr) {
+  console.log("Toggling Service: " + getCall(service, (checked == "true")? ENABLE : DISABLE));
+  exec(getCall(service, (checked == "true") ? ENABLE : DISABLE), function(err, out, stderr) {
     if (err) {
       console.log("Error on enable/disable call: " + err);
-      res.status(500);
-      res.send("Something went wrong checking the webservices!")
+      res.statusCode = 500;
+      res.send("Something went wrong checking the webservices!");
     }
     console.log("Response: " + out); 
   });
@@ -104,7 +107,7 @@ function getCall(service, status) {
     }
   } else {
     if (status == CHECK_STATUS) {
-      return "sudo systemctl is-enabled " + service;
+      return "echo sudo systemctl is-enabled " + service;
     } else if (status == ENABLE) {
       return "sudo systemctl enable " + service
     } else {
