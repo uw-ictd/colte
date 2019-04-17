@@ -23,7 +23,7 @@
                     } else if (response == "not installed"){
                         alert("Service Misconfigured or Not Installed")
                         $(current).parent().hide();
-                        //DO SOMETHING
+                        $(current).parent().next().removeAttr('hidden');
                     }
                     $(current).prop('disabled', false);
                 })
