@@ -21,6 +21,7 @@
                     } else if (response == "disabled") {
                         $(current).prop('checked', false);
                     } else if (response == "not installed"){
+                        $(current).prop('hidden', true);
                         //DO SOMETHING
                     }
                     $(current).prop('disabled', false);
