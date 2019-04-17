@@ -18,7 +18,7 @@ router.post('/checkStatus', function(req, res, next) {
   console.log("Request Service: " + JSON.stringify(service));  
   exec(getCall(service, CHECK_STATUS), function(err, out, stderr) {
 
-    if (err.message.includes("No such file or directory")) {
+    if (err && err.message.includes("No such file or directory")) {
       res.status(200).send("not installed");
     } else {    
       if (service == "kolibri") {
