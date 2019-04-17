@@ -26,6 +26,7 @@
                 .fail(function(xhr, status, error){
                     alert("Something Went Wrong! Status: " + xhr.responseText);
                     $(current).prop('checked', !current.checked);
+                    $(current).prop('disabled', false);
                 });
             changeDate(current);
         });

@@ -53,4 +53,24 @@ router.post('/updateStatus', function(req, res, next) {
   });
 });
 
+function getCall(service, status) {
+  if (service == "kolibri") {
+    if (status == CHECK_STATUS) {
+      return "sudo kolibri status";
+    } else if (status == ENABLE) {
+      return "sudo kolibri start";
+    } else {
+      return "sudo kolibri stop";
+    }
+  } else {
+    if (status == CHECK_STATUS) {
+      return "sudo systemctl is-enabled " + service;
+    } else if (status == ENABLE) {
+      return "sudo systemctl enable " + service + " --now";
+    } else {
+      return "sudo systemctl disable " + service + " --now";
+    }
+  }
+}
+
 module.exports = router;
