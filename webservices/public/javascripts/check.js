@@ -21,6 +21,7 @@
                     } else if (response == "disabled") {
                         $(current).prop('checked', false);
                     } else if (response == "not installed"){
+                        alert("Service Misconfigured or Not Installed")
                         $(current).prop('hidden', true);
                         //DO SOMETHING
                     }

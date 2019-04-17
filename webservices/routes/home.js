@@ -54,7 +54,7 @@ router.post('/updateStatus', function(req, res, next) {
     if (err) {
       console.log("Error enabling/disabling: " + err);
       if (err.message.includes("No such file or directory")) {
-        res.status(200).send("Not Installed");
+        res.status(200).send("not installed");
       } else {
         res.status(500).send("Something went wrong checking the webservices!");
       }
