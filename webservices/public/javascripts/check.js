@@ -22,7 +22,7 @@
                         $(current).prop('checked', false);
                     } else if (response == "not installed"){
                         alert("Service Misconfigured or Not Installed")
-                        $(current).prop('hidden', true);
+                        $(current).parent().hide();
                         //DO SOMETHING
                     }
                     $(current).prop('disabled', false);
