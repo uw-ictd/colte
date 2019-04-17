@@ -12,21 +12,21 @@
             var current = this;
             data.checked = current.checked;
             data.service = current.id;
-            $.post(checkUrl, data, function(data, status, response){
-                if (status != "success") {
-                    alert("Something Went Wrong!");
-                    $(current).prop('checked', !current.checked);
-                } else {
+            $(current).prop('disabled', true);
+            $.post(checkUrl, data) 
+                .done(function(data, status, response){
                     var response = response.responseText;
-                    alert("RES " + response);
                     if (response == "enabled") {
                         $(current).prop('checked', true);
                     } else if (response == "disabled") {
                         $(current).prop('checked', false);
                     }
-                }
-		$(current).prop('disabled', false);
-            });
+                    $(current).prop('disabled', false);
+                })
+                .fail(function(xhr, status, error){
+                    alert("Something Went Wrong! Status: " + xhr.responseText);
+                    $(current).prop('checked', !current.checked);
+                });
             changeDate(current);
         });
 
@@ -34,15 +34,16 @@
             var current = this;
             data.checked = current.checked;
             data.service = current.id;
-	    $(current).prop('disabled', true);
-            $.post(updateUrl, data, function(data, status){
-                alert("STAT " + status);
-                if (status != "success") {
-                    alert("Something Went Wrong!");
+	        $(current).prop('disabled', true);
+            $.post(updateUrl, data)
+                .done(function(data, status){
+                    $(current).prop('disabled', false);
+                })
+                .fail(function(xhr, status, error){
+                    alert("Something Went Wrong! Status: " + xhr.responseText);
                     $(current).prop('checked', !current.checked);
-                }
-            });
-	    $(current).prop('disabled', false);
+                    $(current).prop('disabled', false);
+                });
             changeDate(current);
         });
 
