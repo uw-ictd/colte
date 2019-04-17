@@ -18,28 +18,28 @@ router.post('/checkStatus', function(req, res, next) {
   console.log("Request Service: " + JSON.stringify(service));  
   exec(getCall(service, CHECK_STATUS), function(err, out, stderr) {
 
-    if (err.includes("No such file or directory")) {
+    if (err.message.includes("No such file or directory")) {
       res.status(200).send("not installed");
-    }
-    
-    if (service == "kolibri") {
-      if (err) {
-        console.log("Error: " + err);
-        res.status(200).send("disabled");
-      } else {
-        res.status(200).send("enabled");
-      }
-    } else {
-      if (err) {
-        console.log("Error checking: " + err);
-        res.status(500).send("Something went wrong checking the webservices!");
-      } else {
-        if (out == "enabled") {
-          res.status(200).send("enabled");
-        } else {
+    } else {    
+      if (service == "kolibri") {
+        if (err) {
+          console.log("Error: " + err);
           res.status(200).send("disabled");
+        } else {
+          res.status(200).send("enabled");
         }
-      } 
+      } else {
+        if (err) {
+          console.log("Error checking: " + err);
+          res.status(500).send("Something went wrong checking the webservices!");
+        } else {
+          if (out == "enabled") {
+            res.status(200).send("enabled");
+          } else {
+            res.status(200).send("disabled");
+          }
+        } 
+      }
     }
   });
 });
@@ -53,7 +53,7 @@ router.post('/updateStatus', function(req, res, next) {
   exec(getCall(service, (checked == "true") ? ENABLE : DISABLE), function(err, out, stderr) {
     if (err) {
       console.log("Error enabling/disabling: " + err);
-      if (err.includes("No such file or directory")) {
+      if (err.message.includes("No such file or directory")) {
         res.status(200).send("Not Installed");
       } else {
         res.status(500).send("Something went wrong checking the webservices!");
