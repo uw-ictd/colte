@@ -20,6 +20,8 @@
                         $(current).prop('checked', true);
                     } else if (response == "disabled") {
                         $(current).prop('checked', false);
+                    } else if (response == "not installed"){
+                        //DO SOMETHING
                     }
                     $(current).prop('disabled', false);
                 })
