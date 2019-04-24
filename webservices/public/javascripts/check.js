@@ -57,7 +57,6 @@
             var time = fix(dt.getHours()) + ":" + fix(dt.getMinutes()) + ":" + fix(dt.getSeconds()) + " on " + 
                        fix(dt.getDay()) + "/" + fix(dt.getMonth() + 1) + "/" + dt.getFullYear();
             $(current).parent().parent().parent().find(".text-muted").html("Last updated at " + time);
-            //alert(time);
         }
 
         function fix(number) {
@@ -69,11 +68,3 @@
         }
     }
 })();
-
-function GetFormattedDate(date) {
-    var month = format(date .getMonth() + 1);
-    var day = format(date .getDate());
-    var year = format(date .getFullYear());
-    var hours = format(date .get)
-    return month + "/" + day + "/" + year;
-}
