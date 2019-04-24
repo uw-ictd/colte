@@ -34,7 +34,7 @@ router.post('/checkStatus', function(req, res, next) {
           res.status(200).send("disabled");
         } else {
           console.log("Standard service. Output: " + out);
-          if (out == "enabled") {
+          if (out.includes("enabled")) {
             res.status(200).send("enabled");
           } else {
             res.status(200).send("disabled");
