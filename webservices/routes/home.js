@@ -33,7 +33,7 @@ router.post('/checkStatus', function(req, res, next) {
           console.log("Disabling. Error checking: " + err);
           res.status(200).send("disabled");
         } else {
-          console.log("Standard service. Output: ")
+          console.log("Standard service. Output: " + out);
           if (out == "enabled") {
             res.status(200).send("enabled");
           } else {
