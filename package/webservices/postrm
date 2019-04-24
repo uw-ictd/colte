@@ -1,0 +1,5 @@
+#!/bin/bash
+
+systemctl stop colte-webservices
+systemctl daemon-reload
+echo "Uninstalled CoLTE WebServices"

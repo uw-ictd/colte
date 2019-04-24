@@ -1,0 +1,6 @@
+#!/bin/bash
+
+systemctl daemon-reload
+systemctl start colte-webservices
+
+echo "Installed CoLTE WebServices"
