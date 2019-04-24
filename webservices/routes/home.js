@@ -30,8 +30,8 @@ router.post('/checkStatus', function(req, res, next) {
         }
       } else {
         if (err) {
-          console.log("Error checking: " + err);
-          res.status(500).send("Something went wrong checking the webservices!");
+          console.log("Disabling. Error checking: " + err);
+          res.status(200).send("disabled");
         } else {
           if (out == "enabled") {
             res.status(200).send("enabled");
