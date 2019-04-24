@@ -1,3 +1,5 @@
+// A lot of this code can be deleted. Legacy.
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
