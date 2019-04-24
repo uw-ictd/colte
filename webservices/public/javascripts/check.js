@@ -15,7 +15,7 @@
             $(current).prop('disabled', true);
             $.post(checkUrl, data) 
                 .done(function(data, status, response){
-                    alert("Response: " + response);
+                    alert("Response: " + JSON.stringify(response));
                     var response = response.responseText;
                     if (response == "enabled") {
                         $(current).prop('checked', true);
