@@ -1,10 +1,8 @@
 #!/bin/bash
 
 PORT=8798
-if [ "$1" != "" ]; then
-	echo "Port specified as $1"
-	PORT=$1
-fi
+
+. /usr/local/etc/video_webapp.config
 
 echo "Running on $PORT"
 source /usr/bin/video_webapp_env/bin/activate

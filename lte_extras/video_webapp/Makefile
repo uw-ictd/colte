@@ -11,6 +11,7 @@ webapp: target
 		--output-type deb \
 		--force \
 		--vendor uw-ictd \
+		--config-files /usr/bin/video_webapp/conf/video_webapp.config \
 		--maintainer durandn@cs.washington.edu \
 		--description "Web application for Local App" \
 		--url "https://github.com/uw-ictd/colte" \
@@ -22,4 +23,5 @@ webapp: target
 		--after-remove ./package/video_webapp/postrm \
 		./video_webapp/=/usr/bin/video_webapp \
 		./package/video_webapp/video_webapp.service=/etc/systemd/system/video_webapp.service \
+		./package/video_webapp/video_webapp.config=/usr/local/etc/video_webapp.config
 
