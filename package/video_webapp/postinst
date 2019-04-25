@@ -7,6 +7,5 @@ python3.7 -m pip install -r /usr/bin/video_webapp/requirements.txt
 deactivate
 
 systemctl daemon-reload
-systemctl start video_webapp
 
 echo "Installed Video Webapp"

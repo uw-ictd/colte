@@ -7,6 +7,8 @@ WEBSERVICES_VERSION=0.9.10
 WEBGUI_VERSION=0.9.10
 WEBADMIN_VERSION=0.9.1
 
+YOUTUBE_VERSION=0.9
+
 TARGET_DIR=./BUILD/
 
 build_deps:
@@ -150,4 +152,24 @@ webadmin: target
 		./webadmin/=/usr/bin/colte-webadmin \
 		./package/webadmin/colte-webadmin.service=/etc/systemd/system/colte-webadmin.service \
 		./package/webadmin/webadmin.env=/usr/local/etc/colte/webadmin.env 
+
+### Locally-Hosted Webservices Start Here ###
+youtube: target
+	fpm --input-type dir \
+		--output-type deb \
+		--force \
+		--vendor uw-ictd \
+		--config-files /usr/bin/video_webapp/conf/video_webapp.config \
+		--maintainer durandn@cs.washington.edu \
+		--description "Web application for Local App" \
+		--url "https://github.com/uw-ictd/colte" \
+		--name localtube \
+		--version $(YOUTUBE_VERSION) \
+		--package $(TARGET_DIR) \
+		--depends 'python3.7, python3-pip' \
+		--after-install ./package/video_webapp/postinst \
+		--after-remove ./package/video_webapp/postrm \
+		./lte_extras/video_webapp/=/usr/bin/video_webapp \
+		./package/video_webapp/video_webapp.service=/etc/systemd/system/video_webapp.service \
+		./package/video_webapp/video_webapp.config=/usr/local/etc/video_webapp.config
 

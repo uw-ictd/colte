@@ -2,10 +2,9 @@
 Description=Video Webapp
 
 [Service]
-ExecStart=/usr/bin/video_webapp/start_webapp
+ExecStart=/usr/bin/videowebapp
 Restart=always
 RestartSec=5
-WorkingDirectory=/usr/bin/video_webapp
 
 [Install]
 WantedBy=multi-user.target
