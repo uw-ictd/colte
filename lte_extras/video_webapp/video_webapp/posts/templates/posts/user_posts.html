@@ -1,0 +1,4 @@
+{% extends "posts/post_list.html" %}
+{% block post %}
+  <h2 class="mb-3">Posts by {{ view.kwargs.username }} ({{ page_obj.paginator.count }})</h1>
+{% endblock post %}

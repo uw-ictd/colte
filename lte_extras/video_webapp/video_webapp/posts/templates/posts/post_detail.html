@@ -1,0 +1,75 @@
+{% extends "posts/base.html" %}
+{% load crispy_forms_tags %}
+{% block video %}
+<div class="row">
+  <!--Spacing-->
+  <div class="col-md-1"></div>
+  <!--Post Content-->
+  <div class="col-md-8">
+    {% if object.video %}
+      <!--Video-->
+      <video name="{{ object.video }}" controls width='100%'>
+        <source src="{{ object.video.url }}"></source>
+      </video>
+    {% endif %}
+    <!--Post Title-->
+    <h2 class="article-title">{{ object.title }}</h2>
+    <!--Post Description-->
+    <article class="media content-section">
+      <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}">
+      <div class="media-body">
+        <div class="article-metadata">
+          <a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a>
+          <small class="text-muted">{{ object.date_posted|date:"l, F dS, Y, P T" }}</small>
+        </div>
+        <p class="article-content break-words">{{ object.content }}</p>
+        {% if object.author == user %}
+        <!-- Update and Delete buttons -->
+        <div>
+          <a class="btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' object.id %}">Update Post</a>
+          <a class="btn-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}">Delete Post</a>
+        </div>
+        {% endif %}
+      </div>
+    </article>
+    <!--Comment Section-->
+    <div id="comment-list">
+      <!--Comments Title-->
+      <div class="row">
+        <div class="col-md-12">
+            <legend class="border-bottom mb-4">Comments ({{ page_obj.paginator.count }}) </legend> 
+        </div>
+      </div>
+      <!--New Comment-->
+        <!--New Comment Button-->
+        <div id='newcomment-toggle-button1'>
+          <button class="btn btn-outline-info" onclick="hideToggleDual('newcomment-toggle-button1','newcomment-toggle-button2')">New Comment</button>
+        </div>
+        <!--New Comment Form, initially hidden-->
+        <div class="row" id='newcomment-toggle-button2' style="display:none">
+          <div class="row">
+            <!--Spacing-->
+            <div class="col-md-1"></div>
+            <div class="col-md-8">
+              <form method="post" class='create-comment-form' value=''>
+                {% csrf_token %}
+                {{ comment_form|crispy }}
+                <button class="btn btn-outline-success" type="submit">Add New Comment</button>
+                <a class="btn btn-outline-secondary" onclick="hideToggleDual('newcomment-toggle-button1','newcomment-toggle-button2')">Cancel</a>
+              </form>
+            </div>
+          </div>
+        </div>
+      <!--Spacing-->
+      <div class="row">
+        <div class="col-md-12">
+          <legend class="mb-4"></legend> 
+        </div>
+      </div>
+      <!--Comment list-->
+      {% include 'posts/comment_page.html' %}
+      <!--End Comments-->  
+    </div>
+  </div>
+</div>
+{% endblock video %}

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+systemctl stop video_webapp
+systemctl daemon-reload
+
+sudo rm -r /usr/bin/video_webapp
+sudo rm -r /usr/bin/video_webapp_env
+
+echo "Uninstalled Video Webapp"

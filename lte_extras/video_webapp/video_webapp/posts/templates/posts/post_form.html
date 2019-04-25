@@ -1,0 +1,17 @@
+{% extends "posts/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+  <div class="content-section">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <fieldset>
+        <legend class="border-bottom mb-4">New Post</legend>
+        {{ form|crispy }}
+      </fieldset>
+      <div class="form-group">
+        <button class="btn btn-outline-success" type="submit">Post</button>
+        <a class="btn btn-outline-secondary" href="{% url 'posts-home' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock content %}

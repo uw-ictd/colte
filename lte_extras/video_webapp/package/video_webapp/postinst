@@ -1,0 +1,12 @@
+#!/bin/bash
+
+python3.7 -m pip install virtualenv
+python3.7 -m virtualenv usr/bin/video_webapp_env
+source /usr/bin/video_webapp_env/bin/activate
+python3.7 -m pip install -r usr/bin/video_webapp/requirements.txt
+deactivate
+
+systemctl daemon-reload
+systemctl start video_webapp
+
+echo "Installed Video Webapp"
