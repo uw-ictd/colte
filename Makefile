@@ -105,28 +105,6 @@ webgui: target
 		./package/webgui/webgui.env=/usr/local/etc/colte/webgui.env \
 		./package/webgui/pricing.json=/usr/local/etc/colte/pricing.json 
 
-webservices: target
-	cd webadmin; npm install
-	cd webadmin; cp production.env .env
-	fpm --input-type dir \
-		--output-type deb \
-		--force \
-		--vendor uw-ictd \
-		--config-files /usr/bin/colte-webadmin/.env \
-		--maintainer sevilla@cs.washington.edu \
-		--description "Web-based tool for CoLTE network administrators." \
-		--url "https://github.com/uw-ictd/colte" \
-		--deb-compression xz \
-		--name colte-webadmin \
-		--version $(WEBADMIN_VERSION) \
-		--package $(TARGET_DIR) \
-		--depends 'nodejs (>= 8.0.0), colte-db (>= 0.9.11), colte-conf' \
-		--after-install ./package/webadmin/postinst \
-		--after-remove ./package/webadmin/postrm \
-		./webadmin/=/usr/bin/colte-webadmin \
-		./package/webadmin/colte-webadmin.service=/etc/systemd/system/colte-webadmin.service \
-		./package/webadmin/webadmin.env=/usr/local/etc/colte/webadmin.env 
-
 webadmin: target
 	cd webadmin; npm install
 	cd webadmin; cp production.env .env
