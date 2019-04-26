@@ -99,7 +99,7 @@ class PostDetailView(FormMixin, MultipleObjectMixin, DetailView):
         # Tie comment to post it was created on and author
         comment.post = Post.objects.get(pk=kwargs['pk'])
         comment.author = request.user
-        messages.success(request, f'Comment Created')
+        messages.success(request, 'Comment Created')
         comment.save()
         return self.form_valid(comment_form)
       else:

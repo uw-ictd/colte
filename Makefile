@@ -166,7 +166,7 @@ ourtube: target
 		--name ourtube \
 		--version $(YOUTUBE_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'python3.7, python3-pip' \
+		--depends 'python3.5, python3-pip' \
 		--after-install ./package/ourtube/postinst \
 		--after-remove ./package/ourtube/postrm \
 		./lte_extras/ourtube/=/usr/bin/ourtube_data \

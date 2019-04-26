@@ -1,8 +1,11 @@
 #!/bin/bash
 
+# Default port
+PORT=8100
+
 . /usr/local/etc/ourtube.config
 
 echo "Running on $PORT"
 source /usr/bin/ourtube_env/bin/activate
-python3.7 /usr/bin/ourtube_data/manage.py runserver $PORT
+python3.5 /usr/bin/ourtube_data/manage.py runserver $PORT
 

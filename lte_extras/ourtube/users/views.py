@@ -26,7 +26,7 @@ def register(request):
       if instance.user_ip:
         instance.save()
         username = form.cleaned_data.get('username')
-        messages.success(request, f'Account created for {username}!')
+        # messages.success(request, f'Account created for {username}!')
          
         # With how login works, this is essentially a manual login after creation
         return redirect('login')
@@ -63,7 +63,7 @@ def profile(request):
     if u_form.is_valid() and p_form.is_valid():
       u_form.save()
       p_form.save()
-      messages.success(request, f'Your account has been updated!')
+      # messages.success(request, f'Your account has been updated!')
       return redirect('profile')
 
   # Fill in user info on profile page
