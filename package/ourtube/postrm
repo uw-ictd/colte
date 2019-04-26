@@ -1,0 +1,8 @@
+#!/bin/bash
+
+systemctl stop ourtube
+systemctl daemon-reload
+
+sudo rm -r /usr/bin/ourtube_env
+
+echo "Uninstalled OurTube"

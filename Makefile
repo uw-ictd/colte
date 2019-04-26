@@ -154,22 +154,23 @@ webadmin: target
 		./package/webadmin/webadmin.env=/usr/local/etc/colte/webadmin.env 
 
 ### Locally-Hosted Webservices Start Here ###
-youtube: target
+ourtube: target
 	fpm --input-type dir \
 		--output-type deb \
 		--force \
 		--vendor uw-ictd \
-		--config-files /usr/bin/video_webapp/conf/video_webapp.config \
+		--config-files /usr/bin/ourtube_data/conf/ourtube.config \
 		--maintainer durandn@cs.washington.edu \
-		--description "Web application for Local App" \
+		--description "Locally-Hosted Open Source Video Sharing App" \
 		--url "https://github.com/uw-ictd/colte" \
-		--name localtube \
+		--name ourtube \
 		--version $(YOUTUBE_VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'python3.7, python3-pip' \
-		--after-install ./package/video_webapp/postinst \
-		--after-remove ./package/video_webapp/postrm \
-		./lte_extras/video_webapp/=/usr/bin/video_webapp \
-		./package/video_webapp/video_webapp.service=/etc/systemd/system/video_webapp.service \
-		./package/video_webapp/video_webapp.config=/usr/local/etc/video_webapp.config
+		--after-install ./package/ourtube/postinst \
+		--after-remove ./package/ourtube/postrm \
+		./lte_extras/ourtube/=/usr/bin/ourtube_data \
+		./package/ourtube/ourtube=/usr/bin/ourtube \
+		./package/ourtube/ourtube.service=/etc/systemd/system/ourtube.service \
+		./package/ourtube/ourtube.config=/usr/local/etc/ourtube.config
 

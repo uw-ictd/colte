@@ -1,0 +1,10 @@
+[Unit]
+Description=OurTube - Locally Hosted Open Source Video Sharing
+
+[Service]
+ExecStart=/usr/bin/ourtube
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
