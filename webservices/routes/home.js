@@ -84,8 +84,8 @@ router.post('/install', function(req, res, next) {
 });
 
 function getCall(service, status) {
-  let callsData = JSON.parse(fs.readFileSync('../public/JSONs/calls.json'));  
-  console.log("Reading Calls Data " + callsData);
+  let callsData = JSON.parse(fs.readFileSync('public/JSONs/calls.json'));  
+  console.log("Reading Calls Data " + JSON.stringify(callsData.calls.ourtube.install));
   if (service == "kolibri") {
     if (status == CHECK_STATUS) {
       return "sudo kolibri status";

@@ -63,7 +63,7 @@ conf: target
 webservices: target
 	cd webservices; npm install
 	cd webservices; cp production.env .env
-	fpm --input-type empty \
+	fpm --input-type dir \
 		--output-type deb \
 		--force \
 		--vendor uw-ictd \
@@ -75,7 +75,8 @@ webservices: target
 		--name colte-webservices \
 		--version $(WEBSERVICES_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'colte-webgui, colte-webadmin'
+		--depends 'colte-webgui' \
+		--depends 'colte-webadmin' \
 		--after-install ./package/webservices/postinst \
 		--after-remove ./package/webservices/postrm \
 		./webservices/=/usr/bin/colte-webservices \
