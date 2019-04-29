@@ -84,8 +84,7 @@ router.post('/install', function(req, res, next) {
 });
 
 function getCall(service, status) {
-  let callsData = JSON.parse(fs.readFileSync('public/JSONs/calls.json'));  
-  console.log("Reading Calls Data " + JSON.stringify(callsData.calls.ourtube.install));
+  let callsData = JSON.parse(fs.readFileSync('public/JSONs/calls.json'));
   // Add install values to JSON file
   if (status == INSTALL) {
     return callsData.calls[service].install
