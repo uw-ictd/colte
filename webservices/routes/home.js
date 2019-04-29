@@ -88,17 +88,17 @@ function getCall(service, status) {
   console.log("Reading Calls Data " + JSON.stringify(callsData.calls.ourtube.install));
   // Add install values to JSON file
   if (status == INSTALL) {
-    return callsData[service].install
+    return callsData.calls[service].install
   }
 
   // Add to this if statement and JSON file for edge cases. Else, handled normally.
   if (service == "kolibri") {
     if (status == CHECK_STATUS) {
-      return callsData[service].check;
+      return callsData.calls[service].check;
     } else if (status == ENABLE) {
-      return callsData[service].enable;
+      return callsData.calls[service].enable;
     } else {
-      return callsData[service].disable;
+      return callsData.calls[service].disable;
     }
   } else {
     if (status == CHECK_STATUS) {
