@@ -1,0 +1,13 @@
+{
+    "calls": {
+        "kolibri": {
+            "check": "sudo kolibri status",
+            "enable": "sudo kolibri start",
+            "disable": "sudo kolibri stop",
+            "install": "TEMP_DEB=\"$(mktemp)\" && wget -O \"$TEMP_DEB\" 'https://learningequality.org/r/kolibri-deb-latest' && sudo  dpkg -i \"$TEMP_DEB\" && rm -f \"$TEMP_DEB\""
+        }, 
+        "ourtube": {
+            "install": "apt-get ourtube"
+        }
+    }
+}

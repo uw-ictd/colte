@@ -40,12 +40,6 @@ module.exports.translate = function (x) {
   return str;
 }
 
-var commaNumber = require('comma-number');
-module.exports.print_number = function (x) {
-  var str = commaNumber(x);
-  return str;
-}
-
 // global helper function convertBytes:
 // takes int value like "1500" and outputs string "1.0KB"
 module.exports.convertBytes = function (size) {
@@ -79,8 +73,6 @@ fs.appendFile(transaction_log, "", function(err) {
   }
 });
 
-
-
 // password-protect the site because it is used for admin.
 // this approach is not the securest in the world, and 
 // IS NOT ENCRYPTED. You must also restrict which users can
@@ -111,25 +103,5 @@ const redirectTo = (req, res, next) => {
   res.redirect('/home');
 }
 app.use('/', redirectTo);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
-
-// error handler (error.hbs)
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error', {
-    layout: false,
-  });
-});
 
 module.exports = app;

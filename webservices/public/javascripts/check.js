@@ -4,6 +4,7 @@
     window.onload = function() {
         const updateUrl = "/home/updateStatus";
         const checkUrl = "/home/checkStatus";
+        const installUrl = "/home/install"
         var data = {
             checked: false,
             service: "",
@@ -50,6 +51,20 @@
                     $(current).prop('disabled', false);
                 });
             changeDate(current);
+        });
+
+        $(".install").change(function () {
+            var current = this;
+            data.service = current.id;
+            $.post(installUrl, data)
+                .done(function(data, status){
+                    alert("Installed Correctly!")
+                    location.reload();
+                })
+                .fail(function(xhr, status, error){
+                    alert("Something Went Wrong! Status: " + xhr.responseText);
+                    location.reload();
+                });
         });
 
         function changeDate(current) {
