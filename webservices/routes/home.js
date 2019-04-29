@@ -86,25 +86,27 @@ router.post('/install', function(req, res, next) {
 function getCall(service, status) {
   let callsData = JSON.parse(fs.readFileSync('public/JSONs/calls.json'));  
   console.log("Reading Calls Data " + JSON.stringify(callsData.calls.ourtube.install));
+  // Add install values to JSON file
+  if (status == INSTALL) {
+    return callsData[service].install
+  }
+
+  // Add to this if statement and JSON file for edge cases. Else, handled normally.
   if (service == "kolibri") {
     if (status == CHECK_STATUS) {
-      return "sudo kolibri status";
+      return callsData[service].check;
     } else if (status == ENABLE) {
-      return "sudo kolibri start";
-    } else if (status == DISABLE) {
-      return "sudo kolibri stop";
+      return callsData[service].enable;
     } else {
-      return "TEMP_DEB=\"$(mktemp)\" && wget -O \"$TEMP_DEB\" 'https://learningequality.org/r/kolibri-deb-latest' && sudo  dpkg -i \"$TEMP_DEB\" && rm -f \"$TEMP_DEB\"";
+      return callsData[service].disable;
     }
   } else {
     if (status == CHECK_STATUS) {
       return "sudo systemctl is-enabled " + service;
     } else if (status == ENABLE) {
       return "sudo systemctl enable " + service + " --now";
-    } else if (status == DISABLE) {
-      return "sudo systemctl disable " + service + " --now";
     } else {
-      return "sudo apt-get " + status;
+      return "sudo systemctl disable " + service + " --now";
     }
   }
 }
