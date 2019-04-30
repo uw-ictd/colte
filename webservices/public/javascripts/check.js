@@ -54,6 +54,7 @@
         });
 
         $(".install").change(function () {
+            alert("Installing Service...");
             var current = this;
             data.service = current.id;
             $.post(installUrl, data)
