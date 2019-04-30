@@ -56,7 +56,8 @@
         $(".install").click(function () {
             alert("Installing Service...");
             var current = this;
-            data.service = current.id;
+            data.service = $(current).prev().first().id;
+            alert($(current).prev().first().id);
             $.post(installUrl, data)
                 .done(function(data, status){
                     alert("Installed Correctly!")
