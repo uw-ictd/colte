@@ -93,10 +93,13 @@ conf: target
 		./conf/config.yml=/usr/local/etc/colte/config.yml
 
 webservices: target
-	fpm --input-type empty \
+	cd webservices; npm install
+	cd webservices; cp production.env .env
+	fpm --input-type dir \
 		--output-type deb \
 		--force \
 		--vendor uw-ictd \
+		--config-files /usr/bin/colte-webservices/.env \
 		--maintainer sevilla@cs.washington.edu \
 		--description "CoLTE Locally-Hosted Webservices" \
 		--url "https://github.com/uw-ictd/colte" \
@@ -104,7 +107,13 @@ webservices: target
 		--name colte-webservices \
 		--version $(WEBSERVICES_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'colte-webgui, colte-webadmin'
+		--depends 'colte-webgui' \
+		--depends 'colte-webadmin' \
+		--after-install ./package/webservices/postinst \
+		--after-remove ./package/webservices/postrm \
+		./webservices/=/usr/bin/colte-webservices \
+		./package/webservices/colte-webservices.service=/etc/systemd/system/colte-webservices.service \
+		./package/webservices/webservices.env=/usr/local/etc/colte/webservices.env
 
 webgui: target
 	cd webgui; npm install
@@ -150,4 +159,3 @@ webadmin: target
 		./webadmin/=/usr/bin/colte-webadmin \
 		./package/webadmin/colte-webadmin.service=/etc/systemd/system/colte-webadmin.service \
 		./package/webadmin/webadmin.env=/usr/local/etc/colte/webadmin.env 
-
