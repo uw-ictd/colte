@@ -5,13 +5,17 @@ from django.urls import reverse
 from django.core.validators import FileExtensionValidator
 from PIL import Image
 
+# Helper function to get local time
+def get_local_time():
+    return timezone.localtime(timezone.now())
+
 # The Post class is a model for creating genereic posts
 # These posts must include a title and content, but
 # not a video or video thumbnail
 class Post(models.Model):
   title = models.CharField(max_length=100)
   content = models.TextField()
-  date_posted = models.DateTimeField(default=timezone.now) # passing in function for timezone
+  date_posted = models.DateTimeField(default=get_local_time) # passing in function for timezone
   author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE) # CASCADE will delete post if user is deleted
 
   # Optional video fields
@@ -46,5 +50,5 @@ class Comment(models.Model):
   post = models.ForeignKey(Post, on_delete=models.CASCADE)
   author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
   comment = models.TextField(verbose_name=u"")
-  date_posted = models.DateTimeField(default=timezone.now)
+  date_posted = models.DateTimeField(default=get_local_time)
 
