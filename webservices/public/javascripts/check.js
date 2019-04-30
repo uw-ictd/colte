@@ -53,7 +53,7 @@
             changeDate(current);
         });
 
-        $(".install").change(function () {
+        $(".install").click(function () {
             alert("Installing Service...");
             var current = this;
             data.service = current.id;
