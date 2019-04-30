@@ -22,7 +22,6 @@
                     } else if (response == "disabled") {
                         $(current).prop('checked', false);
                     } else if (response == "not installed"){
-                        alert("Service Misconfigured or Not Installed")
                         $(current).parent().hide();
                         $(current).parent().next().removeAttr('hidden');
                     }
@@ -56,8 +55,7 @@
         $(".install").click(function () {
             alert("Installing Service...");
             var current = this;
-            data.service = $(current).prev().first().id;
-            alert($(current).prev().first().id);
+            data.service = $(current).prev().find(".checkbox").attr('id');
             $.post(installUrl, data)
                 .done(function(data, status){
                     alert("Installed Correctly!")
@@ -72,8 +70,8 @@
         function changeDate(current) {
             var dt = new Date();
             var time = fix(dt.getHours()) + ":" + fix(dt.getMinutes()) + ":" + fix(dt.getSeconds()) + " on " + 
-                       fix(dt.getDay()) + "/" + fix(dt.getMonth() + 1) + "/" + dt.getFullYear();
-            $(current).parent().parent().parent().find(".text-muted").html("Last updated at " + time);
+                       fix(dt.getDate()) + "/" + fix(dt.getMonth() + 1) + "/" + dt.getFullYear();
+	    $(current).parent().parent().parent().find(".text-muted").html("Last updated at " + time);
         }
 
         function fix(number) {

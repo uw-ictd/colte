@@ -4,10 +4,10 @@
             "check": "sudo kolibri status",
             "enable": "sudo kolibri start",
             "disable": "sudo kolibri stop",
-            "install": "TEMP_DEB=\"$(mktemp)\" && wget -O \"$TEMP_DEB\" 'https://learningequality.org/r/kolibri-deb-latest' && sudo  dpkg -i \"$TEMP_DEB\" && rm -f \"$TEMP_DEB\""
+            "install": "TEMP_DEB=\"$(mktemp)\" && wget -O \"$TEMP_DEB\" 'https://learningequality.org/r/kolibri-deb-latest' && sudo  dpkg -i \"$TEMP_DEB\" && rm -f \"$TEMP_DEB\" && systemctl daemon-reload"
         }, 
         "ourtube": {
-            "install": "apt-get ourtube"
+            "install": "sudo apt-get install ourtube && systemctl daemon-reload"
         }
     }
 }
