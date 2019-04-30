@@ -16,14 +16,14 @@ router.get('/', function(req, res, next) {
   });
 });
 
+// Handles calls to update active statuses
 router.post('/checkStatus', function(req, res, next) {
   var service = req.body.service;
   console.log("Request Service: " + JSON.stringify(service));  
   exec(getCall(service, CHECK_STATUS), function(err, out, stderr) {
-
     if (err && err.message.includes("No such file or directory")) {
       res.status(200).send("not installed");
-    } else {    
+    } else { // Handle Kolibri edge case separately
       if (service == "kolibri") {
         if (err) {
           console.log("Error: " + err);
@@ -31,7 +31,7 @@ router.post('/checkStatus', function(req, res, next) {
         } else {
           res.status(200).send("enabled");
         }
-      } else {
+      } else { // Most cases (debian packages)
         if (err) {
           console.log("Disabling. Error checking: " + err);
           res.status(200).send("disabled");
@@ -48,6 +48,7 @@ router.post('/checkStatus', function(req, res, next) {
   });
 });
 
+// Handles calls to enable/ disable services
 router.post('/updateStatus', function(req, res, next) {
   var service = req.body.service;
   var checked = req.body.checked;
@@ -69,6 +70,7 @@ router.post('/updateStatus', function(req, res, next) {
   });
 });
 
+// Handles calls to install new services
 router.post('/install', function(req, res, next) {
   var service = req.body.service;
   console.log("Install Service: " + JSON.stringify(service));
@@ -83,6 +85,7 @@ router.post('/install', function(req, res, next) {
   });
 });
 
+// Gathers appropriate calls from public/JSONs/calls.json and returns them
 function getCall(service, status) {
   let callsData = JSON.parse(fs.readFileSync('public/JSONs/calls.json'));
   // Add install values to JSON file
@@ -91,7 +94,7 @@ function getCall(service, status) {
   }
 
   // Add to this if statement and JSON file for edge cases. Else, handled normally.
-  if (service == "kolibri") {
+  if (service == "kolibri") { // Kolibri Edge case
     if (status == CHECK_STATUS) {
       return callsData.calls[service].check;
     } else if (status == ENABLE) {

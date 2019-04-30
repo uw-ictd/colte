@@ -40,22 +40,6 @@ module.exports.translate = function (x) {
   return str;
 }
 
-// global helper function convertBytes:
-// takes int value like "1500" and outputs string "1.0KB"
-module.exports.convertBytes = function (size) {
-    if (size < 100) {
-      return "0.0 KB";
-    }
-    var i = -1;
-    var byteUnits = [' KB', ' MB', ' GB', ' TB']
-    do {
-          size = size / 1000;
-          i++;
-        } while (size > 1000 && i < 3);
-
-    return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
-};
-
 // handlebars helper function ifequal is needed because hbs
 // is stupid and provides an extremely limited implementation
 // of #if, only takes one variable input and not two, lolwtf.

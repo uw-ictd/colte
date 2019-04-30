@@ -9,6 +9,8 @@
             checked: false,
             service: "",
         };
+
+        // On window load update each checkbox. Change to install button if appropriate.
         $(".checkbox").each(function() {
             var current = this;
             data.checked = current.checked;
@@ -35,6 +37,7 @@
             changeDate(current);
         });
 
+        // Handles checkbox changes
         $(".checkbox").change(function () {
             var current = this;
             data.checked = current.checked;
@@ -52,6 +55,7 @@
             changeDate(current);
         });
 
+        // Handles install button presses
         $(".install").click(function () {
             alert("Installing Service...");
             var current = this;
@@ -67,6 +71,7 @@
                 });
         });
 
+        // Changes and formats "Last updated at" dates
         function changeDate(current) {
             var dt = new Date();
             var time = fix(dt.getHours()) + ":" + fix(dt.getMinutes()) + ":" + fix(dt.getSeconds()) + " on " + 
