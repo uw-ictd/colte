@@ -10,11 +10,19 @@ def replace(searchExp,replaceExp):
             line = replaceExp
         sys.stdout.write(line)
 
-enb_iface = raw_input('network interface that eNB connects to (default eth0): ') 
-enb_iface_addr = raw_input('address of network interface mentioned above (default 1.2.3.4/24): ')
-wan_iface = raw_input('network interface that connects to Internet (default eth0): ')
-lte_subnet = raw_input('subnet for assigning LTE addresses (default 192.168.151.0/24): ')
-network_name = raw_input('name of LTE network (default colte): ')
+def get_data(prompt, default):
+    if (default):
+        prompt += ' (default \'%s\')' % default
+    res = raw_input(prompt+": ")
+    if (res.strip() == "" and default): #use default
+        res = default
+    return res
+        
+enb_iface = get_data('network interface that eNB connects to', 'eth0') 
+enb_iface_addr = get_data('address of network interface mentioned above', '1.2.3.4/24')
+wan_iface = get_data('network interface that connects to Internet', 'eth0')
+lte_subnet = get_data('subnet for assigning LTE addresses', '192.168.151.0/24')
+network_name = get_data('name of LTE network', 'colte')
 
 replace("enb_iface:", "enb_iface: \"" + enb_iface + "\"\n")
 replace("enb_iface_addr:", "enb_iface_addr: \"" + enb_iface_addr + "\"\n")
