@@ -10,7 +10,7 @@ TARGET_DIR=./BUILD/
 .PHONY: webadmin webgui all
 
 all: light full colte conf webservices
-	
+
 build_deps:
 	sudo apt-get install ruby ruby-dev rubygems build-essential
 	sudo gem install --no-ri --no-rdoc fpm
@@ -38,21 +38,6 @@ light: target
 		--package $(TARGET_DIR) \
 		--depends 'colte-epc (>= 0.9.3), colte-conf'
 
-full: target
-	fpm --input-type dir \
-		--output-type deb \
-		--force \
-		--vendor uw-ictd \
-		--maintainer sevilla@cs.washington.edu \
-		--description "The Community LTE Project - Full Version (inc. Haulage and Webtools)" \
-		--url "https://github.com/uw-ictd/colte" \
-		--name colte-full \
-		--version $(COLTE_FULL_VERSION) \
-		--package $(TARGET_DIR) \
-		--depends 'colte-epc, colte-webservices, haulage, colte-conf' \
-		./package/colte/haulage.yml=/usr/local/etc/colte/haulage.yml
-
-# deprecate this target?!?!?!?
 colte: target
 	fpm --input-type dir \
 		--output-type deb \
