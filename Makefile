@@ -3,9 +3,7 @@ COLTE_LIGHT_VERSION=0.10.0
 COLTE_FULL_VERSION=0.10.0
 COLTE_VERSION=0.9.11
 CONF_VERSION=0.9.13
-WEBSERVICES_VERSION=0.9.10
-WEBGUI_VERSION=0.9.10
-WEBADMIN_VERSION=0.9.1
+WEBSERVICES_VERSION=0.9.11
 
 TARGET_DIR=./BUILD/
 
@@ -91,58 +89,30 @@ conf: target
 		./conf/config.yml=/usr/local/etc/colte/config.yml
 
 webservices: target
-	fpm --input-type empty \
-		--output-type deb \
-		--force \
-		--vendor uw-ictd \
-		--maintainer sevilla@cs.washington.edu \
-		--description "CoLTE Locally-Hosted Webservices" \
-		--url "https://github.com/uw-ictd/colte" \
-		--name colte-webservices \
-		--version $(WEBSERVICES_VERSION) \
-		--package $(TARGET_DIR) \
-		--depends 'colte-webgui, colte-webadmin'
-
-webgui: target
 	cd webgui; npm install
 	cd webgui; cp production.env .env
-	fpm --input-type dir \
-		--output-type deb \
-		--force \
-		--vendor uw-ictd \
-		--config-files /usr/bin/colte-webgui/.env \
-		--maintainer sevilla@cs.washington.edu \
-		--description "WebGUI for CoLTE users to check balance, buy/sell data, etc." \
-		--url "https://github.com/uw-ictd/colte" \
-		--name colte-webgui \
-		--version $(WEBGUI_VERSION) \
-		--package $(TARGET_DIR) \
-		--depends 'nodejs, colte-db (>= 0.9.2)' \
-		--after-install ./package/webgui/postinst \
-		--after-remove ./package/webgui/postrm \
-		./webgui/=/usr/bin/colte-webgui \
-		./package/webgui/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
-		./package/webgui/webgui.env=/usr/local/etc/colte/webgui.env \
-		./package/webgui/pricing.json=/usr/local/etc/colte/pricing.json 
-
-webadmin: target
 	cd webadmin; npm install
 	cd webadmin; cp production.env .env
 	fpm --input-type dir \
 		--output-type deb \
 		--force \
 		--vendor uw-ictd \
+		--config-files /usr/bin/colte-webgui/.env \
 		--config-files /usr/bin/colte-webadmin/.env \
 		--maintainer sevilla@cs.washington.edu \
-		--description "Web-based tool for CoLTE network administrators." \
+		--description "CoLTE WebServices: WebAdmin tool for CoLTE network administrators and WebGUI for users to check balance and buy/sell data." \
 		--url "https://github.com/uw-ictd/colte" \
-		--name colte-webadmin \
-		--version $(WEBADMIN_VERSION) \
+		--name colte-websevices \
+		--version $(WEBSERVICES_VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'nodejs (>= 8.0.0), colte-db (>= 0.9.11), colte-conf' \
-		--after-install ./package/webadmin/postinst \
-		--after-remove ./package/webadmin/postrm \
+		--after-install ./package/webservices/postinst \
+		--after-remove ./package/webservices/postrm \
+		./webgui/=/usr/bin/colte-webgui \
+		./package/webservices/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
+		./package/webservices/webgui.env=/usr/local/etc/colte/webgui.env \
+		./package/webservices/pricing.json=/usr/local/etc/colte/pricing.json \
 		./webadmin/=/usr/bin/colte-webadmin \
-		./package/webadmin/colte-webadmin.service=/etc/systemd/system/colte-webadmin.service \
-		./package/webadmin/webadmin.env=/usr/local/etc/colte/webadmin.env 
+		./package/webservices/colte-webadmin.service=/etc/systemd/system/colte-webadmin.service \
+		./package/webservices/webadmin.env=/usr/local/etc/colte/webadmin.env 
 

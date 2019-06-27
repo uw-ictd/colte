@@ -1,0 +1,7 @@
+mkdir -p /var/log/colte
+
+systemctl daemon-reload
+systemctl start colte-webgui
+systemctl start colte-webadmin
+
+echo "Installed CoLTE WebServices"
