@@ -33,7 +33,6 @@ light: target
 		--maintainer sevilla@cs.washington.edu \
 		--description "The Community LTE Project - Light Version (EPC and Conf-tools Only)" \
 		--url "https://github.com/uw-ictd/colte" \
-		--deb-compression xz \
 		--name colte-light \
 		--version $(COLTE_LIGHT_VERSION) \
 		--package $(TARGET_DIR) \
@@ -47,7 +46,6 @@ full: target
 		--maintainer sevilla@cs.washington.edu \
 		--description "The Community LTE Project - Full Version (inc. Haulage and Webtools)" \
 		--url "https://github.com/uw-ictd/colte" \
-		--deb-compression xz \
 		--name colte-full \
 		--version $(COLTE_FULL_VERSION) \
 		--package $(TARGET_DIR) \
@@ -63,7 +61,6 @@ colte: target
 		--maintainer sevilla@cs.washington.edu \
 		--description "The Community LTE Project" \
 		--url "https://github.com/uw-ictd/colte" \
-		--deb-compression xz \
 		--name colte \
 		--version $(COLTE_VERSION) \
 		--package $(TARGET_DIR) \
@@ -79,7 +76,6 @@ conf: target
 		--maintainer sevilla@cs.washington.edu \
 		--description "Configuration Tools for CoLTE" \
 		--url "https://github.com/uw-ictd/colte" \
-		--deb-compression xz \
 		--name colte-conf \
 		--version $(CONF_VERSION) \
 		--package $(TARGET_DIR) \
@@ -100,7 +96,6 @@ webservices: target
 		--maintainer sevilla@cs.washington.edu \
 		--description "CoLTE Locally-Hosted Webservices" \
 		--url "https://github.com/uw-ictd/colte" \
-		--deb-compression xz \
 		--name colte-webservices \
 		--version $(WEBSERVICES_VERSION) \
 		--package $(TARGET_DIR) \
@@ -117,7 +112,6 @@ webgui: target
 		--maintainer sevilla@cs.washington.edu \
 		--description "WebGUI for CoLTE users to check balance, buy/sell data, etc." \
 		--url "https://github.com/uw-ictd/colte" \
-		--deb-compression xz \
 		--name colte-webgui \
 		--version $(WEBGUI_VERSION) \
 		--package $(TARGET_DIR) \
@@ -140,7 +134,6 @@ webadmin: target
 		--maintainer sevilla@cs.washington.edu \
 		--description "Web-based tool for CoLTE network administrators." \
 		--url "https://github.com/uw-ictd/colte" \
-		--deb-compression xz \
 		--name colte-webadmin \
 		--version $(WEBADMIN_VERSION) \
 		--package $(TARGET_DIR) \
