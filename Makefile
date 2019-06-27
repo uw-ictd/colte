@@ -87,7 +87,7 @@ webservices: target
 		--maintainer sevilla@cs.washington.edu \
 		--description "CoLTE WebServices: WebAdmin tool for CoLTE network administrators and WebGUI for users to check balance and buy/sell data." \
 		--url "https://github.com/uw-ictd/colte" \
-		--name colte-websevices \
+		--name colte-webservices \
 		--version $(WEBSERVICES_VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'nodejs (>= 8.0.0), colte-db (>= 0.9.11), colte-conf' \
