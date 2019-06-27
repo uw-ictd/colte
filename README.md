@@ -61,6 +61,11 @@ For more details, consult `/webgui/README`
 # Log Files
 Any service run with `systemd` will have its log in `journalctl`; all other logfiles can be found in `/var/log/colte`.
 
+# Known Issues
+- It appears that `libssl` is broken on Ubuntu 18.04 as of 14 June 2019. This is out of our hands and we anticipate a fix very soon. See https://bugs.launchpad.net/ubuntu/+source/openssl/+bug/1832919
+- The WebAdmin tool does not work out-of-the-box with Debian 9. This is because pagination requires Node 8.0 or higher, whereas Debian 9 currently ships with Node 4.x. We did not want to force-update anyone's install, but you can update your system with the following command: `curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - ; sudo apt-get install nodejs`. This issue will be fixed with Debian 10, which launches 6 July 2019.
+- Right now, the webservices are only hosted as high-number ports. In the interest of not dominating your system we do not currently integrate with any apps that serve DNS or HTTP (e.g. `bind` or `nginx`). We plan to offer support for this as a separate package soon.
+
 # Exposed Webservices and Ports
 There are a bunch of different Web-based services exposed on this machine. Here's an authoritative list of the different services that are exposed, and what port they're assigned to by default.
 

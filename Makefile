@@ -9,6 +9,10 @@ WEBADMIN_VERSION=0.9.1
 
 TARGET_DIR=./BUILD/
 
+.PHONY: webadmin webgui all
+
+all: light full colte conf webservices webgui webadmin 
+
 build_deps:
 	sudo apt-get install ruby ruby-dev rubygems build-essential
 	sudo gem install --no-ri --no-rdoc fpm
@@ -19,8 +23,6 @@ web_deps_ubuntu:
 web_deps_debian:
 	curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 	sudo apt-get install nodejs
-
-.PHONY: webadmin webgui
 
 target:
 	mkdir -p $(TARGET_DIR)
