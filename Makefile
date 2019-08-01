@@ -9,7 +9,7 @@ TARGET_DIR=./BUILD/
 
 .PHONY: webadmin webgui all
 
-all: light full colte conf webgui webadmin 
+all: full colte conf webgui webadmin
 
 build_deps:
 	sudo apt-get install ruby ruby-dev rubygems build-essential
@@ -39,7 +39,6 @@ full: target
 		--depends 'colte-epc, colte-webgui, haulage, colte-conf, colte-webadmin' \
 		./package/colte/haulage.yml=/usr/local/etc/colte/haulage.yml
 
-# deprecate this target?!?!?!?
 colte: target
 	fpm --input-type dir \
 		--output-type deb \
