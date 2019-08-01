@@ -4,7 +4,7 @@ COLTE_FULL_VERSION=0.10.0
 COLTE_VERSION=0.9.11
 CONF_VERSION=0.9.13
 WEBSERVICES_VERSION=0.9.10
-WEBGUI_VERSION=0.9.10
+WEBGUI_VERSION=0.9.11
 WEBADMIN_VERSION=0.9.1
 
 TARGET_DIR=./BUILD/
@@ -123,7 +123,8 @@ webgui: target
 		./webgui/=/usr/bin/colte-webgui \
 		./package/webgui/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
 		./package/webgui/webgui.env=/usr/local/etc/colte/webgui.env \
-		./package/webgui/pricing.json=/usr/local/etc/colte/pricing.json 
+		./package/webgui/pricing.json=/usr/local/etc/colte/pricing.json \
+		./package/webgui/transaction_log.txt=/var/log/colte/transaction_log.txt 
 
 webadmin: target
 	cd webadmin; npm install
