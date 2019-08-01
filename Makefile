@@ -1,9 +1,7 @@
 
-COLTE_LIGHT_VERSION=0.10.0
-COLTE_FULL_VERSION=0.10.0
-COLTE_VERSION=0.9.11
+COLTE_FULL_VERSION=0.10.1
+COLTE_VERSION=0.9.12
 CONF_VERSION=0.9.13
-WEBSERVICES_VERSION=0.9.10
 WEBGUI_VERSION=0.9.11
 WEBADMIN_VERSION=0.9.1
 
@@ -11,7 +9,7 @@ TARGET_DIR=./BUILD/
 
 .PHONY: webadmin webgui all
 
-all: light full colte conf webservices webgui webadmin 
+all: full colte conf webgui webadmin
 
 build_deps:
 	sudo apt-get install ruby ruby-dev rubygems build-essential
@@ -27,19 +25,6 @@ web_deps_debian:
 target:
 	mkdir -p $(TARGET_DIR)
 
-light: target
-	fpm --input-type empty \
-		--output-type deb \
-		--force \
-		--vendor uw-ictd \
-		--maintainer sevilla@cs.washington.edu \
-		--description "The Community LTE Project - Light Version (EPC and Conf-tools Only)" \
-		--url "https://github.com/uw-ictd/colte" \
-		--name colte-light \
-		--version $(COLTE_LIGHT_VERSION) \
-		--package $(TARGET_DIR) \
-		--depends 'colte-epc (>= 0.9.3), colte-conf'
-
 full: target
 	fpm --input-type dir \
 		--output-type deb \
@@ -51,10 +36,9 @@ full: target
 		--name colte-full \
 		--version $(COLTE_FULL_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'colte-epc, colte-webservices, haulage, colte-conf' \
+		--depends 'colte-epc, colte-webgui, haulage, colte-conf, colte-webadmin' \
 		./package/colte/haulage.yml=/usr/local/etc/colte/haulage.yml
 
-# deprecate this target?!?!?!?
 colte: target
 	fpm --input-type dir \
 		--output-type deb \
@@ -66,7 +50,7 @@ colte: target
 		--name colte \
 		--version $(COLTE_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'colte-epc (>= 0.9.3), colte-webservices, haulage, colte-conf' \
+		--depends 'colte-epc, colte-webgui, haulage, colte-conf' \
 		./package/colte/haulage.yml=/usr/local/etc/colte/haulage.yml
 
 conf: target
@@ -89,19 +73,6 @@ conf: target
 		./conf/colte=/usr/bin/ \
 		./conf/colte-tcpdump.service=/etc/systemd/system/colte-tcpdump.service \
 		./conf/config.yml=/usr/local/etc/colte/config.yml
-
-webservices: target
-	fpm --input-type empty \
-		--output-type deb \
-		--force \
-		--vendor uw-ictd \
-		--maintainer sevilla@cs.washington.edu \
-		--description "CoLTE Locally-Hosted Webservices" \
-		--url "https://github.com/uw-ictd/colte" \
-		--name colte-webservices \
-		--version $(WEBSERVICES_VERSION) \
-		--package $(TARGET_DIR) \
-		--depends 'colte-webgui, colte-webadmin'
 
 webgui: target
 	cd webgui; npm install
