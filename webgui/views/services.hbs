@@ -10,4 +10,15 @@
           <p><a href="http://chat.bokondini" class="btn btn-primary btn-sm">{{translate "Chat"}}</a></p>
       </div>
     </div>
+    <div class="card mb-3">
+      <div class="card-header">
+        {{!-- TODO: Add translation of this term! --}}
+        {{translate "Enabled Services"}}
+      </div>
+      <div class="card-body">
+          {{#each service}}
+            <p><a href={{this.url}} class="btn btn-primary btn-sm">{{translate this.serviceName}}</a></p>
+          {{/each}}
+      </div>
+    </div>
 </main>
