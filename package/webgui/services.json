@@ -1,0 +1,10 @@
+{
+    "Google": {
+        "enabled": false,
+        "url": "https://www.google.com"
+    },
+    "YouTube": {
+        "enabled": false,
+        "url": "http://www.youtube.com"
+    }
+}

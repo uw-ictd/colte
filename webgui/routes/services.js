@@ -1,17 +1,20 @@
+/* Local services should be listed and enabled in /usr/local/etc/colte/services.json. 
+  Format of JSON file should be: 
+  {
+    serviceName: {
+      enabled: boolean,
+      url: string
+    }, 
+    ...
+  }
+*/
+
 var express = require('express');
 var router = express.Router();
 var customer = require('../models/customer');
 var app = require('../app');
 
-/* Gets services currently enabled by admin, as specified in 
-/usr/local/etc/colte/services.json. Format of JSON file should be: 
-{
-  serviceName: {
-    enabled: boolean,
-    url: string
-  }, 
-  ...
-}*/
+/* Gets services currently enabled by admin */
 function getEnabledServices(servicesObject) {
   var array = [];
 
