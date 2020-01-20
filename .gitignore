@@ -2,3 +2,5 @@
 **.DS_Store
 lte_extras/media/app/
 BUILD/
+*__pycache__*
+.vscode

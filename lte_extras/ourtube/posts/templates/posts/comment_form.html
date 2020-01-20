@@ -1,0 +1,22 @@
+{% extends "posts/shell.html" %}
+{% load crispy_forms_tags %}
+{% block body %}
+    <div class="fixed-top">
+      <div class="row">
+        <!--Spacing-->
+        <div class="col-md-1"></div>
+        <div class="col-md-8">
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <fieldset>
+              <h3 class=" mb-1">Edit Comment</h3>
+              {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+              <button class="btn btn-outline-info" type="submit">Post Comment</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+{% endblock body %}

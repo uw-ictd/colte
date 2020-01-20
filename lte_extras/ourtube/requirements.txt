@@ -1,0 +1,6 @@
+Django==2.1.7
+django-crispy-forms==1.7.2
+django-ipware==2.1.0
+djangoajax==3.1
+Pillow==5.4.1
+pytz==2018.9

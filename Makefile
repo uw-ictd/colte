@@ -5,6 +5,8 @@ CONF_VERSION=0.9.13
 WEBGUI_VERSION=0.9.11
 WEBADMIN_VERSION=0.9.1
 
+YOUTUBE_VERSION=0.9
+
 TARGET_DIR=./BUILD/
 
 .PHONY: webadmin webgui all
@@ -117,4 +119,25 @@ webadmin: target
 		./webadmin/=/usr/bin/colte-webadmin \
 		./package/webadmin/colte-webadmin.service=/etc/systemd/system/colte-webadmin.service \
 		./package/webadmin/webadmin.env=/usr/local/etc/colte/webadmin.env 
+
+### Locally-Hosted Webservices Start Here ###
+ourtube: target
+	fpm --input-type dir \
+		--output-type deb \
+		--force \
+		--vendor uw-ictd \
+		--config-files /usr/bin/ourtube_data/conf/ourtube.config \
+		--maintainer durandn@cs.washington.edu \
+		--description "Locally-Hosted Open Source Video Sharing App" \
+		--url "https://github.com/uw-ictd/colte" \
+		--name ourtube \
+		--version $(YOUTUBE_VERSION) \
+		--package $(TARGET_DIR) \
+		--depends 'python3, python3-pip' \
+		--after-install ./package/ourtube/postinst \
+		--after-remove ./package/ourtube/postrm \
+		./lte_extras/ourtube/=/usr/bin/ourtube_data \
+		./package/ourtube/ourtube=/usr/bin/ourtube \
+		./package/ourtube/ourtube.service=/etc/systemd/system/ourtube.service \
+		./package/ourtube/ourtube.config=/usr/local/etc/ourtube.config
 

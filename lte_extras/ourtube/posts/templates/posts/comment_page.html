@@ -1,0 +1,65 @@
+{% load crispy_forms_tags %}
+{% for com in object_list %}
+  <article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ com.author.profile.image.url }}">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'user-posts' com.author.username %}">{{ com.author }}</a>
+        <small class="text-muted">{{ com.date_posted|date:"l, F dS, Y, P T" }}</small>
+      </div>
+      <p class="break-words">{{ com.comment }}</p>
+      {% if com.author == user %}
+      <!--Update and Delete Toggle-->
+      <div id='changecomment-toggle-button-{{ com.id }}'>
+        <a class="text-muted" type="button" onclick="hideToggleDual('changecomment-toggle-button-{{ com.id }}','updatecomment-toggle-button-{{ com.id }}')">Edit Comment</a>
+        |
+        <a class="text-muted" type="button" onclick="hideToggleDual('changecomment-toggle-button-{{ com.id }}','deletecomment-toggle-button-{{ com.id }}')">Delete Comment</a>
+      </div>
+
+      <!--Update form-->
+      <div id='updatecomment-toggle-button-{{ com.id }}' style="display:none">
+        <form method="post" class='update-comment-form' value="{{ com.id }}">
+          {% csrf_token %}
+          {{ update_form|crispy }}
+          <button class="btn btn-outline-success" value="{{ com.id }}" type="submit">Confirm Edit</button>
+          <a class="btn btn-outline-secondary" onclick="hideToggleDual('changecomment-toggle-button-{{ com.id }}','updatecomment-toggle-button-{{ com.id }}')">Cancel</a>
+        </form>
+      </div>
+
+      <!--Delete Form-->
+      <div id='deletecomment-toggle-button-{{ com.id }}' style="display:none">
+        <form method="post" class='delete-comment-form' value="{{ com.id }}">
+          {% csrf_token %}
+          {{ delete_form|crispy }}
+          <button class="btn btn-danger" value="{{ com.id }}" type="submit">Confirm Delete</button>
+          <a class="btn btn-outline-secondary" onclick="hideToggleDual('changecomment-toggle-button-{{ com.id }}','deletecomment-toggle-button-{{ com.id }}')">Cancel</a>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+  {% if is_paginated %}
+  <span class="comment-pagination">
+    <!-- Add prev and first links if not already on first -->
+    {% if page_obj.has_previous %}
+      <a class="btn btn-outline-info mb-4 pag-button" name='page' value='1' href="?page=1">First</a>
+      <a class="btn btn-outline-info mb-4 pag-button" name='page' value='{{ page_obj.previous_page_number }}' href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    <!-- Add in pages around the current page -->
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <a class="btn btn-info mb-4 pag-button" name='page' value='{{ num }}' href="?page={{ num }}">{{ num }}</a>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a class="btn btn-outline-info mb-4 pag-button" name='page' value='{{ num }}' href="?page={{ num }}">{{ num }}</a>    
+      {% endif %}
+    {% endfor %}
+
+    <!-- Add in the last if not at the end already -->
+    {% if page_obj.has_next %}
+      <a class="btn btn-outline-info mb-4 pag-button" name='page' value='{{ page_obj.next_page_number }}' href="?page={{ page_obj.next_page_number }}">Next</a>
+      <a class="btn btn-outline-info mb-4 pag-button" name='page' value='{{ page_obj.paginator.num_pages }}' href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+  </span>
+  {% endif %}

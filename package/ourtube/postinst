@@ -1,0 +1,17 @@
+#!/bin/bash
+
+python3 -m pip install virtualenv
+virtualenv -p python3 /usr/bin/ourtube_env
+source /usr/bin/ourtube_env/bin/activate
+python3 -m pip install -r /usr/bin/ourtube_data/requirements.txt
+python3 /usr/bin/ourtube_data/manage.py makemigrations
+python3 /usr/bin/ourtube_data/manage.py makemigrations users
+python3 /usr/bin/ourtube_data/manage.py makemigrations posts
+python3 /usr/bin/ourtube_data/manage.py migrate
+chmod 766 /usr/bin/ourtube_data/db.sqlite3
+echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('Admin', '', 'adminpassword')" | python3 /usr/bin/ourtube_data/manage.py shell
+deactivate
+
+systemctl daemon-reload
+
+echo "Installed OurTube"
