@@ -63,8 +63,6 @@ router.get('/:page', function(req, res, next) {
 
     res.render('users', { 
       translate: app.translate,
-      print_number: app.print_number,
-      convert_bytes: app.convertBytes,
       title: app.translate('Home'),
       customers_list: data.data,
       layout: 'layout',
