@@ -38,15 +38,9 @@ module.exports.translate = function (x) {
   return str;
 }
 
-var commaNumber = require('comma-number');
-module.exports.print_number = function (x) {
-  var str = commaNumber(x);
-  return str;
-}
-
 // global helper function convertBytes:
 // takes int value like "1500" and outputs string "1.0KB"
-module.exports.convertBytes = function (size) {
+function convertBytes(size) {
     if (size < 100) {
       return "0.0 KB";
     }
@@ -60,6 +54,8 @@ module.exports.convertBytes = function (size) {
     return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
 };
 
+module.exports.convertBytes = convertBytes;
+
 // handlebars helper function ifequal is needed because hbs
 // is stupid and provides an extremely limited implementation
 // of #if, only takes one variable input and not two, lolwtf.
@@ -67,6 +63,15 @@ var hbs = require('hbs');
 hbs.registerHelper('ifequal', function (a, b, options) {
     if (a == b) { return options.fn(this); }
     return options.inverse(this);
+});
+
+// Convert bytes to human friendly readable forms.
+hbs.registerHelper('convertBytes', convertBytes);
+// Print numbers with commas for readability.
+var commaNumber = require('comma-number');
+hbs.registerHelper('printNumber', function (x) {
+  var str = commaNumber(x);
+  return str;
 });
 
 // ensure that we can create/read/open the transaction log file
