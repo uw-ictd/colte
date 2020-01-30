@@ -153,6 +153,7 @@ CREATE TABLE `customers` (
   `enabled` tinyint(1) DEFAULT '1',
   `admin` tinyint(1) DEFAULT '0',
   `msisdn` varchar(16) NOT NULL,
+  `username` varchar(64) NOT NULL,
   PRIMARY KEY (`imsi`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
