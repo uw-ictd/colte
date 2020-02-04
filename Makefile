@@ -31,7 +31,7 @@ new_colte: target
 		--config-files /usr/bin/colte-webgui/.env \
 		--config-files /usr/bin/colte-webadmin/.env \
 		--after-install ./package/postinst \
-		--after-remove ./package/postrm \`
+		--after-remove ./package/postrm \
 		--maintainer sevilla@cs.washington.edu \
 		--description "The Community LTE Project" \
 		--url "https://github.com/uw-ictd/colte" \
