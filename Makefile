@@ -12,11 +12,8 @@ TARGET_DIR=./BUILD/
 all: full colte conf webgui webadmin
 
 build_deps:
-	sudo apt-get install ruby ruby-dev rubygems build-essential
+	sudo apt-get install ruby ruby-dev rubygems build-essential default-mysql-client default-mysql-server npm nodejs
 	sudo gem install --no-ri --no-rdoc fpm
-
-web_deps_ubuntu:
-	sudo apt-get install npm nodejs
 
 target:
 	mkdir -p $(TARGET_DIR)
@@ -41,7 +38,8 @@ new_colte: target
 		--name colte \
 		--version $(COLTE_NEW_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'open5gs, haulage, python, nodejs (>= 8.0.0), colte-db (>= 0.9.11)' \
+		--depends 'open5gs, haulage, python, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server' \
+		./package/sample_db.sql=/etc/colte/sample_db.sql \
 		./package/haulage.yml=/etc/colte/haulage.yml \
 		./conf/colteconf.py=/usr/bin/ \
 		./conf/config.yml=/etc/colte/config.yml \
