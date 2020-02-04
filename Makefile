@@ -46,8 +46,8 @@ new_colte: target
 		./webgui/=/usr/bin/colte-webgui \
 		./package/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
 		./package/colte-webadmin.service=/etc/systemd/system/colte-webadmin.service \
-		./package/webgui.env=/usr/local/etc/colte/webgui.env \
-		./package/pricing.json=/usr/local/etc/colte/pricing.json \
+		./package/webgui.env=/etc/colte/webgui.env \
+		./package/pricing.json=/etc/colte/pricing.json \
 		./package/transaction_log.txt=/var/log/colte/transaction_log.txt \
 		./webadmin/=/usr/bin/colte-webadmin \
-		./package/webadmin.env=/usr/local/etc/colte/webadmin.env
+		./package/webadmin.env=/etc/colte/webadmin.env
