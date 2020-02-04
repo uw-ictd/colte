@@ -1,5 +1,5 @@
 
-COLTE_FULL_VERSION=0.10.1
+COLTE_NEW_VERSION=0.10.1
 COLTE_VERSION=0.9.12
 CONF_VERSION=0.9.13
 WEBGUI_VERSION=0.9.11
@@ -31,14 +31,14 @@ new_colte: target
 		--config-files /usr/bin/colte-webgui/.env \
 		--config-files /usr/bin/colte-webadmin/.env \
 		--after-install ./package/postinst \
-		--after-remove ./package/postrm \
+		--after-remove ./package/postrm \`
 		--maintainer sevilla@cs.washington.edu \
 		--description "The Community LTE Project" \
 		--url "https://github.com/uw-ictd/colte" \
 		--name colte \
 		--version $(COLTE_NEW_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'open5gs, haulage, python, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server' \
+		--depends 'python, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server' \
 		./package/sample_db.sql=/etc/colte/sample_db.sql \
 		./package/haulage.yml=/etc/colte/haulage.yml \
 		./conf/colteconf.py=/usr/bin/ \
