@@ -1,5 +1,5 @@
-#!/bin/bash
-
+systemctl stop colte-webgui
 systemctl stop colte-webadmin
 systemctl daemon-reload
-echo "Uninstalled CoLTE WebAdmin"
+
+echo "Uninstalled CoLTE"

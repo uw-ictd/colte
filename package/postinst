@@ -1,6 +1,5 @@
-#!/bin/bash
-
 systemctl daemon-reload
+systemctl start colte-webgui
 systemctl start colte-webadmin
 
-echo "Installed CoLTE WebAdmin"
+echo "Installed CoLTE"
