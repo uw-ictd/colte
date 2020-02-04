@@ -1,1 +1,25 @@
-/usr/bin/colte/roles/configure/vars/main.yml
+# REMEMBER TO CALL "sudo colteconf update" AFTER CHANGING THIS FILE!
+
+# basic network settings
+enb_iface_addr: 1.2.3.4/24
+wan_iface: eth0
+mcc: 910
+mnc: 54
+network_name: bokondini
+
+# advanced EPC settings
+dns: 8.8.8.8
+lte_subnet: 192.168.151.0/24
+
+# database connection settings (for Haulage + WebGui + WebAdmin)
+mysql_user: colte_db
+mysql_password: colte_db
+mysql_db: colte_db
+
+# locally-hosted webservices (CURRENTLY DISABLED)
+#web_services: true
+#media_server: false
+#wikipedia: false
+#mapping_server: false
+#chat_server: false
+#wiki: false
