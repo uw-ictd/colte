@@ -21,7 +21,7 @@ sudo apt-get update
 sudo apt-get -y install colte
 ```
 
-These packages come with sane default configurations that should enable you to start and play around with every component. After installation, the admin tool will be running and listening on [http://localhost:7998](http://localhost:7998), and the user webgui will be running and listening on [http://localhost:7999](http://localhost:7999). You can start or stop these services with `systemctl {start | stop} {colte_webgui | colte_webadmin}`, respectively. Haulage can be started with `sudo haulage` or `sudo systemctl start haulage`. To start Open5Gs, refer to the docs [here] (https://open5gs.org/open5gs/docs/).
+These packages come with sane default configurations that should enable you to start and play around with every component. After installation, the admin tool will be running and listening on [http://localhost:7998](http://localhost:7998), and the user webgui will be running and listening on [http://localhost:7999](http://localhost:7999). You can start or stop these services with `systemctl {start | stop} {colte_webgui | colte_webadmin}`, respectively. Haulage can be started with `sudo haulage` or `sudo systemctl start haulage`. To start Open5Gs, refer to the docs [here](https://open5gs.org/open5gs/docs/).
 
 ### Working With The Source:
 The top-level Makefile will simply compile all source and generate a `.deb` package if you type `make`. If you want to run the webgui or webadmin from source in a terminal, `cd` into the corresponding directory and then do the following:
