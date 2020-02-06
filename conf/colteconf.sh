@@ -1,2 +1,3 @@
 #!/bin/bash
-source ./env
+source /etc/colte/colteconf/env/bin/activate
+python /etc/colte/colteconf/colteconf.py
