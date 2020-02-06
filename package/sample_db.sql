@@ -28,6 +28,7 @@ INSERT INTO `static_ips` VALUES
 DROP TABLE IF EXISTS `customers`;
 CREATE TABLE `customers` (
   `imsi` varchar(16) NOT NULL,
+  `username` varchar(50) DEFAULT NULL,
   `raw_down` bigint(15) unsigned DEFAULT '0',
   `raw_up` bigint(15) unsigned DEFAULT '0',
   `data_balance` bigint(15) DEFAULT '10000000',
@@ -36,7 +37,6 @@ CREATE TABLE `customers` (
   `enabled` tinyint(1) DEFAULT '1',
   `admin` tinyint(1) DEFAULT '0',
   `msisdn` varchar(16) NOT NULL,
-  `username` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`imsi`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
