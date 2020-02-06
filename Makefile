@@ -48,6 +48,6 @@ new_colte: target
 		./package/colte-webadmin.service=/etc/systemd/system/colte-webadmin.service \
 		./package/webgui.env=/etc/colte/webgui.env \
 		./package/pricing.json=/etc/colte/pricing.json \
-		./package/transaction_log.txt=/var/log/colte/transaction_log.txt \
+		./package/transactions_log.txt=/var/log/colte/transactions_log.txt \
 		./webadmin/=/usr/bin/colte-webadmin \
 		./package/webadmin.env=/etc/colte/webadmin.env
