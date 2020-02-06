@@ -1,0 +1,1 @@
+# This file logs all transactions that users make
