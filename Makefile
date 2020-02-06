@@ -41,7 +41,7 @@ new_colte: target
 		--depends 'python, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server' \
 		./package/sample_db.sql=/etc/colte/sample_db.sql \
 		./package/haulage.yml=/etc/colte/haulage.yml \
-		./conf/colteconf.sh=/usr/bin/ \
+		./conf/colteconf.sh=/usr/bin/colteconf.sh \
                 ./conf/colteconf.py=/etc/colte/colteconf/colteconf.py \
                 ./conf/env=/etc/colte/colteconf/env \
 		./conf/config.yml=/etc/colte/config.yml \
