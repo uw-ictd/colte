@@ -7,18 +7,9 @@ WEBADMIN_VERSION=0.9.1
 
 TARGET_DIR=./BUILD/
 
-.PHONY: webadmin webgui all
+.PHONY: all
 
-all: full colte conf webgui webadmin
-
-build_deps:
-	sudo apt-get install ruby ruby-dev rubygems build-essential default-mysql-client default-mysql-server npm nodejs
-	sudo gem install --no-ri --no-rdoc fpm
-
-target:
-	mkdir -p $(TARGET_DIR)
-
-new_colte: target
+all: build_deps
 	cd webgui; npm install
 	cd webadmin; npm install
 	cd webgui; cp production.env .env
@@ -38,7 +29,7 @@ new_colte: target
 		--name colte \
 		--version $(COLTE_NEW_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'python, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server' \
+		--depends 'open5gs, haulage, python, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server' \
 		./package/sample_db.sql=/etc/colte/sample_db.sql \
 		./package/haulage.yml=/etc/colte/haulage.yml \
 		./conf/colteconf.py=/usr/bin/ \
@@ -51,3 +42,8 @@ new_colte: target
 		./package/transactions_log.txt=/var/log/colte/transactions_log.txt \
 		./webadmin/=/usr/bin/colte-webadmin \
 		./package/webadmin.env=/etc/colte/webadmin.env
+
+build_deps:
+	sudo apt-get install ruby ruby-dev rubygems build-essential default-mysql-client default-mysql-server npm nodejs
+	sudo gem install --no-ri --no-rdoc fpm
+	mkdir -p $(TARGET_DIR)
