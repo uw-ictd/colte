@@ -34,7 +34,7 @@ all: build_deps
 		./package/haulage.yml=/etc/colte/haulage.yml \
 		./conf/colteconf.sh=/usr/bin/colteconf \
         ./conf/colteconf.py=/etc/colte/colteconf/colteconf.py \
-        ./conf/env=/etc/colte/colteconf/env \
+        ./conf/env=/etc/colte/colteconf \
 		./conf/config.yml=/etc/colte/config.yml \
 		./webgui/=/usr/bin/colte-webgui \
 		./package/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
