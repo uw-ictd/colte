@@ -33,7 +33,7 @@ all: build_deps
 		./package/sample_db.sql=/etc/colte/sample_db.sql \
 		./package/haulage.yml=/etc/colte/haulage.yml \
 		./conf/colteconf.sh=/usr/bin/colteconf \
-        ./conf/colteconf.py=/etc/colte/colteconf/colteconf.py \
+		./conf/colteconf.py=/etc/colte/colteconf/colteconf.py \
 		./conf/config.yml=/etc/colte/config.yml \
 		./webgui/=/usr/bin/colte-webgui \
 		./package/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
