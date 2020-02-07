@@ -10,12 +10,12 @@ yaml = ruamel.yaml.YAML()
 colte_vars = "/etc/colte/config.yml"
 
 # EPC conf-files
-mme = "/etc/colte/open5gs/mme.yaml"
-pgw = "/etc/colte/open5gs/pgw.yaml"
-sgw = "/etc/colte/open5gs/sgw.yaml"
+mme = "/etc/open5gs/mme.yaml"
+pgw = "/etc/open5gs/pgw.yaml"
+sgw = "/etc/open5gs/sgw.yaml"
 
 # Haulage
-haulage = "/etc/colte/haulage.yaml"
+haulage = "/etc/colte/config.yaml"
 
 # Other files
 nat_script = "/etc/colte/nat_script.sh"
