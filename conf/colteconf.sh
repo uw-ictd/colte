@@ -1,4 +1,7 @@
 #!/bin/bash
-source /etc/colte/colteconf/env/bin/activate
-python /etc/colte/colteconf/colteconf.py
+cd /etc/colte/colteconf
+virtualenv env
+source env/bin/activate
+pip install ruamel.yaml
+python colteconf.py
 exit
