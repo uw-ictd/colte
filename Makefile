@@ -34,7 +34,6 @@ all: build_deps
 		./package/haulage.yml=/etc/colte/haulage.yml \
 		./conf/colteconf.sh=/usr/bin/colteconf \
         ./conf/colteconf.py=/etc/colte/colteconf/colteconf.py \
-        ./conf/env=/etc/colte/colteconf \
 		./conf/config.yml=/etc/colte/config.yml \
 		./webgui/=/usr/bin/colte-webgui \
 		./package/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
@@ -46,6 +45,6 @@ all: build_deps
 		./package/webadmin.env=/etc/colte/webadmin.env
 
 build_deps:
-	sudo apt-get install ruby ruby-dev rubygems build-essential default-mysql-client default-mysql-server npm nodejs
+	sudo apt-get install ruby ruby-dev rubygems build-essential default-mysql-client default-mysql-server npm nodejs python-virtualenv
 	sudo gem install --no-ri --no-rdoc fpm
 	mkdir -p $(TARGET_DIR)
