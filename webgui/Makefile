@@ -7,7 +7,6 @@ TARGET_DIR=./
 fpm:
 	sudo apt-get install ruby ruby-dev rubygems build-essential
 	sudo gem install --no-ri --no-rdoc fpm
-	sudo apt-get install npm nodejs
 
 # this is UBUNTU
 npm_ubuntu:
