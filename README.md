@@ -1,3 +1,6 @@
+| WARNING: Our team is currently migrating codebases from OAI to [open5gs](https://github.com/open5gs/open5gs)! As a result, this code *is not* currently supported and likely *does not* work. More updates to come in a few weeks! - Spencer, 7 Feb 2020. |
+| --- |
+
 # CoLTE
 CoLTE is the Community LTE Project. It is designed to be an all-in-one turnkey solution that sets up a small-scale locally-run LTE network. CoLTE consists of several main elements working together:
 1) An all-in-one software EPC, powered by our [fork] (https://github.com/uw-ictd/openair-cn.git) of OpenAirInterface (OAI).
