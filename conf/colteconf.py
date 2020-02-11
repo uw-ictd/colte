@@ -198,15 +198,15 @@ def update_haulage(colte_data):
         # Save the results
         yaml.dump(haulage_data, file)
 
-def create_fields_if_not_exist(dict, fields):
-    create_fields_helper(dict, fields, 0)
+def create_fields_if_not_exist(dictionary, fields):
+    create_fields_helper(dictionary, fields, 0)
 
-def create_fields_helper(dict, fields, index):
+def create_fields_helper(dictionary, fields, index):
     if index < len(fields):
-        if fields[index] not in dict:
+        if fields[index] not in dictionary:
             dict[fields[index]] = ordereddict()
 
-        create_fields_helper(dict[fields[index]], fields, index + 1)
+        create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
 if __name__== "__main__":
     main()
