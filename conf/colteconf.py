@@ -200,7 +200,6 @@ def update_haulage(colte_data):
 
 def create_fields_if_not_exist(dict, fields):
     create_fields_helper(dict, fields, 0)
-    print(dict, fields)
 
 def create_fields_helper(dict, fields, index):
     if index < len(fields):
