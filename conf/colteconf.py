@@ -86,7 +86,7 @@ def update_mme(colte_data):
         create_fields_if_not_exist(mme_data, ["mme", "gtpc"])
         create_fields_if_not_exist(mme_data, ["sgw", "gtpc"])
         create_fields_if_not_exist(mme_data, ["pgw", "gtpc"])
-        print(mme_data)
+        # print(mme_data)
 
         # MCC values
         mme_data["mme"]["gummei"]["plmn_id"]["mcc"] = colte_data["mcc"]
@@ -203,10 +203,10 @@ def create_fields_if_not_exist(dictionary, fields):
 
 def create_fields_helper(dictionary, fields, index):
     if index < len(fields):
+        print(fields[index])
+        print(dictionary)
         if fields[index] not in dictionary:
             dictionary[fields[index]] = ordereddict()
-            print(fields[index])
-            print(dictionary)
 
         create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
