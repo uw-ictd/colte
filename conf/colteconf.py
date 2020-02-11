@@ -86,7 +86,6 @@ def update_mme(colte_data):
         create_fields_if_not_exist(mme_data, ["mme", "gtpc"])
         create_fields_if_not_exist(mme_data, ["sgw", "gtpc"])
         create_fields_if_not_exist(mme_data, ["pgw", "gtpc"])
-        print(mme_data)
 
         # MCC values
         mme_data["mme"]["gummei"]["plmn_id"]["mcc"] = colte_data["mcc"]
@@ -149,7 +148,6 @@ def update_pgw(colte_data):
         pgw_data["pgw"]["gtpc"].insert(1, {'addr': "::1"})
         pgw_data["pgw"]["gtpu"].insert(0, {'addr': "127.0.0.3"})
         pgw_data["pgw"]["gtpu"].insert(1, {'addr': "::1"})
-        print(pgw_data)
 
     with open(pgw, 'w') as file:
         # Save the results
@@ -168,8 +166,6 @@ def update_sgw(colte_data):
 
         # Hard-coded values
         sgw_data["sgw"]["gtpc"]["addr"] = "127.0.0.2"
-
-        print(sgw_data)
 
     with open(sgw, 'w') as file:
         # Save the results
@@ -190,8 +186,6 @@ def update_haulage(colte_data):
         haulage_data["custom"]["dbUser"] = colte_data["mysql_user"]
         haulage_data["custom"]["dbLocation"] = colte_data["mysql_db"]
         haulage_data["custom"]["dbPass"] = colte_data["mysql_password"]
-
-        print(haulage_data)
 
         # Hard-coded values
         haulage_data["interface"] = "ogstun"
