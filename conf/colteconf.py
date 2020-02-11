@@ -86,7 +86,7 @@ def update_mme(colte_data):
         create_fields_if_not_exist(mme_data, ["mme", "gtpc"])
         create_fields_if_not_exist(mme_data, ["sgw", "gtpc"])
         create_fields_if_not_exist(mme_data, ["pgw", "gtpc"])
-        # print(mme_data)
+        print(mme_data)
 
         # MCC values
         mme_data["mme"]["gummei"]["plmn_id"]["mcc"] = colte_data["mcc"]
@@ -163,12 +163,13 @@ def update_sgw(colte_data):
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(sgw_data, ["sgw", "gtpu"])
         create_fields_if_not_exist(sgw_data, ["sgw", "gtpc"])
-        print(sgw_data)
 
         sgw_data["sgw"]["gtpu"]["addr"] = colte_data["enb_iface_addr"]
 
         # Hard-coded values
         sgw_data["sgw"]["gtpc"]["addr"] = "127.0.0.2"
+
+        print(sgw_data)
 
     with open(sgw, 'w') as file:
         # Save the results
@@ -182,7 +183,6 @@ def update_haulage(colte_data):
 
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(haulage_data, ["custom"])
-        print(haulage_data)
 
         haulage_data["monitoredBlock"] = colte_data["lte_subnet"]
         haulage_data["myIP"] = str(IPNetwork(colte_data["lte_subnet"])[1])
@@ -190,6 +190,8 @@ def update_haulage(colte_data):
         haulage_data["custom"]["dbUser"] = colte_data["mysql_user"]
         haulage_data["custom"]["dbLocation"] = colte_data["mysql_db"]
         haulage_data["custom"]["dbPass"] = colte_data["mysql_password"]
+
+        print(haulage_data)
 
         # Hard-coded values
         haulage_data["interface"] = "ogstun"
@@ -205,8 +207,6 @@ def create_fields_helper(dictionary, fields, index):
     if index < len(fields):
         if fields[index] not in dictionary or dictionary[fields[index]] == None:
             dictionary[fields[index]] = ordereddict()
-            print(fields[index])
-            print(dictionary)
 
         create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
