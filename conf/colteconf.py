@@ -1,4 +1,5 @@
 import ruamel.yaml
+from ruamel.ordereddict import ordereddict
 import fileinput
 import sys
 from netaddr import IPNetwork
@@ -204,7 +205,7 @@ def create_fields_if_not_exist(dict, fields):
 def create_fields_helper(dict, fields, index):
     if index < len(fields):
         if fields[index] not in dict:
-            dict[fields[index]] = {}
+            dict[fields[index]] = ordereddict()
 
         create_fields_helper(dict[fields[index]], fields, index + 1)
 
