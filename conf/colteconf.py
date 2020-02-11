@@ -34,7 +34,7 @@ def main():
         update_haulage(colte_data)
 
         # Update other files
-        update_nat_script(colte_data)
+        # update_nat_script(colte_data)
         update_env_file(webadmin_env, colte_data)
         update_env_file(webgui_env, colte_data)
 
