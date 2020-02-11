@@ -129,7 +129,6 @@ def update_pgw(colte_data):
 
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(pgw_data, ["pgw"])
-        print(pgw_data)
 
         # Set default values of list fields if they do not exist
         if "dns" not in pgw_data["pgw"]:
@@ -150,6 +149,7 @@ def update_pgw(colte_data):
         pgw_data["pgw"]["gtpc"].insert(1, {'addr': "::1"})
         pgw_data["pgw"]["gtpu"].insert(0, {'addr': "127.0.0.3"})
         pgw_data["pgw"]["gtpu"].insert(1, {'addr': "::1"})
+        print(pgw_data)
 
     with open(pgw, 'w') as file:
         # Save the results
