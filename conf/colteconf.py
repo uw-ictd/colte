@@ -204,7 +204,8 @@ def create_fields_if_not_exist(dictionary, fields):
 def create_fields_helper(dictionary, fields, index):
     if index < len(fields):
         if fields[index] not in dictionary:
-            dict[fields[index]] = ordereddict()
+            dictionary[fields[index]] = ordereddict()
+            print(fields[index], dictionary)
 
         create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
