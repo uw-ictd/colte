@@ -16,7 +16,7 @@ pgw = "/etc/open5gs/pgw.yaml"
 sgw = "/etc/open5gs/sgw.yaml"
 
 # Haulage
-haulage = "/etc/colte/config.yaml"
+haulage = "/etc/haulage/config.yaml"
 
 # Other files
 nat_script = "/etc/colte/nat_script.sh"
