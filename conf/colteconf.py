@@ -85,6 +85,7 @@ def update_mme(colte_data):
         create_fields_if_not_exist(mme_data, ["mme", "gtpc"])
         create_fields_if_not_exist(mme_data, ["sgw", "gtpc"])
         create_fields_if_not_exist(mme_data, ["pgw", "gtpc"])
+        print(mme_data)
 
         # MCC values
         mme_data["mme"]["gummei"]["plmn_id"]["mcc"] = colte_data["mcc"]
@@ -127,6 +128,7 @@ def update_pgw(colte_data):
 
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(pgw_data, ["pgw"])
+        print(pgw_data)
 
         # Set default values of list fields if they do not exist
         if "dns" not in pgw_data["pgw"]:
@@ -160,6 +162,7 @@ def update_sgw(colte_data):
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(sgw_data, ["sgw", "gtpu"])
         create_fields_if_not_exist(sgw_data, ["sgw", "gtpc"])
+        print(sgw_data)
 
         sgw_data["sgw"]["gtpu"]["addr"] = colte_data["enb_iface_addr"]
 
@@ -178,6 +181,7 @@ def update_haulage(colte_data):
 
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(haulage_data, ["custom"])
+        print(haulage_data)
 
         haulage_data["monitoredBlock"] = colte_data["lte_subnet"]
         haulage_data["myIP"] = str(IPNetwork(colte_data["lte_subnet"])[1])
@@ -195,6 +199,7 @@ def update_haulage(colte_data):
 
 def create_fields_if_not_exist(dict, fields):
     create_fields_helper(dict, fields, 0)
+    print(dict, fields)
 
 def create_fields_helper(dict, fields, index):
     if index < len(fields):
