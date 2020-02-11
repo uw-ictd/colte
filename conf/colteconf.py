@@ -77,6 +77,15 @@ def update_mme(colte_data):
     with open(mme, 'r+') as file:
         mme_data = yaml.load(file.read())
 
+        # Create fields in the data if they do not yet exist
+        create_fields_if_not_exist(mme_data, ["mme", "gummei", "plmn_id"])
+        create_fields_if_not_exist(mme_data, ["mme", "tai", "plmn_id"])
+        create_fields_if_not_exist(mme_data, ["mme", "s1ap"])
+        create_fields_if_not_exist(mme_data, ["mme", "network_name"])
+        create_fields_if_not_exist(mme_data, ["mme", "gtpc"])
+        create_fields_if_not_exist(mme_data, ["sgw", "gtpc"])
+        create_fields_if_not_exist(mme_data, ["pgw", "gtpc"])
+
         # MCC values
         mme_data["mme"]["gummei"]["plmn_id"]["mcc"] = colte_data["mcc"]
         mme_data["mme"]["tai"]["plmn_id"]["mcc"] = colte_data["mcc"]
@@ -103,16 +112,37 @@ def update_pgw(colte_data):
     with open(pgw, 'r+') as file:
         pgw_data = yaml.load(file.read())
 
-        del pgw_data["pgw"]["dns"][:]
-        del pgw_data["pgw"]["ue_pool"][:]
+        # Safe deletions
+        if "pgw" in pgw_data and "dns" in pgw_data["pgw"]:
+            del pgw_data["pgw"]["dns"][:]
+
+        if "pgw" in pgw_data and "ue_pool" in pgw_data["pgw"]:
+            del pgw_data["pgw"]["ue_pool"][:]
+
+        if "pgw" in pgw_data and "gtpc" in pgw_data["pgw"]:
+            del pgw_data["pgw"]["gtpc"][:]
+        
+        if "pgw" in pgw_data and "gtpu" in pgw_data["pgw"]:
+            del pgw_data["pgw"]["gtpu"][:]
+
+        # Create fields in the data if they do not yet exist
+        create_fields_if_not_exist(pgw_data, ["pgw"])
+
+        # Set default values of list fields if they do not exist
+        if "dns" not in pgw_data["pgw"]:
+            pgw_data["pgw"]["dns"] = []
+
+        if "ue_pool" not in pgw_data["pgw"]:
+            pgw_data["pgw"]["ue_pool"] = []
+
+        if "gtpc" not in pgw_data["pgw"]:
+            pgw_data["pgw"]["gtpc"] = []
+
+        if "gtpu" not in pgw_data["pgw"]:
+            pgw_data["pgw"]["gtpu"] = []
 
         pgw_data["pgw"]["dns"].append(colte_data["dns"])
         pgw_data["pgw"]["ue_pool"].append(colte_data["lte_subnet"])
-
-        # Hard-coded values
-        del pgw_data["pgw"]["gtpc"][:]
-        del pgw_data["pgw"]["gtpu"][:]
-
         pgw_data["pgw"]["gtpc"].insert(0, {'addr': "127.0.0.3"})
         pgw_data["pgw"]["gtpc"].insert(1, {'addr': "::1"})
         pgw_data["pgw"]["gtpu"].insert(0, {'addr': "127.0.0.3"})
@@ -127,7 +157,12 @@ def update_sgw(colte_data):
     with open(sgw, 'r') as file:
         sgw_data = yaml.load(file.read())
 
+        # Create fields in the data if they do not yet exist
+        create_fields_if_not_exist(sgw_data, ["sgw", "gtpu"])
+        create_fields_if_not_exist(sgw_data, ["sgw", "gtpc"])
+        
         sgw_data["sgw"]["gtpu"]["addr"] = colte_data["enb_iface_addr"]
+
         # Hard-coded values
         sgw_data["sgw"]["gtpc"]["addr"] = "127.0.0.2"
 
@@ -140,6 +175,9 @@ def update_haulage(colte_data):
     haulage_data = {}
     with open(haulage, 'r') as file:
         haulage_data = yaml.load(file.read())
+
+        # Create fields in the data if they do not yet exist
+        create_fields_if_not_exist(haulage_data, ["custom"])
 
         haulage_data["monitoredBlock"] = colte_data["lte_subnet"]
         haulage_data["myIP"] = str(IPNetwork(colte_data["lte_subnet"])[1])
@@ -154,6 +192,16 @@ def update_haulage(colte_data):
     with open(haulage, 'w') as file:
         # Save the results
         yaml.dump(haulage_data, file)
+
+def create_fields_if_not_exist(dict, fields):
+    create_fields_helper(dict, fields, 0)
+
+def create_fields_helper(dict, fields, index):
+    if index < len(fields):
+        if fields[index] not in dict:
+            dict[fields[index]] = {}
+
+        create_fields(dict[fields[index]], fields, index + 1)
 
 if __name__== "__main__":
     main()
