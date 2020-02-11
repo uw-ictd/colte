@@ -160,7 +160,7 @@ def update_sgw(colte_data):
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(sgw_data, ["sgw", "gtpu"])
         create_fields_if_not_exist(sgw_data, ["sgw", "gtpc"])
-        
+
         sgw_data["sgw"]["gtpu"]["addr"] = colte_data["enb_iface_addr"]
 
         # Hard-coded values
@@ -201,7 +201,7 @@ def create_fields_helper(dict, fields, index):
         if fields[index] not in dict:
             dict[fields[index]] = {}
 
-        create_fields(dict[fields[index]], fields, index + 1)
+        create_fields_helper(dict[fields[index]], fields, index + 1)
 
 if __name__== "__main__":
     main()
