@@ -205,7 +205,8 @@ def create_fields_helper(dictionary, fields, index):
     if index < len(fields):
         if fields[index] not in dictionary:
             dictionary[fields[index]] = ordereddict()
-            print(fields[index], dictionary)
+            print(fields[index])
+            print(dictionary)
 
         create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
