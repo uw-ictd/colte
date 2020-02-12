@@ -32,6 +32,8 @@ all: build_deps
 		--depends 'python, python-virtualenv, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server' \
 		./package/sample_db.sql=/etc/colte/sample_db.sql \
 		./package/haulage.yml=/etc/colte/haulage.yml \
+		./conf/coltenat.sh=/usr/bin/coltenat \
+		./package/colte-nat.service=/etc/systemd/system/colte-nat.service \
 		./conf/colteconf.sh=/usr/bin/colteconf \
 		./conf/colteconf.py=/etc/colte/colteconf/colteconf.py \
 		./conf/config.yml=/etc/colte/config.yml \
