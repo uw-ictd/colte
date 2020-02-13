@@ -4,7 +4,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 if [ "$EUID" -ne 0 ]; then
-    echo "colteconf: ${RED}error:${NC} Must run as root!"
+    printf "colteconf: ${RED}error:${NC} Must run as root!"
     exit 1;
 fi
 
