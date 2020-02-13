@@ -19,7 +19,7 @@ sgw = "/etc/open5gs/sgw.yaml"
 haulage = "/etc/haulage/config.yml"
 
 # Other files
-colte_nat_script = "/etc/colte/conf/coltenat.sh"
+colte_nat_script = "/usr/bin/coltenat"
 nat_script = "/etc/colte/nat_script.sh"
 network_vars = "/etc/systemd/network/99-open5gs.network"
 webgui_env = "/etc/colte/webgui.env"
