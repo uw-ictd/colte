@@ -80,10 +80,13 @@ def replaceAll(file, searchExp, replaceExp, replace_once):
     is_replaced = False
     for line in fileinput.input(file, inplace=1):
         if searchExp in line:
-            if replace_once and not is_replaced:
-                line = replaceExp
-                is_replaced = True
-            elif not replace_once:
+            if replace_once:
+                if not is_replaced:
+                    line = replaceExp
+                    is_replaced = True
+                else:
+                    line = ""
+            else:
                 line = replaceExp
         sys.stdout.write(line)
 
