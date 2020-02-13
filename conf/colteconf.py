@@ -19,7 +19,9 @@ sgw = "/etc/open5gs/sgw.yaml"
 haulage = "/etc/haulage/config.yml"
 
 # Other files
+colte_nat_script = "/etc/colte/conf/coltenat.sh"
 nat_script = "/etc/colte/nat_script.sh"
+network_vars = "/etc/systemd/network/99-open5gs.network"
 webgui_env = "/etc/colte/webgui.env"
 webadmin_env = "/etc/colte/webadmin.env"
 
@@ -36,6 +38,8 @@ def main():
 
         # Update other files
         # update_nat_script(colte_data)
+        update_colte_nat_script(colte_data)
+        update_network_vars(colte_data)
         update_env_file(webadmin_env, colte_data)
         update_env_file(webgui_env, colte_data)
 
@@ -63,13 +67,24 @@ def update_env_file(file_name, colte_data):
         file.write(new_text)
 
 def update_nat_script(colte_data):
-    replaceAll(nat_script, "ip addr add", "sudo ip addr add " + colte_data["lte_subnet"] + " dev ogstun\n")
-    replaceAll(nat_script, "POSTROUTING", "sudo iptables -t nat -A POSTROUTING -o " + colte_data["wan_iface"] + " -j MASQUERADE\n")
+    replaceAll(nat_script, "ip addr add", "sudo ip addr add " + colte_data["lte_subnet"] + " dev ogstun\n", False)
+    replaceAll(nat_script, "POSTROUTING", "sudo iptables -t nat -A POSTROUTING -o " + colte_data["wan_iface"] + " -j MASQUERADE\n", False)
 
-def replaceAll(file,searchExp,replaceExp):
+def update_colte_nat_script(colte_data):
+    replaceAll(colte_nat_script, "ADDRESS=", "ADDRESS=" + colte_data["lte_subnet"]+ "\n", False)
+
+def update_network_vars(colte_data):
+    replaceAll(network_networks, "Address=", "Address=" + colte_data["lte_subnet"]+ "\n", True)
+
+def replaceAll(file, searchExp, replaceExp, replace_once):
+    is_replaced = False
     for line in fileinput.input(file, inplace=1):
         if searchExp in line:
-            line = replaceExp
+            if replace_once and not is_replaced:
+                line = replaceExp
+                is_replaced = True
+            elif not replace_once:
+                line = replaceExp
         sys.stdout.write(line)
 
 def update_mme(colte_data):
