@@ -9,9 +9,9 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 cd /etc/colte/colteconf
-sudo virtualenv env
+virtualenv env
 source env/bin/activate
-sudo pip install ruamel.yaml
-sudo pip install netaddr
+pip install ruamel.yaml
+pip install netaddr
 python colteconf.py
 systemctl restart systemd-networkd
