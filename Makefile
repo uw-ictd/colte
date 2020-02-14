@@ -29,7 +29,7 @@ all: build_deps
 		--name colte \
 		--version $(COLTE_NEW_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'python, python-virtualenv, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server' \
+		--depends 'open5gs, haulage, python, python-virtualenv, python-pip, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server' \
 		./package/sample_db.sql=/etc/colte/sample_db.sql \
 		./package/haulage.yml=/etc/colte/haulage.yml \
 		./conf/coltenat.sh=/usr/bin/coltenat \
