@@ -15,4 +15,3 @@ sudo pip install ruamel.yaml
 sudo pip install netaddr
 python colteconf.py
 systemctl restart systemd-networkd
-exit
