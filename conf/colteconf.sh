@@ -14,4 +14,5 @@ source env/bin/activate
 pip install ruamel.yaml
 pip install netaddr
 python colteconf.py
-systemctl restart systemd-networkd
+# this command is still necessary but currently conflicts with open5gs-pgwd
+#systemctl restart systemd-networkd
