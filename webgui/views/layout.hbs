@@ -47,10 +47,12 @@
 	    <li class="nav-item"><a style="font-size:12px" class="nav-link" href="/status">{{translate "Account"}}</a></li>
 	    <li class="nav-item"><a style="font-size:12px" class="nav-link" href="/transfer">{{translate "Transfer"}}</a></li>
 	    <li class="nav-item"><a style="font-size:12px" class="nav-link" href="/purchase">{{translate "Purchase"}}</a></li>
-<!--       {{#if admin }}
+<!--  {{#if admin }}
       <li class="nav-item"><a style="font-size:12px" class="nav-link" href="/admin">{{translate "Admin"}}</a></li> 
+      {{/if}} -->
+      {{#if services }}
+	    <li class="nav-item"><a style="font-size:12px" class="nav-link" href="/services">{{translate "Free Services"}}</a></li>
       {{/if}}
-	    <li class="nav-item"><a style="font-size:12px" class="nav-link" href="/services">{{translate "Free Services"}}</a></li> -->
     </ul>
     {{{body}}}
   </body>
