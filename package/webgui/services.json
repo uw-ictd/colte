@@ -1,10 +1,10 @@
 {
-    "Google": {
-        "enabled": false,
-        "url": "https://www.google.com"
+    "Wikipedia": {
+        "enabled": true,
+        "url": "https://www.wikipedia.org/"
     },
-    "YouTube": {
+    "OpenStreetMaps": {
         "enabled": false,
-        "url": "http://www.youtube.com"
+        "url": "https://www.openstreetmap.org/"
     }
 }

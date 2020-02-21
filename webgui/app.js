@@ -77,6 +77,12 @@ fs.appendFile(transaction_log, "", function(err) {
 var content = fs.readFileSync("pricing.json");
 module.exports.pricing = JSON.parse(content);
 
+// read JSON file with links to free local services (optional)
+if (process.env.ENABLED_SERVICES) {
+  var file = fs.readFileSync(process.env.ENABLED_SERVICES);
+  module.exports.services = JSON.parse(file);
+}
+
 // setup routes (i.e. a request for /home goes to /routes/home.js)
 fs.readdirSync('./routes').forEach(function(file) {
   if (file.substr(-3) == '.js') {

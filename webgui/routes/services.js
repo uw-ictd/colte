@@ -41,10 +41,7 @@ router.get('/', function(req, res, next) {
     // raw_down_str = convertBytes(data[0].raw_down);
     // data_balance_str = convertBytes(data[0].data_balance);
 
-    var services = process.env.ENABLED_SERVICES === "" ? 
-        {} : JSON.parse(process.env.ENABLED_SERVICES);
-
-    var enabledServices = getEnabledServices(services);
+    var enabledServices = getEnabledServices(app.services);
 
     res.render('services', {
       translate: app.translate,

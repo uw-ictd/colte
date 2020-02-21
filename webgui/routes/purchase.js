@@ -17,6 +17,7 @@ router.get('/', function(req, res, next) {
       balance: data[0].balance,
       admin: data[0].admin,
       pack: app.pricing.packages,
+      services: app.services,
     });
   });
 });

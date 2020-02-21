@@ -22,6 +22,7 @@ router.get('/', function(req, res, next) {
       data_balance_str: data_balance_str,
       msisdn: data[0].msisdn,
       admin: data[0].admin,
+      services: app.services,
     });
   });
 });

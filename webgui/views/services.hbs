@@ -1,23 +1,12 @@
 <main role="main" class="container">
     <div class="card mb-3">
       <div class="card-header">
-        {{translate "Free Services"}}
-      </div>
-      <div class="card-body">
-          <p><a href="http://media.bokondini" class="btn btn-primary btn-sm">{{translate "Movies"}}</a></p>
-          <p><a href="http://wiki.bokondini" class="btn btn-primary btn-sm">Wikipedia</a></p>
-          <p><a href="http://maps.bokondini" class="btn btn-primary btn-sm">{{translate "Maps"}}</a></p>
-          <p><a href="http://chat.bokondini" class="btn btn-primary btn-sm">{{translate "Chat"}}</a></p>
-      </div>
-    </div>
-    <div class="card mb-3">
-      <div class="card-header">
         {{!-- TODO: Add translation of this term! --}}
-        {{translate "Enabled Services"}}
+        {{translate "Free Web Services"}}
       </div>
       <div class="card-body">
-          {{#each service}}
-            <p><a href={{this.url}} class="btn btn-primary btn-sm">{{translate this.serviceName}}</a></p>
+          {{#each services}}
+            <p><a href={{this.url}} class="btn btn-primary btn-sm">{{this.serviceName}}</a></p>
           {{/each}}
       </div>
     </div>
