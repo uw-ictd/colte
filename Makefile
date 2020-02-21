@@ -2,7 +2,7 @@
 COLTE_FULL_VERSION=0.10.1
 COLTE_VERSION=0.9.12
 CONF_VERSION=0.9.13
-WEBGUI_VERSION=0.9.11
+WEBGUI_VERSION=0.9.12
 WEBADMIN_VERSION=0.9.1
 
 TARGET_DIR=./BUILD/
@@ -95,6 +95,7 @@ webgui: target
 		./package/webgui/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
 		./package/webgui/webgui.env=/usr/local/etc/colte/webgui.env \
 		./package/webgui/pricing.json=/usr/local/etc/colte/pricing.json \
+		./package/webgui/services.json=/usr/local/etc/colte/services.json \
 		./package/webgui/transaction_log.txt=/var/log/colte/transaction_log.txt 
 
 webadmin: target

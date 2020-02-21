@@ -1,0 +1,10 @@
+{
+    "Wikipedia": {
+        "enabled": true,
+        "url": "https://www.wikipedia.org/"
+    },
+    "OpenStreetMaps": {
+        "enabled": false,
+        "url": "https://www.openstreetmap.org/"
+    }
+}
