@@ -74,7 +74,7 @@ def update_colte_nat_script(colte_data):
     replaceAll(colte_nat_script, "ADDRESS=", "ADDRESS=" + colte_data["lte_subnet"]+ "\n", False)
 
 def update_network_vars(colte_data):
-    replaceAll(network_networks, "Address=", "Address=" + colte_data["lte_subnet"]+ "\n", True)
+    replaceAll(network_vars, "Address=", "Address=" + colte_data["lte_subnet"]+ "\n", True)
 
 def replaceAll(file, searchExp, replaceExp, replace_once):
     is_replaced = False
