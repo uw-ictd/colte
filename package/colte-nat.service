@@ -4,8 +4,8 @@ After=networking.service
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash/coltenat start
-ExecStop=/bin/bash/coltenat stop
+ExecStart=/usr/bin/coltenat start
+ExecStop=/usr/bin/coltenat stop
 User=root
 Group=root
 RemainAfterExit=true

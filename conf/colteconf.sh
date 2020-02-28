@@ -10,7 +10,8 @@ fi
 
 # we need to teardown the colte-nat BEFORE we rewrite the script
 restarted_nat=0
-if [ !`systemctl is-active --quiet colte-nat` ]; then
+systemctl is-active --quiet colte-nat
+if [ $? -eq 0 ]; then
         systemctl stop colte-nat
         restarted_nat=1
 fi
@@ -25,44 +26,62 @@ python colteconf.py
 # Now: restart services that were already running
 
 # open5gs
-if [ !`systemctl is-active --quiet open5gs-hssd` ]; then
-        systemctl restart open5gs-hssd
+systemctl is-active --quiet open5gs-hssd
+if [ $? -eq 0 ]; then
+    echo "restarting open5gs-hssd"
+    systemctl restart open5gs-hssd
 fi
 
-if [ !`systemctl is-active --quiet open5gs-mmed` ]; then
-        systemctl restart open5gs-mmed
+systemctl is-active --quiet open5gs-mmed
+if [ $? -eq 0 ]; then
+    echo "restarting open5gs-mmed"
+    systemctl restart open5gs-mmed
 fi
 
-if [ !`systemctl is-active --quiet open5gs-sgwd` ]; then
-        systemctl restart open5gs-sgwd
+systemctl is-active --quiet open5gs-sgwd
+if [ $? -eq 0 ]; then
+    echo "restarting open5gs-sgwd"
+    systemctl restart open5gs-sgwd
 fi
 
-if [ !`systemctl is-active --quiet open5gs-pgwd` ]; then
-        systemctl restart open5gs-pgwd
+systemctl is-active --quiet open5gs-pgwd
+if [ $? -eq 0 ]; then
+    echo "restarting open5gs-pgwd"
+    systemctl restart open5gs-pgwd
 fi
 
-if [ !`systemctl is-active --quiet open5gs-pcrfd` ]; then
-        systemctl restart open5gs-pcrfd
+systemctl is-active --quiet open5gs-pcrfd
+if [ $? -eq 0 ]; then
+    echo "restarting open5gs-pcrfd"
+    systemctl restart open5gs-pcrfd
 fi
 
 # haulage
-if [ !`systemctl is-active --quiet haulage` ]; then
-        systemctl restart haulage
+systemctl is-active --quiet haulage
+if [ $? -eq 0 ]; then
+    echo "restarting haulage"
+    systemctl restart haulage
 fi
 
 # colte services
-if [ !`systemctl is-active --quiet colte-webgui` ]; then
-        systemctl restart colte-webgui
+systemctl is-active --quiet colte-webgui
+if [ $? -eq 0 ]; then
+    echo "restarting colte-webgui"
+    systemctl restart colte-webgui
 fi
 
-if [ !`systemctl is-active --quiet colte-webadmin` ]; then
-        systemctl restart colte-webadmin
+systemctl is-active --quiet colte-webadmin
+if [ $? -eq 0 ]; then
+    echo "restarting colte-webadmin"
+    systemctl restart colte-webadmin
 fi
 
 # always restart systemd-networkd
+echo "restarting systemd-networkd"
 systemctl restart systemd-networkd
 
 # colte-nat teardown/restart
 if [ restarted_nat ]; then
+    echo "restarting colte-nat"
 	systemctl start colte-nat
 fi
