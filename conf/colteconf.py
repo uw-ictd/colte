@@ -1,5 +1,5 @@
 import ruamel.yaml
-from ruamel.yaml.comments import CommentedMap as OrderedDict
+from ruamel.yaml.comments import CommentedMap as ordereddict
 import fileinput
 import sys
 from netaddr import IPNetwork
