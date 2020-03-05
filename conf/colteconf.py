@@ -1,5 +1,5 @@
 import ruamel.yaml
-from ruamel.yaml.comments import CommentedMap as ordereddict
+from ruamel.yaml.comments import CommentedMap
 import fileinput
 import sys
 from netaddr import IPNetwork
@@ -218,7 +218,7 @@ def create_fields_if_not_exist(dictionary, fields):
 def create_fields_helper(dictionary, fields, index):
     if index < len(fields):
         if fields[index] not in dictionary or dictionary[fields[index]] == None:
-            dictionary[fields[index]] = ordereddict()
+            dictionary[fields[index]] = CommentedMap()
 
         create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
