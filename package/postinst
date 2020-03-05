@@ -20,4 +20,10 @@ systemctl daemon-reload
 systemctl start colte-webgui
 systemctl start colte-webadmin
 
+# Set up the environment for the colteconf script
+cd /etc/colte/colteconf
+virtualenv env
+pip install ruamel.yaml
+pip install netaddr
+
 echo "Installed CoLTE"

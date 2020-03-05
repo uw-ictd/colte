@@ -17,10 +17,7 @@ if [ $? -eq 0 ]; then
 fi
 
 cd /etc/colte/colteconf
-virtualenv env
 source env/bin/activate
-pip install ruamel.yaml
-pip install netaddr
 python colteconf.py
 
 # Now: restart services that were already running
