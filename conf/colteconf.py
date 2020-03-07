@@ -6,6 +6,7 @@ from netaddr import IPNetwork
 
 # This version saves comments/edits in YAML files
 yaml = ruamel.yaml.YAML()
+yaml.indent(sequence=4, mapping=2, offset=2)
 
 # Input
 colte_vars = "/etc/colte/config.yml"
@@ -147,16 +148,13 @@ def update_pgw(colte_data):
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(pgw_data, ["pgw"])
 
-        # Set default values of list fields if they do not exist
+        # Set default values of list fields
         if "dns" not in pgw_data["pgw"]:
             pgw_data["pgw"]["dns"] = []
-
         if "ue_pool" not in pgw_data["pgw"]:
             pgw_data["pgw"]["ue_pool"] = []
-
         if "gtpc" not in pgw_data["pgw"]:
             pgw_data["pgw"]["gtpc"] = []
-
         if "gtpu" not in pgw_data["pgw"]:
             pgw_data["pgw"]["gtpu"] = []
 
