@@ -12,9 +12,9 @@ dns: 8.8.8.8
 lte_subnet: 192.168.151.0/24
 
 # database connection settings (for Haulage + WebGui + WebAdmin)
-mysql_user: colte_db
-mysql_password: colte_db
-mysql_db: colte_db
+mysql_user: haulage_db
+mysql_password: haulage_db
+mysql_db: haulage_db
 
 # locally-hosted webservices (CURRENTLY DISABLED)
 #web_services: true
