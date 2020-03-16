@@ -38,7 +38,6 @@ def main():
         update_haulage(colte_data)
 
         # Update other files
-        # update_nat_script(colte_data)
         update_colte_nat_script(colte_data)
         update_network_vars(colte_data)
         update_env_file(webadmin_env, colte_data)
@@ -67,15 +66,11 @@ def update_env_file(file_name, colte_data):
     with open(file_name, 'w') as file:
         file.write(new_text)
 
-def update_nat_script(colte_data):
-    replaceAll(nat_script, "ip addr add", "sudo ip addr add " + colte_data["lte_subnet"] + " dev ogstun\n", False)
-    replaceAll(nat_script, "POSTROUTING", "sudo iptables -t nat -A POSTROUTING -o " + colte_data["wan_iface"] + " -j MASQUERADE\n", False)
-
 def update_colte_nat_script(colte_data):
     replaceAll(colte_nat_script, "ADDRESS=", "ADDRESS=" + colte_data["lte_subnet"]+ "\n", False)
 
 def update_network_vars(colte_data):
-    replaceAll(network_vars, "Address=", "Address=" + colte_data["lte_subnet"]+ "\n", True)
+    replaceAll(network_vars, "Address=", "Address=" + str(IPNetwork(colte_data["lte_subnet"])[1]) + "\n", True)
 
 def replaceAll(file, searchExp, replaceExp, replace_once):
     is_replaced = False
@@ -197,7 +192,7 @@ def update_haulage(colte_data):
         create_fields_if_not_exist(haulage_data, ["custom"])
 
         haulage_data["monitoredBlock"] = colte_data["lte_subnet"]
-        haulage_data["myIP"] = str(IPNetwork(colte_data["lte_subnet"])[1])
+        # haulage_data["myIP"] = str(IPNetwork(colte_data["lte_subnet"])[1])
 
         haulage_data["custom"]["dbUser"] = colte_data["mysql_user"]
         haulage_data["custom"]["dbLocation"] = colte_data["mysql_db"]

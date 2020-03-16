@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ADDRESS='45.45.0.0/16'
+ADDRESS='10.45.0.0/16'
 
 if [ "$EUID" -ne 0 ]; then
 	echo "coltenat: Must run as root!"
