@@ -37,6 +37,7 @@ all: build_deps
 		./conf/colteconf.sh=/usr/bin/colteconf \
 		./conf/coltedb.sh=/usr/bin/coltedb \
 		./conf/scripts.py=/etc/colte/scripts.py \
+		./conf/open5gs_dbconf.sh=/etc/colte/colte_open5gsdb \
 		./conf/config.yml=/etc/colte/config.yml \
 		./webgui/=/usr/bin/colte-webgui \
 		./package/colte-webgui.service=/etc/systemd/system/colte-webgui.service \

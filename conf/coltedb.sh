@@ -40,7 +40,7 @@ if [ "$1" = "add" ]; then
 	ip=$3
 	ki=$4
 	opc=$5
-	open5gsdb add $imsi $ip $ki $opc
+	/etc/colte/open5gsdb add $imsi $ip $ki $opc
 	if [ $? = 0 ]; then
 		haulagedb add $imsi $msisdn $ip
 	fi
@@ -55,7 +55,7 @@ if [ "$1" = "remove" ]; then
 	fi
 
 	imsi=$1
-	open5gsdb remove $imsi
+	/etc/colte/open5gsdb remove $imsi
 	haulagedb remove $imsi
 
 	exit 0
