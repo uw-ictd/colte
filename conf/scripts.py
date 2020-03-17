@@ -26,7 +26,19 @@ network_vars = "/etc/systemd/network/99-open5gs.network"
 webgui_env = "/etc/colte/webgui.env"
 webadmin_env = "/etc/colte/webadmin.env"
 
-def main():
+if (len(sys.argv) <= 1):
+    exit(1)
+
+command = sys.argv[1]
+
+if (command == "conf"):
+    conf_main()
+elif (command == "db"):
+    db_main()
+else:
+    exit(1)
+
+def conf_main():
     # Read old vars
     with open(colte_vars, 'r') as file:
         colte_data = yaml.load(file.read())
@@ -42,6 +54,70 @@ def main():
         update_network_vars(colte_data)
         update_env_file(webadmin_env, colte_data)
         update_env_file(webgui_env, colte_data)
+
+def db_main():
+    # Read old vars
+    with open(colte_vars, 'r') as file:
+        colte_data = yaml.load(file.read())
+
+    dbname = colte_data["mysql_db"]
+    db_user = colte_data["mysql_user"]
+    db_pass = colte_data["mysql_password"]
+    db = MySQLdb.connect(host="localhost",
+                         user=db_user,
+                         passwd=db_pass,
+                         db=dbname)
+    cursor = db.cursor()
+
+    operator = sys.argv[2]
+
+    if (operator == "topup"):
+        imsi = sys.argv[3]
+        amount = decimal.Decimal(sys.argv[4])
+        old_balance = 0
+        new_balance = 0
+
+        commit_str = "SELECT balance FROM customers WHERE imsi = " + imsi + " FOR UPDATE"
+        numrows = cursor.execute(commit_str)
+        if (numrows == 0):
+            print "coltedb error: imsi " + str(imsi) + " does not exist!"
+            exit(1)
+
+        for row in cursor:
+            old_balance = decimal.Decimal(row[0])
+            new_balance = amount + old_balance
+
+        # STEP TWO: prompt for confirmation
+        promptstr = "coltedb: topup user " + str(imsi) + " add " + str(amount) + " to current balance " + str(old_balance) + " to create new balance " + str(new_balance) + "? [Y/n] "
+        while True:
+            answer = raw_input(promptstr)
+            if (answer == 'y' or answer == 'Y' or answer == ''):
+                print "coltedb: updating user " + str(imsi) + " setting new balance to " + str(new_balance)
+                commit_str = "UPDATE customers SET balance = " + str(new_balance) + " WHERE imsi = " + imsi
+                cursor.execute(commit_str)
+                break
+            if (answer == 'n' or answer == 'N'):
+                print "coltedb: cancelling topup operation\n"
+                break
+
+    elif (operator == "admin"):
+        imsi = sys.argv[3]
+        print "coltedb: giving admin privileges to user " + str(imsi)
+        commit_str = "UPDATE customers SET admin = 1 WHERE imsi = " + imsi
+        cursor.execute(commit_str)
+
+    elif (operator == "noadmin"):
+        imsi = sys.argv[3]
+        print "coltedb: removing admin privileges from user " + str(imsi)
+        commit_str = "UPDATE customers SET admin = 0 WHERE imsi = " + imsi
+        cursor.execute(commit_str)
+
+    else:
+        exit(1)
+
+    db.commit()
+    cursor.close()
+    db.close()
 
 def update_env_file(file_name, colte_data):
     env_data = {}
@@ -215,5 +291,3 @@ def create_fields_helper(dictionary, fields, index):
 
         create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
-if __name__== "__main__":
-    main()

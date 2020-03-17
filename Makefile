@@ -36,7 +36,7 @@ all: build_deps
 		./package/colte-nat.service=/etc/systemd/system/colte-nat.service \
 		./conf/colteconf.sh=/usr/bin/colteconf \
 		./conf/coltedb.sh=/usr/bin/coltedb \
-		./conf/colteconf.py=/etc/colte/colteconf.py \
+		./conf/scripts.py=/etc/colte/scripts.py \
 		./conf/config.yml=/etc/colte/config.yml \
 		./webgui/=/usr/bin/colte-webgui \
 		./package/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
