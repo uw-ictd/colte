@@ -16,7 +16,7 @@ if [ $? -eq 0 ]; then
         restarted_nat=1
 fi
 
-python /etc/colte/colteconf.py
+python /etc/colte/scripts.py conf
 
 # Now: restart services that were already running
 
