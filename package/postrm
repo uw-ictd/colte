@@ -4,14 +4,5 @@
 systemctl stop colte-webgui
 systemctl stop colte-webadmin
 systemctl daemon-reload
-  
-# Database: remove database and user ONLY if purging
-if [ "$1" = purge ]; then
-	# remove colte_db user and database
-	sudo mysql -e "DROP DATABASE IF EXISTS colte_db;"
-	sudo mysql -e "DROP USER IF EXISTS colte_db@localhost;"
-	sudo mysql -e "FLUSH PRIVILEGES;"
-	echo "Purged colte_db user and database"
-fi
 
 echo "Uninstalled CoLTE"
