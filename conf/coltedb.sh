@@ -2,6 +2,7 @@
 version=0.1.0
 
 display_help() {
+	echo "coltedb: CoLTE Database Configuration Tool ($version)"
     echo "COMMANDS:" >&2
     echo "   add {imsi msisdn ip key opc}: adds a user to the network"
     echo "   remove {imsi}: removes a user from the network"
@@ -12,7 +13,10 @@ display_help() {
     echo "   help: displays this message and exits"
 }
 
-echo "coltedb: CoLTE Database Configuration Tool ($version)"
+if [ "$EUID" -ne 0 ]; then
+	echo "coltedb: Must run as root!"
+	exit 1
+fi
 
 if [ "$#" -lt 1 ]; then
 	display_help
@@ -24,23 +28,18 @@ if [ "$1" = "help" ]; then
 	exit 1
 fi
 
-if [ "$EUID" -ne 0 ]; then
-	echo "coltedb: Must run as root!"
-	exit 1
-fi
-
 if [ "$1" = "add" ]; then
 	if [ "$#" -ne 6 ]; then
 		echo "coltedb: incorrect number of args, format is \"coltedb add imsi msisdn ip key opc\""
 		exit 1
 	fi
 
-	imsi=$1
-	msisdn=$2
-	ip=$3
-	ki=$4
-	opc=$5
-	/etc/colte/open5gsdb add $imsi $ip $ki $opc
+	imsi=$2
+	msisdn=$3
+	ip=$4
+	ki=$5
+	opc=$6
+	/etc/colte/colte_open5gsdb add $imsi $ip $ki $opc
 	if [ $? = 0 ]; then
 		haulagedb add $imsi $msisdn $ip
 	fi
@@ -54,8 +53,8 @@ if [ "$1" = "remove" ]; then
 		exit 1
 	fi
 
-	imsi=$1
-	/etc/colte/open5gsdb remove $imsi
+	imsi=$2
+	/etc/colte/colte_open5gsdb remove $imsi
 	haulagedb remove $imsi
 
 	exit 0
@@ -67,8 +66,8 @@ if [ "$1" = "topup" ]; then
 		exit 1
 	fi
 
-	imsi=$1
-	money=$2
+	imsi=$2
+	money=$3
 	python /etc/colte/scripts.py db topup $imsi $money
 
 	exit 0
@@ -80,8 +79,8 @@ if [ "$1" = "topup_data" ]; then
 		exit 1
 	fi
 
-	imsi=$1
-	data=$2
+	imsi=$2
+	data=$3
 	haulagedb topup $imsi $data
 
 	exit 0
@@ -93,7 +92,7 @@ if [ "$1" = "admin" ]; then
 		exit 1
 	fi
 
-	imsi=$1	
+	imsi=$2	
 	python /etc/colte/scripts.py db admin $imsi
 	exit 0
 fi
@@ -104,7 +103,7 @@ if [ "$1" = "noadmin" ]; then
 		exit 1
 	fi
 
-	imsi=$1	
+	imsi=$2
 	python /etc/colte/scripts.py db noadmin $imsi
 	exit 0
 fi
