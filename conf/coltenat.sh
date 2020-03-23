@@ -13,11 +13,6 @@ if [ "$#" -ne 1 ]; then
 fi
 
 if [ "$1" = "start" ]; then
-	iptables -C INPUT -i ogstun -j ACCEPT
-	if [ $? != 0 ] ; then
-		iptables -A INPUT -i ogstun -j ACCEPT
-	fi
-
 	iptables -t nat -C POSTROUTING -s $ADDRESS -j MASQUERADE
 	if [ $? != 0 ] ; then
 		iptables -t nat -A POSTROUTING -s $ADDRESS -j MASQUERADE

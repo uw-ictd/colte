@@ -48,11 +48,16 @@ def update_env_file(file_name, colte_data):
     with open(file_name, 'w') as file:
         file.write(new_text)
 
+def enable_ip_forward():
+    replaceAll("/etc/sysctl.conf", "net.ipv4.ip_forward", "net.ipv4.ip_forward=1", True)
+
 def update_colte_nat_script(colte_data):
     replaceAll(colte_nat_script, "ADDRESS=", "ADDRESS=" + colte_data["lte_subnet"]+ "\n", False)
 
 def update_network_vars(colte_data):
-    replaceAll(network_vars, "Address=", "Address=" + str(IPNetwork(colte_data["lte_subnet"])[1]) + "\n", True)
+    net = IPNetwork(colte_data["lte_subnet"])
+    netstr = str(net[1]) + "/" + str(net.prefixlen)
+    replaceAll(network_vars, "Address=", "Address=" + netstr + "\n", True)
 
 def replaceAll(file, searchExp, replaceExp, replace_once):
     is_replaced = False
@@ -136,7 +141,8 @@ def update_pgw(colte_data):
             pgw_data["pgw"]["gtpu"] = []
 
         pgw_data["pgw"]["dns"].append(colte_data["dns"])
-        pgw_data["pgw"]["ue_pool"].append(colte_data["lte_subnet"])
+        STR = "addr: " + str(colte_data["lte_subnet"])
+        pgw_data["pgw"]["ue_pool"].append({'addr': colte_data["lte_subnet"]})
         pgw_data["pgw"]["gtpc"].insert(0, {'addr': "127.0.0.3"})
         pgw_data["pgw"]["gtpc"].insert(1, {'addr': "::1"})
         pgw_data["pgw"]["gtpu"].insert(0, {'addr': "127.0.0.3"})
@@ -213,6 +219,7 @@ def conf_main():
         update_network_vars(colte_data)
         update_env_file(webadmin_env, colte_data)
         update_env_file(webgui_env, colte_data)
+        enable_ip_forward()
 
 def db_main():
     # Read old vars
