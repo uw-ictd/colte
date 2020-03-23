@@ -18,6 +18,8 @@ fi
 
 python /etc/colte/scripts.py conf
 
+sysctl -w net.ipv4.ip_forward=1
+
 # Now: restart services that were already running
 
 # open5gs
