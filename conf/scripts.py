@@ -221,6 +221,49 @@ def conf_main():
         update_env_file(webgui_env, colte_data)
         enable_ip_forward()
 
+        # START/STOP SERVICES
+        if (colte_data["metered"] == "true"):
+            os.system('systemctl restart haulage')
+            os.system('systemctl enable haulage')
+            os.system('systemctl restart colte-webgui')
+            os.system('systemctl enable colte-webgui')
+        else:
+            os.system('systemctl stop haulage')
+            os.system('systemctl disable haulage')
+            os.system('systemctl stop colte-webgui')
+            os.system('systemctl disable colte-webgui')
+
+        if (colte_data["epc"] == "true"):
+            os.system('systemctl restart open5gs-hssd')
+            os.system('systemctl enable open5gs-hssd')
+            os.system('systemctl restart open5gs-mmed')
+            os.system('systemctl enable open5gs-mmed')
+            os.system('systemctl restart open5gs-sgwd')
+            os.system('systemctl enable open5gs-sgwd')
+            os.system('systemctl restart open5gs-pgwd')
+            os.system('systemctl enable open5gs-pgwd')
+            os.system('systemctl restart open5gs-pcrfd')
+            os.system('systemctl enable open5gs-pcrfd')
+        else:
+            os.system('systemctl stop open5gs-hssd')
+            os.system('systemctl disable open5gs-hssd')
+            os.system('systemctl stop open5gs-mmed')
+            os.system('systemctl disable open5gs-mmed')
+            os.system('systemctl stop open5gs-sgwd')
+            os.system('systemctl disable open5gs-sgwd')
+            os.system('systemctl stop open5gs-pgwd')
+            os.system('systemctl disable open5gs-pgwd')
+            os.system('systemctl stop open5gs-pcrfd')
+            os.system('systemctl disable open5gs-pcrfd')
+
+        if (colte_data["nat"] == "true"):
+            os.system('systemctl start colte-nat')
+            os.system('systemctl enable colte-nat')
+        else:
+            os.system('systemctl stop colte-nat')
+            os.system('systemctl disable colte-nat')
+
+
 def db_main():
     # Read old vars
     with open(colte_vars, 'r') as file:
