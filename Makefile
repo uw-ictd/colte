@@ -1,6 +1,4 @@
-
-COLTE_NEW_VERSION=0.10.1
-
+VERSION=$(shell git describe --tags)
 TARGET_DIR=./BUILD/
 
 .PHONY: all
@@ -23,7 +21,7 @@ all: build_deps
 		--description "The Community LTE Project" \
 		--url "https://github.com/uw-ictd/colte" \
 		--name colte \
-		--version $(COLTE_NEW_VERSION) \
+		--version $(VERSION) \
 		--package $(TARGET_DIR) \
 		--depends 'open5gs, haulage, python3, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server, python3-netaddr, python3-ruamel.yaml, python3-mysqldb' \
 		./package/sample_db.sql=/etc/colte/sample_db.sql \
