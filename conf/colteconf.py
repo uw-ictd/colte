@@ -3,6 +3,7 @@
 import ruamel.yaml
 from ruamel.yaml.comments import CommentedMap
 import fileinput
+import os
 import sys
 from netaddr import IPNetwork
 
@@ -182,7 +183,7 @@ def update_haulage(colte_data):
         create_fields_if_not_exist(haulage_data, ["custom"])
 
         haulage_data["userSubnet"] = colte_data["lte_subnet"]
-        haulage_data["ignoredUserAddresses"] = str(IPNetwork(colte_data["lte_subnet"])[1])
+        haulage_data["ignoredUserAddresses"] = [str(IPNetwork(colte_data["lte_subnet"])[1])]
 
         haulage_data["custom"]["dbUser"] = colte_data["mysql_user"]
         haulage_data["custom"]["dbLocation"] = colte_data["mysql_db"]
@@ -234,7 +235,7 @@ with open(colte_vars, 'r') as file:
 enable_ip_forward()
 
 # START/STOP SERVICES
-if (colte_data["metered"] == "true"):
+if (colte_data["metered"] == True):
     os.system('systemctl restart haulage')
     os.system('systemctl enable haulage')
     os.system('systemctl restart colte-webgui')
@@ -249,7 +250,7 @@ else:
     os.system('systemctl stop colte-webadmin')
     os.system('systemctl disable colte-webadmin')
 
-if (colte_data["epc"] == "true"):
+if (colte_data["epc"] == True):
     os.system('systemctl restart open5gs-hssd')
     os.system('systemctl enable open5gs-hssd')
     os.system('systemctl restart open5gs-mmed')
@@ -272,7 +273,7 @@ else:
     os.system('systemctl stop open5gs-pcrfd')
     os.system('systemctl disable open5gs-pcrfd')
 
-if (colte_data["nat"] == "true"):
+if (colte_data["nat"] == True):
     os.system('systemctl start colte-nat')
     os.system('systemctl enable colte-nat')
 else:

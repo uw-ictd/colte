@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 
 import ruamel.yaml
+import sys
+import os
+import MySQLdb
+import decimal
+
+# input
+colte_vars = "/etc/colte/config.yml"
 
 def display_help():
-	print("COMMANDS:\n")
+	print("COMMANDS:")
 	print("   add {imsi msisdn ip key opc}: adds a user to the network")
 	print("   remove {imsi}: removes a user from the network")
 	print("   topup {imsi} {money}: adds money to a user's account")
@@ -32,15 +39,15 @@ if os.geteuid() != 0:
 yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=4, mapping=2, offset=2)
 with open(colte_vars, 'r') as file:
-    colte_data = yaml.load(file.read())
+	colte_data = yaml.load(file.read())
 
 dbname = colte_data["mysql_db"]
 db_user = colte_data["mysql_user"]
 db_pass = colte_data["mysql_password"]
 db = MySQLdb.connect(host="localhost",
-                     user=db_user,
-                     passwd=db_pass,
-                     db=dbname)
+					user=db_user,
+					passwd=db_pass,
+					db=dbname)
 cursor = db.cursor()
 
 if (command == "add"):
@@ -50,7 +57,7 @@ if (command == "add"):
 	imsi = sys.argv[2]
 	msisdn = sys.argv[3]
 	ip = sys.argv[4]
-	key = sys.argv[5]
+	ki = sys.argv[5]
 	opc = sys.argv[6]
 
 	os.system('/etc/colte/colte_open5gsdb add ' + imsi + ' ' + ip + ' ' + ki + ' ' + opc)
@@ -72,31 +79,31 @@ elif (command == "topup"):
 	imsi = sys.argv[2]
 	amount = sys.argv[3]
 
-    old_balance = 0
-    new_balance = 0
+	old_balance = 0
+	new_balance = 0
 
-    commit_str = "SELECT balance FROM customers WHERE imsi = " + imsi + " FOR UPDATE"
-    numrows = cursor.execute(commit_str)
-    if (numrows == 0):
-        print "coltedb error: imsi " + str(imsi) + " does not exist!"
-        exit(1)
+	commit_str = "SELECT balance FROM customers WHERE imsi = " + imsi + " FOR UPDATE"
+	numrows = cursor.execute(commit_str)
+	if (numrows == 0):
+		print("coltedb error: imsi " + str(imsi) + " does not exist!")
+		exit(1)
 
-    for row in cursor:
-        old_balance = decimal.Decimal(row[0])
-        new_balance = amount + old_balance
+	for row in cursor:
+		old_balance = decimal.Decimal(row[0])
+		new_balance = decimal.Decimal(amount) + old_balance
 
-    # prompt for confirmation
-    promptstr = "coltedb: topup user " + str(imsi) + " add " + str(amount) + " to current balance " + str(old_balance) + " to create new balance " + str(new_balance) + "? [Y/n] "
-    while True:
-        answer = raw_input(promptstr)
-        if (answer == 'y' or answer == 'Y' or answer == ''):
-            print "coltedb: updating user " + str(imsi) + " setting new balance to " + str(new_balance)
-            commit_str = "UPDATE customers SET balance = " + str(new_balance) + " WHERE imsi = " + imsi
-            cursor.execute(commit_str)
-            break
-        if (answer == 'n' or answer == 'N'):
-            print "coltedb: cancelling topup\n"
-            break
+	# prompt for confirmation
+	promptstr = "coltedb: topup user " + str(imsi) + " add " + str(amount) + " to current balance " + str(old_balance) + " to create new balance " + str(new_balance) + "? [Y/n] "
+	while True:
+		answer = input(promptstr)
+		if (answer == 'y' or answer == 'Y' or answer == ''):
+			print("coltedb: updating user " + str(imsi) + " setting new balance to " + str(new_balance))
+			commit_str = "UPDATE customers SET balance = " + str(new_balance) + " WHERE imsi = " + imsi
+			cursor.execute(commit_str)
+			break
+		if (answer == 'n' or answer == 'N'):
+			print("coltedb: cancelling topup\n")
+			break
 
 elif (command == "topup_data"):
 	if (len(sys.argv) != 4):
@@ -113,9 +120,9 @@ elif (command == "admin"):
 
 	imsi = sys.argv[2]
 
-    print "coltedb: giving admin privileges to user " + str(imsi)
-    commit_str = "UPDATE customers SET admin = 1 WHERE imsi = " + imsi
-    cursor.execute(commit_str)
+	print("coltedb: giving admin privileges to user " + str(imsi))
+	commit_str = "UPDATE customers SET admin = 1 WHERE imsi = " + imsi
+	cursor.execute(commit_str)
 
 elif (command == "noadmin"):
 	if (len(sys.argv) != 3):
@@ -123,9 +130,9 @@ elif (command == "noadmin"):
 
 	imsi = sys.argv[2]
 
-    print "coltedb: removing admin privileges from user " + str(imsi)
-    commit_str = "UPDATE customers SET admin = 0 WHERE imsi = " + imsi
-    cursor.execute(commit_str)
+	print("coltedb: removing admin privileges from user " + str(imsi))
+	commit_str = "UPDATE customers SET admin = 0 WHERE imsi = " + imsi
+	cursor.execute(commit_str)
 
 else:
 	display_help()

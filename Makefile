@@ -25,7 +25,7 @@ all: build_deps
 		--name colte \
 		--version $(COLTE_NEW_VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'open5gs, haulage, python, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server, python-netaddr, python-ruamel.yaml' \
+		--depends 'open5gs, haulage, python3, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server, python3-netaddr, python3-ruamel.yaml, python3-mysqldb' \
 		./package/sample_db.sql=/etc/colte/sample_db.sql \
 		./package/haulage.yml=/etc/colte/haulage.yml \
 		./conf/coltenat.sh=/usr/bin/coltenat \
