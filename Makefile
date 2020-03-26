@@ -30,7 +30,6 @@ all: build_deps
 		./package/colte-nat.service=/etc/systemd/system/colte-nat.service \
 		./conf/colteconf.py=/usr/bin/colteconf \
 		./conf/coltedb.py=/usr/bin/coltedb \
-		./conf/scripts.py=/etc/colte/scripts.py \
 		./conf/open5gs_dbconf.sh=/etc/colte/colte_open5gsdb \
 		./conf/config.yml=/etc/colte/config.yml \
 		./webgui/=/usr/bin/colte-webgui \
