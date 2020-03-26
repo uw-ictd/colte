@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import ruamel.yaml
 from ruamel.yaml.comments import CommentedMap
 import fileinput
@@ -179,8 +181,8 @@ def update_haulage(colte_data):
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(haulage_data, ["custom"])
 
-        haulage_data["monitoredBlock"] = colte_data["lte_subnet"]
-        # haulage_data["myIP"] = str(IPNetwork(colte_data["lte_subnet"])[1])
+        haulage_data["userSubnet"] = colte_data["lte_subnet"]
+        haulage_data["ignoredUserAddresses"] = str(IPNetwork(colte_data["lte_subnet"])[1])
 
         haulage_data["custom"]["dbUser"] = colte_data["mysql_user"]
         haulage_data["custom"]["dbLocation"] = colte_data["mysql_db"]
@@ -203,140 +205,79 @@ def create_fields_helper(dictionary, fields, index):
 
         create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
-def conf_main():
-    # Read old vars
-    with open(colte_vars, 'r') as file:
-        colte_data = yaml.load(file.read())
+RED='\033[0;31m'
+NC='\033[0m'
 
-        # Update yaml files
-        update_mme(colte_data)
-        update_pgw(colte_data)
-        update_sgw(colte_data)
-        update_haulage(colte_data)
-
-        # Update other files
-        update_colte_nat_script(colte_data)
-        update_network_vars(colte_data)
-        update_env_file(webadmin_env, colte_data)
-        update_env_file(webgui_env, colte_data)
-        enable_ip_forward()
-
-        # START/STOP SERVICES
-        if (colte_data["metered"] == "true"):
-            os.system('systemctl restart haulage')
-            os.system('systemctl enable haulage')
-            os.system('systemctl restart colte-webgui')
-            os.system('systemctl enable colte-webgui')
-        else:
-            os.system('systemctl stop haulage')
-            os.system('systemctl disable haulage')
-            os.system('systemctl stop colte-webgui')
-            os.system('systemctl disable colte-webgui')
-
-        if (colte_data["epc"] == "true"):
-            os.system('systemctl restart open5gs-hssd')
-            os.system('systemctl enable open5gs-hssd')
-            os.system('systemctl restart open5gs-mmed')
-            os.system('systemctl enable open5gs-mmed')
-            os.system('systemctl restart open5gs-sgwd')
-            os.system('systemctl enable open5gs-sgwd')
-            os.system('systemctl restart open5gs-pgwd')
-            os.system('systemctl enable open5gs-pgwd')
-            os.system('systemctl restart open5gs-pcrfd')
-            os.system('systemctl enable open5gs-pcrfd')
-        else:
-            os.system('systemctl stop open5gs-hssd')
-            os.system('systemctl disable open5gs-hssd')
-            os.system('systemctl stop open5gs-mmed')
-            os.system('systemctl disable open5gs-mmed')
-            os.system('systemctl stop open5gs-sgwd')
-            os.system('systemctl disable open5gs-sgwd')
-            os.system('systemctl stop open5gs-pgwd')
-            os.system('systemctl disable open5gs-pgwd')
-            os.system('systemctl stop open5gs-pcrfd')
-            os.system('systemctl disable open5gs-pcrfd')
-
-        if (colte_data["nat"] == "true"):
-            os.system('systemctl start colte-nat')
-            os.system('systemctl enable colte-nat')
-        else:
-            os.system('systemctl stop colte-nat')
-            os.system('systemctl disable colte-nat')
-
-
-def db_main():
-    # Read old vars
-    with open(colte_vars, 'r') as file:
-        colte_data = yaml.load(file.read())
-
-    dbname = colte_data["mysql_db"]
-    db_user = colte_data["mysql_user"]
-    db_pass = colte_data["mysql_password"]
-    db = MySQLdb.connect(host="localhost",
-                         user=db_user,
-                         passwd=db_pass,
-                         db=dbname)
-    cursor = db.cursor()
-
-    operator = sys.argv[2]
-
-    if (operator == "topup"):
-        imsi = sys.argv[3]
-        amount = decimal.Decimal(sys.argv[4])
-        old_balance = 0
-        new_balance = 0
-
-        commit_str = "SELECT balance FROM customers WHERE imsi = " + imsi + " FOR UPDATE"
-        numrows = cursor.execute(commit_str)
-        if (numrows == 0):
-            print "coltedb error: imsi " + str(imsi) + " does not exist!"
-            exit(1)
-
-        for row in cursor:
-            old_balance = decimal.Decimal(row[0])
-            new_balance = amount + old_balance
-
-        # STEP TWO: prompt for confirmation
-        promptstr = "coltedb: topup user " + str(imsi) + " add " + str(amount) + " to current balance " + str(old_balance) + " to create new balance " + str(new_balance) + "? [Y/n] "
-        while True:
-            answer = raw_input(promptstr)
-            if (answer == 'y' or answer == 'Y' or answer == ''):
-                print "coltedb: updating user " + str(imsi) + " setting new balance to " + str(new_balance)
-                commit_str = "UPDATE customers SET balance = " + str(new_balance) + " WHERE imsi = " + imsi
-                cursor.execute(commit_str)
-                break
-            if (answer == 'n' or answer == 'N'):
-                print "coltedb: cancelling topup operation\n"
-                break
-
-    elif (operator == "admin"):
-        imsi = sys.argv[3]
-        print "coltedb: giving admin privileges to user " + str(imsi)
-        commit_str = "UPDATE customers SET admin = 1 WHERE imsi = " + imsi
-        cursor.execute(commit_str)
-
-    elif (operator == "noadmin"):
-        imsi = sys.argv[3]
-        print "coltedb: removing admin privileges from user " + str(imsi)
-        commit_str = "UPDATE customers SET admin = 0 WHERE imsi = " + imsi
-        cursor.execute(commit_str)
-
-    else:
-        exit(1)
-
-    db.commit()
-    cursor.close()
-    db.close()
-
-# MAIN ENTRY POINT STARTS HERE
-if (len(sys.argv) <= 1):
+if os.geteuid() != 0:
+    print("colteconf: ${RED}error:${NC} Must run as root! \n")
     exit(1)
 
-command = sys.argv[1]
+os.system('systemctl stop colte-nat')
 
-if (command == "conf"):
-    conf_main()
-elif (command == "db"):
-    db_main()
+# Read old vars and update yaml
+with open(colte_vars, 'r') as file:
+    colte_data = yaml.load(file.read())
+
+    # Update yaml files
+    update_mme(colte_data)
+    update_pgw(colte_data)
+    update_sgw(colte_data)
+    update_haulage(colte_data)
+
+    # Update other files
+    update_colte_nat_script(colte_data)
+    update_network_vars(colte_data)
+    update_env_file(webadmin_env, colte_data)
+    update_env_file(webgui_env, colte_data)
+
+# always enable kernel ip_forward
+enable_ip_forward()
+
+# START/STOP SERVICES
+if (colte_data["metered"] == "true"):
+    os.system('systemctl restart haulage')
+    os.system('systemctl enable haulage')
+    os.system('systemctl restart colte-webgui')
+    os.system('systemctl enable colte-webgui')
+    os.system('systemctl restart colte-webadmin')
+    os.system('systemctl enable colte-webadmin')
 else:
-    exit(1)
+    os.system('systemctl stop haulage')
+    os.system('systemctl disable haulage')
+    os.system('systemctl stop colte-webgui')
+    os.system('systemctl disable colte-webgui')
+    os.system('systemctl stop colte-webadmin')
+    os.system('systemctl disable colte-webadmin')
+
+if (colte_data["epc"] == "true"):
+    os.system('systemctl restart open5gs-hssd')
+    os.system('systemctl enable open5gs-hssd')
+    os.system('systemctl restart open5gs-mmed')
+    os.system('systemctl enable open5gs-mmed')
+    os.system('systemctl restart open5gs-sgwd')
+    os.system('systemctl enable open5gs-sgwd')
+    os.system('systemctl restart open5gs-pgwd')
+    os.system('systemctl enable open5gs-pgwd')
+    os.system('systemctl restart open5gs-pcrfd')
+    os.system('systemctl enable open5gs-pcrfd')
+else:
+    os.system('systemctl stop open5gs-hssd')
+    os.system('systemctl disable open5gs-hssd')
+    os.system('systemctl stop open5gs-mmed')
+    os.system('systemctl disable open5gs-mmed')
+    os.system('systemctl stop open5gs-sgwd')
+    os.system('systemctl disable open5gs-sgwd')
+    os.system('systemctl stop open5gs-pgwd')
+    os.system('systemctl disable open5gs-pgwd')
+    os.system('systemctl stop open5gs-pcrfd')
+    os.system('systemctl disable open5gs-pcrfd')
+
+if (colte_data["nat"] == "true"):
+    os.system('systemctl start colte-nat')
+    os.system('systemctl enable colte-nat')
+else:
+    os.system('systemctl stop colte-nat')
+    os.system('systemctl disable colte-nat')
+
+os.system('systemctl restart systemd-networkd')
+os.system('sysctl -w net.ipv4.ip_forward=1')

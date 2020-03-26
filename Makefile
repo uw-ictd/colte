@@ -1,9 +1,5 @@
 
 COLTE_NEW_VERSION=0.10.1
-COLTE_VERSION=0.9.12
-CONF_VERSION=0.9.13
-WEBGUI_VERSION=0.9.11
-WEBADMIN_VERSION=0.9.1
 
 TARGET_DIR=./BUILD/
 
@@ -34,8 +30,8 @@ all: build_deps
 		./package/haulage.yml=/etc/colte/haulage.yml \
 		./conf/coltenat.sh=/usr/bin/coltenat \
 		./package/colte-nat.service=/etc/systemd/system/colte-nat.service \
-		./conf/colteconf.sh=/usr/bin/colteconf \
-		./conf/coltedb.sh=/usr/bin/coltedb \
+		./conf/colteconf.py=/usr/bin/colteconf \
+		./conf/coltedb.py=/usr/bin/coltedb \
 		./conf/scripts.py=/etc/colte/scripts.py \
 		./conf/open5gs_dbconf.sh=/etc/colte/colte_open5gsdb \
 		./conf/config.yml=/etc/colte/config.yml \
