@@ -1,1 +1,24 @@
-/usr/bin/colte/roles/configure/vars/main.yml
+# REMEMBER TO CALL "sudo colteconf update" AFTER CHANGING THIS FILE!
+
+# basic network settings
+enb_iface_addr: 1.2.3.4
+wan_iface: eth0
+network_name: bokondini
+lte_subnet: 10.45.0.0/16
+
+# PLMN = first 5 digits of IMSI = MCC+MNC
+mcc: 910
+mnc: 54
+
+# advanced EPC settings
+dns: 8.8.8.8
+
+# database connection settings (for Haulage + WebGui + WebAdmin)
+mysql_user: haulage_db
+mysql_password: haulage_db
+mysql_db: haulage_db
+
+# use these vars to turn services ON (also starts at boot) or OFF
+metered: true
+nat: true
+epc: true
