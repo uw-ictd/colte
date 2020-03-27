@@ -1,0 +1,14 @@
+[Unit]
+Description=CoLTE NAT to Internet
+After=networking.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/coltenat start
+ExecStop=/usr/bin/coltenat stop
+User=root
+Group=root
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

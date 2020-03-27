@@ -19,9 +19,13 @@
     "knex": "^0.20.8",
     "knex-paginator": "^2.0.0",
     "localize": "^0.4.7",
-    "morgan": "^1.9.1",
-    "mysql": "^2.18.1",
-    "serve-favicon": "~2.5.0"
+    "morgan": "~1.9.0",
+    "mssql": "~6.1.0",
+    "mysql2": "^2.1.0",
+    "mysql": "^2.15.0",
+    "pg": "~7.18.2",
+    "serve-favicon": "~2.4.5",
+    "sqlite3": "~4.1.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
