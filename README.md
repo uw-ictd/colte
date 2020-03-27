@@ -1,4 +1,4 @@
-| WARNING: Our team is currently migrating codebases from OAI to [open5gs](https://github.com/open5gs/open5gs)! As a result, this code *is not* currently supported and likely *does not* work. More updates to come in a few weeks! - Spencer, 7 Feb 2020. |
+| UPDATE: Our team recently ported EPC codebases from OAI to [open5gs](https://github.com/open5gs/open5gs)! Per all of our tests, this release should work well, but we encourage you to test-drive it and report any bugs - Spencer, 27 March 2020. |
 | --- |
 
 # CoLTE
