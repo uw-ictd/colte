@@ -233,7 +233,7 @@ GEM
     progress (3.5.2)
     psych (3.1.0)
     public_suffix (4.0.3)
-    puma (3.12.2)
+    puma (3.12.6)
     r2 (0.2.7)
     rack (2.1.2)
     rack-cors (1.1.1)
@@ -404,7 +404,7 @@ DEPENDENCIES
   pg (~> 0.18)
   poltergeist
   psych
-  puma (~> 3.7)
+  puma (~> 3.12)
   r2 (~> 0.2.7)
   rack-cors
   rack-uri_sanitizer

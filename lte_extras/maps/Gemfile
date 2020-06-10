@@ -126,5 +126,5 @@ group :development, :test do
   gem "factory_bot_rails"
   gem "jshint"
   gem "poltergeist"
-  gem "puma", "~> 3.7"
+  gem "puma", "~> 3.12"
 end
