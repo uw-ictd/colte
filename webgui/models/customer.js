@@ -102,6 +102,8 @@ var customer = {
           err = "Sender IMSI matched " + data[0].length + " entries.";
         } else if (data[1].length != 1) {
           err = "Receiver IMSI matched " + data[1].length + " entries.";
+        } else if (sender_imsi == receiver_imsi) {
+          err = "Attempting an invalid transfer";
         } else {
           sender_bal = data[0][0].balance;
           receiver_bal = data[1][0].balance;
