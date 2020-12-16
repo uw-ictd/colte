@@ -1,8 +1,5 @@
 DROP TABLE IF EXISTS `customers`;
 DROP TABLE IF EXISTS `static_ips`;
-DROP TABLE IF EXISTS `dnsResponses`;
-DROP TABLE IF EXISTS `answers`;
-DROP TABLE IF EXISTS `flowlogs`;
 
 CREATE TABLE `customers` (
   `imsi` varchar(16) NOT NULL,
