@@ -1,6 +1,3 @@
-| UPDATE: Our team recently ported EPC codebases from OAI to [open5gs](https://github.com/open5gs/open5gs)! Per all of our tests, this release should work well, but we encourage you to test-drive it and report any bugs - Spencer, 27 March 2020. |
-| --- |
-
 # CoLTE
 CoLTE is the Community LTE Project. It is designed to be an all-in-one turnkey solution that sets up a small-scale locally-run LTE network. CoLTE consists of several main elements working together:
 1) An all-in-one software EPC, powered by [open5gs] (https://github.com/open5gs/open5gs).
@@ -72,3 +69,16 @@ sudo systemctl start open5gs-pgwd
 ```
 - **systemd-networkd sometimes does not bring up the tun IP address:**
 I have seen this issue occasionally, but have not been able to reproduce it consistently. I am not entirely sure what causes it, but have found some other discussion about a similar issue. The issue is claimed to have been fixed in systemd-241, but Ubuntu 18.04 ships with version 237. This issue pops up occasionally, but usually right after you change the `lte_subnet` variable and run `colteconf`. Sometimes, but not always, starting (or restarting) `open5gs-pgwd` and/or `systemd-networkd` will fix this issue. If not, a system reboot usually does the trick.
+
+# What about OAI?
+
+Prior to Fall 2019 we maintained a stable branch of the Open Air
+Interface 4G-LTE packet core. We encountered numerous issues
+attempting to maintain this fork, including difficulty upstreaming
+stability fixes and continuous large churn in the upstream
+codebase. In Fall 2019 we migrated to
+[open5gs](https://github.com/open5gs/open5gs , which has a more
+responsive development team and (in our opinion) better code
+hygene. We now only support open5gs, and no longer provide maintenance
+support for OAI-based installs. We encourage OAI LTE users to check
+out open5gs and join the open5gs community!
