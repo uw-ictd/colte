@@ -3,9 +3,20 @@ TARGET_DIR=./BUILD/
 
 .PHONY: all
 
-all: build_deps
+all: install_deps build_webgui build_webadmin build_package
+
+install_deps:
+	sudo apt-get install ruby ruby-dev rubygems build-essential default-mysql-client default-mysql-server nodejs
+	sudo gem install --no-ri --no-rdoc fpm
+	mkdir -p $(TARGET_DIR)
+
+build_webgui:
 	cd webgui; npm install
+
+build_webadmin:
 	cd webadmin; npm install
+
+build_package:
 	cd webgui; cp production.env .env
 	cd webadmin; cp production.env .env
 	fpm --input-type dir \
@@ -40,8 +51,3 @@ all: build_deps
 		./package/transactions_log.txt=/var/log/colte/transactions_log.txt \
 		./webadmin/=/usr/bin/colte-webadmin \
 		./package/webadmin.env=/etc/colte/webadmin.env
-
-build_deps:
-	sudo apt-get install ruby ruby-dev rubygems build-essential default-mysql-client default-mysql-server npm nodejs
-	sudo gem install --no-ri --no-rdoc fpm
-	mkdir -p $(TARGET_DIR)
