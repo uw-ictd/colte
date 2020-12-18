@@ -34,7 +34,7 @@ build_package:
 		--name colte \
 		--version $(VERSION) \
 		--package $(TARGET_DIR) \
-		--depends 'open5gs, haulage, python3, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server, python3-netaddr, python3-ruamel.yaml, python3-mysqldb' \
+		--depends 'open5gs-hss (>= 2.0.0), open5gs-sgwu (>= 2.0.0), open5gs-sgwc (>= 2.0.0), open5gs-mme (>= 2.0.0), open5gs-pcrf (>= 2.0.0), open5gs-smf (>= 2.0.0), open5gs-upf (>= 2.0.0), haulage, python3, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server, python3-netaddr, python3-ruamel.yaml, python3-mysqldb' \
 		./package/sample_db.sql=/etc/colte/sample_db.sql \
 		./package/haulage.yml=/etc/colte/haulage.yml \
 		./conf/coltenat.sh=/usr/bin/coltenat \
