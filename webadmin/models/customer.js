@@ -1,20 +1,22 @@
 // database connection
 var env = process.env.NODE_ENV || 'development';
 var knex = require('knex')(require('../knexfile')[env]);
-var setupPaginator = require('knex-paginator');
-setupPaginator(knex);
+var setupPaginator = require('knex-paginate');
+const { attachPaginate } = require('knex-paginate');
+attachPaginate();
 var fs = require('fs');
 var dateTime = require('date-time');
 var transaction_log = process.env.TRANSACTION_LOG || "/var/log/colte/transaction_log.txt";
 
 var customer = {
   all(page) {
-    // return knex.select('imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'data_balance', 'enabled', 'bridged', 'admin').from('customers').paginate(15, 1, true).then(paginator => {
-    //     console.log(paginator.current_page);
-    //     console.log(paginator.data);
-    // });
-
-    return knex.select('imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'data_balance', 'enabled', 'bridged', 'admin', 'username').from('customers').paginate(10, page, true);
+    return knex.select(
+      'imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'data_balance', 'enabled', 'bridged', 'admin', 'username'
+    ).from(
+      'customers'
+    ).paginate(
+      {perPage: 10, currentPage: page, isLengthAware: true}
+    );
   },
 
   find_by_ip(ip) {
