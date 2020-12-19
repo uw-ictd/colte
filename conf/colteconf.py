@@ -214,6 +214,10 @@ def update_smf(colte_data):
             smf_data["upf"]["pfcp"] = []
         smf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
 
+        # Disable 5GC NRF link while operating EPC only
+        if "nrf" in smf_data:
+            del smf_data["nrf"]
+
     with open(smf, 'w') as file:
         # Save the results
         yaml.dump(smf_data, file)
