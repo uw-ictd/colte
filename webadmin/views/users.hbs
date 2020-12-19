@@ -93,7 +93,7 @@
     <nav aria-label="Page navigation example">
       <ul class="pagination">
           {{#if has_previous}}
-            <li class="page-item"><a class="page-link" href="1">1</a></li>
+            <li class="page-item"><a class="page-link" href="1">1</a></li>...
           {{/if}}
 
           {{#each page_list}}
@@ -105,7 +105,7 @@
           {{/each}}
 
           {{#if has_next}}
-            <li class="page-item"><a class="page-link" href="{{ last_page }}">{{ last_page }}</a></li>
+            ...<li class="page-item"><a class="page-link" href="{{ last_page }}">{{ last_page }}</a></li>
           {{/if}}
       </ul>
     </nav>
