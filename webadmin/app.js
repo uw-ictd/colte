@@ -41,17 +41,17 @@ module.exports.translate = function (x) {
 // global helper function convertBytes:
 // takes int value like "1500" and outputs string "1.0KB"
 function convertBytes(size) {
-    if (size < 100) {
-      return "0.0 KB";
-    }
-    var i = -1;
-    var byteUnits = [' KB', ' MB', ' GB', ' TB']
-    do {
-          size = size / 1000;
-          i++;
-        } while (size > 1000 && i < 3);
+  if (size < 100) {
+    return "0.0 KB";
+  }
+  var i = -1;
+  var byteUnits = [' KB', ' MB', ' GB', ' TB']
+  do {
+    size = size / 1000;
+    i++;
+  } while (size > 1000 && i < 3);
 
-    return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
+  return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
 };
 
 module.exports.convertBytes = convertBytes;
@@ -61,8 +61,8 @@ module.exports.convertBytes = convertBytes;
 // of #if, only takes one variable input and not two, lolwtf.
 var hbs = require('hbs');
 hbs.registerHelper('ifequal', function (a, b, options) {
-    if (a == b) { return options.fn(this); }
-    return options.inverse(this);
+  if (a == b) { return options.fn(this); }
+  return options.inverse(this);
 });
 
 // Convert bytes to human friendly readable forms.
@@ -77,27 +77,28 @@ hbs.registerHelper('printNumber', function (x) {
 // ensure that we can create/read/open the transaction log file
 fs.appendFile(transaction_log, "", function(err) {
   if(err) {
-      console.log("Error: Cannot open transaction_log file " + transaction_log);
-      process.exit(1);
+    console.log("Error: Cannot open transaction_log file " + transaction_log);
+    process.exit(1);
   }
 });
 
 
 
 // password-protect the site because it is used for admin.
-// this approach is not the securest in the world, and 
+// this approach is not the securest in the world, and
 // IS NOT ENCRYPTED. You must also restrict which users can
 // access the site, preferably by IP address or some other such way.
 const basicAuth = require('express-basic-auth');
 app.use(basicAuth({
-    users: { 'admin': password },
-    challenge: true,
-    unauthorizedResponse: getUnauthorizedResponse
+  users: { 'admin': password },
+  challenge: true,
+  unauthorizedResponse: getUnauthorizedResponse
 }));
+
 function getUnauthorizedResponse(req) {
-    return req.auth
-        ? ('Credentials ' + req.auth.user + ':' + req.auth.password + ' rejected')
-        : 'No credentials provided'
+  return req.auth
+    ? ('Credentials ' + req.auth.user + ':' + req.auth.password + ' rejected')
+    : 'No credentials provided'
 };
 
 // setup routes (i.e. a request for /home goes to /routes/home.js)

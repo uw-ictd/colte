@@ -21,15 +21,15 @@ router.get('/:page', function(req, res, next) {
     if (last_page == 1) {
       page_list = [];
       has_previous = 0;
-      has_next = 0;      
+      has_next = 0;
     } else if (last_page == 2) {
       page_list = [1, 2];
       has_previous = 0;
-      has_next = 0;   
+      has_next = 0;
     } else if (last_page == 3) {
       page_list = [1, 2, 3];
       has_previous = 0;
-      has_next = 0;   
+      has_next = 0;
     } else if (last_page == 4) {
       if (page < 3) {
         page_list = [1, 2, 3];
@@ -61,7 +61,7 @@ router.get('/:page', function(req, res, next) {
       data.data[i].raw_up = app.convertBytes(data.data[i].raw_up);
     }
 
-    res.render('users', { 
+    res.render('users', {
       translate: app.translate,
       title: app.translate('Home'),
       customers_list: data.data,
@@ -96,7 +96,9 @@ router.post('/update/:user_id', function(req, res) {
 
   console.log("UPDATE: imsi = " + imsi + " username=" + username + " balance=" + balance + " data_balance=" + data_balance + " bridged=" + bridged + " enabled=" + enabled);
 
-  customer.update(imsi, bridged, enabled, balance, data_balance, username).then((data) => {
+  customer.update(
+    imsi, bridged, enabled, balance, data_balance, username
+  ).then((data) => {
     res.redirect('/users');
   });
 });
@@ -109,8 +111,10 @@ router.post('/details', function(req, res, next) {
 router.get('/details/:user_id', function(req, res, next) {
   var imsi = req.params.user_id;
 
-  customer.find(imsi).then((data) => {
-    res.render('users', { 
+  customer.find(
+    imsi
+  ).then((data) => {
+    res.render('users', {
       admin: 1,
       translate: app.translate,
       title: app.translate('Home'),
