@@ -11,10 +11,10 @@ install_deps:
 	mkdir -p $(TARGET_DIR)
 
 build_webgui:
-	cd webgui; npm install
+	cd webgui; npm ci
 
 build_webadmin:
-	cd webadmin; npm install
+	cd webadmin; npm ci
 
 build_package:
 	cd webgui; cp production.env .env
