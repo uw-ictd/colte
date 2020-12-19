@@ -16,7 +16,10 @@ router.post('/transfer', function(req,res) {
   var amount = req.body.amount;
 
   console.log("TRANSFER source=" + source + " dest=" + dest + " amount=" + amount);
-  customer.transfer_balance(source, dest, amount).catch((error) => {
+
+  customer.transfer_balance(
+    source, dest, amount
+  ).catch((error) => {
     console.log("Transfer Error: " + error);
   })
   .then(function() {
@@ -33,7 +36,10 @@ router.post('/topup', function(req,res) {
   }
 
   console.log("TOPUP imsi=" + imsi + ", amount =" + amount);
-  customer.top_up(imsi, amount).catch((error) => {
+
+  customer.top_up(
+    imsi, amount
+  ).catch((error) => {
     console.log("Transfer Error: " + error);
   })
   .then(function() {
