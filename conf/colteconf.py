@@ -55,6 +55,7 @@ def update_env_file(file_name, colte_data):
 
 def enable_ip_forward():
     replaceAll("/etc/sysctl.conf", "net.ipv4.ip_forward", "net.ipv4.ip_forward=1", True)
+    os.system('sysctl -w net.ipv4.ip_forward=1')
 
 def update_colte_nat_script(colte_data):
     replaceAll(colte_nat_script, "ADDRESS=", "ADDRESS=" + colte_data["lte_subnet"]+ "\n", False)
@@ -293,14 +294,31 @@ def create_fields_helper(dictionary, fields, index):
 
         create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
+
+def stop_all_services():
+    _control_metering_services("stop")
+    _control_epc_services("stop")
+    _control_nat_services("stop")
+
+
+def _control_metering_services(action):
+    os.system('systemctl {} haulage colte-webgui colte-webadmin'.format(action))
+
+
+def _control_nat_services(action):
+    os.system('systemctl {} colte-nat'.format(action))
+
+
+def _control_epc_services(action):
+    os.system('systemctl {} open5gs-hssd open5gs-mmed open5gs-sgwcd open5gs-sgwud open5gs-pcrfd open5gs-smfd open5gs-upfd'.format(action))
+
+
 RED='\033[0;31m'
 NC='\033[0m'
 
 if os.geteuid() != 0:
     print("colteconf: ${RED}error:${NC} Must run as root! \n")
     exit(1)
-
-os.system('systemctl stop colte-nat')
 
 # Read old vars and update yaml
 with open(colte_vars, 'r') as file:
@@ -323,27 +341,26 @@ with open(colte_vars, 'r') as file:
 # always enable kernel ip_forward
 enable_ip_forward()
 
-# START/STOP SERVICES
+# Restart everything to pick up new configurations, and don't restart
+# networkd while the EPC or metering are running.
+stop_all_services()
+os.system('systemctl restart systemd-networkd')
+
+# Start enabled services and update enabled/disabled state
 if (colte_data["metered"] == True):
-    os.system('systemctl restart haulage colte-webgui colte-webadmin')
-    os.system('systemctl enable haulage colte-webgui colte-webadmin')
+    _control_metering_services("start")
+    _control_metering_services("enable")
 else:
-    os.system('systemctl stop haulage colte-webgui colte-webadmin')
-    os.system('systemctl disable haulage colte-webgui colte-webadmin')
+    _control_metering_services("disable")
 
 if (colte_data["epc"] == True):
-    os.system('systemctl restart open5gs-hssd open5gs-mmed open5gs-sgwcd open5gs-sgwud open5gs-pcrfd open5gs-smfd open5gs-upfd')
-    os.system('systemctl enable open5gs-hssd open5gs-mmed open5gs-sgwcd open5gs-sgwud open5gs-pcrfd open5gs-smfd open5gs-upfd')
+    _control_epc_services("start")
+    _control_epc_services("enable")
 else:
-    os.system('systemctl stop open5gs-hssd open5gs-mmed open5gs-sgwcd open5gs-sgwud open5gs-pcrfd open5gs-smfd open5gs-upfd')
-    os.system('systemctl disable open5gs-hssd open5gs-mmed open5gs-sgwcd open5gs-sgwud open5gs-pcrfd open5gs-smfd open5gs-upfd')
+    _control_epc_services("disable")
 
 if (colte_data["nat"] == True):
-    os.system('systemctl start colte-nat')
-    os.system('systemctl enable colte-nat')
+    _control_nat_services("start")
+    _control_nat_services("enable")
 else:
-    os.system('systemctl stop colte-nat')
-    os.system('systemctl disable colte-nat')
-
-os.system('systemctl restart systemd-networkd')
-os.system('sysctl -w net.ipv4.ip_forward=1')
+    _control_nat_services("disable")
