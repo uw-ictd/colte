@@ -17,7 +17,7 @@
     "express-handlebars": "^5.2.0",
     "hbs": "^4.1.0",
     "knex": "^0.21.14",
-    "knex-paginator": "^2.0.0",
+    "knex-paginate": "^1.2.3",
     "localize": "^0.4.7",
     "morgan": "~1.10.0",
     "mssql": "^6.2.1",

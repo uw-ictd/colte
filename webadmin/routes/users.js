@@ -11,7 +11,7 @@ router.get('/:page', function(req, res, next) {
   var page = req.params.page;
   customer.all(page).then((data) => {
 
-    var last_page = data.last_page;
+    const last_page = data.pagination.lastPage;
 
     var has_previous = 0;
     var has_next = 0;
