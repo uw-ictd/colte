@@ -10,10 +10,13 @@ install_deps:
 	sudo gem install --no-ri --no-rdoc fpm
 	mkdir -p $(TARGET_DIR)
 
-build_webgui:
+build_common_models:
+	cd colte-common-models; npm ci
+
+build_webgui: build_common_models
 	cd webgui; npm ci
 
-build_webadmin:
+build_webadmin: build_common_models
 	cd webadmin; npm ci
 
 build_package:
@@ -50,4 +53,5 @@ build_package:
 		./package/pricing.json=/etc/colte/pricing.json \
 		./package/transactions_log.txt=/var/log/colte/transactions_log.txt \
 		./webadmin/=/usr/bin/colte-webadmin \
-		./package/webadmin.env=/etc/colte/webadmin.env
+		./package/webadmin.env=/etc/colte/webadmin.env \
+		./colte-common-models/=/usr/bin/colte-common-models

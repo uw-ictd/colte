@@ -1,6 +1,6 @@
 // database connection
 var env = process.env.NODE_ENV || 'development';
-var knex = require('knex')(require('../knexfile')[env]);
+var knex = require('knex')(require('./knexfile')[env]);
 var setupPaginator = require('knex-paginate');
 const { attachPaginate } = require('knex-paginate');
 attachPaginate();

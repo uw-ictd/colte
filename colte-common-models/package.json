@@ -1,0 +1,30 @@
+{
+  "name": "colte-common-models",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Internal shared models for common database relations.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uw-ictd/colte.git"
+  },
+  "keywords": [
+    "colte"
+  ],
+  "author": "matt9j@cs.washington.edu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uw-ictd/colte/issues"
+  },
+  "homepage": "https://github.com/uw-ictd/colte#readme",
+  "dependencies": {
+    "date-time": "^3.1.0",
+    "fs": "0.0.1-security",
+    "knex": "^0.21.14",
+    "knex-paginate": "^1.2.3",
+    "mysql": "^2.18.1"
+  }
+}
