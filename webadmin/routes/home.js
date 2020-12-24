@@ -18,7 +18,7 @@ router.post('/transfer', function(req,res) {
 
   console.log("TRANSFER source=" + source + " dest=" + dest + " amount=" + amount);
 
-  customer.transfer_balance(
+  customer.admin_transfer_balance(
     source, dest, amount
   ).catch((error) => {
     console.log("Transfer Error: " + error);
