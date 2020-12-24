@@ -7,24 +7,16 @@
   },
   "dependencies": {
     "body-parser": "^1.19.0",
+    "colte-common-models": "file:../colte-common-models",
     "cookie-parser": "^1.4.4",
-    "date-time": "^3.1.0",
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-handlebars": "^5.2.0",
     "hbs": "^4.1.0",
-    "knex": "^0.21.14",
-    "knex-paginate": "^1.2.3",
     "localize": "^0.4.7",
     "morgan": "^1.10.0",
-    "mssql": "^6.3.0",
-    "mysql": "^2.15.0",
-    "mysql2": "^2.2.5",
-    "pg": "^8.5.1",
-    "pg-native": "^3.0.0",
-    "serve-favicon": "^2.5.0",
-    "sqlite3": "^5.0.0"
+    "serve-favicon": "^2.5.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",

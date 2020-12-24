@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var customer = require('../models/customer');
+var colte_models = require('colte-common-models');
+var customer = colte_models.Customer;
 var app = require('../app');
 
 /* Gets services currently enabled by admin */
