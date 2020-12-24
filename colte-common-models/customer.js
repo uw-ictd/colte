@@ -255,7 +255,7 @@ var customer = {
           throw new Error("Insufficient funds for transfer!");
         }
 
-        return knex.update(
+        var rval = knex.update(
           {balance: newBalance, data_balance: newData}
         ).where(
           'imsi', imsi
@@ -268,6 +268,16 @@ var customer = {
         ).catch(function (error) {
           throw new Error(error.sqlMessage);
         });
+
+        fs.appendFile(
+          transaction_log,
+          dateTime() + " PURCHASE " + imsi + " " + data + " " + cost + "\n",
+          function(err) {
+            if(err) {
+              return console.log(err);
+            }
+          });
+        return rval;
       })
     }
 
