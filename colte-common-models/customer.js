@@ -8,6 +8,89 @@ var fs = require('fs');
 var dateTime = require('date-time');
 var transaction_log = process.env.TRANSACTION_LOG || "/var/log/colte/transaction_log.txt";
 
+function transfer_balance_impl(sender_imsi, receiver_imsi, amount, kind) {
+  function fetch_bals(trx) {
+    return knex.select(
+      'balance'
+    ).where(
+      'imsi', sender_imsi
+    ).from(
+      'customers'
+    ).transacting(
+      trx
+    ).then((sender_bal) => {
+      return knex.select(
+        'balance'
+      ).where(
+        'imsi', receiver_imsi
+      ).from(
+        'customers'
+      ).transacting(
+        trx
+      ).then((receiver_bal) => {
+        return [sender_bal, receiver_bal];
+      });
+    });
+  }
+
+  function transfer_func(trx) {
+    return fetch_bals(
+      trx
+    ).then((data) => {
+      var err = null;
+      var sender_bal;
+      var receiver_bal;
+      if (data[0].length != 1) {
+        err = "Sender IMSI matched " + data[0].length + " entries.";
+      } else if (data[1].length != 1) {
+        err = "Receiver IMSI matched " + data[1].length + " entries.";
+      } else if (sender_imsi == receiver_imsi) {
+        err = "Attempting an invalid transfer";
+      } else {
+        sender_bal = data[0][0].balance;
+        receiver_bal = data[1][0].balance;
+        if (Number(sender_bal) - Number(amount) < 0) {
+          err = "Sender has " + sender_bal + ", tried to send " + Number(amount);
+        } else if (Number(amount) < 0) {
+          err = "Sender tried to send " + amount + " (must be positive).";
+        }
+      }
+      if (err) {
+        return new Promise((res, rej) => { rej(err) });
+      }
+      sender_bal = Number(sender_bal) - Number(amount);
+      receiver_bal = Number(receiver_bal) + Number(amount);
+
+      return trx.update(
+        { balance: sender_bal }
+      ).where(
+        'imsi', sender_imsi
+      ).from(
+        'customers'
+      ).transacting(
+        trx
+      ).then((unused_data) => {
+        // note we're still using the data argument from the fetch_bals promise
+        return knex.update({ balance: receiver_bal }).where('imsi', receiver_imsi).from('customers').transacting(trx).then(trx.commit, trx.rollback)
+      }).then((data2) => {
+        var result = "Transfered " + amount + ". New balances are " + sender_bal + " and " + receiver_bal;
+        console.log(result);
+
+        fs.appendFile(
+          transaction_log, dateTime() + " " + kind + " " + sender_imsi + " " + receiver_imsi + " " + amount + "\n",
+          function(err) {
+            if(err) {
+              return console.log(err);
+            }
+          }
+        );
+      })
+    });
+  }
+
+  return knex.transaction(transfer_func);
+}
+
 var customer = {
   all(page) {
     return knex.select(
@@ -126,84 +209,11 @@ var customer = {
   // returns promise with no data
   // currently logs success/error to console
   transfer_balance(sender_imsi, receiver_imsi, amount) {
-    function fetch_bals(trx) {
-      return knex.select(
-        'balance'
-      ).where(
-        'imsi', sender_imsi
-      ).from(
-        'customers'
-      ).transacting(
-        trx
-      ).then((sender_bal) => {
-        return knex.select(
-          'balance'
-        ).where(
-          'imsi', receiver_imsi
-        ).from(
-          'customers'
-        ).transacting(
-          trx
-        ).then((receiver_bal) => {
-          return [sender_bal, receiver_bal];
-        });
-      });
-    }
+    return transfer_balance_impl(sender_imsi, receiver_imsi, amount, "USERTRANSFER");
+  },
 
-    function transfer_func(trx) {
-      return fetch_bals(
-        trx
-      ).then((data) => {
-        var err = null;
-        var sender_bal;
-        var receiver_bal;
-        if (data[0].length != 1) {
-          err = "Sender IMSI matched " + data[0].length + " entries.";
-        } else if (data[1].length != 1) {
-          err = "Receiver IMSI matched " + data[1].length + " entries.";
-        } else {
-          sender_bal = data[0][0].balance;
-          receiver_bal = data[1][0].balance;
-          if (Number(sender_bal) - Number(amount) < 0) {
-            err = "Sender has " + sender_bal + ", tried to send " + Number(amount);
-          } else if (Number(amount) < 0) {
-            err = "Sender tried to send " + amount + " (must be positive).";
-          }
-        }
-        if (err) {
-          return new Promise((res, rej) => { rej(err) });
-        }
-        sender_bal = Number(sender_bal) - Number(amount);
-        receiver_bal = Number(receiver_bal) + Number(amount);
-
-        return trx.update(
-          { balance: sender_bal }
-        ).where(
-          'imsi', sender_imsi
-        ).from(
-          'customers'
-        ).transacting(
-          trx
-        ).then((unused_data) => {
-          // note we're still using the data argument from the fetch_bals promise
-          return knex.update({ balance: receiver_bal }).where('imsi', receiver_imsi).from('customers').transacting(trx).then(trx.commit, trx.rollback)
-        }).then((data2) => {
-          var result = "Transfered " + amount + ". New balances are " + sender_bal + " and " + receiver_bal;
-          console.log(result);
-
-          fs.appendFile(
-            transaction_log, dateTime() + " ADMINTRANSFER " + sender_imsi + " " + receiver_imsi + " " + amount + "\n",
-            function(err) {
-              if(err) {
-                return console.log(err);
-              }
-            }
-          );
-        })
-      });
-    }
-
-    return knex.transaction(transfer_func);
+  admin_transfer_balance(sender_imsi, receiver_imsi, amount) {
+    return transfer_balance_impl(sender_imsi, receiver_imsi, amount, "ADMINTRANSFER");
   },
 
   transfer_balance_msisdn(sender_imsi, receiver_msisdn, amount) {
