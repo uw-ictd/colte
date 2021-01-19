@@ -16,10 +16,8 @@ colte_vars = "/etc/colte/config.yml"
 
 # EPC conf-files
 mme = "/etc/open5gs/mme.yaml"
-sgwc = "/etc/open5gs/sgwc.yaml"
-sgwu = "/etc/open5gs/sgwu.yaml"
-smf = "/etc/open5gs/smf.yaml"
-upf = "/etc/open5gs/upf.yaml"
+pgw = "/etc/open5gs/pgw.yaml"
+sgw = "/etc/open5gs/sgw.yaml"
 
 # Haulage
 haulage = "/etc/haulage/config.yml"
@@ -55,7 +53,6 @@ def update_env_file(file_name, colte_data):
 
 def enable_ip_forward():
     replaceAll("/etc/sysctl.conf", "net.ipv4.ip_forward", "net.ipv4.ip_forward=1", True)
-    os.system('sysctl -w net.ipv4.ip_forward=1')
 
 def update_colte_nat_script(colte_data):
     replaceAll(colte_nat_script, "ADDRESS=", "ADDRESS=" + colte_data["lte_subnet"]+ "\n", False)
@@ -91,8 +88,8 @@ def update_mme(colte_data):
         create_fields_if_not_exist(mme_data, ["mme", "s1ap"])
         create_fields_if_not_exist(mme_data, ["mme", "network_name"])
         create_fields_if_not_exist(mme_data, ["mme", "gtpc"])
-        create_fields_if_not_exist(mme_data, ["sgwc", "gtpc"])
-        create_fields_if_not_exist(mme_data, ["smf", "gtpc"])
+        create_fields_if_not_exist(mme_data, ["sgw", "gtpc"])
+        create_fields_if_not_exist(mme_data, ["pgw", "gtpc"])
 
         # MCC values
         mme_data["mme"]["gummei"]["plmn_id"]["mcc"] = colte_data["mcc"]
@@ -103,163 +100,78 @@ def update_mme(colte_data):
         mme_data["mme"]["tai"]["plmn_id"]["mnc"] = colte_data["mnc"]
 
         # Other values
-        mme_data["mme"]["s1ap"][0]["addr"] = colte_data["enb_iface_addr"]
+        mme_data["mme"]["s1ap"]["addr"] = colte_data["enb_iface_addr"]
         mme_data["mme"]["network_name"]["full"] = colte_data["network_name"]
 
         # Hard-coded values
-        mme_data["mme"]["gtpc"][0]["addr"] = "127.0.0.2"
-        mme_data["sgwc"]["gtpc"][0]["addr"] = "127.0.0.3"
-        mme_data["smf"]["gtpc"][0]["addr"] = ["127.0.0.4", "::1"]
+        mme_data["mme"]["gtpc"]["addr"] = "127.0.0.1"
+        mme_data["sgw"]["gtpc"]["addr"] = "127.0.0.2"
+        mme_data["pgw"]["gtpc"]["addr"] = ["127.0.0.3", "::1"]
 
     with open(mme, 'w') as file:
         # Save the results
         yaml.dump(mme_data, file)
 
-
-def update_sgwc(colte_data):
-    sgwc_data = {}
-    with open(sgwc, 'r') as file:
-        sgwc_data = yaml.load(file.read())
-
-        # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(sgwc_data, ["sgwc", "gtpc"])
-        create_fields_if_not_exist(sgwc_data, ["sgwc", "pfcp"])
-
-        sgwc_data["sgwc"]["gtpc"][0]["addr"] = "127.0.0.3"
-        sgwc_data["sgwc"]["pfcp"][0]["addr"] = "127.0.0.3"
-
-        # Link towards the SGW-U
-        create_fields_if_not_exist(sgwc_data, ["sgwu", "pfcp"])
-        sgwc_data["sgwu"]["pfcp"][0]["addr"] = "127.0.0.6"
-
-    with open(sgwc, 'w') as file:
-        # Save the results
-        yaml.dump(sgwc_data, file)
-
-
-def update_sgwu(colte_data):
-    sgwu_data = {}
-    with open(sgwu, 'r') as file:
-        sgwu_data = yaml.load(file.read())
-
-        # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(sgwu_data, ["sgwu", "gtpu"])
-        create_fields_if_not_exist(sgwu_data, ["sgwu", "pfcp"])
-
-        sgwu_data["sgwu"]["gtpu"][0]["addr"] = colte_data["enb_iface_addr"]
-        sgwu_data["sgwu"]["pfcp"][0]["addr"] = "127.0.0.6"
-
-        # Link towards the SGW-C
-        # TODO(matt9j) This might be the wrong address! Not included in the default
-        #create_fields_if_not_exist(sgwu_data, ["sgwc", "pfcp"])
-        #sgwu_data["sgwc"]["pfcp"][0]["addr"] = "127.0.0.3"
-
-    with open(sgwu, 'w') as file:
-        # Save the results
-        yaml.dump(sgwu_data, file)
-
-
-def update_smf(colte_data):
-    smf_data = {}
-    with open(smf, 'r+') as file:
-        smf_data = yaml.load(file.read())
+def update_pgw(colte_data):
+    pgw_data = {}
+    with open(pgw, 'r+') as file:
+        pgw_data = yaml.load(file.read())
 
         # Safe deletions
-        if "smf" in smf_data and "gtpc" in smf_data["smf"]:
-            del smf_data["smf"]["gtpc"][:]
+        if "pgw" in pgw_data and "dns" in pgw_data["pgw"]:
+            del pgw_data["pgw"]["dns"][:]
 
-        if "smf" in smf_data and "pfcp" in smf_data["smf"]:
-            del smf_data["smf"]["pfcp"][:]
+        if "pgw" in pgw_data and "ue_pool" in pgw_data["pgw"]:
+            del pgw_data["pgw"]["ue_pool"][:]
 
-        if "smf" in smf_data and "pdn" in smf_data["smf"]:
-            del smf_data["smf"]["pdn"][:]
-
-        if "smf" in smf_data and "dns" in smf_data["smf"]:
-            del smf_data["smf"]["dns"][:]
-
-        # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(smf_data, ["smf"])
-        create_fields_if_not_exist(smf_data, ["smf", "sbi"])
-        create_fields_if_not_exist(smf_data, ["smf", "gtpc"])
-        create_fields_if_not_exist(smf_data, ["smf", "pfcp"])
-        create_fields_if_not_exist(smf_data, ["smf", "pdn"])
-        create_fields_if_not_exist(smf_data, ["smf", "dns"])
-
-        # Set default values of list fields
-        if "gtpc" not in smf_data["smf"]:
-            smf_data["smf"]["gtpc"] = []
-        if "pfcp" not in smf_data["smf"]:
-            smf_data["smf"]["pfcp"] = []
-        if "pdn" not in smf_data["smf"]:
-            smf_data["smf"]["pdn"] = []
-        if "dns" not in smf_data["smf"]:
-            smf_data["smf"]["dns"] = []
-
-        smf_data["smf"]["gtpc"].append({'addr': "127.0.0.4"})
-        smf_data["smf"]["gtpc"].append({'addr': "::1"})
-
-        smf_data["smf"]["pfcp"].append({'addr': "127.0.0.4"})
-        smf_data["smf"]["pfcp"].append({'addr': "::1"})
-
-        smf_data["smf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
-
-        smf_data["smf"]["dns"].append(colte_data["dns"])
-
-        smf_data["smf"]["mtu"] = 1400
-
-        # Create link to UPF
-        create_fields_if_not_exist(smf_data, ["upf"])
-        if "upf" in smf_data and "pfcp" in smf_data["upf"]:
-            del smf_data["upf"]["pfcp"][:]
-        if "pfcp" not in smf_data["upf"]:
-            smf_data["upf"]["pfcp"] = []
-        smf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
-
-        # Disable 5GC NRF link while operating EPC only
-        if "nrf" in smf_data:
-            del smf_data["nrf"]
-
-    with open(smf, 'w') as file:
-        # Save the results
-        yaml.dump(smf_data, file)
-
-
-def update_upf(colte_data):
-    upf_data = {}
-    with open(upf, 'r+') as file:
-        upf_data = yaml.load(file.read())
-
-        # Safe deletions
-        if "upf" in upf_data and "pfcp" in upf_data["upf"]:
-            del upf_data["upf"]["pfcp"][:]
-        if "upf" in upf_data and "gtpu" in upf_data["upf"]:
-            del upf_data["upf"]["gtpu"][:]
-        if "upf" in upf_data and "pdn" in upf_data["upf"]:
-            del upf_data["upf"]["pdn"][:]
+        if "pgw" in pgw_data and "gtpc" in pgw_data["pgw"]:
+            del pgw_data["pgw"]["gtpc"][:]
+        
+        if "pgw" in pgw_data and "gtpu" in pgw_data["pgw"]:
+            del pgw_data["pgw"]["gtpu"][:]
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(upf_data, ["upf"])
+        create_fields_if_not_exist(pgw_data, ["pgw"])
 
         # Set default values of list fields
-        if "pfcp" not in upf_data["upf"]:
-            upf_data["upf"]["pfcp"] = []
-        if "gtpu" not in upf_data["upf"]:
-            upf_data["upf"]["gtpu"] = []
-        if "pdn" not in upf_data["upf"]:
-            upf_data["upf"]["pdn"] = []
+        if "dns" not in pgw_data["pgw"]:
+            pgw_data["pgw"]["dns"] = []
+        if "ue_pool" not in pgw_data["pgw"]:
+            pgw_data["pgw"]["ue_pool"] = []
+        if "gtpc" not in pgw_data["pgw"]:
+            pgw_data["pgw"]["gtpc"] = []
+        if "gtpu" not in pgw_data["pgw"]:
+            pgw_data["pgw"]["gtpu"] = []
 
-        upf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
-        upf_data["upf"]["gtpu"].append({'addr': "127.0.0.7"})
-        upf_data["upf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
+        pgw_data["pgw"]["dns"].append(colte_data["dns"])
+        STR = "addr: " + str(colte_data["lte_subnet"])
+        pgw_data["pgw"]["ue_pool"].append({'addr': colte_data["lte_subnet"]})
+        pgw_data["pgw"]["gtpc"].insert(0, {'addr': "127.0.0.3"})
+        pgw_data["pgw"]["gtpc"].insert(1, {'addr': "::1"})
+        pgw_data["pgw"]["gtpu"].insert(0, {'addr': "127.0.0.3"})
+        pgw_data["pgw"]["gtpu"].insert(1, {'addr': "::1"})
 
-        # Link to the SMF
-        # TODO(matt9j) Might not be needed
-        # create_fields_if_not_exist(upf_data, ["smf"]["pfcp"])
-        # upf_data["smf"]["pfcp"] = {'addr': "127.0.0.3"}
-
-    with open(upf, 'w') as file:
+    with open(pgw, 'w') as file:
         # Save the results
-        yaml.dump(upf_data, file)
+        yaml.dump(pgw_data, file)
+
+def update_sgw(colte_data):
+    sgw_data = {}
+    with open(sgw, 'r') as file:
+        sgw_data = yaml.load(file.read())
+
+        # Create fields in the data if they do not yet exist
+        create_fields_if_not_exist(sgw_data, ["sgw", "gtpu"])
+        create_fields_if_not_exist(sgw_data, ["sgw", "gtpc"])
+
+        sgw_data["sgw"]["gtpu"]["addr"] = colte_data["enb_iface_addr"]
+
+        # Hard-coded values
+        sgw_data["sgw"]["gtpc"]["addr"] = "127.0.0.2"
+
+    with open(sgw, 'w') as file:
+        # Save the results
+        yaml.dump(sgw_data, file)
 
 
 def update_haulage(colte_data):
@@ -294,25 +206,6 @@ def create_fields_helper(dictionary, fields, index):
 
         create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
-
-def stop_all_services():
-    _control_metering_services("stop")
-    _control_epc_services("stop")
-    _control_nat_services("stop")
-
-
-def _control_metering_services(action):
-    os.system('systemctl {} haulage colte-webgui colte-webadmin'.format(action))
-
-
-def _control_nat_services(action):
-    os.system('systemctl {} colte-nat'.format(action))
-
-
-def _control_epc_services(action):
-    os.system('systemctl {} open5gs-hssd open5gs-mmed open5gs-sgwcd open5gs-sgwud open5gs-pcrfd open5gs-smfd open5gs-upfd'.format(action))
-
-
 RED='\033[0;31m'
 NC='\033[0m'
 
@@ -320,16 +213,16 @@ if os.geteuid() != 0:
     print("colteconf: ${RED}error:${NC} Must run as root! \n")
     exit(1)
 
+os.system('systemctl stop colte-nat')
+
 # Read old vars and update yaml
 with open(colte_vars, 'r') as file:
     colte_data = yaml.load(file.read())
 
     # Update yaml files
     update_mme(colte_data)
-    update_sgwc(colte_data)
-    update_sgwu(colte_data)
-    update_smf(colte_data)
-    update_upf(colte_data)
+    update_pgw(colte_data)
+    update_sgw(colte_data)
     update_haulage(colte_data)
 
     # Update other files
@@ -341,26 +234,51 @@ with open(colte_vars, 'r') as file:
 # always enable kernel ip_forward
 enable_ip_forward()
 
-# Restart everything to pick up new configurations, and don't restart
-# networkd while the EPC or metering are running.
-stop_all_services()
-os.system('systemctl restart systemd-networkd')
-
-# Start enabled services and update enabled/disabled state
+# START/STOP SERVICES
 if (colte_data["metered"] == True):
-    _control_metering_services("start")
-    _control_metering_services("enable")
+    os.system('systemctl restart haulage')
+    os.system('systemctl enable haulage')
+    os.system('systemctl restart colte-webgui')
+    os.system('systemctl enable colte-webgui')
+    os.system('systemctl restart colte-webadmin')
+    os.system('systemctl enable colte-webadmin')
 else:
-    _control_metering_services("disable")
+    os.system('systemctl stop haulage')
+    os.system('systemctl disable haulage')
+    os.system('systemctl stop colte-webgui')
+    os.system('systemctl disable colte-webgui')
+    os.system('systemctl stop colte-webadmin')
+    os.system('systemctl disable colte-webadmin')
 
 if (colte_data["epc"] == True):
-    _control_epc_services("start")
-    _control_epc_services("enable")
+    os.system('systemctl restart open5gs-hssd')
+    os.system('systemctl enable open5gs-hssd')
+    os.system('systemctl restart open5gs-mmed')
+    os.system('systemctl enable open5gs-mmed')
+    os.system('systemctl restart open5gs-sgwd')
+    os.system('systemctl enable open5gs-sgwd')
+    os.system('systemctl restart open5gs-pgwd')
+    os.system('systemctl enable open5gs-pgwd')
+    os.system('systemctl restart open5gs-pcrfd')
+    os.system('systemctl enable open5gs-pcrfd')
 else:
-    _control_epc_services("disable")
+    os.system('systemctl stop open5gs-hssd')
+    os.system('systemctl disable open5gs-hssd')
+    os.system('systemctl stop open5gs-mmed')
+    os.system('systemctl disable open5gs-mmed')
+    os.system('systemctl stop open5gs-sgwd')
+    os.system('systemctl disable open5gs-sgwd')
+    os.system('systemctl stop open5gs-pgwd')
+    os.system('systemctl disable open5gs-pgwd')
+    os.system('systemctl stop open5gs-pcrfd')
+    os.system('systemctl disable open5gs-pcrfd')
 
 if (colte_data["nat"] == True):
-    _control_nat_services("start")
-    _control_nat_services("enable")
+    os.system('systemctl start colte-nat')
+    os.system('systemctl enable colte-nat')
 else:
-    _control_nat_services("disable")
+    os.system('systemctl stop colte-nat')
+    os.system('systemctl disable colte-nat')
+
+os.system('systemctl restart systemd-networkd')
+os.system('sysctl -w net.ipv4.ip_forward=1')
