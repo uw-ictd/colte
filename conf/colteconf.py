@@ -16,8 +16,10 @@ colte_vars = "/etc/colte/config.yml"
 
 # EPC conf-files
 mme = "/etc/open5gs/mme.yaml"
-pgw = "/etc/open5gs/pgw.yaml"
-sgw = "/etc/open5gs/sgw.yaml"
+sgwu = "/etc/open5gs/sgwu.yaml"
+sgwc = "/etc/open5gs/sgwc.yaml"
+upf = "/etc/open5gs/upf.yaml"
+smf = "/etc/open5gs/smf.yaml"
 
 # Haulage
 haulage = "/etc/haulage/config.yml"
@@ -88,8 +90,8 @@ def update_mme(colte_data):
         create_fields_if_not_exist(mme_data, ["mme", "s1ap"])
         create_fields_if_not_exist(mme_data, ["mme", "network_name"])
         create_fields_if_not_exist(mme_data, ["mme", "gtpc"])
-        create_fields_if_not_exist(mme_data, ["sgw", "gtpc"])
-        create_fields_if_not_exist(mme_data, ["pgw", "gtpc"])
+        create_fields_if_not_exist(mme_data, ["sgwc", "gtpc"])
+        create_fields_if_not_exist(mme_data, ["smf", "gtpc"])
 
         # MCC values
         mme_data["mme"]["gummei"]["plmn_id"]["mcc"] = colte_data["mcc"]
@@ -100,79 +102,134 @@ def update_mme(colte_data):
         mme_data["mme"]["tai"]["plmn_id"]["mnc"] = colte_data["mnc"]
 
         # Other values
-        mme_data["mme"]["s1ap"]["addr"] = colte_data["enb_iface_addr"]
+        mme_data["mme"]["s1ap"][0]["addr"] = colte_data["enb_iface_addr"]
         mme_data["mme"]["network_name"]["full"] = colte_data["network_name"]
 
         # Hard-coded values
-        mme_data["mme"]["gtpc"]["addr"] = "127.0.0.1"
-        mme_data["sgw"]["gtpc"]["addr"] = "127.0.0.2"
-        mme_data["pgw"]["gtpc"]["addr"] = ["127.0.0.3", "::1"]
+        mme_data["mme"]["gtpc"][0]["addr"] = "127.0.0.2"
+        mme_data["sgwc"]["gtpc"][0]["addr"] = "127.0.0.3"
+        mme_data["smf"]["gtpc"][0]["addr"] = ["127.0.0.4", "::1"]
 
     with open(mme, 'w') as file:
         # Save the results
         yaml.dump(mme_data, file)
 
-def update_pgw(colte_data):
-    pgw_data = {}
-    with open(pgw, 'r+') as file:
-        pgw_data = yaml.load(file.read())
+def update_upf(colte_data):
+    upf_data = {}
+    with open(upf, 'r+') as file:
+        upf_data = yaml.load(file.read())
 
         # Safe deletions
-        if "pgw" in pgw_data and "dns" in pgw_data["pgw"]:
-            del pgw_data["pgw"]["dns"][:]
+        if "upf" in upf_data and "pfcp" in upf_data["upf"]:
+            del upf_data["upf"]["pfcp"][:]
 
-        if "pgw" in pgw_data and "ue_pool" in pgw_data["pgw"]:
-            del pgw_data["pgw"]["ue_pool"][:]
-
-        if "pgw" in pgw_data and "gtpc" in pgw_data["pgw"]:
-            del pgw_data["pgw"]["gtpc"][:]
+        if "upf" in upf_data and "gtpu" in upf_data["upf"]:
+            del upf_data["upf"]["gtpu"][:]
         
-        if "pgw" in pgw_data and "gtpu" in pgw_data["pgw"]:
-            del pgw_data["pgw"]["gtpu"][:]
+        if "upf" in upf_data and "pdn" in upf_data["upf"]:
+            del upf_data["upf"]["pdn"][:]
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(pgw_data, ["pgw"])
+        create_fields_if_not_exist(upf_data, ["upf"])
 
         # Set default values of list fields
-        if "dns" not in pgw_data["pgw"]:
-            pgw_data["pgw"]["dns"] = []
-        if "ue_pool" not in pgw_data["pgw"]:
-            pgw_data["pgw"]["ue_pool"] = []
-        if "gtpc" not in pgw_data["pgw"]:
-            pgw_data["pgw"]["gtpc"] = []
-        if "gtpu" not in pgw_data["pgw"]:
-            pgw_data["pgw"]["gtpu"] = []
+        if "pfcp" not in upf_data["upf"]:
+            upf_data["upf"]["pfcp"] = []
+        if "gtpu" not in upf_data["upf"]:
+            upf_data["upf"]["gtpu"] = []
+        if "pdn" not in upf_data["upf"]:
+            upf_data["upf"]["pdn"] = []
 
-        pgw_data["pgw"]["dns"].append(colte_data["dns"])
-        STR = "addr: " + str(colte_data["lte_subnet"])
-        pgw_data["pgw"]["ue_pool"].append({'addr': colte_data["lte_subnet"]})
-        pgw_data["pgw"]["gtpc"].insert(0, {'addr': "127.0.0.3"})
-        pgw_data["pgw"]["gtpc"].insert(1, {'addr': "::1"})
-        pgw_data["pgw"]["gtpu"].insert(0, {'addr': "127.0.0.3"})
-        pgw_data["pgw"]["gtpu"].insert(1, {'addr': "::1"})
+        STR_LTE_SUBNET = "addr: " + str(colte_data["lte_subnet"])
+        STR_CAFE = "addr: cafe::1/64"
 
-    with open(pgw, 'w') as file:
+        upf_data["upf"]["pfcp"].insert(0, {'addr': "127.0.0.7"})
+        upf_data["upf"]["gtpu"].insert(0, {'addr': "127.0.0.7"})
+        upf_data["upf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
+        upf_data["upf"]["pdn"].append({'addr': 'cafe::1/64'})
+
+    with open(upf, 'w') as file:
         # Save the results
-        yaml.dump(pgw_data, file)
+        yaml.dump(upf_data, file)
+        
+def update_smf(colte_data):
+    smf_data = {}
+    with open(smf, 'r+') as file:
+        smf_data = yaml.load(file.read())
 
-def update_sgw(colte_data):
-    sgw_data = {}
-    with open(sgw, 'r') as file:
-        sgw_data = yaml.load(file.read())
+        # Safe deletions
+        if "smf" in smf_data and "dns" in smf_data["smf"]:
+            del smf_data["smf"]["dns"][:]
+
+        if "smf" in smf_data and "pdn" in smf_data["smf"]:
+            del smf_data["smf"]["pdn"][:]
+
+        if "smf" in smf_data and "gtpc" in smf_data["smf"]:
+            del smf_data["smf"]["gtpc"][:]
+        
+        # Create fields in the data if they do not yet exist
+        create_fields_if_not_exist(smf_data, ["smf"])
+
+        # Set default values of list fields
+        if "dns" not in smf_data["smf"]:
+            smf_data["smf"]["dns"] = []
+        if "pdn" not in smf_data["smf"]:
+            smf_data["smf"]["pdn"] = []
+        if "gtpc" not in smf_data["smf"]:
+            smf_data["smf"]["gtpc"] = []
+
+
+        smf_data["smf"]["dns"].append(colte_data["dns"])
+        STR_LTE_SUBNET = "addr: " + str(colte_data["lte_subnet"])
+        STR_CAFE = "addr: cafe::1/64"
+        
+        
+        smf_data["smf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
+        smf_data["smf"]["pdn"].append({'addr': 'cafe::1/64'})
+        
+        smf_data["smf"]["gtpc"].insert(0, {'addr': "127.0.0.4"})
+        smf_data["smf"]["gtpc"].insert(1, {'addr': "::1"})
+
+    with open(smf, 'w') as file:
+        # Save the results
+        yaml.dump(smf_data, file)
+
+def update_sgwu(colte_data):
+    sgwu_data = {}
+    with open(sgwu, 'r') as file:
+        sgwu_data = yaml.load(file.read())
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(sgw_data, ["sgw", "gtpu"])
-        create_fields_if_not_exist(sgw_data, ["sgw", "gtpc"])
+        create_fields_if_not_exist(sgwu_data, ["sgwu", "gtpu"])
+        create_fields_if_not_exist(sgwu_data, ["sgwu", "pfcp"])
 
-        sgw_data["sgw"]["gtpu"]["addr"] = colte_data["enb_iface_addr"]
+        sgwu_data["sgwu"]["gtpu"][0]["addr"] = colte_data["enb_iface_addr"]
 
         # Hard-coded values
-        sgw_data["sgw"]["gtpc"]["addr"] = "127.0.0.2"
+        sgwu_data["sgwu"]["pfcp"][0]["addr"] = "127.0.0.6"
 
-    with open(sgw, 'w') as file:
+    with open(sgwu, 'w') as file:
         # Save the results
-        yaml.dump(sgw_data, file)
+        yaml.dump(sgwu_data, file)
 
+
+def update_sgwc(colte_data):
+    sgwc_data = {}
+    with open(sgwc, 'r') as file:
+        sgwc_data = yaml.load(file.read())
+
+        # Create fields in the data if they do not yet exist
+        create_fields_if_not_exist(sgwc_data, ["sgwc", "gtpc"])
+        create_fields_if_not_exist(sgwc_data, ["sgwc", "pfcp"])
+
+        sgwc_data["sgwc"]["gtpc"][0]["addr"] = "127.0.0.3"
+
+        # Hard-coded values
+        sgwc_data["sgwc"]["pfcp"][0]["addr"] = "127.0.0.3"
+
+    with open(sgwc, 'w') as file:
+        # Save the results
+        yaml.dump(sgwc_data, file)
 
 def update_haulage(colte_data):
     haulage_data = {}
@@ -221,8 +278,10 @@ with open(colte_vars, 'r') as file:
 
     # Update yaml files
     update_mme(colte_data)
-    update_pgw(colte_data)
-    update_sgw(colte_data)
+    update_upf(colte_data)
+    update_smf(colte_data)
+    update_sgwu(colte_data)
+    update_sgwc(colte_data)
     update_haulage(colte_data)
 
     # Update other files
@@ -255,10 +314,14 @@ if (colte_data["epc"] == True):
     os.system('systemctl enable open5gs-hssd')
     os.system('systemctl restart open5gs-mmed')
     os.system('systemctl enable open5gs-mmed')
-    os.system('systemctl restart open5gs-sgwd')
-    os.system('systemctl enable open5gs-sgwd')
-    os.system('systemctl restart open5gs-pgwd')
-    os.system('systemctl enable open5gs-pgwd')
+    os.system('systemctl restart open5gs-sgwud')
+    os.system('systemctl enable open5gs-sgwud')
+    os.system('systemctl restart open5gs-sgwcd')
+    os.system('systemctl enable open5gs-sgwcd')
+    os.system('systemctl restart open5gs-upfd')
+    os.system('systemctl enable open5gs-upfd')
+    os.system('systemctl restart open5gs-smfd')
+    os.system('systemctl enable open5gs-smfd')
     os.system('systemctl restart open5gs-pcrfd')
     os.system('systemctl enable open5gs-pcrfd')
 else:
