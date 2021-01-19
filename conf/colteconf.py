@@ -164,7 +164,7 @@ def update_smf(colte_data):
 
         if "smf" in smf_data and "gtpc" in smf_data["smf"]:
             del smf_data["smf"]["gtpc"][:]
-        
+
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(smf_data, ["smf"])
 
@@ -176,15 +176,13 @@ def update_smf(colte_data):
         if "gtpc" not in smf_data["smf"]:
             smf_data["smf"]["gtpc"] = []
 
-
         smf_data["smf"]["dns"].append(colte_data["dns"])
         STR_LTE_SUBNET = "addr: " + str(colte_data["lte_subnet"])
         STR_CAFE = "addr: cafe::1/64"
-        
-        
+
         smf_data["smf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
         smf_data["smf"]["pdn"].append({'addr': 'cafe::1/64'})
-        
+
         smf_data["smf"]["gtpc"].insert(0, {'addr': "127.0.0.4"})
         smf_data["smf"]["gtpc"].insert(1, {'addr': "::1"})
 
@@ -203,7 +201,7 @@ def update_upf(colte_data):
 
         if "upf" in upf_data and "gtpu" in upf_data["upf"]:
             del upf_data["upf"]["gtpu"][:]
-        
+
         if "upf" in upf_data and "pdn" in upf_data["upf"]:
             del upf_data["upf"]["pdn"][:]
 
@@ -229,7 +227,7 @@ def update_upf(colte_data):
     with open(upf, 'w') as file:
         # Save the results
         yaml.dump(upf_data, file)
-        
+
 def update_haulage(colte_data):
     haulage_data = {}
     with open(haulage, 'r') as file:
