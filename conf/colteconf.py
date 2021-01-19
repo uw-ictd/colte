@@ -125,9 +125,11 @@ def update_sgwc(colte_data):
         create_fields_if_not_exist(sgwc_data, ["sgwc", "pfcp"])
 
         sgwc_data["sgwc"]["gtpc"][0]["addr"] = "127.0.0.3"
-
-        # Hard-coded values
         sgwc_data["sgwc"]["pfcp"][0]["addr"] = "127.0.0.3"
+
+        # Link towards the SGW-U
+        create_fields_if_not_exist(sgwc_data, ["sgwu", "pfcp"])
+        sgwc_data["sgwu"]["pfcp"][0]["addr"] = "127.0.0.6"
 
     with open(sgwc, 'w') as file:
         # Save the results
@@ -143,9 +145,12 @@ def update_sgwu(colte_data):
         create_fields_if_not_exist(sgwu_data, ["sgwu", "pfcp"])
 
         sgwu_data["sgwu"]["gtpu"][0]["addr"] = colte_data["enb_iface_addr"]
-
-        # Hard-coded values
         sgwu_data["sgwu"]["pfcp"][0]["addr"] = "127.0.0.6"
+
+        # Link towards the SGW-C
+        # TODO(matt9j) This might be the wrong address! Not included in the default
+        #create_fields_if_not_exist(sgwu_data, ["sgwc", "pfcp"])
+        #sgwu_data["sgwc"]["pfcp"][0]["addr"] = "127.0.0.3"
 
     with open(sgwu, 'w') as file:
         # Save the results
@@ -157,35 +162,59 @@ def update_smf(colte_data):
         smf_data = yaml.load(file.read())
 
         # Safe deletions
-        if "smf" in smf_data and "dns" in smf_data["smf"]:
-            del smf_data["smf"]["dns"][:]
+        if "smf" in smf_data and "gtpc" in smf_data["smf"]:
+            del smf_data["smf"]["gtpc"][:]
+
+        if "smf" in smf_data and "pfcp" in smf_data["smf"]:
+            del smf_data["smf"]["pfcp"][:]
 
         if "smf" in smf_data and "pdn" in smf_data["smf"]:
             del smf_data["smf"]["pdn"][:]
 
-        if "smf" in smf_data and "gtpc" in smf_data["smf"]:
-            del smf_data["smf"]["gtpc"][:]
+        if "smf" in smf_data and "dns" in smf_data["smf"]:
+            del smf_data["smf"]["dns"][:]
 
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(smf_data, ["smf"])
+        create_fields_if_not_exist(smf_data, ["smf", "sbi"])
+        create_fields_if_not_exist(smf_data, ["smf", "gtpc"])
+        create_fields_if_not_exist(smf_data, ["smf", "pfcp"])
+        create_fields_if_not_exist(smf_data, ["smf", "pdn"])
+        create_fields_if_not_exist(smf_data, ["smf", "dns"])
 
         # Set default values of list fields
-        if "dns" not in smf_data["smf"]:
-            smf_data["smf"]["dns"] = []
-        if "pdn" not in smf_data["smf"]:
-            smf_data["smf"]["pdn"] = []
         if "gtpc" not in smf_data["smf"]:
             smf_data["smf"]["gtpc"] = []
+        if "pfcp" not in smf_data["smf"]:
+            smf_data["smf"]["pfcp"] = []
+        if "pdn" not in smf_data["smf"]:
+            smf_data["smf"]["pdn"] = []
+        if "dns" not in smf_data["smf"]:
+            smf_data["smf"]["dns"] = []
 
-        smf_data["smf"]["dns"].append(colte_data["dns"])
-        STR_LTE_SUBNET = "addr: " + str(colte_data["lte_subnet"])
-        STR_CAFE = "addr: cafe::1/64"
+        smf_data["smf"]["gtpc"].append({'addr': "127.0.0.4"})
+        smf_data["smf"]["gtpc"].append({'addr': "::1"})
+
+        smf_data["smf"]["pfcp"].append({'addr': "127.0.0.4"})
+        smf_data["smf"]["pfcp"].append({'addr': "::1"})
 
         smf_data["smf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
-        smf_data["smf"]["pdn"].append({'addr': 'cafe::1/64'})
 
-        smf_data["smf"]["gtpc"].insert(0, {'addr': "127.0.0.4"})
-        smf_data["smf"]["gtpc"].insert(1, {'addr': "::1"})
+        smf_data["smf"]["dns"].append(colte_data["dns"])
+
+        smf_data["smf"]["mtu"] = 1400
+
+        # Create link to UPF
+        create_fields_if_not_exist(smf_data, ["upf"])
+        if "upf" in smf_data and "pfcp" in smf_data["upf"]:
+            del smf_data["upf"]["pfcp"][:]
+        if "pfcp" not in smf_data["upf"]:
+            smf_data["upf"]["pfcp"] = []
+        smf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
+
+        # Disable 5GC NRF link while operating EPC only
+        if "nrf" in smf_data:
+            del smf_data["nrf"]
 
     with open(smf, 'w') as file:
         # Save the results
@@ -199,10 +228,8 @@ def update_upf(colte_data):
         # Safe deletions
         if "upf" in upf_data and "pfcp" in upf_data["upf"]:
             del upf_data["upf"]["pfcp"][:]
-
         if "upf" in upf_data and "gtpu" in upf_data["upf"]:
             del upf_data["upf"]["gtpu"][:]
-
         if "upf" in upf_data and "pdn" in upf_data["upf"]:
             del upf_data["upf"]["pdn"][:]
 
@@ -217,13 +244,14 @@ def update_upf(colte_data):
         if "pdn" not in upf_data["upf"]:
             upf_data["upf"]["pdn"] = []
 
-        STR_LTE_SUBNET = "addr: " + str(colte_data["lte_subnet"])
-        STR_CAFE = "addr: cafe::1/64"
-
-        upf_data["upf"]["pfcp"].insert(0, {'addr': "127.0.0.7"})
-        upf_data["upf"]["gtpu"].insert(0, {'addr': "127.0.0.7"})
+        upf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
+        upf_data["upf"]["gtpu"].append({'addr': "127.0.0.7"})
         upf_data["upf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
-        upf_data["upf"]["pdn"].append({'addr': 'cafe::1/64'})
+
+        # Link to the SMF
+        # TODO(matt9j) Might not be needed
+        # create_fields_if_not_exist(upf_data, ["smf"]["pfcp"])
+        # upf_data["smf"]["pfcp"] = {'addr': "127.0.0.3"}
 
     with open(upf, 'w') as file:
         # Save the results
