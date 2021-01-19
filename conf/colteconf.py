@@ -16,10 +16,10 @@ colte_vars = "/etc/colte/config.yml"
 
 # EPC conf-files
 mme = "/etc/open5gs/mme.yaml"
-sgwu = "/etc/open5gs/sgwu.yaml"
 sgwc = "/etc/open5gs/sgwc.yaml"
-upf = "/etc/open5gs/upf.yaml"
+sgwu = "/etc/open5gs/sgwu.yaml"
 smf = "/etc/open5gs/smf.yaml"
+upf = "/etc/open5gs/upf.yaml"
 
 # Haulage
 haulage = "/etc/haulage/config.yml"
@@ -114,44 +114,42 @@ def update_mme(colte_data):
         # Save the results
         yaml.dump(mme_data, file)
 
-def update_upf(colte_data):
-    upf_data = {}
-    with open(upf, 'r+') as file:
-        upf_data = yaml.load(file.read())
-
-        # Safe deletions
-        if "upf" in upf_data and "pfcp" in upf_data["upf"]:
-            del upf_data["upf"]["pfcp"][:]
-
-        if "upf" in upf_data and "gtpu" in upf_data["upf"]:
-            del upf_data["upf"]["gtpu"][:]
-        
-        if "upf" in upf_data and "pdn" in upf_data["upf"]:
-            del upf_data["upf"]["pdn"][:]
+def update_sgwc(colte_data):
+    sgwc_data = {}
+    with open(sgwc, 'r') as file:
+        sgwc_data = yaml.load(file.read())
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(upf_data, ["upf"])
+        create_fields_if_not_exist(sgwc_data, ["sgwc", "gtpc"])
+        create_fields_if_not_exist(sgwc_data, ["sgwc", "pfcp"])
 
-        # Set default values of list fields
-        if "pfcp" not in upf_data["upf"]:
-            upf_data["upf"]["pfcp"] = []
-        if "gtpu" not in upf_data["upf"]:
-            upf_data["upf"]["gtpu"] = []
-        if "pdn" not in upf_data["upf"]:
-            upf_data["upf"]["pdn"] = []
+        sgwc_data["sgwc"]["gtpc"][0]["addr"] = "127.0.0.3"
 
-        STR_LTE_SUBNET = "addr: " + str(colte_data["lte_subnet"])
-        STR_CAFE = "addr: cafe::1/64"
+        # Hard-coded values
+        sgwc_data["sgwc"]["pfcp"][0]["addr"] = "127.0.0.3"
 
-        upf_data["upf"]["pfcp"].insert(0, {'addr': "127.0.0.7"})
-        upf_data["upf"]["gtpu"].insert(0, {'addr': "127.0.0.7"})
-        upf_data["upf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
-        upf_data["upf"]["pdn"].append({'addr': 'cafe::1/64'})
-
-    with open(upf, 'w') as file:
+    with open(sgwc, 'w') as file:
         # Save the results
-        yaml.dump(upf_data, file)
-        
+        yaml.dump(sgwc_data, file)
+
+def update_sgwu(colte_data):
+    sgwu_data = {}
+    with open(sgwu, 'r') as file:
+        sgwu_data = yaml.load(file.read())
+
+        # Create fields in the data if they do not yet exist
+        create_fields_if_not_exist(sgwu_data, ["sgwu", "gtpu"])
+        create_fields_if_not_exist(sgwu_data, ["sgwu", "pfcp"])
+
+        sgwu_data["sgwu"]["gtpu"][0]["addr"] = colte_data["enb_iface_addr"]
+
+        # Hard-coded values
+        sgwu_data["sgwu"]["pfcp"][0]["addr"] = "127.0.0.6"
+
+    with open(sgwu, 'w') as file:
+        # Save the results
+        yaml.dump(sgwu_data, file)
+
 def update_smf(colte_data):
     smf_data = {}
     with open(smf, 'r+') as file:
@@ -194,43 +192,44 @@ def update_smf(colte_data):
         # Save the results
         yaml.dump(smf_data, file)
 
-def update_sgwu(colte_data):
-    sgwu_data = {}
-    with open(sgwu, 'r') as file:
-        sgwu_data = yaml.load(file.read())
+def update_upf(colte_data):
+    upf_data = {}
+    with open(upf, 'r+') as file:
+        upf_data = yaml.load(file.read())
+
+        # Safe deletions
+        if "upf" in upf_data and "pfcp" in upf_data["upf"]:
+            del upf_data["upf"]["pfcp"][:]
+
+        if "upf" in upf_data and "gtpu" in upf_data["upf"]:
+            del upf_data["upf"]["gtpu"][:]
+        
+        if "upf" in upf_data and "pdn" in upf_data["upf"]:
+            del upf_data["upf"]["pdn"][:]
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(sgwu_data, ["sgwu", "gtpu"])
-        create_fields_if_not_exist(sgwu_data, ["sgwu", "pfcp"])
+        create_fields_if_not_exist(upf_data, ["upf"])
 
-        sgwu_data["sgwu"]["gtpu"][0]["addr"] = colte_data["enb_iface_addr"]
+        # Set default values of list fields
+        if "pfcp" not in upf_data["upf"]:
+            upf_data["upf"]["pfcp"] = []
+        if "gtpu" not in upf_data["upf"]:
+            upf_data["upf"]["gtpu"] = []
+        if "pdn" not in upf_data["upf"]:
+            upf_data["upf"]["pdn"] = []
 
-        # Hard-coded values
-        sgwu_data["sgwu"]["pfcp"][0]["addr"] = "127.0.0.6"
+        STR_LTE_SUBNET = "addr: " + str(colte_data["lte_subnet"])
+        STR_CAFE = "addr: cafe::1/64"
 
-    with open(sgwu, 'w') as file:
+        upf_data["upf"]["pfcp"].insert(0, {'addr': "127.0.0.7"})
+        upf_data["upf"]["gtpu"].insert(0, {'addr': "127.0.0.7"})
+        upf_data["upf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
+        upf_data["upf"]["pdn"].append({'addr': 'cafe::1/64'})
+
+    with open(upf, 'w') as file:
         # Save the results
-        yaml.dump(sgwu_data, file)
-
-
-def update_sgwc(colte_data):
-    sgwc_data = {}
-    with open(sgwc, 'r') as file:
-        sgwc_data = yaml.load(file.read())
-
-        # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(sgwc_data, ["sgwc", "gtpc"])
-        create_fields_if_not_exist(sgwc_data, ["sgwc", "pfcp"])
-
-        sgwc_data["sgwc"]["gtpc"][0]["addr"] = "127.0.0.3"
-
-        # Hard-coded values
-        sgwc_data["sgwc"]["pfcp"][0]["addr"] = "127.0.0.3"
-
-    with open(sgwc, 'w') as file:
-        # Save the results
-        yaml.dump(sgwc_data, file)
-
+        yaml.dump(upf_data, file)
+        
 def update_haulage(colte_data):
     haulage_data = {}
     with open(haulage, 'r') as file:
@@ -278,10 +277,10 @@ with open(colte_vars, 'r') as file:
 
     # Update yaml files
     update_mme(colte_data)
-    update_upf(colte_data)
-    update_smf(colte_data)
-    update_sgwu(colte_data)
     update_sgwc(colte_data)
+    update_sgwu(colte_data)
+    update_smf(colte_data)
+    update_upf(colte_data)
     update_haulage(colte_data)
 
     # Update other files
