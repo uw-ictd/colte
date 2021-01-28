@@ -1,14 +1,21 @@
-VERSION=$(shell git describe --tags)
-TARGET_DIR=./BUILD/
+GIT_VERSION=$(shell git describe --tags | sed s/-g/+g/g)
+TARGET_DIR=./BUILD
+NFPM_VERSION = "2.2.3"
 
-.PHONY: all
+.PHONY: all get_nfpm install_apt_deps install_deps clean
 
 all: install_deps build_webgui build_webadmin build_package
 
-install_deps:
-	sudo apt-get install ruby ruby-dev rubygems build-essential default-mysql-client default-mysql-server nodejs
-	sudo gem install --no-ri --no-rdoc fpm
-	mkdir -p $(TARGET_DIR)
+get_nfpm: $(TARGET_DIR)/nfpm/nfpm
+
+$(TARGET_DIR)/nfpm/nfpm:
+	mkdir -p $(@D)
+	curl -L https://github.com/goreleaser/nfpm/releases/download/v$(NFPM_VERSION)/nfpm_$(NFPM_VERSION)_Linux_x86_64.tar.gz | tar -xz --directory "$(TARGET_DIR)/nfpm"
+
+install_apt_deps:
+	sudo apt-get install build-essential default-mysql-client default-mysql-server nodejs npm curl
+
+install_deps: install_apt_deps get_nfpm
 
 build_common_models:
 	cd colte-common-models; npm ci
@@ -19,39 +26,12 @@ build_webgui: build_common_models
 build_webadmin: build_common_models
 	cd webadmin; npm ci
 
+build_package: export VERSION := $(GIT_VERSION)
 build_package:
+	mkdir -p $(TARGET_DIR)
 	cd webgui; cp production.env .env
 	cd webadmin; cp production.env .env
-	fpm --input-type dir \
-		--output-type deb \
-		--force \
-		--vendor uw-ictd \
-		--config-files /etc/colte/config.yml \
-		--config-files /usr/bin/colte-webgui/.env \
-		--config-files /usr/bin/colte-webadmin/.env \
-		--after-install ./package/postinst \
-		--after-remove ./package/postrm \
-		--maintainer sevilla@cs.washington.edu \
-		--description "The Community LTE Project" \
-		--url "https://github.com/uw-ictd/colte" \
-		--name colte \
-		--version $(VERSION) \
-		--package $(TARGET_DIR) \
-		--depends 'open5gs-hss (>= 2.0.0), open5gs-sgwu (>= 2.0.0), open5gs-sgwc (>= 2.0.0), open5gs-mme (>= 2.0.0), open5gs-pcrf (>= 2.0.0), open5gs-smf (>= 2.0.0), open5gs-upf (>= 2.0.0), haulage, python3, nodejs (>= 8.0.0), default-mysql-client, default-mysql-server, python3-netaddr, python3-ruamel.yaml, python3-mysqldb' \
-		./package/sample_db.sql=/etc/colte/sample_db.sql \
-		./package/haulage.yml=/etc/colte/haulage.yml \
-		./conf/coltenat.sh=/usr/bin/coltenat \
-		./package/colte-nat.service=/etc/systemd/system/colte-nat.service \
-		./conf/colteconf.py=/usr/bin/colteconf \
-		./conf/coltedb.py=/usr/bin/coltedb \
-		./conf/open5gs_dbconf.sh=/etc/colte/colte_open5gsdb \
-		./conf/config.yml=/etc/colte/config.yml \
-		./webgui/=/usr/bin/colte-webgui \
-		./package/colte-webgui.service=/etc/systemd/system/colte-webgui.service \
-		./package/colte-webadmin.service=/etc/systemd/system/colte-webadmin.service \
-		./package/webgui.env=/etc/colte/webgui.env \
-		./package/pricing.json=/etc/colte/pricing.json \
-		./package/transactions_log.txt=/var/log/colte/transactions_log.txt \
-		./webadmin/=/usr/bin/colte-webadmin \
-		./package/webadmin.env=/etc/colte/webadmin.env \
-		./colte-common-models/=/usr/bin/colte-common-models
+	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --target $(TARGET_DIR)
+
+clean:
+	rm -r $(TARGET_DIR)
