@@ -154,8 +154,8 @@ contents:
 
   # Mark the transaction log as config for now to avoid overwriting existing logs.
   # TODO(matt9j) Move the transaction log to the database.
-  - src: ./package/transactions_log.txt
-    dst: /var/log/colte/transactions_log.txt
+  - src: ./package/transaction_log.txt
+    dst: /var/log/colte/transaction_log.txt
     type: "config"
 
   # Sometimes it is important to be able to set the mtime, mode, owner, or group for a file
