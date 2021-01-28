@@ -1,6 +1,14 @@
 GIT_VERSION=$(shell git describe --tags | sed s/-g/+g/g)
 TARGET_DIR=./BUILD
-NFPM_VERSION = "2.2.3"
+NFPM_VERSION = 2.2.3
+HOST_ARCH=$(shell uname -m)
+ifeq ($(HOST_ARCH),aarch64)
+	NPM_ARCH=arm64
+else ifeq ($(HOST_ARCH),x86_64)
+	NPM_ARCH=x86_64
+else
+	$(error Unsupported host platform arch $(HOST_ARCH))
+endif
 
 .PHONY: all get_nfpm install_apt_deps install_deps clean
 
@@ -10,7 +18,7 @@ get_nfpm: $(TARGET_DIR)/nfpm/nfpm
 
 $(TARGET_DIR)/nfpm/nfpm:
 	mkdir -p $(@D)
-	curl -L https://github.com/goreleaser/nfpm/releases/download/v$(NFPM_VERSION)/nfpm_$(NFPM_VERSION)_Linux_x86_64.tar.gz | tar -xz --directory "$(TARGET_DIR)/nfpm"
+	curl -L https://github.com/goreleaser/nfpm/releases/download/v$(NFPM_VERSION)/nfpm_$(NFPM_VERSION)_Linux_$(NPM_ARCH).tar.gz | tar -xz --directory "$(TARGET_DIR)/nfpm"
 
 install_apt_deps:
 	sudo apt-get install build-essential default-mysql-client default-mysql-server nodejs npm curl
