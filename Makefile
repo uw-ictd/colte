@@ -42,4 +42,7 @@ build_package:
 	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --target $(TARGET_DIR)
 
 clean:
-	rm -r $(TARGET_DIR)
+	rm -rf $(TARGET_DIR)
+	rm -rf webadmin/node_modules
+	rm -rf webguid/node_modules
+	rm -rf colte-common-models/node_modules
