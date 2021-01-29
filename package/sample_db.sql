@@ -7,7 +7,7 @@ CREATE TABLE `static_ips` (
   `imsi` varchar(16) NOT NULL,
   `ip` varchar(16) NOT NULL,
   PRIMARY KEY (`imsi`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `static_ips` VALUES
 ('000000000000001', '127.0.0.1'),
