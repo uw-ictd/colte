@@ -12,7 +12,7 @@ endif
 
 .PHONY: all get_nfpm install_apt_deps install_deps clean
 
-all: install_deps build_webgui build_webadmin build_package
+all: build_webgui build_webadmin build_package
 
 get_nfpm: $(TARGET_DIR)/nfpm/nfpm
 
