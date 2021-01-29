@@ -14,17 +14,6 @@ endif
 
 all: build_webgui build_webadmin build_package
 
-get_nfpm: $(TARGET_DIR)/nfpm/nfpm
-
-$(TARGET_DIR)/nfpm/nfpm:
-	mkdir -p $(@D)
-	curl -L https://github.com/goreleaser/nfpm/releases/download/v$(NFPM_VERSION)/nfpm_$(NFPM_VERSION)_Linux_$(NPM_ARCH).tar.gz | tar -xz --directory "$(TARGET_DIR)/nfpm"
-
-install_apt_deps:
-	apt-get install --yes build-essential default-mysql-client default-mysql-server nodejs npm curl
-
-install_deps: install_apt_deps get_nfpm
-
 build_common_models:
 	cd colte-common-models; npm ci
 
@@ -46,3 +35,15 @@ clean:
 	rm -rf webadmin/node_modules
 	rm -rf webguid/node_modules
 	rm -rf colte-common-models/node_modules
+
+# Helper rules for installing build dependencies and tooling.
+get_nfpm: $(TARGET_DIR)/nfpm/nfpm
+
+$(TARGET_DIR)/nfpm/nfpm:
+	mkdir -p $(@D)
+	curl -L https://github.com/goreleaser/nfpm/releases/download/v$(NFPM_VERSION)/nfpm_$(NFPM_VERSION)_Linux_$(NPM_ARCH).tar.gz | tar -xz --directory "$(TARGET_DIR)/nfpm"
+
+install_apt_deps:
+	apt-get install --yes build-essential default-mysql-client default-mysql-server nodejs npm curl
+
+install_deps: install_apt_deps get_nfpm
