@@ -21,7 +21,7 @@ $(TARGET_DIR)/nfpm/nfpm:
 	curl -L https://github.com/goreleaser/nfpm/releases/download/v$(NFPM_VERSION)/nfpm_$(NFPM_VERSION)_Linux_$(NPM_ARCH).tar.gz | tar -xz --directory "$(TARGET_DIR)/nfpm"
 
 install_apt_deps:
-	sudo apt-get install build-essential default-mysql-client default-mysql-server nodejs npm curl
+	apt-get install --yes build-essential default-mysql-client default-mysql-server nodejs npm curl
 
 install_deps: install_apt_deps get_nfpm
 
