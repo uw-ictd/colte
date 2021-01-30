@@ -28,4 +28,5 @@ jobs:
 
       - name: Run makefile
         run: |
+          make install_deps
           make all
