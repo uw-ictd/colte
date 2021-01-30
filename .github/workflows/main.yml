@@ -28,5 +28,6 @@ jobs:
 
       - name: Run makefile
         run: |
-          make install_deps
+          sudo make install_apt_deps
+          make get_nfpm
           make all
