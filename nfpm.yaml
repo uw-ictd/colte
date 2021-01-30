@@ -21,7 +21,7 @@ version: ${VERSION}
 
 # Package Release Revision (Usually 1).
 # This will expand any env var you set in the field, eg release: ${VERSION_RELEASE}
-# release: 1
+release: ${DISTRO_RELEASE_VERSION}
 
 section: "net"
 priority: "optional"
