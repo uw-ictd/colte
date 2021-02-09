@@ -1,5 +1,5 @@
 name: "colte"
-arch: "amd64"
+arch: "${HOST_ARCHITECTURE}"
 platform: "linux"
 
 # Upstream Version. (required)

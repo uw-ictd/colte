@@ -16,9 +16,24 @@ else
 	$(error Unsupported build platform arch $(BUILD_ARCH))
 endif
 
-.PHONY: all get_nfpm install_apt_deps install_deps clean
+all: build package
 
-all: build_webgui build_webadmin build_package
+.PHONY: all build package \
+build_common_models build_webgui build_webadmin build_arm64 build_x86_64 \
+package_arm64 packagex86_64 \
+get_nfpm install_apt_deps install_deps \
+clean
+
+# Define the basic build and package targets for the native build architecture.
+ifeq ($(BUILD_ARCH),aarch64)
+build: build_arm64
+package: package_arm64
+else ifeq ($(BUILD_ARCH),x86_64)
+build: build_x86_64
+package: package_x86_64
+else
+	$(error Unsupported build platform architecture $(BUILD_ARCH))
+endif
 
 build_common_models:
 	cd colte-common-models; npm ci
@@ -29,12 +44,22 @@ build_webgui: build_common_models
 build_webadmin: build_common_models
 	cd webadmin; npm ci
 
-build_package: export VERSION := $(GIT_VERSION)
-build_package:
+build_arm64 build_x86_64: build_webgui build_webadmin
+
+package_arm64: export HOST_ARCHITECTURE=arm64
+package_arm64: build_arm64 get_nfpm
+
+package_x86_64: export HOST_ARCHITECTURE=amd64
+package_x86_64: build_x86_64 get_nfpm
+
+package_arm64 package_x86_64: export VERSION := $(GIT_VERSION)
+package_arm64 package_x86_64:
 	mkdir -p $(TARGET_DIR)
 	cd webgui; cp production.env .env
 	cd webadmin; cp production.env .env
-	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --target $(TARGET_DIR)
+	cat nfpm.yaml | \
+	envsubst '$${HOST_ARCHITECTURE}' | \
+	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
 
 clean:
 	rm -rf $(TARGET_DIR)
