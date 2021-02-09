@@ -1,13 +1,19 @@
 GIT_VERSION=$(shell git describe --tags | sed s/-g/+g/g)
 TARGET_DIR=./BUILD
 NFPM_VERSION = 2.2.3
-HOST_ARCH=$(shell uname -m)
-ifeq ($(HOST_ARCH),aarch64)
+# This uses the somewhat confusing but standardized GNU architecture naming
+# scheme to be consistent with Debian (which can handle the complex case of
+# building compilers for different architectures). Build refers to the
+# architecure of the platform doing this build. Host refers to the architecture
+# we are building the binary to run on. Target refers to the architecture that
+# built binary emits, if it's a compiler.
+BUILD_ARCH=$(shell uname -m)
+ifeq ($(BUILD_ARCH),aarch64)
 	NPM_ARCH=arm64
-else ifeq ($(HOST_ARCH),x86_64)
+else ifeq ($(BUILD_ARCH),x86_64)
 	NPM_ARCH=x86_64
 else
-	$(error Unsupported host platform arch $(HOST_ARCH))
+	$(error Unsupported build platform arch $(BUILD_ARCH))
 endif
 
 .PHONY: all get_nfpm install_apt_deps install_deps clean
