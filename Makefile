@@ -9,9 +9,9 @@ NFPM_VERSION = 2.2.3
 # built binary emits, if it's a compiler.
 BUILD_ARCH=$(shell uname -m)
 ifeq ($(BUILD_ARCH),aarch64)
-	NPM_ARCH=arm64
+	NFPM_ARCH=arm64
 else ifeq ($(BUILD_ARCH),x86_64)
-	NPM_ARCH=x86_64
+	NFPM_ARCH=x86_64
 else
 	$(error Unsupported build platform arch $(BUILD_ARCH))
 endif
@@ -47,7 +47,7 @@ get_nfpm: $(TARGET_DIR)/nfpm/nfpm
 
 $(TARGET_DIR)/nfpm/nfpm:
 	mkdir -p $(@D)
-	curl -L https://github.com/goreleaser/nfpm/releases/download/v$(NFPM_VERSION)/nfpm_$(NFPM_VERSION)_Linux_$(NPM_ARCH).tar.gz | tar -xz --directory "$(TARGET_DIR)/nfpm"
+	curl -L https://github.com/goreleaser/nfpm/releases/download/v$(NFPM_VERSION)/nfpm_$(NFPM_VERSION)_Linux_$(NFPM_ARCH).tar.gz | tar -xz --directory "$(TARGET_DIR)/nfpm"
 
 install_apt_deps:
 	apt-get install --yes build-essential default-mysql-client default-mysql-server nodejs npm curl
