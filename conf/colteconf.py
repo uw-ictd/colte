@@ -15,6 +15,8 @@ yaml.indent(sequence=4, mapping=2, offset=2)
 colte_vars = "/etc/colte/config.yml"
 
 # EPC conf-files
+hss = "/etc/open5gs/hss.yaml"
+pcrf = "/etc/open5gs/pcrf.yaml"
 mme = "/etc/open5gs/mme.yaml"
 sgwc = "/etc/open5gs/sgwc.yaml"
 sgwu = "/etc/open5gs/sgwu.yaml"
@@ -79,6 +81,22 @@ def replaceAll(file, searchExp, replaceExp, replace_once):
                 line = replaceExp
         sys.stdout.write(line)
 
+def update_hss(colte_data):
+    hss_data = {}
+
+    with open(hss, 'r+') as file:
+        hss_data = yaml.load(file.read())
+
+        # Create fields in the data if they do not yet exist
+        create_fields_if_not_exist(hss_data, ["logger", "file"])
+
+        # Disable internal file logging since journald is capturing stdout
+        hss_data["logger"]["file"] = "/dev/null"
+
+    with open(hss, 'w') as file:
+        # Save the results
+        yaml.dump(hss_data, file)
+
 def update_mme(colte_data):
     mme_data = {}
 
@@ -111,9 +129,28 @@ def update_mme(colte_data):
         mme_data["sgwc"]["gtpc"][0]["addr"] = "127.0.0.3"
         mme_data["smf"]["gtpc"][0]["addr"] = ["127.0.0.4", "::1"]
 
+        # Disable internal file logging since journald is capturing stdout
+        mme_data["logger"]["file"] = "/dev/null"
+
     with open(mme, 'w') as file:
         # Save the results
         yaml.dump(mme_data, file)
+
+def update_pcrf(colte_data):
+    pcrf_data = {}
+
+    with open(pcrf, 'r+') as file:
+        pcrf_data = yaml.load(file.read())
+
+        # Create fields in the data if they do not yet exist
+        create_fields_if_not_exist(pcrf_data, ["logger", "file"])
+
+        # Disable internal file logging since journald is capturing stdout
+        pcrf_data["logger"]["file"] = "/dev/null"
+
+    with open(pcrf, 'w') as file:
+        # Save the results
+        yaml.dump(pcrf_data, file)
 
 def update_sgwc(colte_data):
     sgwc_data = {}
@@ -130,6 +167,9 @@ def update_sgwc(colte_data):
         # Link towards the SGW-U
         create_fields_if_not_exist(sgwc_data, ["sgwu", "pfcp"])
         sgwc_data["sgwu"]["pfcp"][0]["addr"] = "127.0.0.6"
+
+        # Disable internal file logging since journald is capturing stdout
+        sgwc_data["logger"]["file"] = "/dev/null"
 
     with open(sgwc, 'w') as file:
         # Save the results
@@ -151,6 +191,9 @@ def update_sgwu(colte_data):
         # TODO(matt9j) This might be the wrong address! Not included in the default
         #create_fields_if_not_exist(sgwu_data, ["sgwc", "pfcp"])
         #sgwu_data["sgwc"]["pfcp"][0]["addr"] = "127.0.0.3"
+
+        # Disable internal file logging since journald is capturing stdout
+        sgwu_data["logger"]["file"] = "/dev/null"
 
     with open(sgwu, 'w') as file:
         # Save the results
@@ -216,6 +259,9 @@ def update_smf(colte_data):
         if "nrf" in smf_data:
             del smf_data["nrf"]
 
+        # Disable internal file logging since journald is capturing stdout
+        smf_data["logger"]["file"] = "/dev/null"
+
     with open(smf, 'w') as file:
         # Save the results
         yaml.dump(smf_data, file)
@@ -252,6 +298,9 @@ def update_upf(colte_data):
         # TODO(matt9j) Might not be needed
         # create_fields_if_not_exist(upf_data, ["smf"]["pfcp"])
         # upf_data["smf"]["pfcp"] = {'addr': "127.0.0.3"}
+
+        # Disable internal file logging since journald is capturing stdout
+        upf_data["logger"]["file"] = "/dev/null"
 
     with open(upf, 'w') as file:
         # Save the results
@@ -320,7 +369,9 @@ with open(colte_vars, 'r') as file:
     colte_data = yaml.load(file.read())
 
     # Update yaml files
+    update_hss(colte_data)
     update_mme(colte_data)
+    update_pcrf(colte_data)
     update_sgwc(colte_data)
     update_sgwu(colte_data)
     update_smf(colte_data)
