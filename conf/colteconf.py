@@ -56,7 +56,7 @@ def update_env_file(file_name, colte_data):
         file.write(new_text)
 
 def enable_ip_forward():
-    replaceAll("/etc/sysctl.conf", "net.ipv4.ip_forward", "net.ipv4.ip_forward=1", True)
+    replaceAll("/etc/sysctl.conf", "net.ipv4.ip_forward", "net.ipv4.ip_forward=1\n", True)
     os.system('sysctl -w net.ipv4.ip_forward=1')
 
 def update_colte_nat_script(colte_data):
