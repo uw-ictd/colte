@@ -65,7 +65,7 @@ describe ("transfer API", function() {
         "amount": 10.0
       })
       .set('X-Forwarded-For', '192.168.151.2');
-    expect(res.statusCode).toEqual(400);
+    expect(res.statusCode).toEqual(302);
     done();
   });
   it('Post transfer api, missing dest address', async (done) => {
@@ -92,7 +92,7 @@ describe ("transfer API", function() {
         "amount": 10.0
       })
       .set('X-Forwarded-For', '192.168.151.4');
-    expect(res.statusCode).toEqual(400);
+    expect(res.statusCode).toEqual(302);
     done();
   });
   it('Post transfer api, self-transfer', async (done) => {
@@ -103,7 +103,7 @@ describe ("transfer API", function() {
         "amount": 10.0
       })
       .set('X-Forwarded-For', '192.168.151.2');
-    expect(res.statusCode).toEqual(400);
+    expect(res.statusCode).toEqual(302);
     done();
   });
   it('Post transfer api, valid transfer', async (done) => {
