@@ -9,6 +9,11 @@ router.get('/', function(req, res, next) {
   var ip = app.generateIP(req.ip);
   console.log("Web Request From: " + ip)
   customer.find_by_ip(ip).then((data) => {
+    if (data.length == 0) {
+      return res.sendStatus(403);
+    } else if (data.length > 1) {
+      throw new Error(`Multiple database entries for ${ip}`);
+    }
     var data_balance_str = app.convertBytes(data[0].data_balance);
 
     res.render('purchase', {
@@ -20,6 +25,9 @@ router.get('/', function(req, res, next) {
       pack: app.pricing.packages,
       services: app.services,
     });
+  }).catch((error) => {
+    console.error(error);
+    return res.sendStatus(500);
   });
 });
 
@@ -33,7 +41,12 @@ router.post('/purchase', function(req,res) {
   var bytes = req.body.package;
   var cost = 0;
   customer.find_by_ip(ip).then((data) => {
-    
+    if (data.length == 0) {
+      return res.sendStatus(403);
+    } else if (data.length > 1) {
+      throw new Error(`Multiple database entries for ${ip}`);
+    }
+
     for (var i in app.pricing.packages) {
       if (app.pricing.packages[i].bytes == bytes) {
         cost = app.pricing.packages[i].cost;
@@ -53,8 +66,9 @@ router.post('/purchase', function(req,res) {
     .then(function() {
       res.redirect('/purchase');
     });
-  }).catch(() => {
-    return res.sendStatus(403);
+  }).catch((error) => {
+    console.error(error);
+    return res.sendStatus(500);
   });
 });
 
