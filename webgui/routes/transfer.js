@@ -10,7 +10,13 @@ router.get('/', function(req, res, next) {
   console.log("Web Request From: " + ip)
 
   customer.find_by_ip(ip).then((data) => {
-    res.render('transfer', {
+    if (data.length == 0) {
+      return res.sendStatus(403);
+    } else if (data.length > 1) {
+      throw new Error(`Multiple database entries for ${ip}`);
+    }
+
+    return res.render('transfer', {
       translate: app.translate,
       title: app.translate('Transfer'),
       raw_up: data[0].raw_up,
@@ -19,6 +25,9 @@ router.get('/', function(req, res, next) {
       admin: data[0].admin,
       services: app.services,
     });
+  }).catch((error) => {
+    console.error(error);
+    return res.sendStatus(500);
   });
 });
   
@@ -29,6 +38,11 @@ router.post('/transfer', function(req,res) {
   var msisdn = req.body.msisdn;
 
   customer.find_by_ip(ip).then((data) => {
+    if (data.length == 0) {
+      return res.sendStatus(403);
+    } else if (data.length > 1) {
+      throw new Error(`Multiple database entries for ${ip}`);
+    }
 
     customer.transfer_balance_msisdn(data[0].imsi, msisdn, amount).catch((error) => {
       console.log("Transfer error: " + error);
@@ -36,6 +50,9 @@ router.post('/transfer', function(req,res) {
     .then(function() {
       res.redirect('/transfer');
     });
+  }).catch((error) => {
+    console.error(error);
+    return res.sendStatus(500);
   });
 });
 
