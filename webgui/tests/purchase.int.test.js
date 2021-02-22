@@ -32,7 +32,7 @@ describe ("purchase API", function() {
     expect(res.statusCode).toEqual(403);
     done();
   })
-  it('Post main page', async (done) => {
+  it('Post main page (invalid verb)', async (done) => {
     const res = await test_request(app)
       .post("/purchase")
       .set('X-Forwarded-For', '192.168.151.2')
@@ -40,7 +40,7 @@ describe ("purchase API", function() {
     expect(res.statusCode).toEqual(405);
     done();
   })
-  it('Post main page', async (done) => {
+  it('Get purchase api (invalid verb)', async (done) => {
     const res = await test_request(app)
       .get("/purchase/purchase")
       .set('X-Forwarded-For', '192.168.151.2');
