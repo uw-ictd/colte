@@ -5,7 +5,7 @@ module.exports = {
   test: {
     client: 'mysql',
     connection: {
-      host: process.env.DB_HOST,
+      host: "localhost",
       database: process.env.DB_NAME,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD
