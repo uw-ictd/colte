@@ -37,10 +37,15 @@ router.all('/', (req, res) => {
 });
 
 router.post('/transfer', function(req,res) {
-
   var ip = app.generateIP(req.ip);
   var amount = req.body.amount;
   var msisdn = req.body.msisdn;
+
+  // Low-fidelity input validation.
+  if (amount == null || msisdn == null) {
+    console.warn("Received malformed transfer post body");
+    return res.sendStatus(400);
+  }
 
   customer.find_by_ip(ip).then((data) => {
     if (data.length == 0) {
