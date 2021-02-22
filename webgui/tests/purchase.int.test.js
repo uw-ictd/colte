@@ -18,11 +18,18 @@ afterAll(async () =>{
 })
 
 describe ("purchase API", function() {
-  it('Get main page', async (done) => {
+  it('Get main page valid address', async (done) => {
     const res = await test_request(app)
       .get("/purchase")
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(200);
+    done();
+  })
+  it('Get main page invalid address', async (done) => {
+    const res = await test_request(app)
+      .get("/purchase")
+      .set('X-Forwarded-For', '255.255.255.255');
+    expect(res.statusCode).toEqual(403);
     done();
   })
   it('Post main page', async (done) => {
