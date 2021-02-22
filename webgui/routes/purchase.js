@@ -55,9 +55,8 @@ router.post('/purchase', function(req,res) {
     }
     // handle no match here
     if (cost == 0) {
-      console.log("Package Not Found?!?");
-      res.redirect('/purchase');
-      return;
+      console.warn(`Request package ${bytes} not found?!?`);
+      return res.sendStatus(400);
     }
 
     customer.purchase_package(data[0].imsi, cost, bytes).catch((error) => {
