@@ -49,6 +49,10 @@ describe ("transfer API", function() {
   it('Post transfer api, invalid source address', async (done) => {
     const res = await test_request(app)
       .post("/transfer/transfer")
+      .send({
+        "msisdn": "3",
+        "amount": 10.0
+      })
       .set('X-Forwarded-For', '0.0.0.0');
     expect(res.statusCode).toEqual(403);
     done();
