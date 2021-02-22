@@ -3,6 +3,7 @@ var router = express.Router();
 var colte_models = require('colte-common-models');
 var customer = colte_models.Customer;
 var app = require('../app');
+const { body, validationResult } = require('express-validator');
 
 router.get('/', function(req, res, next) {
 
@@ -36,35 +37,38 @@ router.all('/', (req, res) => {
   return res.sendStatus(405);
 });
 
-router.post('/transfer', function(req,res) {
-  var ip = app.generateIP(req.ip);
-  var amount = req.body.amount;
-  var msisdn = req.body.msisdn;
-
-  // Low-fidelity input validation.
-  if (amount == null || msisdn == null) {
-    console.warn("Received malformed transfer post body");
-    return res.sendStatus(400);
-  }
-
-  customer.find_by_ip(ip).then((data) => {
-    if (data.length == 0) {
-      return res.sendStatus(403);
-    } else if (data.length > 1) {
-      throw new Error(`Multiple database entries for ${ip}`);
+router.post(
+  '/transfer',
+  body("amount").isNumeric(),
+  body("msisdn").isNumeric(),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()){
+        return res.status(400).json(errors);
     }
+    var ip = app.generateIP(req.ip);
+    var amount = req.body.amount;
+    var msisdn = req.body.msisdn;
 
-    customer.transfer_balance_msisdn(data[0].imsi, msisdn, amount).catch((error) => {
-      console.log("Transfer error: " + error);
-    })
-    .then(function() {
-      res.redirect('/transfer');
+    customer.find_by_ip(ip).then((data) => {
+      if (data.length == 0) {
+        return res.sendStatus(403);
+      } else if (data.length > 1) {
+        throw new Error(`Multiple database entries for ${ip}`);
+      }
+
+      customer.transfer_balance_msisdn(data[0].imsi, msisdn, amount).catch((error) => {
+        console.log("Transfer error: " + error);
+      })
+      .then(function() {
+        res.redirect('/transfer');
+      });
+    }).catch((error) => {
+      console.error(error);
+      return res.sendStatus(500);
     });
-  }).catch((error) => {
-    console.error(error);
-    return res.sendStatus(500);
-  });
-});
+  }
+);
 
 // Transfer fallback for all other unsupported verbs.
 router.all('/transfer', (req, res) => {

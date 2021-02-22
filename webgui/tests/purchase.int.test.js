@@ -49,6 +49,7 @@ describe ("purchase API", function() {
   it('Post purchase api, invalid address', async (done) => {
     const res = await test_request(app)
       .post("/purchase/purchase")
+      .send({"package":"10000000"})
       .set('X-Forwarded-For', '0.0.0.0');
     expect(res.statusCode).toEqual(403);
     done();

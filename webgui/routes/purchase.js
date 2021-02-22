@@ -3,6 +3,7 @@ var router = express.Router();
 var colte_models = require('colte-common-models');
 var customer = colte_models.Customer;
 var app = require('../app');
+const { body, validationResult } = require('express-validator');
 
 router.get('/', function(req, res, next) {
 
@@ -36,40 +37,49 @@ router.all('/', (req, res) => {
   return res.sendStatus(405);
 });
 
-router.post('/purchase', function(req,res) {
-  var ip = app.generateIP(req.ip);
-  var bytes = req.body.package;
-  var cost = 0;
-  customer.find_by_ip(ip).then((data) => {
-    if (data.length == 0) {
-      return res.sendStatus(403);
-    } else if (data.length > 1) {
-      throw new Error(`Multiple database entries for ${ip}`);
+router.post(
+  '/purchase',
+  body("package").isNumeric(),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()){
+        return res.status(400).json(errors);
     }
 
-    for (var i in app.pricing.packages) {
-      if (app.pricing.packages[i].bytes == bytes) {
-        cost = app.pricing.packages[i].cost;
-        break;
+    var ip = app.generateIP(req.ip);
+    var bytes = req.body.package;
+    var cost = 0;
+    customer.find_by_ip(ip).then((data) => {
+      if (data.length == 0) {
+        return res.sendStatus(403);
+      } else if (data.length > 1) {
+        throw new Error(`Multiple database entries for ${ip}`);
       }
-    }
-    // handle no match here
-    if (cost == 0) {
-      console.warn(`Request package ${bytes} not found?!?`);
-      return res.sendStatus(400);
-    }
 
-    customer.purchase_package(data[0].imsi, cost, bytes).catch((error) => {
-      console.log("Purchase error: " + error);
-    })
-    .then(function() {
-      res.redirect('/purchase');
+      for (var i in app.pricing.packages) {
+        if (app.pricing.packages[i].bytes == bytes) {
+          cost = app.pricing.packages[i].cost;
+          break;
+        }
+      }
+      // handle no match here
+      if (cost == 0) {
+        console.warn(`Request package ${bytes} not found?!?`);
+        return res.sendStatus(400);
+      }
+
+      customer.purchase_package(data[0].imsi, cost, bytes).catch((error) => {
+        console.log("Purchase error: " + error);
+      })
+      .then(function() {
+        res.redirect('/purchase');
+      });
+    }).catch((error) => {
+      console.error(error);
+      return res.sendStatus(500);
     });
-  }).catch((error) => {
-    console.error(error);
-    return res.sendStatus(500);
-  });
-});
+  }
+);
 
 // Purchase fallback for all other unsupported verbs.
 router.all('/purchase', (req, res) => {
