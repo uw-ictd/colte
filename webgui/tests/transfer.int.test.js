@@ -56,7 +56,26 @@ describe ("transfer API", function() {
   it('Post transfer api, invalid dest address', async (done) => {
     const res = await test_request(app)
       .post("/transfer/transfer")
-      .send("1337") //TODO
+      .send({
+        "msisdn": "1337",
+        "amount": 10.0
+      })
+      .set('X-Forwarded-For', '192.168.151.2');
+    expect(res.statusCode).toEqual(400);
+    done();
+  });
+  it('Post transfer api, missing dest address', async (done) => {
+    const res = await test_request(app)
+      .post("/transfer/transfer")
+      .send({"amount": 10.0})
+      .set('X-Forwarded-For', '192.168.151.2');
+    expect(res.statusCode).toEqual(400);
+    done();
+  });
+  it('Post transfer api, missing amount', async (done) => {
+    const res = await test_request(app)
+      .post("/transfer/transfer")
+      .send({"msisdn": "3"})
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(400);
     done();
@@ -64,15 +83,21 @@ describe ("transfer API", function() {
   it('Post transfer api, insufficient source funds', async (done) => {
     const res = await test_request(app)
       .post("/transfer/transfer")
-      .send("1337") //TODO
-      .set('X-Forwarded-For', '192.168.151.2');
+      .send({
+        "msisdn": "3",
+        "amount": 10.0
+      })
+      .set('X-Forwarded-For', '192.168.151.4');
     expect(res.statusCode).toEqual(400);
     done();
   });
   it('Post transfer api, self-transfer', async (done) => {
     const res = await test_request(app)
       .post("/transfer/transfer")
-      .send("1337") //TODO
+      .send({
+        "msisdn": "2",
+        "amount": 10.0
+      })
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(400);
     done();
@@ -80,7 +105,10 @@ describe ("transfer API", function() {
   it('Post transfer api, valid transfer', async (done) => {
     const res = await test_request(app)
       .post("/transfer/transfer")
-      .send({"package":"10000000"}) //TODO
+      .send({
+        "msisdn": "3",
+        "amount": 10.0
+      })
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(302);
     done();
