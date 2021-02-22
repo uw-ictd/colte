@@ -65,9 +65,9 @@ describe ("purchase API", function() {
   it('Post purchase api', async (done) => {
     const res = await test_request(app)
       .post("/purchase/purchase")
-      .send("10000000")
+      .send({"package":"10000000"})
       .set('X-Forwarded-For', '192.168.151.2');
-    expect(res.statusCode).toEqual(200);
+    expect(res.statusCode).toEqual(302);
     done();
   });
 
