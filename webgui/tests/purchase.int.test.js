@@ -47,5 +47,30 @@ describe ("purchase API", function() {
     expect(res.statusCode).toEqual(405);
     done();
   })
+  it('Post purchase api, invalid address', async (done) => {
+    const res = await test_request(app)
+      .post("/purchase/purchase")
+      .set('X-Forwarded-For', '0.0.0.0');
+    expect(res.statusCode).toEqual(403);
+    done();
+  })
+  it('Post purchase api, invalid amount', async (done) => {
+    const res = await test_request(app)
+      .post("/purchase/purchase")
+      .send("1337")
+      .set('X-Forwarded-For', '192.168.151.2');
+    expect(res.statusCode).toEqual(400);
+    done();
+  })
+  it('Post purchase api', async (done) => {
+    const res = await test_request(app)
+      .post("/purchase/purchase")
+      .send("10000000")
+      .set('X-Forwarded-For', '192.168.151.2');
+    expect(res.statusCode).toEqual(200);
+    done();
+  })
+
+
 
 })
