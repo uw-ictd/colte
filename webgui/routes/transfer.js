@@ -30,7 +30,12 @@ router.get('/', function(req, res, next) {
     return res.sendStatus(500);
   });
 });
-  
+
+// Root fallback for all other unsupported verbs.
+router.all('/', (req, res) => {
+  return res.sendStatus(405);
+});
+
 router.post('/transfer', function(req,res) {
 
   var ip = app.generateIP(req.ip);
@@ -54,6 +59,11 @@ router.post('/transfer', function(req,res) {
     console.error(error);
     return res.sendStatus(500);
   });
+});
+
+// Transfer fallback for all other unsupported verbs.
+router.all('/transfer', (req, res) => {
+  return res.sendStatus(405);
 });
 
 module.exports = router;
