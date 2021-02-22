@@ -22,7 +22,12 @@ router.get('/', function(req, res, next) {
     });
   });
 });
-  
+
+// Root fallback for all other unsupported verbs.
+router.all('/', (req, res) => {
+  return res.sendStatus(405);
+});
+
 router.post('/purchase', function(req,res) {
   var ip = app.generateIP(req.ip);
   var bytes = req.body.package;
@@ -48,7 +53,14 @@ router.post('/purchase', function(req,res) {
     .then(function() {
       res.redirect('/purchase');
     });
+  }).catch(() => {
+    return res.sendStatus(403);
   });
+});
+
+// Purchase fallback for all other unsupported verbs.
+router.all('/purchase', (req, res) => {
+  return res.sendStatus(405);
 });
 
 module.exports = router;
