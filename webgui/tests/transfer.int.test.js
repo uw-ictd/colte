@@ -1,7 +1,6 @@
 const test_request = require('supertest');
 const app = require('../app');
 const Knex = require('colte-common-models').TestKnex;
-const purchase_router = require('../routes/transfer');
 
 const databaseName = `colte_test_for_worker_${process.env.JEST_WORKER_ID}`;
 
