@@ -45,6 +45,7 @@ describe ("purchase API", function() {
       .get("/purchase")
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(200);
+    expect(res.text).toEqual(expect.stringContaining("Current Balance: $2500"));
     done();
   });
   it('Get main page invalid address', async (done) => {
@@ -91,6 +92,15 @@ describe ("purchase API", function() {
       .send({"package":"10000000"})
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(302);
+    expect(res.text).toEqual("Found. Redirecting to /purchase");
+
+    // Check that the balance was correctly deducted and converted to data.
+    const status = await test_request(app)
+      .get("/purchase")
+      .set('X-Forwarded-For', '192.168.151.2');
+    expect(status.statusCode).toEqual(200);
+    expect(status.text).toEqual(expect.stringContaining("Current Balance: $0"));
+    expect(status.text).toEqual(expect.stringContaining("Data Balance: 110.0 MB"));
     done();
   });
 

@@ -93,7 +93,7 @@ describe ("transfer API", function() {
     const status = await test_request(app)
       .get("/transfer")
       .set('X-Forwarded-For', '192.168.151.2');
-    expect(status.text).toEqual(expect.stringContaining("Current Balance: $100"));
+    expect(status.text).toEqual(expect.stringContaining("Current Balance: $2500"));
     done();
   });
   it('Post transfer api, missing dest address', async (done) => {
@@ -125,7 +125,7 @@ describe ("transfer API", function() {
     const status = await test_request(app)
       .get("/transfer")
       .set('X-Forwarded-For', '192.168.151.4');
-    expect(status.text).toEqual(expect.stringContaining("Current Balance: $0"));
+      expect(status.text).toEqual(expect.stringContaining("Current Balance: $0"));
     done();
   });
   it('Post transfer api, self-transfer', async (done) => {
@@ -141,7 +141,7 @@ describe ("transfer API", function() {
     const status = await test_request(app)
       .get("/transfer")
       .set('X-Forwarded-For', '192.168.151.2');
-    expect(status.text).toEqual(expect.stringContaining("Current Balance: $100"));
+    expect(status.text).toEqual(expect.stringContaining("Current Balance: $2500"));
     done();
   });
   it('Post transfer api, valid transfer', async (done) => {
@@ -157,7 +157,7 @@ describe ("transfer API", function() {
     const status1 = await test_request(app)
       .get("/transfer")
       .set('X-Forwarded-For', '192.168.151.2');
-    expect(status1.text).toEqual(expect.stringContaining("Current Balance: $90"));
+    expect(status1.text).toEqual(expect.stringContaining("Current Balance: $2490"));
 
     const status2 = await test_request(app)
       .get("/transfer")

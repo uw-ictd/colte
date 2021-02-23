@@ -6,7 +6,7 @@ exports.seed = function(knex) {
     .then(() => {
       return knex('customers').insert([
         {imsi: "000000000000001", username: "localAdmin", raw_down: 0, raw_up: 0, data_balance: 100000000, balance: 0, bridged: true, enabled: true, admin: false, msisdn: "99"},
-        {imsi: "000000000000002", username: "User2", raw_down: 0, raw_up: 0, data_balance: 100000000, balance: 100, bridged: true, enabled: true, admin: false, msisdn: "2"},
+        {imsi: "000000000000002", username: "User2", raw_down: 0, raw_up: 0, data_balance: 100000000, balance: 2500, bridged: true, enabled: true, admin: false, msisdn: "2"},
         {imsi: "000000000000003", username: "User3", raw_down: 0, raw_up: 0, data_balance: 100000000, balance: 0, bridged: true, enabled: true, admin: false, msisdn: "3"},
         {imsi: "000000000000004", username: "User4", raw_down: 0, raw_up: 0, data_balance: 100000000, balance: 0, bridged: true, enabled: true, admin: false, msisdn: "4"}
       ]);
