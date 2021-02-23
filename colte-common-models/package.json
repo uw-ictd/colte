@@ -5,7 +5,8 @@
   "description": "Internal shared models for common database relations.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "knex-test": "knex --env test"
   },
   "repository": {
     "type": "git",

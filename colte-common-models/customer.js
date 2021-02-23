@@ -1,7 +1,5 @@
-// database connection
-var env = process.env.NODE_ENV || 'development';
-var knex = require('knex')(require('./knexfile')[env]);
-var setupPaginator = require('knex-paginate');
+// database connection will be injected externally.
+let knex = null;
 const { attachPaginate } = require('knex-paginate');
 attachPaginate();
 var fs = require('fs');
@@ -92,6 +90,10 @@ function transfer_balance_impl(sender_imsi, receiver_imsi, amount, kind) {
 }
 
 var customer = {
+  register_knex(knex_instance) {
+    knex = knex_instance;
+  },
+
   all(page) {
     return knex.select(
       'imsi', 'msisdn', 'raw_down', 'raw_up', 'balance', 'data_balance', 'enabled', 'bridged', 'admin', 'username'

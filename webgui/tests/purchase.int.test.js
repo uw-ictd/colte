@@ -1,19 +1,42 @@
+require('dotenv').config();
 const test_request = require('supertest');
-const app = require('../app');
-const Knex = require('colte-common-models').TestKnex;
+const common_models = require('colte-common-models');
 
-const databaseName = `colte_test_for_worker_${process.env.JEST_WORKER_ID}`;
+// The app will be instantiated after database prep.
+let app = null;
+let db_specific_knex = null;
 
-beforeAll(async () => {
-  Knex.raw(`DROP DATABASE IF EXISTS ${databaseName}`);
-  Knex.raw(`CREATE DATABASE ${databaseName}`);
-  // TODO(matt9j) Add support for creating a clean test DB, possibly from knex
-  // migrations and seeds.
+const databaseName = `colte_purchase_test_for_worker_${process.env.JEST_WORKER_ID}`;
+
+beforeAll(async (done) => {
+  // Setup knex to run seeds and migrations.
+  let config = common_models.knexFile[process.env.NODE_ENV];
+  config.migrations.directory = "../colte-common-models/" + config.migrations.directory;
+  config.seeds.directory = "../colte-common-models/" + config.seeds.directory;
+  const knex = common_models.getKnexInstance(config);
+
+  await knex.raw(`DROP DATABASE IF EXISTS ${databaseName};`).then( () => {
+    return knex.raw(`CREATE DATABASE ${databaseName};`);
+  }).then(() => {
+    process.env.DB_NAME = databaseName;
+    app = require('../app');
+  }).then(() => {
+    // Update the config to point to the newly created database
+    config.connection.database = databaseName;
+    db_specific_knex = require('colte-common-models').getKnexInstance(config);
+    return db_specific_knex.migrate.latest().then(() => {
+      return db_specific_knex.seed.run();
+    });
+  }).then(() => {
+    done();
+  })
 });
 
-afterAll(async () =>{
-  Knex.raw(`DROP DATABASE ${databaseName}`);
-  Knex.destroy();
+afterAll(async (done) => {
+  db_specific_knex.raw(`DROP DATABASE IF EXISTS ${databaseName}`)
+  .then(() => {
+    done();
+  });
 });
 
 describe ("purchase API", function() {

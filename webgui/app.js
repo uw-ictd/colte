@@ -7,9 +7,6 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 
 // variables loaded through .env file
-require('dotenv').config();
-var port = process.env.PORT || 3000;
-var env = process.env.NODE_ENV || 'development';
 var locale = process.env.LOCALE || "en";
 var transaction_log = process.env.TRANSACTION_LOG || "/var/log/colte/transaction_log.txt";
 
