@@ -8,23 +8,19 @@ var transaction_log = process.env.TRANSACTION_LOG || "/var/log/colte/transaction
 
 function transfer_balance_impl(sender_imsi, receiver_imsi, amount, kind) {
   function fetch_bals(trx) {
-    return knex.select(
+    return trx.select(
       'balance'
     ).where(
       'imsi', sender_imsi
     ).from(
       'customers'
-    ).transacting(
-      trx
     ).then((sender_bal) => {
-      return knex.select(
+      return trx.select(
         'balance'
       ).where(
         'imsi', receiver_imsi
       ).from(
         'customers'
-      ).transacting(
-        trx
       ).then((receiver_bal) => {
         return [sender_bal, receiver_bal];
       });
@@ -65,11 +61,9 @@ function transfer_balance_impl(sender_imsi, receiver_imsi, amount, kind) {
         'imsi', sender_imsi
       ).from(
         'customers'
-      ).transacting(
-        trx
       ).then((unused_data) => {
         // note we're still using the data argument from the fetch_bals promise
-        return knex.update({ balance: receiver_bal }).where('imsi', receiver_imsi).from('customers').transacting(trx).then(trx.commit, trx.rollback)
+        return trx.update({ balance: receiver_bal }).where('imsi', receiver_imsi).from('customers')
       }).then((data2) => {
         var result = "Transfered " + amount + ". New balances are " + sender_bal + " and " + receiver_bal;
         console.log(result);
@@ -244,14 +238,12 @@ var customer = {
 
     function purchase_func(trx) {
       console.log("IMSI = " + imsi + " cost = " + cost + " data = " + data);
-      return knex.select(
+      return trx.select(
         'balance', 'data_balance'
       ).where(
         'imsi', imsi
       ).from(
         'customers'
-      ).transacting(
-        trx
       ).catch(function(error) {
         throw new Error(error.sqlMessage);
       }).then(function(rows) {
@@ -267,17 +259,13 @@ var customer = {
           throw new Error("Insufficient funds for transfer!");
         }
 
-        var rval = knex.update(
+        var rval = trx.update(
           {balance: newBalance, data_balance: newData}
         ).where(
           'imsi', imsi
         ).from(
           'customers'
-        ).transacting(
-          trx
-        ).then(
-          trx.commit, trx.rollback
-        ).catch(function (error) {
+        ).catch((error) => {
           throw new Error(error.sqlMessage);
         });
 
@@ -290,10 +278,10 @@ var customer = {
             }
           });
         return rval;
-      })
+      });
     }
 
-    return knex.transaction(purchase_func)
+    return knex.transaction(purchase_func);
   }
 }
 
