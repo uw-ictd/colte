@@ -165,9 +165,86 @@ describe ("transfer API", function() {
     expect(status2.text).toEqual(expect.stringContaining("Current Balance: $10"));
     done();
   });
-  it('Post transfer api, transfer stress consistency test', async (done) => {
-    // TODO
-    expect(true).toEqual(true);
+  it('Post transfer api, one way transfer stress consistency test', async (done) => {
+    // Generate many concurrent requests, and ensure the results match expected.
+    let promises = [];
+    for (i =0; i <100; ++i) {
+      promises.push(
+        test_request(app)
+          .post("/transfer/transfer")
+          .send({
+            "msisdn": "3",
+            "amount": 24.9
+          })
+          .set('X-Forwarded-For', '192.168.151.2')
+      );
+    }
+    results = await Promise.all(promises);
+
+    // Validate request results
+    for (i=0; i < 100; ++i){
+      expect(results[i].statusCode).toEqual(302);
+    }
+
+    // Validate Balances
+    const status1 = await test_request(app)
+      .get("/transfer")
+      .set('X-Forwarded-For', '192.168.151.2');
+    expect(status1.text).toEqual(expect.stringContaining("Current Balance: $0"));
+
+    const status2 = await test_request(app)
+      .get("/transfer")
+      .set('X-Forwarded-For', '192.168.151.3');
+    expect(status2.text).toEqual(expect.stringContaining("Current Balance: $2500"));
+
+    done();
+  });
+  it('Post transfer api, two way transfer stress consistency test', async (done) => {
+    // Generate many concurrent requests, and ensure the results match expected.
+    let promises = [];
+    for (i =0; i <50; ++i) {
+      promises.push(
+        test_request(app)
+          .post("/transfer/transfer")
+          .send({
+            "msisdn": "3",
+            "amount": 24.9
+          })
+          .set('X-Forwarded-For', '192.168.151.2')
+      );
+      promises.push(
+        test_request(app)
+          .post("/transfer/transfer")
+          .send({
+            "msisdn": "2",
+            "amount": 10
+          })
+          .set('X-Forwarded-For', '192.168.151.3')
+      );
+    }
+    results = await Promise.all(promises);
+
+    // Validate request results
+    for (i=0; i < 100; ++i){
+      expect(results[i].statusCode).toEqual(302);
+    }
+
+    // Validate Balances
+    const status2 = await test_request(app)
+      .get("/transfer")
+      .set('X-Forwarded-For', '192.168.151.2');
+    const user2_rexp_result = status2.text.match(/<p>Current Balance: \$(?<balance>[0-9,\.,\,]*)<\/p>/);
+    const user2balance = Number(user2_rexp_result.groups.balance);
+
+    const status3 = await test_request(app)
+      .get("/transfer")
+      .set('X-Forwarded-For', '192.168.151.3');
+
+    const user3_rexp_result = status3.text.match(/<p>Current Balance: \$(?<balance>[0-9,\.,\,]*)<\/p>/);
+    const user3balance = Number(user3_rexp_result.groups.balance);
+
+    expect(user2balance + user3balance).toEqual(2500);
+
     done();
   });
 });
