@@ -10,6 +10,7 @@ function transfer_balance_impl(sender_imsi, receiver_imsi, amount, kind) {
   function fetch_bals(trx) {
     return trx.select(
       'balance'
+    ).forUpdate(
     ).where(
       'imsi', sender_imsi
     ).from(
@@ -240,6 +241,7 @@ var customer = {
       console.log("IMSI = " + imsi + " cost = " + cost + " data = " + data);
       return trx.select(
         'balance', 'data_balance'
+      ).forUpdate(
       ).where(
         'imsi', imsi
       ).from(
