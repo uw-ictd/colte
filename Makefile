@@ -21,6 +21,7 @@ all: build package
 .PHONY: all build package \
 build_common_models build_webgui build_webadmin build_arm64 build_x86_64 \
 package_arm64 packagex86_64 \
+test test_webgui \
 get_nfpm install_apt_deps install_deps \
 clean
 
@@ -60,6 +61,11 @@ package_arm64 package_x86_64:
 	cat nfpm.yaml | \
 	envsubst '$${HOST_ARCHITECTURE}' | \
 	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
+
+test: test_webgui
+
+test_webgui: build_webgui
+	cd webgui; npm run test
 
 clean:
 	rm -rf $(TARGET_DIR)
