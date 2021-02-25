@@ -2,17 +2,11 @@
 const env = process.env.NODE_ENV || 'development';
 
 function buildCustomer() {
-    console.log("Am building");
-    console.log(process.env.DB_NAME);
-    const knex = require('knex')({
-        client: 'mysql',
-        connection: {
-          host: "localhost",
-          database: process.env.DB_NAME,
-          user: process.env.DB_USER,
-          password: process.env.DB_PASSWORD
-        }
-      });
+    let config = require("./knexfile.js")[env]
+    config.connection.database = process.env.DB_NAME;
+    console.log("Building customer with config");
+    console.log(config);
+    const knex = require('knex')(config);
     const customer = require('./customer.js');
 
     customer.register_knex(knex)
