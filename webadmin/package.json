@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "babel-node ./bin/www --presets @babel/env"
+    "start": "babel-node ./bin/www --presets @babel/env",
+    "test": "echo 'No tests setup yet'"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
