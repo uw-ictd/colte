@@ -31,3 +31,68 @@ jobs:
           sudo make install_apt_deps
           make get_nfpm
           make all
+
+      - name: Store built packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: colte-package
+          path: BUILD/colte_*.deb
+
+
+  package-install:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Get previously built package
+        uses: actions/download-artifact@v2
+        with:
+          name: colte-package
+
+      - name: Add CoLTE public repo
+        run: |
+          echo "deb http://colte.cs.washington.edu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/colte.list
+          sudo wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
+          sudo add-apt-repository ppa:open5gs/latest
+          sudo apt-get update
+
+      - name: Install CoLTE Package
+        run: |
+          sudo dpkg -i colte_*.deb || /bin/true
+          sudo apt-get install --yes -f
+
+
+  run-tests:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306
+        env:
+          MYSQL_USER: haulage_db
+          MYSQL_PASSWORD: haulage_db
+          MYSQL_DATABASE: haulage_db
+          MYSQL_ROOT_PASSWORD: haulage_db
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+    steps:
+      - name: Setup nodejs
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Run tests
+        env:
+          DB_HOST: "127.0.0.1"
+          DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+          DB_USER: "root"
+          DB_PASSWORD: "haulage_db"
+          DB_NAME: "haulage_db"
+          TRANSACTION_LOG: "transaction_log.txt"
+        run: |
+          touch webgui/transaction_log.txt
+          make test
