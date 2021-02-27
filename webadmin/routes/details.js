@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var colte_models = require('colte-common-models');
-var customer = colte_models.Customer;
+var customer = colte_models.buildCustomer();
 var app = require('../app');
 
 router.get('/:user_id', function(req, res, next) {
