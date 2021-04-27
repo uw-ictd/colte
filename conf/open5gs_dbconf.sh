@@ -38,7 +38,6 @@ if [ "$1" = "add" ]; then
 				\"imsi\" : \"$IMSI\",
 				\"pdn\" : [ {
 					\"apn\" : \"internet\",
-					\"_id\" : new ObjectId(),
 					\"pcc_rule\" : [ ],
 					\"ambr\" : {
 						\"downlink\" : NumberLong(1024000),
@@ -67,8 +66,7 @@ if [ "$1" = "add" ]; then
 					\"amf\" : \"8000\",
 					\"op\" : null,
 					\"opc\" : \"$OPC\"
-				},
-				\"__v\" : 0
+				}
 			} },
 			upsert=true);" open5gs
 		exit 0
@@ -86,7 +84,6 @@ if [ "$1" = "add" ]; then
 				\"imsi\" : \"$IMSI\",
 				\"pdn\" : [ {
 					\"apn\" : \"internet\",
-					\"_id\" : new ObjectId(),
 					\"pcc_rule\" : [ ],
 					\"ambr\" : {
 						\"downlink\" : NumberLong(1024000),
@@ -118,8 +115,7 @@ if [ "$1" = "add" ]; then
 					\"amf\" : \"8000\",
 					\"op\" : null,
 					\"opc\" : \"$OPC\"
-				},
-				\"__v\" : 0
+				}
 			} },
 			upsert=true);" open5gs
 		exit 0
@@ -138,7 +134,6 @@ if [ "$1" = "add" ]; then
 				\"imsi\" : \"$IMSI\",
 				\"pdn\" : [ {
 					\"apn\" : \"$APN\",
-					\"_id\" : new ObjectId(),
 					\"pcc_rule\" : [ ],
 					\"ambr\" : {
 						\"downlink\" : NumberLong(1024000),
@@ -170,8 +165,7 @@ if [ "$1" = "add" ]; then
 					\"amf\" : \"8000\",
 					\"op\" : null,
 					\"opc\" : \"$OPC\"
-				},
-				\"__v\" : 0
+				}
 			} },
 			upsert=true);" open5gs
 		exit 0
