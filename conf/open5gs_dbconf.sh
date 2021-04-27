@@ -28,7 +28,7 @@ fi
 
 if [ "$1" = "add" ]; then
 	if [ "$#" -eq 4 ]; then
-		IMSI=$2 
+		IMSI=$2
 		KI=$3
 		OPC=$4
 
@@ -37,7 +37,7 @@ if [ "$1" = "add" ]; then
 	fi
 
 	if [ "$#" -eq 5 ]; then
-		IMSI=$2 
+		IMSI=$2
 		IP=$3
 		KI=$4
 		OPC=$5
@@ -47,7 +47,7 @@ if [ "$1" = "add" ]; then
 	fi
 
 	if [ "$#" -eq 6 ]; then
-		IMSI=$2 
+		IMSI=$2
 		IP=$3
 		KI=$4
 		OPC=$5
@@ -67,7 +67,7 @@ if [ "$1" = "remove" ]; then
 		exit 1
 	fi
 
-	IMSI=$2 
+	IMSI=$2
 	mongo --eval "db.subscribers.remove({\"imsi\": \"$IMSI\"});" open5gs
 	exit 0
 fi
@@ -87,7 +87,7 @@ if [ "$1" = "static_ip" ]; then
 		echo "dbconf.sh: incorrect number of args, format is \"open5gs_dbconf.sh static_ip imsi ip\""
 		exit 1
 	fi
-	IMSI=$2 
+	IMSI=$2
 	IP=$3
 
 	mongo --eval "db.subscribers.update({\"imsi\": \"$IMSI\"},{\$set: { \"pdn.0.ue.addr\": \"$IP\" }});" open5gs
@@ -99,7 +99,7 @@ if [ "$1" = "static_ip6" ]; then
 		echo "dbconf.sh: incorrect number of args, format is \"open5gs_dbconf.sh static_ip6 imsi ip\""
 		exit 1
 	fi
-	IMSI=$2 
+	IMSI=$2
 	IP=$3
 
 	mongo --eval "db.subscribers.update({\"imsi\": \"$IMSI\"},{\$set: { \"pdn.0.ue.addr6\": \"$IP\" }});" open5gs
@@ -111,7 +111,7 @@ if [ "$1" = "type" ]; then
 		echo "dbconf.sh: incorrect number of args, format is \"open5gs_dbconf.sh type imsi type\""
 		exit 1
 	fi
-	IMSI=$2 
+	IMSI=$2
 	TYPE=$3
 
 	mongo --eval "db.subscribers.update({\"imsi\": \"$IMSI\"},{\$set: { \"pdn.0.type\": NumberInt($TYPE) }});" open5gs
