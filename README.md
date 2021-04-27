@@ -8,16 +8,37 @@ CoLTE is the Community LTE Project. It is designed to be an all-in-one turnkey s
 
 # Installation
 ### Basic System Requirements:
-We now support and test **only Ubuntu 18.04 (bionic)**.
+We now support Ubuntu 18.04 (bionic), Ubuntu 20.04 (focal), and Debian 10
+(buster). Our primary deployments are currently on bionic and buster, and we
+have better test coverage for those distributions. We recommend buster for new
+installs.
 
 ### Apt Packages
-To ease deployment, we host apt packages on our server. You will need to add our apt repository to get colte and haulage, and you will also need to add the open5gs repository separately. To do this, use the following commands:
+To ease deployment, we host apt packages on our server. You will need to add our
+apt repository to get colte and haulage, and you will also need to add the
+open5gs repository separately. To do this, use the following commands according
+to your distribution:
+
+#### Debian 10 (buster) (Recommended)
+```shell
+echo "deb [signed-by=/usr/share/keyrings/colte-archive-keyring.gpg] http://colte.cs.washington.edu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/colte.list
+sudo wget -O /usr/share/keyrings/colte-archive-keyring.gpg http://colte.cs.washington.edu/colte-archive-keyring.gpg
+wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org.list
+wget -qO - https://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_10/Release.key | sudo apt-key add -
+sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_10/ ./' > /etc/apt/sources.list.d/open5gs.list"
+sudo apt update
+sudo apt install colte
 ```
-echo "deb http://colte.cs.washington.edu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/colte.list
-sudo wget -O /etc/apt/trusted.gpg.d/colte.gpg http://colte.cs.washington.edu/keyring.gpg
+
+#### Ubuntu 18.04 or 20.04 (bionic or focal)
+```shell
+echo "deb [signed-by=/usr/share/keyrings/colte-archive-keyring.gpg] http://colte.cs.washington.edu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/colte.list
+sudo wget -O /usr/share/keyrings/colte-archive-keyring.gpg http://colte.cs.washington.edu/colte-archive-keyring.gpg
+sudo apt install software-properties-common
 sudo add-apt-repository ppa:open5gs/latest
-sudo apt-get update
-sudo apt-get -y install colte
+sudo apt update
+sudo apt install colte
 ```
 
 After installation, the admin tool will be running and listening on [http://localhost:7998](http://localhost:7998), and the user webgui will be running and listening on [http://localhost:7999](http://localhost:7999). You can start or stop these services with `systemctl {start | stop} {colte_webgui | colte_webadmin}`, respectively. Haulage can be started with `sudo haulage` or `sudo systemctl start haulage`. To start Open5Gs, refer to the docs [here](https://open5gs.org/open5gs/docs/).
