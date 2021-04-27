@@ -36,26 +36,43 @@ if [ "$1" = "add" ]; then
 			{\"imsi\" : \"$IMSI\"},
 			{ \$setOnInsert: {
 				\"imsi\" : \"$IMSI\",
-				\"pdn\" : [ {
-					\"apn\" : \"internet\",
-					\"pcc_rule\" : [ ],
-					\"ambr\" : {
-						\"downlink\" : NumberLong(1024000),
-						\"uplink\" : NumberLong(1024000)
-					},
-					\"qos\" : {
-						\"qci\" : NumberInt(9),
-						\"arp\" : {
-							\"priority_level\" : NumberInt(8),
-							\"pre_emption_vulnerability\" : NumberInt(1),
-							\"pre_emption_capability\" : NumberInt(0)
-						}
-					},
-					\"type\" : NumberInt(0),
+				\"slice\":[ {
+					\"_id\" : new ObjectId(),
+					\"sst\" : NumberInt(1),
+					\"default_indicator\": true,
+					\"session\": [ {
+						\"name\" : \"$APN\",
+						\"type\" : NumberInt(0),
+						\"qos\" : {
+							\"index\" : NumberInt(9),
+							\"arp\" : {
+								\"priority_level\" : NumberInt(8),
+								\"pre_emption_vulnerability\" : NumberInt(1),
+								\"pre_emption_capability\" : NumberInt(0)
+							}
+						},
+						\"ambr\" : {
+							\"downlink\" : {
+								\"value\": NumberInt(1),
+								\"unit\": NumberInt(3)
+							},
+							\"uplink\" :  {
+								\"value\": NumberInt(1),
+								\"unit\": NumberInt(3)
+							}
+						},
+						\"pcc_rule\" : [ ]
+					} ]
 				} ],
 				\"ambr\" : {
-					\"downlink\" : NumberLong(1024000),
-					\"uplink\" : NumberLong(1024000)
+					\"downlink\" : {
+						\"value\": NumberInt(1),
+						\"unit\": NumberInt(3)
+					},
+					\"uplink\" :  {
+						\"value\": NumberInt(1),
+						\"unit\": NumberInt(3)
+					}
 				},
 				\"subscribed_rau_tau_timer\" : NumberInt(12),
 				\"network_access_mode\" : NumberInt(2),
@@ -82,29 +99,46 @@ if [ "$1" = "add" ]; then
 			{\"imsi\" : \"$IMSI\"},
 			{ \$setOnInsert: {
 				\"imsi\" : \"$IMSI\",
-				\"pdn\" : [ {
-					\"apn\" : \"internet\",
-					\"pcc_rule\" : [ ],
-					\"ambr\" : {
-						\"downlink\" : NumberLong(1024000),
-						\"uplink\" : NumberLong(1024000)
-					},
-					\"qos\" : {
-						\"qci\" : NumberInt(9),
-						\"arp\" : {
-							\"priority_level\" : NumberInt(8),
-							\"pre_emption_vulnerability\" : NumberInt(1),
-							\"pre_emption_capability\" : NumberInt(0)
-						}
-					},
-					\"type\" : NumberInt(0),
-					\"ue\" : {
-						\"addr\" : \"$IP\"
-					}
+				\"slice\":[ {
+					\"_id\" : new ObjectId(),
+					\"sst\" : NumberInt(1),
+					\"default_indicator\": true,
+					\"session\": [ {
+						\"name\" : \"internet\",
+						\"type\" : NumberInt(0),
+						\"qos\" : {
+							\"index\" : NumberInt(9),
+							\"arp\" : {
+								\"priority_level\" : NumberInt(8),
+								\"pre_emption_vulnerability\" : NumberInt(1),
+								\"pre_emption_capability\" : NumberInt(0)
+							}
+						},
+						\"ambr\" : {
+							\"downlink\" : {
+								\"value\": NumberInt(1),
+								\"unit\": NumberInt(3)
+							},
+							\"uplink\" :  {
+								\"value\": NumberInt(1),
+								\"unit\": NumberInt(3)
+							}
+						},
+						\"ue\" : {
+							\"addr\" : \"$IP\"
+						},
+						\"pcc_rule\" : [ ]
+					} ]
 				} ],
 				\"ambr\" : {
-					\"downlink\" : NumberLong(1024000),
-					\"uplink\" : NumberLong(1024000)
+					\"downlink\" : {
+						\"value\": NumberInt(1),
+						\"unit\": NumberInt(3)
+					},
+					\"uplink\" :  {
+						\"value\": NumberInt(1),
+						\"unit\": NumberInt(3)
+					}
 				},
 				\"subscribed_rau_tau_timer\" : NumberInt(12),
 				\"network_access_mode\" : NumberInt(2),
@@ -132,29 +166,46 @@ if [ "$1" = "add" ]; then
 			{\"imsi\" : \"$IMSI\"},
 			{ \$setOnInsert: {
 				\"imsi\" : \"$IMSI\",
-				\"pdn\" : [ {
-					\"apn\" : \"$APN\",
-					\"pcc_rule\" : [ ],
-					\"ambr\" : {
-						\"downlink\" : NumberLong(1024000),
-						\"uplink\" : NumberLong(1024000)
-					},
-					\"qos\" : {
-						\"qci\" : NumberInt(9),
-						\"arp\" : {
-							\"priority_level\" : NumberInt(8),
-							\"pre_emption_vulnerability\" : NumberInt(1),
-							\"pre_emption_capability\" : NumberInt(0)
-						}
-					},
-					\"type\" : NumberInt(0),
-					\"ue\" : {
-						\"addr\" : \"$IP\"
-					}
+				\"slice\":[ {
+					\"_id\" : new ObjectId(),
+					\"sst\" : NumberInt(1),
+					\"default_indicator\": true,
+					\"session\": [ {
+						\"name\" : \"$APN\",
+						\"type\" : NumberInt(0),
+						\"qos\" : {
+							\"index\" : NumberInt(9),
+							\"arp\" : {
+								\"priority_level\" : NumberInt(8),
+								\"pre_emption_vulnerability\" : NumberInt(1),
+								\"pre_emption_capability\" : NumberInt(0)
+							}
+						},
+						\"ambr\" : {
+							\"downlink\" : {
+								\"value\": NumberInt(1),
+								\"unit\": NumberInt(3)
+							},
+							\"uplink\" :  {
+								\"value\": NumberInt(1),
+								\"unit\": NumberInt(3)
+							}
+						},
+						\"ue\" : {
+							\"addr\" : \"$IP\"
+						},
+						\"pcc_rule\" : [ ]
+					} ]
 				} ],
 				\"ambr\" : {
-					\"downlink\" : NumberLong(1024000),
-					\"uplink\" : NumberLong(1024000)
+					\"downlink\" : {
+						\"value\": NumberInt(1),
+						\"unit\": NumberInt(3)
+					},
+					\"uplink\" :  {
+						\"value\": NumberInt(1),
+						\"unit\": NumberInt(3)
+					}
 				},
 				\"subscribed_rau_tau_timer\" : NumberInt(12),
 				\"network_access_mode\" : NumberInt(2),
