@@ -32,7 +32,45 @@ if [ "$1" = "add" ]; then
 		KI=$3
 		OPC=$4
 
-		mongo --eval "db.subscribers.update({\"imsi\" : \"$IMSI\"}, { \$setOnInsert: { \"imsi\" : \"$IMSI\", \"pdn\" : [ { \"apn\" : \"internet\", \"_id\" : new ObjectId(), \"pcc_rule\" : [ ], \"ambr\" : { \"downlink\" : NumberLong(1024000), \"uplink\" : NumberLong(1024000) }, \"qos\" : { \"qci\" : NumberInt(9), \"arp\" : { \"priority_level\" : NumberInt(8), \"pre_emption_vulnerability\" : NumberInt(1), \"pre_emption_capability\" : NumberInt(0) } }, \"type\" : NumberInt(0) } ], \"ambr\" : { \"downlink\" : NumberLong(1024000), \"uplink\" : NumberLong(1024000) }, \"subscribed_rau_tau_timer\" : NumberInt(12), \"network_access_mode\" : NumberInt(2), \"subscriber_status\" : NumberInt(0), \"access_restriction_data\" : NumberInt(32), \"security\" : { \"k\" : \"$KI\", \"amf\" : \"8000\", \"op\" : null, \"opc\" : \"$OPC\" }, \"__v\" : 0 } }, upsert=true);" open5gs
+		mongo --eval "db.subscribers.update(
+			{\"imsi\" : \"$IMSI\"},
+			{ \$setOnInsert: {
+				\"imsi\" : \"$IMSI\",
+				\"pdn\" : [ {
+					\"apn\" : \"internet\",
+					\"_id\" : new ObjectId(),
+					\"pcc_rule\" : [ ],
+					\"ambr\" : {
+						\"downlink\" : NumberLong(1024000),
+						\"uplink\" : NumberLong(1024000)
+					},
+					\"qos\" : {
+						\"qci\" : NumberInt(9),
+						\"arp\" : {
+							\"priority_level\" : NumberInt(8),
+							\"pre_emption_vulnerability\" : NumberInt(1),
+							\"pre_emption_capability\" : NumberInt(0)
+						}
+					},
+					\"type\" : NumberInt(0),
+				} ],
+				\"ambr\" : {
+					\"downlink\" : NumberLong(1024000),
+					\"uplink\" : NumberLong(1024000)
+				},
+				\"subscribed_rau_tau_timer\" : NumberInt(12),
+				\"network_access_mode\" : NumberInt(2),
+				\"subscriber_status\" : NumberInt(0),
+				\"access_restriction_data\" : NumberInt(32),
+				\"security\" : {
+					\"k\" : \"$KI\",
+					\"amf\" : \"8000\",
+					\"op\" : null,
+					\"opc\" : \"$OPC\"
+				},
+				\"__v\" : 0
+			} },
+			upsert=true);" open5gs
 		exit 0
 	fi
 
@@ -42,7 +80,48 @@ if [ "$1" = "add" ]; then
 		KI=$4
 		OPC=$5
 
-		mongo --eval "db.subscribers.update({\"imsi\" : \"$IMSI\"}, { \$setOnInsert: { \"imsi\" : \"$IMSI\", \"pdn\" : [ { \"apn\" : \"internet\", \"_id\" : new ObjectId(), \"pcc_rule\" : [ ], \"ambr\" : { \"downlink\" : NumberLong(1024000), \"uplink\" : NumberLong(1024000) }, \"qos\" : { \"qci\" : NumberInt(9), \"arp\" : { \"priority_level\" : NumberInt(8), \"pre_emption_vulnerability\" : NumberInt(1), \"pre_emption_capability\" : NumberInt(0) } }, \"type\" : NumberInt(0), \"ue\" : { \"addr\" : \"$IP\" } } ], \"ambr\" : { \"downlink\" : NumberLong(1024000), \"uplink\" : NumberLong(1024000) }, \"subscribed_rau_tau_timer\" : NumberInt(12), \"network_access_mode\" : NumberInt(2), \"subscriber_status\" : NumberInt(0), \"access_restriction_data\" : NumberInt(32), \"security\" : { \"k\" : \"$KI\", \"amf\" : \"8000\", \"op\" : null, \"opc\" : \"$OPC\" }, \"__v\" : 0 } }, upsert=true);" open5gs
+		mongo --eval "db.subscribers.update(
+			{\"imsi\" : \"$IMSI\"},
+			{ \$setOnInsert: {
+				\"imsi\" : \"$IMSI\",
+				\"pdn\" : [ {
+					\"apn\" : \"internet\",
+					\"_id\" : new ObjectId(),
+					\"pcc_rule\" : [ ],
+					\"ambr\" : {
+						\"downlink\" : NumberLong(1024000),
+						\"uplink\" : NumberLong(1024000)
+					},
+					\"qos\" : {
+						\"qci\" : NumberInt(9),
+						\"arp\" : {
+							\"priority_level\" : NumberInt(8),
+							\"pre_emption_vulnerability\" : NumberInt(1),
+							\"pre_emption_capability\" : NumberInt(0)
+						}
+					},
+					\"type\" : NumberInt(0),
+					\"ue\" : {
+						\"addr\" : \"$IP\"
+					}
+				} ],
+				\"ambr\" : {
+					\"downlink\" : NumberLong(1024000),
+					\"uplink\" : NumberLong(1024000)
+				},
+				\"subscribed_rau_tau_timer\" : NumberInt(12),
+				\"network_access_mode\" : NumberInt(2),
+				\"subscriber_status\" : NumberInt(0),
+				\"access_restriction_data\" : NumberInt(32),
+				\"security\" : {
+					\"k\" : \"$KI\",
+					\"amf\" : \"8000\",
+					\"op\" : null,
+					\"opc\" : \"$OPC\"
+				},
+				\"__v\" : 0
+			} },
+			upsert=true);" open5gs
 		exit 0
 	fi
 
@@ -53,7 +132,48 @@ if [ "$1" = "add" ]; then
 		OPC=$5
 		APN=$6
 
-		mongo --eval "db.subscribers.update({\"imsi\" : \"$IMSI\"}, { \$setOnInsert: { \"imsi\" : \"$IMSI\", \"pdn\" : [ { \"apn\" : \"$APN\", \"_id\" : new ObjectId(), \"pcc_rule\" : [ ], \"ambr\" : { \"downlink\" : NumberLong(1024000), \"uplink\" : NumberLong(1024000) }, \"qos\" : { \"qci\" : NumberInt(9), \"arp\" : { \"priority_level\" : NumberInt(8), \"pre_emption_vulnerability\" : NumberInt(1), \"pre_emption_capability\" : NumberInt(0) } }, \"type\" : NumberInt(0), \"ue\" : { \"addr\" : \"$IP\" } } ], \"ambr\" : { \"downlink\" : NumberLong(1024000), \"uplink\" : NumberLong(1024000) }, \"subscribed_rau_tau_timer\" : NumberInt(12), \"network_access_mode\" : NumberInt(2), \"subscriber_status\" : NumberInt(0), \"access_restriction_data\" : NumberInt(32), \"security\" : { \"k\" : \"$KI\", \"amf\" : \"8000\", \"op\" : null, \"opc\" : \"$OPC\" }, \"__v\" : 0 } }, upsert=true);" open5gs
+		mongo --eval "db.subscribers.update(
+			{\"imsi\" : \"$IMSI\"},
+			{ \$setOnInsert: {
+				\"imsi\" : \"$IMSI\",
+				\"pdn\" : [ {
+					\"apn\" : \"$APN\",
+					\"_id\" : new ObjectId(),
+					\"pcc_rule\" : [ ],
+					\"ambr\" : {
+						\"downlink\" : NumberLong(1024000),
+						\"uplink\" : NumberLong(1024000)
+					},
+					\"qos\" : {
+						\"qci\" : NumberInt(9),
+						\"arp\" : {
+							\"priority_level\" : NumberInt(8),
+							\"pre_emption_vulnerability\" : NumberInt(1),
+							\"pre_emption_capability\" : NumberInt(0)
+						}
+					},
+					\"type\" : NumberInt(0),
+					\"ue\" : {
+						\"addr\" : \"$IP\"
+					}
+				} ],
+				\"ambr\" : {
+					\"downlink\" : NumberLong(1024000),
+					\"uplink\" : NumberLong(1024000)
+				},
+				\"subscribed_rau_tau_timer\" : NumberInt(12),
+				\"network_access_mode\" : NumberInt(2),
+				\"subscriber_status\" : NumberInt(0),
+				\"access_restriction_data\" : NumberInt(32),
+				\"security\" : {
+					\"k\" : \"$KI\",
+					\"amf\" : \"8000\",
+					\"op\" : null,
+					\"opc\" : \"$OPC\"
+				},
+				\"__v\" : 0
+			} },
+			upsert=true);" open5gs
 		exit 0
 	fi
 
