@@ -222,7 +222,7 @@ def update_smf(colte_data):
         create_fields_if_not_exist(smf_data, ["smf", "sbi"])
         create_fields_if_not_exist(smf_data, ["smf", "gtpc"])
         create_fields_if_not_exist(smf_data, ["smf", "pfcp"])
-        create_fields_if_not_exist(smf_data, ["smf", "pdn"])
+        create_fields_if_not_exist(smf_data, ["smf", "subnet"])
         create_fields_if_not_exist(smf_data, ["smf", "dns"])
 
         # Set default values of list fields
@@ -230,8 +230,8 @@ def update_smf(colte_data):
             smf_data["smf"]["gtpc"] = []
         if "pfcp" not in smf_data["smf"]:
             smf_data["smf"]["pfcp"] = []
-        if "pdn" not in smf_data["smf"]:
-            smf_data["smf"]["pdn"] = []
+        if "subnet" not in smf_data["smf"]:
+            smf_data["smf"]["subnet"] = []
         if "dns" not in smf_data["smf"]:
             smf_data["smf"]["dns"] = []
 
@@ -241,7 +241,7 @@ def update_smf(colte_data):
         smf_data["smf"]["pfcp"].append({'addr': "127.0.0.4"})
         smf_data["smf"]["pfcp"].append({'addr': "::1"})
 
-        smf_data["smf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
+        smf_data["smf"]["subnet"].append({'addr': colte_data["lte_subnet"]})
 
         smf_data["smf"]["dns"].append(colte_data["dns"])
 
@@ -276,8 +276,8 @@ def update_upf(colte_data):
             del upf_data["upf"]["pfcp"][:]
         if "upf" in upf_data and "gtpu" in upf_data["upf"]:
             del upf_data["upf"]["gtpu"][:]
-        if "upf" in upf_data and "pdn" in upf_data["upf"]:
-            del upf_data["upf"]["pdn"][:]
+        if "upf" in upf_data and "subnet" in upf_data["upf"]:
+            del upf_data["upf"]["subnet"][:]
 
         # Create fields in the data if they do not yet exist
         create_fields_if_not_exist(upf_data, ["upf"])
@@ -287,12 +287,12 @@ def update_upf(colte_data):
             upf_data["upf"]["pfcp"] = []
         if "gtpu" not in upf_data["upf"]:
             upf_data["upf"]["gtpu"] = []
-        if "pdn" not in upf_data["upf"]:
-            upf_data["upf"]["pdn"] = []
+        if "subnet" not in upf_data["upf"]:
+            upf_data["upf"]["subnet"] = []
 
         upf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
         upf_data["upf"]["gtpu"].append({'addr': "127.0.0.7"})
-        upf_data["upf"]["pdn"].append({'addr': colte_data["lte_subnet"]})
+        upf_data["upf"]["subnet"].append({'addr': colte_data["lte_subnet"]})
 
         # Link to the SMF
         # TODO(matt9j) Might not be needed
