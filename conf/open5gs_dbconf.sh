@@ -42,7 +42,7 @@ if [ "$1" = "add" ]; then
 					\"default_indicator\": true,
 					\"session\": [ {
 						\"name\" : \"$APN\",
-						\"type\" : NumberInt(0),
+						\"type\" : NumberInt(1),
 						\"qos\" : {
 							\"index\" : NumberInt(9),
 							\"arp\" : {
@@ -105,7 +105,7 @@ if [ "$1" = "add" ]; then
 					\"default_indicator\": true,
 					\"session\": [ {
 						\"name\" : \"internet\",
-						\"type\" : NumberInt(0),
+						\"type\" : NumberInt(1),
 						\"qos\" : {
 							\"index\" : NumberInt(9),
 							\"arp\" : {
@@ -172,7 +172,7 @@ if [ "$1" = "add" ]; then
 					\"default_indicator\": true,
 					\"session\": [ {
 						\"name\" : \"$APN\",
-						\"type\" : NumberInt(0),
+						\"type\" : NumberInt(1),
 						\"qos\" : {
 							\"index\" : NumberInt(9),
 							\"arp\" : {
