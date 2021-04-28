@@ -47,13 +47,13 @@ provides:
 
 # Dependencies. (overridable)
 depends:
-  - "open5gs-hss (>= 2.0.0)"
-  - "open5gs-sgwu (>= 2.0.0)"
-  - "open5gs-sgwc (>= 2.0.0)"
-  - "open5gs-mme (>= 2.0.0)"
-  - "open5gs-pcrf (>= 2.0.0)"
-  - "open5gs-smf (>= 2.0.0)"
-  - "open5gs-upf (>= 2.0.0)"
+  - "open5gs-hss (>= 2.2.0)"
+  - "open5gs-sgwu (>= 2.2.0)"
+  - "open5gs-sgwc (>= 2.2.0)"
+  - "open5gs-mme (>= 2.2.0)"
+  - "open5gs-pcrf (>= 2.2.0)"
+  - "open5gs-smf (>= 2.2.0)"
+  - "open5gs-upf (>= 2.2.0)"
   - "haulage"
   - "python3"
   - "nodejs (>= 8.0.0)"
