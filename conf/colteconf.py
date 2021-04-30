@@ -211,8 +211,8 @@ def update_smf(colte_data):
         if "smf" in smf_data and "pfcp" in smf_data["smf"]:
             del smf_data["smf"]["pfcp"][:]
 
-        if "smf" in smf_data and "pdn" in smf_data["smf"]:
-            del smf_data["smf"]["pdn"][:]
+        if "smf" in smf_data and "subnet" in smf_data["smf"]:
+            del smf_data["smf"]["subnet"][:]
 
         if "smf" in smf_data and "dns" in smf_data["smf"]:
             del smf_data["smf"]["dns"][:]
