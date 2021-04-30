@@ -47,8 +47,8 @@ if [ "$1" = "add" ]; then
 							\"index\" : NumberInt(9),
 							\"arp\" : {
 								\"priority_level\" : NumberInt(8),
-								\"pre_emption_vulnerability\" : NumberInt(1),
-								\"pre_emption_capability\" : NumberInt(0)
+								\"pre_emption_vulnerability\" : NumberInt(2),
+								\"pre_emption_capability\" : NumberInt(1)
 							}
 						},
 						\"ambr\" : {
@@ -110,8 +110,8 @@ if [ "$1" = "add" ]; then
 							\"index\" : NumberInt(9),
 							\"arp\" : {
 								\"priority_level\" : NumberInt(8),
-								\"pre_emption_vulnerability\" : NumberInt(1),
-								\"pre_emption_capability\" : NumberInt(0)
+								\"pre_emption_vulnerability\" : NumberInt(2),
+								\"pre_emption_capability\" : NumberInt(1)
 							}
 						},
 						\"ambr\" : {
@@ -177,8 +177,8 @@ if [ "$1" = "add" ]; then
 							\"index\" : NumberInt(9),
 							\"arp\" : {
 								\"priority_level\" : NumberInt(8),
-								\"pre_emption_vulnerability\" : NumberInt(1),
-								\"pre_emption_capability\" : NumberInt(0)
+								\"pre_emption_vulnerability\" : NumberInt(2),
+								\"pre_emption_capability\" : NumberInt(1)
 							}
 						},
 						\"ambr\" : {
