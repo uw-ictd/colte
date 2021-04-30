@@ -53,12 +53,12 @@ if [ "$1" = "add" ]; then
 						},
 						\"ambr\" : {
 							\"downlink\" : {
-								\"value\": NumberInt(1),
-								\"unit\": NumberInt(3)
+								\"value\": NumberInt(1000000000),
+								\"unit\": NumberInt(0)
 							},
 							\"uplink\" :  {
-								\"value\": NumberInt(1),
-								\"unit\": NumberInt(3)
+								\"value\": NumberInt(1000000000),
+								\"unit\": NumberInt(0)
 							}
 						},
 						\"pcc_rule\" : [ ]
@@ -66,12 +66,12 @@ if [ "$1" = "add" ]; then
 				} ],
 				\"ambr\" : {
 					\"downlink\" : {
-						\"value\": NumberInt(1),
-						\"unit\": NumberInt(3)
+						\"value\": NumberInt(1000000000),
+						\"unit\": NumberInt(0)
 					},
 					\"uplink\" :  {
-						\"value\": NumberInt(1),
-						\"unit\": NumberInt(3)
+						\"value\": NumberInt(1000000000),
+						\"unit\": NumberInt(0)
 					}
 				},
 				\"subscribed_rau_tau_timer\" : NumberInt(12),
@@ -116,12 +116,12 @@ if [ "$1" = "add" ]; then
 						},
 						\"ambr\" : {
 							\"downlink\" : {
-								\"value\": NumberInt(1),
-								\"unit\": NumberInt(3)
+								\"value\": NumberInt(1000000000),
+								\"unit\": NumberInt(0)
 							},
 							\"uplink\" :  {
-								\"value\": NumberInt(1),
-								\"unit\": NumberInt(3)
+								\"value\": NumberInt(1000000000),
+								\"unit\": NumberInt(0)
 							}
 						},
 						\"ue\" : {
@@ -132,12 +132,12 @@ if [ "$1" = "add" ]; then
 				} ],
 				\"ambr\" : {
 					\"downlink\" : {
-						\"value\": NumberInt(1),
-						\"unit\": NumberInt(3)
+						\"value\": NumberInt(1000000000),
+						\"unit\": NumberInt(0)
 					},
 					\"uplink\" :  {
-						\"value\": NumberInt(1),
-						\"unit\": NumberInt(3)
+						\"value\": NumberInt(1000000000),
+						\"unit\": NumberInt(0)
 					}
 				},
 				\"subscribed_rau_tau_timer\" : NumberInt(12),
@@ -183,12 +183,12 @@ if [ "$1" = "add" ]; then
 						},
 						\"ambr\" : {
 							\"downlink\" : {
-								\"value\": NumberInt(1),
-								\"unit\": NumberInt(3)
+								\"value\": NumberInt(1000000000),
+								\"unit\": NumberInt(0)
 							},
 							\"uplink\" :  {
-								\"value\": NumberInt(1),
-								\"unit\": NumberInt(3)
+								\"value\": NumberInt(1000000000),
+								\"unit\": NumberInt(0)
 							}
 						},
 						\"ue\" : {
@@ -199,12 +199,12 @@ if [ "$1" = "add" ]; then
 				} ],
 				\"ambr\" : {
 					\"downlink\" : {
-						\"value\": NumberInt(1),
-						\"unit\": NumberInt(3)
+						\"value\": NumberInt(1000000000),
+						\"unit\": NumberInt(0)
 					},
 					\"uplink\" :  {
-						\"value\": NumberInt(1),
-						\"unit\": NumberInt(3)
+						\"value\": NumberInt(1000000000),
+						\"unit\": NumberInt(0)
 					}
 				},
 				\"subscribed_rau_tau_timer\" : NumberInt(12),
