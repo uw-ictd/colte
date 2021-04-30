@@ -241,7 +241,9 @@ def update_smf(colte_data):
         smf_data["smf"]["pfcp"].append({'addr': "127.0.0.4"})
         smf_data["smf"]["pfcp"].append({'addr': "::1"})
 
-        smf_data["smf"]["subnet"].append({'addr': colte_data["lte_subnet"]})
+        net = IPNetwork(colte_data["lte_subnet"])
+        netstr = str(net[1]) + "/" + str(net.prefixlen)
+        smf_data["smf"]["subnet"].append({'addr': netstr})
 
         smf_data["smf"]["dns"].append(colte_data["dns"])
 
@@ -292,7 +294,10 @@ def update_upf(colte_data):
 
         upf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
         upf_data["upf"]["gtpu"].append({'addr': "127.0.0.7"})
-        upf_data["upf"]["subnet"].append({'addr': colte_data["lte_subnet"]})
+
+        net = IPNetwork(colte_data["lte_subnet"])
+        netstr = str(net[1]) + "/" + str(net.prefixlen)
+        upf_data["upf"]["subnet"].append({'addr': netstr})
 
         # Link to the SMF
         # TODO(matt9j) Might not be needed
