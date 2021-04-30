@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import ruamel.yaml
-from ruamel.yaml.comments import CommentedMap
+from ruamel.yaml.comments import CommentedSeq
 import fileinput
 import os
 import sys
@@ -339,7 +339,7 @@ def create_fields_if_not_exist(dictionary, fields):
 def create_fields_helper(dictionary, fields, index):
     if index < len(fields):
         if fields[index] not in dictionary or dictionary[fields[index]] == None:
-            dictionary[fields[index]] = CommentedMap()
+            dictionary[fields[index]] = CommentedSeq()
 
         create_fields_helper(dictionary[fields[index]], fields, index + 1)
 
