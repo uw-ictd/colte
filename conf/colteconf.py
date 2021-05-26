@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import ruamel.yaml
-from ruamel.yaml.comments import CommentedSeq
+from ruamel.yaml.comments import (CommentedMap, CommentedSeq)
 import fileinput
 import os
 import sys
@@ -87,10 +87,8 @@ def update_hss(colte_data):
     with open(hss, 'r+') as file:
         hss_data = yaml.load(file.read())
 
-        # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(hss_data, ["logger", "file"])
-
         # Disable internal file logging since journald is capturing stdout
+        _create_field_if_not_exist(hss_data, ["logger"], CommentedMap())
         hss_data["logger"]["file"] = "/dev/null"
 
     with open(hss, 'w') as file:
@@ -104,32 +102,46 @@ def update_mme(colte_data):
         mme_data = yaml.load(file.read())
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(mme_data, ["mme", "gummei", "plmn_id"])
-        create_fields_if_not_exist(mme_data, ["mme", "tai", "plmn_id"])
-        create_fields_if_not_exist(mme_data, ["mme", "s1ap"])
-        create_fields_if_not_exist(mme_data, ["mme", "network_name"])
-        create_fields_if_not_exist(mme_data, ["mme", "gtpc"])
-        create_fields_if_not_exist(mme_data, ["sgwc", "gtpc"])
-        create_fields_if_not_exist(mme_data, ["smf", "gtpc"])
+        _create_field_if_not_exist(mme_data, ["mme"], CommentedMap())
 
-        # MCC values
+        _create_field_if_not_exist(mme_data, ["mme", "gummei"], CommentedMap())
+        _create_field_if_not_exist(mme_data, ["mme", "gummei", "plmn_id"], CommentedMap())
         mme_data["mme"]["gummei"]["plmn_id"]["mcc"] = colte_data["mcc"]
-        mme_data["mme"]["tai"]["plmn_id"]["mcc"] = colte_data["mcc"]
-
-        # MNC values
         mme_data["mme"]["gummei"]["plmn_id"]["mnc"] = colte_data["mnc"]
+
+        _create_field_if_not_exist(mme_data, ["mme", "tai"], CommentedMap())
+        _create_field_if_not_exist(mme_data, ["mme", "tai", "plmn_id"], CommentedMap())
+        mme_data["mme"]["tai"]["plmn_id"]["mcc"] = colte_data["mcc"]
         mme_data["mme"]["tai"]["plmn_id"]["mnc"] = colte_data["mnc"]
 
-        # Other values
-        mme_data["mme"]["s1ap"][0]["addr"] = colte_data["enb_iface_addr"]
+        if "s1ap" in mme_data["mme"]:
+            del mme_data["mme"]["s1ap"]
+        _create_field_if_not_exist(mme_data, ["mme", "s1ap"], CommentedSeq())
+        mme_data["mme"]["s1ap"].append({'addr': colte_data["enb_iface_addr"]})
+
+        _create_field_if_not_exist(mme_data, ["mme", "network_name"], CommentedMap())
         mme_data["mme"]["network_name"]["full"] = colte_data["network_name"]
 
-        # Hard-coded values
-        mme_data["mme"]["gtpc"][0]["addr"] = "127.0.0.2"
-        mme_data["sgwc"]["gtpc"][0]["addr"] = "127.0.0.3"
-        mme_data["smf"]["gtpc"][0]["addr"] = ["127.0.0.4", "::1"]
+        if "gtpc" in mme_data["mme"]:
+            del mme_data["mme"]["gtpc"]
+        _create_field_if_not_exist(mme_data, ["mme", "gtpc"], CommentedSeq())
+        mme_data["mme"]["gtpc"].append({"addr": "127.0.0.2"})
+
+        _create_field_if_not_exist(mme_data, ["sgwc"], CommentedMap())
+        if "gtpc" in mme_data["sgwc"]:
+            del mme_data["sgwc"]["gtpc"]
+        _create_field_if_not_exist(mme_data, ["sgwc", "gtpc"], CommentedSeq())
+        mme_data["sgwc"]["gtpc"].append({"addr": "127.0.0.3"})
+
+        _create_field_if_not_exist(mme_data, ["smf"], CommentedMap())
+        if "gtpc" in mme_data["smf"]:
+            del mme_data["smf"]["gtpc"]
+        _create_field_if_not_exist(mme_data, ["smf", "gtpc"], CommentedSeq())
+        mme_data["smf"]["gtpc"].append({"addr": "127.0.0.4"})
+        mme_data["smf"]["gtpc"].append({"addr": "::1"})
 
         # Disable internal file logging since journald is capturing stdout
+        _create_field_if_not_exist(mme_data, ["logger"], CommentedMap())
         mme_data["logger"]["file"] = "/dev/null"
 
     with open(mme, 'w') as file:
@@ -142,10 +154,8 @@ def update_pcrf(colte_data):
     with open(pcrf, 'r+') as file:
         pcrf_data = yaml.load(file.read())
 
-        # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(pcrf_data, ["logger", "file"])
-
         # Disable internal file logging since journald is capturing stdout
+        _create_field_if_not_exist(pcrf_data, ["logger"], CommentedMap())
         pcrf_data["logger"]["file"] = "/dev/null"
 
     with open(pcrf, 'w') as file:
@@ -158,17 +168,28 @@ def update_sgwc(colte_data):
         sgwc_data = yaml.load(file.read())
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(sgwc_data, ["sgwc", "gtpc"])
-        create_fields_if_not_exist(sgwc_data, ["sgwc", "pfcp"])
+        _create_field_if_not_exist(sgwc_data, ["sgwc"], CommentedMap())
 
-        sgwc_data["sgwc"]["gtpc"][0]["addr"] = "127.0.0.3"
-        sgwc_data["sgwc"]["pfcp"][0]["addr"] = "127.0.0.3"
+        if "gtpc" in sgwc_data["sgwc"]:
+            del sgwc_data["sgwc"]["gtpc"]
+        _create_field_if_not_exist(sgwc_data, ["sgwc", "gtpc"], CommentedSeq())
+        sgwc_data["sgwc"]["gtpc"].append({"addr": "127.0.0.3"})
+
+        if "pfcp" in sgwc_data["sgwc"]:
+            del sgwc_data["sgwc"]["pfcp"]
+        _create_field_if_not_exist(sgwc_data, ["sgwc", "pfcp"], CommentedSeq())
+        sgwc_data["sgwc"]["pfcp"].append({"addr": "127.0.0.3"})
 
         # Link towards the SGW-U
-        create_fields_if_not_exist(sgwc_data, ["sgwu", "pfcp"])
-        sgwc_data["sgwu"]["pfcp"][0]["addr"] = "127.0.0.6"
+        _create_field_if_not_exist(sgwc_data, ["sgwu"], CommentedMap())
+
+        if "pfcp" in sgwc_data["sgwu"]:
+            del sgwc_data["sgwu"]["pfcp"]
+        _create_field_if_not_exist(sgwc_data, ["sgwu", "pfcp"], CommentedSeq())
+        sgwc_data["sgwu"]["pfcp"].append({"addr": "127.0.0.6"})
 
         # Disable internal file logging since journald is capturing stdout
+        _create_field_if_not_exist(sgwc_data, ["logger"], CommentedMap())
         sgwc_data["logger"]["file"] = "/dev/null"
 
     with open(sgwc, 'w') as file:
@@ -181,11 +202,17 @@ def update_sgwu(colte_data):
         sgwu_data = yaml.load(file.read())
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(sgwu_data, ["sgwu", "gtpu"])
-        create_fields_if_not_exist(sgwu_data, ["sgwu", "pfcp"])
+        _create_field_if_not_exist(sgwu_data, ["sgwu"], CommentedMap())
 
-        sgwu_data["sgwu"]["gtpu"][0]["addr"] = colte_data["enb_iface_addr"]
-        sgwu_data["sgwu"]["pfcp"][0]["addr"] = "127.0.0.6"
+        if "gtpu" in sgwu_data["sgwu"]:
+            del sgwu_data["sgwu"]["gtpu"]
+        _create_field_if_not_exist(sgwu_data, ["sgwu", "gtpu"], CommentedSeq())
+        sgwu_data["sgwu"]["gtpu"].append({"addr": colte_data["enb_iface_addr"]})
+
+        if "pfcp" in sgwu_data["sgwu"]:
+            del sgwu_data["sgwu"]["pfcp"]
+        _create_field_if_not_exist(sgwu_data, ["sgwu", "pfcp"], CommentedSeq())
+        sgwu_data["sgwu"]["pfcp"].append({"addr": "127.0.0.6"})
 
         # Link towards the SGW-C
         # TODO(matt9j) This might be the wrong address! Not included in the default
@@ -193,6 +220,7 @@ def update_sgwu(colte_data):
         #sgwu_data["sgwc"]["pfcp"][0]["addr"] = "127.0.0.3"
 
         # Disable internal file logging since journald is capturing stdout
+        _create_field_if_not_exist(sgwu_data, ["logger"], CommentedMap())
         sgwu_data["logger"]["file"] = "/dev/null"
 
     with open(sgwu, 'w') as file:
@@ -206,34 +234,23 @@ def update_smf(colte_data):
 
         # Safe deletions
         if "smf" in smf_data and "gtpc" in smf_data["smf"]:
-            del smf_data["smf"]["gtpc"][:]
+            del smf_data["smf"]["gtpc"]
 
         if "smf" in smf_data and "pfcp" in smf_data["smf"]:
-            del smf_data["smf"]["pfcp"][:]
+            del smf_data["smf"]["pfcp"]
 
         if "smf" in smf_data and "subnet" in smf_data["smf"]:
-            del smf_data["smf"]["subnet"][:]
+            del smf_data["smf"]["subnet"]
 
         if "smf" in smf_data and "dns" in smf_data["smf"]:
-            del smf_data["smf"]["dns"][:]
+            del smf_data["smf"]["dns"]
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(smf_data, ["smf"])
-        create_fields_if_not_exist(smf_data, ["smf", "sbi"])
-        create_fields_if_not_exist(smf_data, ["smf", "gtpc"])
-        create_fields_if_not_exist(smf_data, ["smf", "pfcp"])
-        create_fields_if_not_exist(smf_data, ["smf", "subnet"])
-        create_fields_if_not_exist(smf_data, ["smf", "dns"])
-
-        # Set default values of list fields
-        if "gtpc" not in smf_data["smf"]:
-            smf_data["smf"]["gtpc"] = []
-        if "pfcp" not in smf_data["smf"]:
-            smf_data["smf"]["pfcp"] = []
-        if "subnet" not in smf_data["smf"]:
-            smf_data["smf"]["subnet"] = []
-        if "dns" not in smf_data["smf"]:
-            smf_data["smf"]["dns"] = []
+        _create_field_if_not_exist(smf_data, ["smf"], CommentedMap())
+        _create_field_if_not_exist(smf_data, ["smf", "gtpc"], CommentedSeq())
+        _create_field_if_not_exist(smf_data, ["smf", "pfcp"], CommentedSeq())
+        _create_field_if_not_exist(smf_data, ["smf", "subnet"], CommentedSeq())
+        _create_field_if_not_exist(smf_data, ["smf", "dns"], CommentedSeq())
 
         smf_data["smf"]["gtpc"].append({'addr': "127.0.0.4"})
         smf_data["smf"]["gtpc"].append({'addr': "::1"})
@@ -250,11 +267,12 @@ def update_smf(colte_data):
         smf_data["smf"]["mtu"] = 1400
 
         # Create link to UPF
-        create_fields_if_not_exist(smf_data, ["upf"])
+        _create_field_if_not_exist(smf_data, ["upf"], CommentedMap())
+
         if "upf" in smf_data and "pfcp" in smf_data["upf"]:
-            del smf_data["upf"]["pfcp"][:]
-        if "pfcp" not in smf_data["upf"]:
-            smf_data["upf"]["pfcp"] = []
+            del smf_data["upf"]["pfcp"]
+        _create_field_if_not_exist(smf_data, ["upf", "pfcp"], CommentedSeq())
+
         smf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
 
         # Disable 5GC NRF link while operating EPC only
@@ -262,6 +280,7 @@ def update_smf(colte_data):
             del smf_data["nrf"]
 
         # Disable internal file logging since journald is capturing stdout
+        _create_field_if_not_exist(smf_data, ["logger"], CommentedMap())
         smf_data["logger"]["file"] = "/dev/null"
 
     with open(smf, 'w') as file:
@@ -275,22 +294,17 @@ def update_upf(colte_data):
 
         # Safe deletions
         if "upf" in upf_data and "pfcp" in upf_data["upf"]:
-            del upf_data["upf"]["pfcp"][:]
+            del upf_data["upf"]["pfcp"]
         if "upf" in upf_data and "gtpu" in upf_data["upf"]:
-            del upf_data["upf"]["gtpu"][:]
+            del upf_data["upf"]["gtpu"]
         if "upf" in upf_data and "subnet" in upf_data["upf"]:
-            del upf_data["upf"]["subnet"][:]
+            del upf_data["upf"]["subnet"]
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(upf_data, ["upf"])
-
-        # Set default values of list fields
-        if "pfcp" not in upf_data["upf"]:
-            upf_data["upf"]["pfcp"] = []
-        if "gtpu" not in upf_data["upf"]:
-            upf_data["upf"]["gtpu"] = []
-        if "subnet" not in upf_data["upf"]:
-            upf_data["upf"]["subnet"] = []
+        _create_field_if_not_exist(upf_data, ["upf"], CommentedMap())
+        _create_field_if_not_exist(upf_data, ["upf", "pfcp"], CommentedSeq())
+        _create_field_if_not_exist(upf_data, ["upf", "gtpu"], CommentedSeq())
+        _create_field_if_not_exist(upf_data, ["upf", "subnet"], CommentedSeq())
 
         upf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
         upf_data["upf"]["gtpu"].append({'addr': "127.0.0.7"})
@@ -305,6 +319,7 @@ def update_upf(colte_data):
         # upf_data["smf"]["pfcp"] = {'addr': "127.0.0.3"}
 
         # Disable internal file logging since journald is capturing stdout
+        _create_field_if_not_exist(upf_data, ["logger"], CommentedMap())
         upf_data["logger"]["file"] = "/dev/null"
 
     with open(upf, 'w') as file:
@@ -317,7 +332,7 @@ def update_haulage(colte_data):
         haulage_data = yaml.load(file.read())
 
         # Create fields in the data if they do not yet exist
-        create_fields_if_not_exist(haulage_data, ["custom"])
+        _create_field_if_not_exist(haulage_data, ["custom"], CommentedMap())
 
         haulage_data["userSubnet"] = colte_data["lte_subnet"]
         haulage_data["ignoredUserAddresses"] = [str(IPNetwork(colte_data["lte_subnet"])[1])]
@@ -333,15 +348,19 @@ def update_haulage(colte_data):
         # Save the results
         yaml.dump(haulage_data, file)
 
-def create_fields_if_not_exist(dictionary, fields):
-    create_fields_helper(dictionary, fields, 0)
 
-def create_fields_helper(dictionary, fields, index):
-    if index < len(fields):
-        if fields[index] not in dictionary or dictionary[fields[index]] == None:
-            dictionary[fields[index]] = CommentedSeq()
-
-        create_fields_helper(dictionary[fields[index]], fields, index + 1)
+def _create_field_if_not_exist(dictionary, field_path, value):
+    current_entry = dictionary
+    for i, field in enumerate(field_path):
+        if (i == len(field_path) - 1) and (field not in current_entry or current_entry[field] is None):
+            current_entry[field] = value
+        else:
+            try:
+                current_entry = current_entry[field]
+            except KeyError as e:
+                print("Failed to create key at path", field_path)
+                print("Current configuration state is:", dictionary)
+                raise KeyError("Failed to create key at path {}, with base error {}".format(field_path, e))
 
 
 def stop_all_services():
