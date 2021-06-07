@@ -114,29 +114,23 @@ def update_mme(colte_data):
         mme_data["mme"]["tai"]["plmn_id"]["mcc"] = colte_data["mcc"]
         mme_data["mme"]["tai"]["plmn_id"]["mnc"] = colte_data["mnc"]
 
-        if "s1ap" in mme_data["mme"]:
-            del mme_data["mme"]["s1ap"]
-        _create_field_if_not_exist(mme_data, ["mme", "s1ap"], CommentedSeq())
+        mme_data["mme"]["s1ap"] = CommentedSeq()
         mme_data["mme"]["s1ap"].append({'addr': colte_data["enb_iface_addr"]})
 
         _create_field_if_not_exist(mme_data, ["mme", "network_name"], CommentedMap())
         mme_data["mme"]["network_name"]["full"] = colte_data["network_name"]
 
-        if "gtpc" in mme_data["mme"]:
-            del mme_data["mme"]["gtpc"]
-        _create_field_if_not_exist(mme_data, ["mme", "gtpc"], CommentedSeq())
+        mme_data["mme"]["gtpc"] = CommentedSeq()
         mme_data["mme"]["gtpc"].append({"addr": "127.0.0.2"})
 
         _create_field_if_not_exist(mme_data, ["sgwc"], CommentedMap())
-        if "gtpc" in mme_data["sgwc"]:
-            del mme_data["sgwc"]["gtpc"]
-        _create_field_if_not_exist(mme_data, ["sgwc", "gtpc"], CommentedSeq())
+
+        mme_data["sgwc"]["gtpc"] = CommentedSeq()
         mme_data["sgwc"]["gtpc"].append({"addr": "127.0.0.3"})
 
         _create_field_if_not_exist(mme_data, ["smf"], CommentedMap())
-        if "gtpc" in mme_data["smf"]:
-            del mme_data["smf"]["gtpc"]
-        _create_field_if_not_exist(mme_data, ["smf", "gtpc"], CommentedSeq())
+
+        mme_data["smf"]["gtpc"] = CommentedSeq()
         mme_data["smf"]["gtpc"].append({"addr": "127.0.0.4"})
         mme_data["smf"]["gtpc"].append({"addr": "::1"})
 
@@ -170,22 +164,16 @@ def update_sgwc(colte_data):
         # Create fields in the data if they do not yet exist
         _create_field_if_not_exist(sgwc_data, ["sgwc"], CommentedMap())
 
-        if "gtpc" in sgwc_data["sgwc"]:
-            del sgwc_data["sgwc"]["gtpc"]
-        _create_field_if_not_exist(sgwc_data, ["sgwc", "gtpc"], CommentedSeq())
+        sgwc_data["sgwc"]["gtpc"] = CommentedSeq()
         sgwc_data["sgwc"]["gtpc"].append({"addr": "127.0.0.3"})
 
-        if "pfcp" in sgwc_data["sgwc"]:
-            del sgwc_data["sgwc"]["pfcp"]
-        _create_field_if_not_exist(sgwc_data, ["sgwc", "pfcp"], CommentedSeq())
+        sgwc_data["sgwc"]["pfcp"] = CommentedSeq()
         sgwc_data["sgwc"]["pfcp"].append({"addr": "127.0.0.3"})
 
         # Link towards the SGW-U
         _create_field_if_not_exist(sgwc_data, ["sgwu"], CommentedMap())
 
-        if "pfcp" in sgwc_data["sgwu"]:
-            del sgwc_data["sgwu"]["pfcp"]
-        _create_field_if_not_exist(sgwc_data, ["sgwu", "pfcp"], CommentedSeq())
+        sgwc_data["sgwu"]["pfcp"] = CommentedSeq()
         sgwc_data["sgwu"]["pfcp"].append({"addr": "127.0.0.6"})
 
         # Disable internal file logging since journald is capturing stdout
@@ -204,14 +192,10 @@ def update_sgwu(colte_data):
         # Create fields in the data if they do not yet exist
         _create_field_if_not_exist(sgwu_data, ["sgwu"], CommentedMap())
 
-        if "gtpu" in sgwu_data["sgwu"]:
-            del sgwu_data["sgwu"]["gtpu"]
-        _create_field_if_not_exist(sgwu_data, ["sgwu", "gtpu"], CommentedSeq())
+        sgwu_data["sgwu"]["gtpu"] = CommentedSeq()
         sgwu_data["sgwu"]["gtpu"].append({"addr": colte_data["enb_iface_addr"]})
 
-        if "pfcp" in sgwu_data["sgwu"]:
-            del sgwu_data["sgwu"]["pfcp"]
-        _create_field_if_not_exist(sgwu_data, ["sgwu", "pfcp"], CommentedSeq())
+        sgwu_data["sgwu"]["pfcp"] = CommentedSeq()
         sgwu_data["sgwu"]["pfcp"].append({"addr": "127.0.0.6"})
 
         # Link towards the SGW-C
@@ -232,36 +216,23 @@ def update_smf(colte_data):
     with open(smf, 'r+') as file:
         smf_data = yaml.load(file.read())
 
-        # Safe deletions
-        if "smf" in smf_data and "gtpc" in smf_data["smf"]:
-            del smf_data["smf"]["gtpc"]
-
-        if "smf" in smf_data and "pfcp" in smf_data["smf"]:
-            del smf_data["smf"]["pfcp"]
-
-        if "smf" in smf_data and "subnet" in smf_data["smf"]:
-            del smf_data["smf"]["subnet"]
-
-        if "smf" in smf_data and "dns" in smf_data["smf"]:
-            del smf_data["smf"]["dns"]
-
         # Create fields in the data if they do not yet exist
         _create_field_if_not_exist(smf_data, ["smf"], CommentedMap())
-        _create_field_if_not_exist(smf_data, ["smf", "gtpc"], CommentedSeq())
-        _create_field_if_not_exist(smf_data, ["smf", "pfcp"], CommentedSeq())
-        _create_field_if_not_exist(smf_data, ["smf", "subnet"], CommentedSeq())
-        _create_field_if_not_exist(smf_data, ["smf", "dns"], CommentedSeq())
 
+        smf_data["smf"]["gtpc"] = CommentedSeq()
         smf_data["smf"]["gtpc"].append({'addr': "127.0.0.4"})
         smf_data["smf"]["gtpc"].append({'addr': "::1"})
 
+        smf_data["smf"]["pfcp"] = CommentedSeq()
         smf_data["smf"]["pfcp"].append({'addr': "127.0.0.4"})
         smf_data["smf"]["pfcp"].append({'addr': "::1"})
 
+        smf_data["smf"]["subnet"] = CommentedSeq()
         net = IPNetwork(colte_data["lte_subnet"])
         netstr = str(net[1]) + "/" + str(net.prefixlen)
         smf_data["smf"]["subnet"].append({'addr': netstr})
 
+        smf_data["smf"]["dns"] = CommentedSeq()
         smf_data["smf"]["dns"].append(colte_data["dns"])
 
         smf_data["smf"]["mtu"] = 1400
@@ -269,10 +240,7 @@ def update_smf(colte_data):
         # Create link to UPF
         _create_field_if_not_exist(smf_data, ["upf"], CommentedMap())
 
-        if "upf" in smf_data and "pfcp" in smf_data["upf"]:
-            del smf_data["upf"]["pfcp"]
-        _create_field_if_not_exist(smf_data, ["upf", "pfcp"], CommentedSeq())
-
+        smf_data["upf"]["pfcp"] = CommentedSeq()
         smf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
 
         # Disable 5GC NRF link while operating EPC only
@@ -292,23 +260,16 @@ def update_upf(colte_data):
     with open(upf, 'r+') as file:
         upf_data = yaml.load(file.read())
 
-        # Safe deletions
-        if "upf" in upf_data and "pfcp" in upf_data["upf"]:
-            del upf_data["upf"]["pfcp"]
-        if "upf" in upf_data and "gtpu" in upf_data["upf"]:
-            del upf_data["upf"]["gtpu"]
-        if "upf" in upf_data and "subnet" in upf_data["upf"]:
-            del upf_data["upf"]["subnet"]
-
         # Create fields in the data if they do not yet exist
         _create_field_if_not_exist(upf_data, ["upf"], CommentedMap())
-        _create_field_if_not_exist(upf_data, ["upf", "pfcp"], CommentedSeq())
-        _create_field_if_not_exist(upf_data, ["upf", "gtpu"], CommentedSeq())
-        _create_field_if_not_exist(upf_data, ["upf", "subnet"], CommentedSeq())
 
+        upf_data["upf"]["pfcp"] = CommentedSeq()
         upf_data["upf"]["pfcp"].append({'addr': "127.0.0.7"})
+
+        upf_data["upf"]["gtpu"] = CommentedSeq()
         upf_data["upf"]["gtpu"].append({'addr': "127.0.0.7"})
 
+        upf_data["upf"]["subnet"] = CommentedSeq()
         net = IPNetwork(colte_data["lte_subnet"])
         netstr = str(net[1]) + "/" + str(net.prefixlen)
         upf_data["upf"]["subnet"].append({'addr': netstr})
