@@ -25,6 +25,18 @@ router.get('/', function(req, res, next) {
       admin: data[0].admin,
       services: app.services,
     });
+  }).catch(error => {
+    res.render('status', {
+      translate: app.translate,
+      title: app.translate("Home"),
+      raw_up_str: 0,
+      raw_down_str: 0,
+      balance: 0,
+      data_balance_str: "unknown",
+      msisdn: "uknown",
+      admin: false,
+      services: app.services,
+    });
   });
 });
 
