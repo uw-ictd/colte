@@ -8,7 +8,7 @@ let db_specific_knex = null;
 
 const databaseName = `colte_purchase_test_for_worker_${process.env.JEST_WORKER_ID}`;
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   // Setup knex to run seeds and migrations.
   let config = common_models.knexFile[process.env.NODE_ENV];
   config.migrations.directory = "../colte-common-models/" + config.migrations.directory;
@@ -27,66 +27,55 @@ beforeAll(async (done) => {
     return db_specific_knex.migrate.latest().then(() => {
       return db_specific_knex.seed.run();
     });
-  }).then(() => {
-    done();
-  })
-});
-
-afterAll(async (done) => {
-  db_specific_knex.raw(`DROP DATABASE IF EXISTS ${databaseName}`)
-  .then(() => {
-    done();
   });
 });
 
+afterAll(async () => {
+  await db_specific_knex.raw(`DROP DATABASE IF EXISTS ${databaseName}`);
+});
+
 describe ("purchase API", function() {
-  it('Get main page valid address', async (done) => {
+  it('Get main page valid address', async () => {
     const res = await test_request(app)
       .get("/purchase")
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(200);
     expect(res.text).toEqual(expect.stringContaining("Current Balance: $2500"));
-    done();
   });
-  it('Get main page invalid address', async (done) => {
+  it('Get main page invalid address', async () => {
     const res = await test_request(app)
       .get("/purchase")
       .set('X-Forwarded-For', '255.255.255.255');
     expect(res.statusCode).toEqual(403);
-    done();
   });
-  it('Post main page (invalid verb)', async (done) => {
+  it('Post main page (invalid verb)', async () => {
     const res = await test_request(app)
       .post("/purchase")
       .set('X-Forwarded-For', '192.168.151.2')
       .send("fish");
     expect(res.statusCode).toEqual(405);
-    done();
   });
-  it('Get purchase api (invalid verb)', async (done) => {
+  it('Get purchase api (invalid verb)', async () => {
     const res = await test_request(app)
       .get("/purchase/purchase")
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(405);
-    done();
   });
-  it('Post purchase api, invalid address', async (done) => {
+  it('Post purchase api, invalid address', async () => {
     const res = await test_request(app)
       .post("/purchase/purchase")
       .send({"package":"10000000"})
       .set('X-Forwarded-For', '0.0.0.0');
     expect(res.statusCode).toEqual(403);
-    done();
   });
-  it('Post purchase api, invalid amount', async (done) => {
+  it('Post purchase api, invalid amount', async () => {
     const res = await test_request(app)
       .post("/purchase/purchase")
       .send("1337")
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(400);
-    done();
   });
-  it('Post purchase api', async (done) => {
+  it('Post purchase api', async () => {
     const res = await test_request(app)
       .post("/purchase/purchase")
       .send({"package":"10000000"})
@@ -101,9 +90,8 @@ describe ("purchase API", function() {
     expect(status.statusCode).toEqual(200);
     expect(status.text).toEqual(expect.stringContaining("Current Balance: $0"));
     expect(status.text).toEqual(expect.stringContaining("Data Balance: 110.0 MB"));
-    done();
   });
-  it('Post purchase api, stress consistency test', async (done) => {
+  it('Post purchase api, stress consistency test', async () => {
     // Generate many concurrent requests, and ensure the results match expected.
     let promises = [];
     for (i =0; i <100; ++i) {
@@ -128,7 +116,5 @@ describe ("purchase API", function() {
     expect(status.statusCode).toEqual(200);
     expect(status.text).toEqual(expect.stringContaining("Current Balance: $24750000"));
     expect(status.text).toEqual(expect.stringContaining("Data Balance: 1.1 GB"));
-
-    done();
   });
 });

@@ -8,7 +8,7 @@ let db_specific_knex = null;
 
 const databaseName = `colte_transfer_test_for_worker_${process.env.JEST_WORKER_ID}`;
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   // Setup knex to run seeds and migrations.
   let config = common_models.knexFile[process.env.NODE_ENV];
   config.migrations.directory = "../colte-common-models/" + config.migrations.directory;
@@ -27,49 +27,40 @@ beforeAll(async (done) => {
     return db_specific_knex.migrate.latest().then(() => {
       return db_specific_knex.seed.run();
     });
-  }).then(() => {
-    done();
-  })
-});
-
-afterAll(async (done) =>{
-  db_specific_knex.raw(`DROP DATABASE IF EXISTS ${databaseName}`)
-  .then(() => {
-    done();
   });
 });
 
+afterAll(async () =>{
+  await db_specific_knex.raw(`DROP DATABASE IF EXISTS ${databaseName}`);
+});
+
 describe ("transfer API", function() {
-  it('Get main page valid address', async (done) => {
+  it('Get main page valid address', async () => {
     const res = await test_request(app)
       .get("/transfer")
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(200);
-    done();
   });
-  it('Get main page invalid address', async (done) => {
+  it('Get main page invalid address', async () => {
     const res = await test_request(app)
       .get("/transfer")
       .set('X-Forwarded-For', '255.255.255.255');
     expect(res.statusCode).toEqual(403);
-    done();
   });
-  it('Post main page (invalid verb)', async (done) => {
+  it('Post main page (invalid verb)', async () => {
     const res = await test_request(app)
       .post("/transfer")
       .set('X-Forwarded-For', '192.168.151.2')
       .send("fish");
     expect(res.statusCode).toEqual(405);
-    done();
   });
-  it('Get transfer api (invalid verb)', async (done) => {
+  it('Get transfer api (invalid verb)', async () => {
     const res = await test_request(app)
       .get("/transfer/transfer")
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(405);
-    done();
   });
-  it('Post transfer api, invalid source address', async (done) => {
+  it('Post transfer api, invalid source address', async () => {
     const res = await test_request(app)
       .post("/transfer/transfer")
       .send({
@@ -78,9 +69,8 @@ describe ("transfer API", function() {
       })
       .set('X-Forwarded-For', '0.0.0.0');
     expect(res.statusCode).toEqual(403);
-    done();
   });
-  it('Post transfer api, invalid dest address', async (done) => {
+  it('Post transfer api, invalid dest address', async () => {
     const res = await test_request(app)
       .post("/transfer/transfer")
       .send({
@@ -94,25 +84,22 @@ describe ("transfer API", function() {
       .get("/transfer")
       .set('X-Forwarded-For', '192.168.151.2');
     expect(status.text).toEqual(expect.stringContaining("Current Balance: $2500"));
-    done();
   });
-  it('Post transfer api, missing dest address', async (done) => {
+  it('Post transfer api, missing dest address', async () => {
     const res = await test_request(app)
       .post("/transfer/transfer")
       .send({"amount": 10.0})
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(400);
-    done();
   });
-  it('Post transfer api, missing amount', async (done) => {
+  it('Post transfer api, missing amount', async () => {
     const res = await test_request(app)
       .post("/transfer/transfer")
       .send({"msisdn": "3"})
       .set('X-Forwarded-For', '192.168.151.2');
     expect(res.statusCode).toEqual(400);
-    done();
   });
-  it('Post transfer api, insufficient source funds', async (done) => {
+  it('Post transfer api, insufficient source funds', async () => {
     const res = await test_request(app)
       .post("/transfer/transfer")
       .send({
@@ -126,9 +113,8 @@ describe ("transfer API", function() {
       .get("/transfer")
       .set('X-Forwarded-For', '192.168.151.4');
       expect(status.text).toEqual(expect.stringContaining("Current Balance: $0"));
-    done();
   });
-  it('Post transfer api, self-transfer', async (done) => {
+  it('Post transfer api, self-transfer', async () => {
     const res = await test_request(app)
       .post("/transfer/transfer")
       .send({
@@ -142,9 +128,8 @@ describe ("transfer API", function() {
       .get("/transfer")
       .set('X-Forwarded-For', '192.168.151.2');
     expect(status.text).toEqual(expect.stringContaining("Current Balance: $2500"));
-    done();
   });
-  it('Post transfer api, valid transfer', async (done) => {
+  it('Post transfer api, valid transfer', async () => {
     const res = await test_request(app)
       .post("/transfer/transfer")
       .send({
@@ -163,9 +148,8 @@ describe ("transfer API", function() {
       .get("/transfer")
       .set('X-Forwarded-For', '192.168.151.3');
     expect(status2.text).toEqual(expect.stringContaining("Current Balance: $10"));
-    done();
   });
-  it('Post transfer api, one way transfer stress consistency test', async (done) => {
+  it('Post transfer api, one way transfer stress consistency test', async () => {
     // Generate many concurrent requests, and ensure the results match expected.
     let promises = [];
     for (i =0; i <100; ++i) {
@@ -196,10 +180,8 @@ describe ("transfer API", function() {
       .get("/transfer")
       .set('X-Forwarded-For', '192.168.151.3');
     expect(status2.text).toEqual(expect.stringContaining("Current Balance: $2500"));
-
-    done();
   });
-  it('Post transfer api, two way transfer stress consistency test', async (done) => {
+  it('Post transfer api, two way transfer stress consistency test', async () => {
     // Generate many concurrent requests, and ensure the results match expected.
     let promises = [];
     for (i =0; i <50; ++i) {
@@ -244,7 +226,5 @@ describe ("transfer API", function() {
     const user3balance = Number(user3_rexp_result.groups.balance);
 
     expect(user2balance + user3balance).toEqual(2500);
-
-    done();
   });
 });
