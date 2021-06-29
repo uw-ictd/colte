@@ -41,7 +41,7 @@ sudo apt update
 sudo apt install colte
 ```
 
-After installation, the admin tool will be running and listening on [http://localhost:7998](http://localhost:7998), and the user webgui will be running and listening on [http://localhost:7999](http://localhost:7999). You can start or stop these services with `systemctl {start | stop} {colte_webgui | colte_webadmin}`, respectively. 
+After installation, the admin tool will be running and listening on [http://localhost:7998](http://localhost:7998), and the user webgui will be running and listening on [http://localhost:7999](http://localhost:7999). You can start or stop these services with `systemctl {start | stop} {colte-webgui | colte-webadmin}`, respectively.
 
 Haulage can be started with `sudo haulage` or `sudo systemctl start haulage`, but will likely fail if not first configured for your system (see [configuration](#Configuration)). To start Open5Gs, refer to the docs [here](https://open5gs.org/open5gs/docs/).
 
