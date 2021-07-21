@@ -1,0 +1,11 @@
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor
+
+# Ignore the ruby lockfile and keep it out of version control since this is a
+# github pages site, and github pages will manage its dependencies
+# independently. If the lockfile is committed, it will need to be manually kept
+# up to date to avoid security warnings.
+Gemfile.lock
