@@ -1,35 +1,56 @@
-
-
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="jquery-3.js"></script>
-        <script src="bootstrap.js"></script>
-	    <script src="popper.js"></script>
-	        <link href="bootstrap.css" rel="stylesheet" type="text/css">	
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="jquery-3.js"></script>
+  <script src="bootstrap.js"></script>
+  <script src="popper.js"></script>
+  <link href="bootstrap.css" rel="stylesheet" type="text/css" />
 </head>
 
-
-
-
-<h5> Request Help </h5>
+<h5>Request Help</h5>
 
 <form name="form" method="POST" action="" id="form" style="margin: 0">
-	  <input type='hidden' name='csrfmiddlewaretoken' value='8GXI1wjDI7GLJ7sP4QdmZxnmUcHwWhN6JWjsTM821xZIalQ0GiHNvABzSVdZQUYV' />
-<table class="table table-bordered table-striped">
-<tbody>
-<tr>
-<td align="right">Name:</td>
-<td id="name_box" class="contact"><input type="text" name="name_box" required="" id="id_name_box" maxlength="50" style="margin: 5px;  border: 1px solid #ccc"></td>
-</tr>
-<tr>
-<td align="right">Current Location:</td>
-<td id="phone_box" class="contact"><input type="text" name="phone_box" required="" id="id_phone_box" maxlength="50" style="margin: 5px;  border: 1px solid #ccc"></td>
-</tr>
-<tr>
-<td align="right">Details:</td>
-<td id="loc_box" class="contact"><textarea class="form-control" rows="8" id="id_loc_box"></textarea>
-</tr>
-</tbody>
-</table>
-<button class="btn btn-md btn-secondary" id="register_submit" type="submit" style="margin: 5px">Get Help</button>
+  <input
+    type="hidden"
+    name="csrfmiddlewaretoken"
+    value="8GXI1wjDI7GLJ7sP4QdmZxnmUcHwWhN6JWjsTM821xZIalQ0GiHNvABzSVdZQUYV"
+  />
+  <table class="table table-bordered table-striped">
+    <tbody>
+      <tr>
+        <td align="right">Name:</td>
+        <td id="name_box" class="contact">
+          <input
+            type="text"
+            name="name_box"
+            required=""
+            id="id_name_box"
+            maxlength="50"
+            style="margin: 5px; border: 1px solid #ccc"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td align="right">Current Location:</td>
+        <td id="phone_box" class="contact">
+          <input
+            type="text"
+            name="phone_box"
+            required=""
+            id="id_phone_box"
+            maxlength="50"
+            style="margin: 5px; border: 1px solid #ccc"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td align="right">Details:</td>
+        <td id="loc_box" class="contact">
+          <textarea class="form-control" rows="8" id="id_loc_box"></textarea>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <button class="btn btn-md btn-secondary" id="register_submit" type="submit" style="margin: 5px">
+    Get Help
+  </button>
 </form>

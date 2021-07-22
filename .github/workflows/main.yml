@@ -3,9 +3,9 @@ name: Validate Main
 on:
   # Triggers the workflow on push or pull request events for the master branch
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -24,7 +24,7 @@ jobs:
       - name: Setup nodejs
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: "14"
 
       - name: Run makefile
         run: |
@@ -37,7 +37,6 @@ jobs:
         with:
           name: colte-package
           path: BUILD/colte_*.deb
-
 
   package-install:
     runs-on: ubuntu-latest
@@ -60,7 +59,6 @@ jobs:
           sudo dpkg -i colte_*.deb || /bin/true
           sudo apt-get install --yes -f
 
-
   run-tests:
     runs-on: ubuntu-latest
     services:
@@ -78,7 +76,7 @@ jobs:
       - name: Setup nodejs
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: "14"
 
       - name: Checkout repo
         uses: actions/checkout@v2

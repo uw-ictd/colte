@@ -1,0 +1,17 @@
+**/node_modules
+
+# Vendored css and js files
+emergency/homepage/bootstrap.css
+emergency/registry/polls/static/css/bootstrap.css
+webadmin/public/bootstrap-4.5.3
+webgui/public/stylesheets/bootstrap.min.css
+
+# Ignore Jekyll build products Should be moved into the docs directory once
+# https://github.com/prettier/prettier/issues/4081 is merged.
+docs/_site
+docs/.sass-cache
+docs/.jekyll-cache
+docs/.jekyll-metadata
+
+# Ignore python files, that will be formatted via black
+python/**/*.py

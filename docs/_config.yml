@@ -23,7 +23,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   the University of Washington ICTD Lab.
 baseurl: "" # the subpath of your site, e.g. /blog
 twitter_username: ""
-github_username:  "uw-ictd"
+github_username: "uw-ictd"
 
 # For local development consider including the theme as a gem below instead of
 # using ghpages remote themes, and allowing the url to default

@@ -1,103 +1,100 @@
 {
-     "Home": {
-         "id": "Beranda",
-         "es": "Inicio"
-     },
+  "Home": {
+    "id": "Beranda",
+    "es": "Inicio"
+  },
 
+  "Account": {
+    "id": "Akun Saya",
+    "es": "Cuenta"
+  },
+  "Transfer": {
+    "id": "Transfer",
+    "es": "Mandar"
+  },
+  "Purchase": {
+    "id": "Donasi",
+    "es": "Comprar"
+  },
+  "Admin": {
+    "id": "Admin",
+    "es": "Admin"
+  },
+  "Free Services": {
+    "id": "Free Services",
+    "es": "Servicios Libres"
+  },
 
-     "Account": {
-         "id": "Akun Saya",
-         "es": "Cuenta"
-     },
-     "Transfer": {
-         "id": "Transfer",
-         "es": "Mandar"
-     },
-     "Purchase": {
-         "id": "Donasi",
-         "es": "Comprar"
-     },
-     "Admin": {
-         "id": "Admin",
-         "es": "Admin"
-     },
-     "Free Services": {
-         "id": "Free Services",
-         "es": "Servicios Libres"
-     },
+  "Account Information": {
+    "id": "Informasi Akun",
+    "es": "Cuenta"
+  },
+  "Phone Number": {
+    "id": "Nomor HP",
+    "es": "Numero de Telefono"
+  },
+  "Current Balance: $": {
+    "id": "Saldo Sekarang: Rp",
+    "es": "Balanza: Mex$"
+  },
+  "$": {
+    "id": "Rp",
+    "es": "Mex$"
+  },
+  "Data Balance: ": {
+    "id": "Sisa Data: ",
+    "es": "Balanza de Data: "
+  },
+  "Total Downloaded: ": {
+    "id": "Jumlah Download: ",
+    "es": "Data Descargado: "
+  },
+  "Total Uploaded: ": {
+    "id": "Jumlah Upload: ",
+    "es": "Data Subido: "
+  },
 
+  "'Are you sure you want to send ' + document.getElementById('formamount').value + ' dollars to user ' + document.getElementById('formnumber').value + '?'": {
+    "id": "'Apa anda setujuh transfer saldo sebesar ' + document.getElementById('formamount').value + ' rupiah ke User ' + document.getElementById('formnumber').value + '?'",
+    "es": "'Esta seguro que quiere mandar ' + document.getElementById('formamount').value + ' $Mex al cuenta ' + document.getElementById('formnumber').value + '?'"
+  },
 
-     "Account Information": {
-         "id": "Informasi Akun",
-         "es": "Cuenta"
-     },
-     "Phone Number": {
-         "id": "Nomor HP",
-         "es": "Numero de Telefono"
-     },
-     "Current Balance: $": {
-         "id": "Saldo Sekarang: Rp",
-         "es": "Balanza: Mex$"         
-     },
-     "$": {
-         "id": "Rp",
-         "es": "Mex$"
-     },
-     "Data Balance: ": {
-         "id": "Sisa Data: ",
-         "es": "Balanza de Data: "
-     },
-     "Total Downloaded: ": {
-         "id": "Jumlah Download: ",
-         "es": "Data Descargado: "
-     },
-     "Total Uploaded: ": {
-         "id": "Jumlah Upload: ",
-         "es": "Data Subido: "
-     },
+  "'Are you sure you want to donate '": {
+    "id": "'Apa anda setujuh membuat donasi sebesar '",
+    "es": "'Esta seguro que quiere pagar '"
+  },
+  "' for '": {
+    "id": "' untuk quota '",
+    "es": "' por '"
+  },
 
-     "'Are you sure you want to send ' + document.getElementById('formamount').value + ' dollars to user ' + document.getElementById('formnumber').value + '?'": {
-         "id": "'Apa anda setujuh transfer saldo sebesar ' + document.getElementById('formamount').value + ' rupiah ke User ' + document.getElementById('formnumber').value + '?'",
-         "es": "'Esta seguro que quiere mandar ' + document.getElementById('formamount').value + ' $Mex al cuenta ' + document.getElementById('formnumber').value + '?'"
-     },
+  "Recipient Phone Number": {
+    "id": "Nomor HP Penerima",
+    "es": "Numero del Recipiente"
+  },
 
-     "'Are you sure you want to donate '": {
-        "id": "'Apa anda setujuh membuat donasi sebesar '",
-        "es": "'Esta seguro que quiere pagar '"
-     },
-     "' for '": {
-        "id": "' untuk quota '",
-        "es": "' por '"
-     },
+  "Amount To Send": {
+    "id": "Jumlah Dikirim",
+    "es": "Balanza a Mandar"
+  },
 
-     "Recipient Phone Number": {
-         "id": "Nomor HP Penerima",
-         "es": "Numero del Recipiente"
-     },
+  "Submit": {
+    "id": "Kirim",
+    "es": "Mandar"
+  },
 
-     "Amount To Send": {
-         "id": "Jumlah Dikirim",
-         "es": "Balanza a Mandar"
-     },
+  "Movies": {
+    "id": "Movies",
+    "es": "Peliculas"
+  },
 
-     "Submit": {
-         "id": "Kirim",
-         "es": "Mandar"
-     },
+  "Maps": {
+    "id": "Maps",
+    "es": "Mapas"
+  },
 
-
-     "Movies": {
-         "id": "Movies",
-         "es": "Peliculas"
-     },
-
-     "Maps": {
-         "id": "Maps",
-         "es": "Mapas"
-     },
-
-     "Chat": {
-         "id": "Chat",
-         "es": "Mapas"
-     }
+  "Chat": {
+    "id": "Chat",
+    "es": "Mapas"
+  }
 }

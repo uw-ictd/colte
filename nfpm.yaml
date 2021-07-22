@@ -138,7 +138,6 @@ contents:
     dst: "/usr/bin/colte-webadmin/node_modules/colte-common-models"
     type: "symlink"
 
-
   # Config files
   - src: ./conf/config.yml
     dst: /etc/colte/config.yml
@@ -167,7 +166,6 @@ contents:
   #     mtime: 2008-01-02T15:04:05Z
   #     owner: notRoot
   #     group: notRoot
-
 
 # Empty folders your package may need created. (overridable)
 empty_folders:
