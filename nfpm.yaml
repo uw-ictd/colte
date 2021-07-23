@@ -88,12 +88,6 @@ contents:
   - src: "./package/colte-nat.service"
     dst: "/etc/systemd/system/colte-nat.service"
 
-  - src: "./conf/colteconf.py"
-    dst: "/usr/bin/colteconf"
-
-  - src: "./conf/coltedb.py"
-    dst: "/usr/bin/coltedb"
-
   - src: "./conf/open5gs_dbconf.sh"
     dst: "/etc/colte/colte_open5gsdb"
 
@@ -102,6 +96,12 @@ contents:
 
   - src: "./package/colte-webgui.service"
     dst: "/etc/systemd/system/colte-webgui.service"
+
+  - src: "./python/colteconf.py"
+    dst: "/usr/bin/colteconf"
+
+  - src: "./python/coltedb.py"
+    dst: "/usr/bin/coltedb"
 
   - src: "./webadmin/*"
     dst: "/usr/bin/colte-webadmin"
