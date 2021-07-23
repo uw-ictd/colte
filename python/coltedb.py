@@ -3,7 +3,7 @@
 import ruamel.yaml
 import sys
 import os
-import MySQLdb
+import mysql.connector
 import decimal
 import subprocess
 
@@ -47,7 +47,7 @@ with open(colte_vars, "r") as file:
 dbname = colte_data["mysql_db"]
 db_user = colte_data["mysql_user"]
 db_pass = colte_data["mysql_password"]
-db = MySQLdb.connect(host="localhost", user=db_user, passwd=db_pass, db=dbname)
+db = mysql.connector.connect(host="localhost", user=db_user, passwd=db_pass, db=dbname)
 cursor = db.cursor()
 
 if command == "add":
