@@ -11,8 +11,23 @@ const databaseName = `colte_transfer_test_for_worker_${process.env.JEST_WORKER_I
 beforeAll(async () => {
   // Setup knex to run seeds and migrations.
   let config = common_models.knexFile[process.env.NODE_ENV];
-  config.migrations.directory = "../colte-common-models/" + config.migrations.directory;
-  config.seeds.directory = "../colte-common-models/" + config.seeds.directory;
+
+  // Normalize directories to be arrays
+  if (!Array.isArray(config.migrations.directory)) {
+    config.migrations.directory = [config.migrations.directory];
+  }
+  if (!Array.isArray(config.seeds.directory)) {
+    config.seeds.directory = [config.seeds.directory];
+  }
+
+  // Set the path for all entries
+  config.migrations.directory = config.migrations.directory.map(
+    (path_i) => "../colte-common-models/" + path_i
+  );
+  config.seeds.directory = config.seeds.directory.map(
+    (path_i) => "../colte-common-models/" + path_i
+  );
+
   const knex = common_models.getKnexInstance(config);
 
   await knex
