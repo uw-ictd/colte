@@ -9,18 +9,37 @@ var transaction_log = process.env.TRANSACTION_LOG || "/var/log/colte/transaction
 function transfer_balance_impl(sender_imsi, receiver_imsi, amount, kind) {
   function fetch_bals(trx) {
     return trx
-      .select("balance")
-      .forUpdate()
+      .select("balance", "imsi")
       .where("imsi", sender_imsi)
+      .orWhere("imsi", receiver_imsi)
+      .forUpdate()
+      .orderBy("customers.imsi")
       .from("customers")
-      .then((sender_bal) => {
-        return trx
-          .select("balance")
-          .where("imsi", receiver_imsi)
-          .from("customers")
-          .then((receiver_bal) => {
-            return [sender_bal, receiver_bal];
-          });
+      .then((balances) => {
+        if (balances.length > 2) {
+          throw new Error(
+            "Matched too many IMSIs for a valid transfer " + balances.length + "/2 entries."
+          );
+        } else if (balances.length < 2) {
+          throw new Error(
+            "Matched too few IMSIs for a valid transfer " + balances.length + "/2 entries."
+          );
+        }
+
+        let sender_bal = null;
+        let receiver_bal = null;
+        balances.forEach((tuple) => {
+          if (tuple.imsi === sender_imsi) {
+            sender_bal = tuple.balance;
+          } else if (tuple.imsi === receiver_imsi) {
+            receiver_bal = tuple.balance;
+          }
+        });
+        if (sender_bal == null || receiver_bal == null) {
+          throw new Error("Failed to get transfer sender and receiver balances");
+        }
+
+        return [sender_bal, receiver_bal];
       });
   }
 
@@ -29,15 +48,11 @@ function transfer_balance_impl(sender_imsi, receiver_imsi, amount, kind) {
       var err = null;
       var sender_bal;
       var receiver_bal;
-      if (data[0].length != 1) {
-        err = "Sender IMSI matched " + data[0].length + " entries.";
-      } else if (data[1].length != 1) {
-        err = "Receiver IMSI matched " + data[1].length + " entries.";
-      } else if (sender_imsi == receiver_imsi) {
+      if (sender_imsi == receiver_imsi) {
         err = "Attempting an invalid transfer";
       } else {
-        sender_bal = data[0][0].balance;
-        receiver_bal = data[1][0].balance;
+        sender_bal = data[0];
+        receiver_bal = data[1];
         if (Number(sender_bal) - Number(amount) < 0) {
           err = "Sender has " + sender_bal + ", tried to send " + Number(amount);
         } else if (Number(amount) < 0) {
@@ -89,68 +104,74 @@ var customer = {
   all(page) {
     return knex
       .select(
-        "imsi",
-        "msisdn",
-        "raw_down",
-        "raw_up",
-        "balance",
-        "data_balance",
-        "enabled",
-        "bridged",
-        "admin",
-        "username"
+        "customers.imsi as imsi",
+        "customers.msisdn as msisdn",
+        "customers.balance as balance",
+        "customers.enabled as enabled",
+        "customers.admin as admin",
+        "customers.username as username",
+        "subscribers.data_balance as data_balance",
+        "subscribers.bridged as bridged"
       )
       .from("customers")
+      .leftJoin("subscribers", "customers.imsi", "=", "subscribers.imsi")
       .paginate({perPage: 10, currentPage: page, isLengthAware: true});
   },
 
   find_by_ip(ip) {
     return knex
       .select(
-        "customers.imsi",
-        "raw_up",
-        "raw_down",
-        "balance",
-        "data_balance",
-        "msisdn",
-        "admin",
-        "username"
+        "customers.imsi as imsi",
+        "customers.balance as balance",
+        "subscribers.data_balance as data_balance",
+        "customers.msisdn as msisdn",
+        "customers.admin as admin",
+        "customers.username as username"
       )
       .from("customers")
       .join("static_ips", "customers.imsi", "=", "static_ips.imsi")
+      .leftJoin("subscribers", "customers.imsi", "=", "subscribers.imsi")
       .where("static_ips.ip", ip);
   },
 
   find(imsi) {
     return knex
       .select(
-        "imsi",
-        "raw_up",
-        "raw_down",
-        "balance",
-        "data_balance",
-        "msisdn",
-        "bridged",
-        "enabled"
+        "customers.imsi as imsi",
+        "customers.balance as balance",
+        "subscribers.data_balance as data_balance",
+        "customers.msisdn as msisdn",
+        "subscribers.bridged as bridged",
+        "customers.enabled as enabled"
       )
-      .where("imsi", imsi)
-      .from("customers");
+      .where("customers.imsi", imsi)
+      .from("customers")
+      .leftJoin("subscribers", "customers.imsi", "=", "subscribers.imsi");
   },
 
   update(imsi, bridged, enabled, balance, data_balance, username) {
-    return knex
-      .update({
-        balance: balance,
-        data_balance: data_balance,
-        bridged: bridged,
-        enabled: enabled,
-        username: username,
-      })
-      .where("imsi", imsi)
-      .from("customers")
-      .catch(function (error) {
-        throw new Error(error.sqlMessage);
-      });
+    return knex.transaction((trx) => {
+      return trx
+        .update({
+          balance: balance,
+          enabled: enabled,
+          username: username,
+        })
+        .where("imsi", imsi)
+        .from("customers")
+        .then(() => {
+          return trx
+            .update({
+              data_balance: data_balance,
+              bridged: bridged,
+            })
+            .where("imsi", imsi)
+            .from("subscribers");
+        })
+        .catch(function (error) {
+          throw new Error(error.sqlMessage);
+        });
+    });
   },
 
   change_enabled(msisdn, isEnabled) {
@@ -256,8 +277,9 @@ var customer = {
       return trx
         .select("balance", "data_balance")
         .forUpdate()
-        .where("imsi", imsi)
+        .where("customers.imsi", imsi)
         .from("customers")
+        .innerJoin("subscribers", "customers.imsi", "=", "subscribers.imsi")
         .catch(function (error) {
           throw new Error(error.sqlMessage);
         })
@@ -276,9 +298,12 @@ var customer = {
           }
 
           var rval = trx
-            .update({balance: newBalance, data_balance: newData})
+            .update({balance: newBalance})
             .where("imsi", imsi)
             .from("customers")
+            .then(() => {
+              return trx.update({data_balance: newData}).where("imsi", imsi).from("subscribers");
+            })
             .catch((error) => {
               throw new Error(error.sqlMessage);
             });
