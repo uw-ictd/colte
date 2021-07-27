@@ -5,6 +5,7 @@ const common_models = require("colte-common-models");
 // The app will be instantiated after database prep.
 let app = null;
 let db_specific_knex = null;
+let admin_knex = null;
 
 const databaseName = `colte_transfer_test_for_worker_${process.env.JEST_WORKER_ID}`;
 
@@ -29,6 +30,7 @@ beforeAll(async () => {
   );
 
   const knex = common_models.getKnexInstance(config);
+  admin_knex = knex;
 
   await knex
     .raw(`DROP DATABASE IF EXISTS ${databaseName};`)
@@ -50,7 +52,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await db_specific_knex.raw(`DROP DATABASE IF EXISTS ${databaseName}`);
+  await db_specific_knex.destroy();
+  await admin_knex.raw(`DROP DATABASE IF EXISTS ${databaseName} WITH (FORCE)`);
 });
 
 describe("transfer API", function () {

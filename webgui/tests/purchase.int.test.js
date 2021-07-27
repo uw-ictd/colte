@@ -5,6 +5,7 @@ const common_models = require("colte-common-models");
 // The app will be instantiated after database prep.
 let app = null;
 let db_specific_knex = null;
+let admin_knex = null;
 
 const databaseName = `colte_purchase_test_for_worker_${process.env.JEST_WORKER_ID}`;
 
@@ -28,12 +29,12 @@ beforeAll(async () => {
     (path_i) => "../colte-common-models/" + path_i
   );
 
-  const knex = common_models.getKnexInstance(config);
+  admin_knex = common_models.getKnexInstance(config);
 
-  await knex
+  await admin_knex
     .raw(`DROP DATABASE IF EXISTS ${databaseName};`)
     .then(() => {
-      return knex.raw(`CREATE DATABASE ${databaseName};`);
+      return admin_knex.raw(`CREATE DATABASE ${databaseName};`);
     })
     .then(() => {
       process.env.DB_NAME = databaseName;
@@ -50,7 +51,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await db_specific_knex.raw(`DROP DATABASE IF EXISTS ${databaseName}`);
+  await db_specific_knex.destroy();
+  await admin_knex.raw(`DROP DATABASE IF EXISTS ${databaseName} WITH (FORCE)`);
 });
 
 describe("purchase API", function () {
