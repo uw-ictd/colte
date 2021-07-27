@@ -34,7 +34,7 @@ exports.seed = function (knex) {
               balance: 0,
               currency: unpacked_id,
               enabled: true,
-              admin: false,
+              admin: true,
               msisdn: "1",
             },
             {
