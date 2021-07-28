@@ -115,6 +115,7 @@ var customer = {
       )
       .from("customers")
       .leftJoin("subscribers", "customers.imsi", "=", "subscribers.imsi")
+      .orderBy("customers.imsi")
       .paginate({perPage: 10, currentPage: page, isLengthAware: true});
   },
 
