@@ -1,7 +1,7 @@
 [Unit]
 Description=CoLTE WebGUI
-After=mysql.service
-Requires=mysql.service
+After=postgresql.service
+Requires=postgresql.service
 
 [Service]
 ExecStart=/usr/bin/colte-webgui/bin/www
