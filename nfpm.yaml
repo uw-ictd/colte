@@ -99,9 +99,13 @@ contents:
 
   - src: "./python/colteconf.py"
     dst: "/usr/bin/colteconf"
+    file_info:
+      mode: 0755
 
   - src: "./python/coltedb.py"
     dst: "/usr/bin/coltedb"
+    file_info:
+      mode: 0755
 
   - src: "./python/migrate_mysql_to_pg.py"
     dst: "/usr/bin/colte-pg-migrate"

@@ -1,6 +1,6 @@
 GIT_VERSION=$(shell git describe --tags | sed s/-g/+g/g)
 TARGET_DIR=./BUILD
-NFPM_VERSION = 2.2.3
+NFPM_VERSION = 2.5.1
 # This uses the somewhat confusing but standardized GNU architecture naming
 # scheme to be consistent with Debian (which can handle the complex case of
 # building compilers for different architectures). Build refers to the
