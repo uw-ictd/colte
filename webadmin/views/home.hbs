@@ -7,7 +7,7 @@
       <div class="card-body">
         <form method="post" action="/home/topup">
           <div class="form-group">
-            <label for="recipient">IMSI</label> <input type="tel" id="formnumber" class="form-control" placeholder="{{translate "IMSI"}}" name="imsi"></input>
+            <label for="recipient">IMSI</label> <input type="tel" id="formnumber" class="form-control" placeholder="{{translate "IMSI"}}" name="imsi">
           </div>
           <div class="form-group">
             <label for="amount">{{translate "Amount To Add"}}</label>
@@ -26,9 +26,9 @@
         <form method="post" action="/home/transfer">
           <div class="form-group">
             <label for="recipient">{{translate "Sending IMSI"}}</label>
-            <input type="tel" id="formsend" class="form-control" placeholder="{{translate "Phone Number"}}" name="source"></input>
+            <input type="tel" id="formsend" class="form-control" placeholder="{{translate "Phone Number"}}" name="source">
             <label for="recipient">{{translate "Receiving IMSI"}}</label>
-            <input type="tel" id="formreceive" class="form-control" placeholder="{{translate "Phone Number"}}" name="dest"></input>
+            <input type="tel" id="formreceive" class="form-control" placeholder="{{translate "Phone Number"}}" name="dest">
           </div>
           <div class="form-group">
             <label for="amount">{{translate "Amount To Transfer"}}</label>
