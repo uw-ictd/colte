@@ -103,6 +103,11 @@ contents:
   - src: "./python/coltedb.py"
     dst: "/usr/bin/coltedb"
 
+  - src: "./python/migrate_mysql_to_pg.py"
+    dst: "/usr/bin/colte-pg-migrate"
+    file_info:
+      mode: 0755
+
   - src: "./webadmin/*"
     dst: "/usr/bin/colte-webadmin"
 
