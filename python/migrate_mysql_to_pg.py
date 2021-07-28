@@ -2,6 +2,8 @@
 
 import argparse
 import logging
+import shutil
+import subprocess
 
 from pathlib import Path
 
@@ -149,6 +151,32 @@ def migrate_customers(mysql_conn, pg_conn, currency_id):
     mysql_conn.commit()
 
 
+def migrate_haulage(source_db_name, source_db_user, source_db_pass):
+    haulage_pg_migrate = shutil.which("haulage-pg-migrate")
+    if haulage_pg_migrate is None:
+        raise Warning(
+            "Unable to find haulage migration tool on path, skipping haulage migration"
+        )
+
+    logging.info(
+        "Starting haulage migration with haualge-pg-migrate at %s", haulage_pg_migrate
+    )
+
+    subprocess.run(
+        [
+            haulage_pg_migrate,
+            "--mysql-db-name",
+            source_db_name,
+            "--mysql-db-user",
+            source_db_user,
+            "--mysql-db-pass",
+            source_db_pass,
+        ],
+        shell=False,
+        check=True,
+    )
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Migrate from the legacy mysql/mariadb system to postgres."
@@ -218,3 +246,5 @@ if __name__ == "__main__":
         args.currency, args.currency_symbol, args.currency_name, pg_connection
     )
     migrate_customers(mysql_connection, pg_connection, legacy_currency_id)
+
+    migrate_haulage(mysql_name, mysql_user, mysql_pass)
