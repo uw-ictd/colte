@@ -26,6 +26,11 @@ jobs:
         with:
           node-version: "14"
 
+      - name: Install npm 7
+        run: |
+          npm install -g npm@7
+          npm --version
+
       - name: Run makefile
         run: |
           sudo make install_apt_deps
@@ -72,15 +77,20 @@ jobs:
           # POSTGRES_DATABASE: haulage_db
         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       - name: Setup nodejs
         uses: actions/setup-node@v2
         with:
           node-version: "14"
 
-      - name: Checkout repo
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - name: Install npm 7
+        run: |
+          npm install -g npm@7
+          npm --version
 
       - name: Run tests
         env:
