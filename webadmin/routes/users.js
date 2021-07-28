@@ -57,11 +57,6 @@ router.get("/:page", function (req, res, next) {
       }
     }
 
-    for (let i = 0; i < data.data.length; i++) {
-      data.data[i].raw_down = app.convertBytes(data.data[i].raw_down);
-      data.data[i].raw_up = app.convertBytes(data.data[i].raw_up);
-    }
-
     res.render("users", {
       translate: app.translate,
       title: app.translate("Home"),
