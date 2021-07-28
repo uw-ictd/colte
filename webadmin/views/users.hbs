@@ -90,7 +90,7 @@
           {{/if}}
 
           {{#each page_list}}
-            {{#ifequal ../current_page this}}
+            {{#ifequal @root.current_page this}}
               <li class="page-item active"><p class="page-link">{{ this }}<span class="sr-only">(current)</span></p></li>
             {{else}}
               <li class="page-item"><a class="page-link" href="{{ this }}">{{ this }}</a></li>
