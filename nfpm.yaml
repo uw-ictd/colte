@@ -153,11 +153,11 @@ contents:
     dst: /etc/colte/config.yml
     type: config
 
-  - src: "./webgui/.env"
+  - src: "./webgui/production.env"
     dst: "/usr/bin/colte-webgui/.env"
     type: "config"
 
-  - src: "./webadmin/.env"
+  - src: "./webadmin/production.env"
     dst: "/usr/bin/colte-webadmin/.env"
     type: "config"
 

@@ -56,8 +56,6 @@ package_x86_64: build_x86_64 get_nfpm
 package_arm64 package_x86_64: export VERSION := $(GIT_VERSION)
 package_arm64 package_x86_64:
 	mkdir -p $(TARGET_DIR)
-	cd webgui; cp production.env .env
-	cd webadmin; cp production.env .env
 	cat nfpm.yaml | \
 	envsubst '$${HOST_ARCHITECTURE}' | \
 	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
