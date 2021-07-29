@@ -9,7 +9,6 @@ from pathlib import Path
 
 import MySQLdb
 import psycopg2
-import psycopg2.errors
 import yaml
 
 logging.basicConfig(level=logging.DEBUG)
@@ -139,9 +138,9 @@ def migrate_customers(mysql_conn, pg_conn, currency_id):
                 new_sub_row,
             )
             pg_cursor.execute("COMMIT")
-        except psycopg2.errors.UniqueViolation as e:
+        except psycopg2.IntegrityError as e:
             logging.warning(
-                "Skipping insert subscriber %s due to uniqueness error: %s ",
+                "Skipping insert subscriber %s due to error: %s ",
                 new_sub_row,
                 e,
             )
