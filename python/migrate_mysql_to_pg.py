@@ -7,7 +7,7 @@ import subprocess
 
 from pathlib import Path
 
-import mysql.connector
+import MySQLdb
 import psycopg2
 import psycopg2.errors
 import yaml
@@ -111,8 +111,8 @@ def canonicalize_currency(code, symbol, name, pg_conn):
 
 
 def migrate_customers(mysql_conn, pg_conn, currency_id):
-    mysql_conn.start_transaction(isolation_level="SERIALIZABLE")
     mysql_cursor = mysql_conn.cursor()
+    mysql_cursor.execute("BEGIN")
     pg_cursor = pg_conn.cursor()
 
     mysql_cursor.execute(
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     if mysql_pass is None:
         mysql_pass = config_db_pass
 
-    mysql_connection = mysql.connector.connect(
+    mysql_connection = MySQLdb.connect(
         host="localhost", user=mysql_user, passwd=mysql_pass, db=mysql_name
     )
     logging.info("Connected to mysql/mariadb at db=%s, user=%s", mysql_name, mysql_user)
