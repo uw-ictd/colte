@@ -1,11 +1,11 @@
-name: Validate Main
+name: Build and package
 
 on:
   # Triggers the workflow on push or pull request events for the master branch
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -24,7 +24,12 @@ jobs:
       - name: Setup nodejs
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: "14"
+
+      - name: Install npm 7
+        run: |
+          npm install -g npm@7
+          npm --version
 
       - name: Run makefile
         run: |
@@ -37,7 +42,6 @@ jobs:
         with:
           name: colte-package
           path: BUILD/colte_*.deb
-
 
   package-install:
     runs-on: ubuntu-latest
@@ -59,40 +63,3 @@ jobs:
         run: |
           sudo dpkg -i colte_*.deb || /bin/true
           sudo apt-get install --yes -f
-
-
-  run-tests:
-    runs-on: ubuntu-latest
-    services:
-      mariadb:
-        image: mariadb:latest
-        ports:
-          - 3306
-        env:
-          MYSQL_USER: haulage_db
-          MYSQL_PASSWORD: haulage_db
-          MYSQL_DATABASE: haulage_db
-          MYSQL_ROOT_PASSWORD: haulage_db
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
-    steps:
-      - name: Setup nodejs
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-
-      - name: Checkout repo
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Run tests
-        env:
-          DB_HOST: "127.0.0.1"
-          DB_PORT: ${{ job.services.mariadb.ports[3306] }}
-          DB_USER: "root"
-          DB_PASSWORD: "haulage_db"
-          DB_NAME: "haulage_db"
-          TRANSACTION_LOG: "transaction_log.txt"
-        run: |
-          touch webgui/transaction_log.txt
-          make test

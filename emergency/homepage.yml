@@ -4,26 +4,26 @@
 
 # NOTE: you need to already have docker installed somehow (varies per system, goddamn it)
 
-    - name: create emergencell directory
-      file:
-        src: "{{ emergency_dir }}/homepage/"
-        dest: "/var/www/emergencell"
-        state: link
-      become: yes
+- name: create emergencell directory
+  file:
+    src: "{{ emergency_dir }}/homepage/"
+    dest: "/var/www/emergencell"
+    state: link
+  become: yes
 
-    - name: copy website configuration file
-      copy:
-        src: "{{ emergency_dir }}/homepage.conf"
-        dest: "/etc/nginx/sites-available/emergencell_homepage"
-      become: yes
+- name: copy website configuration file
+  copy:
+    src: "{{ emergency_dir }}/homepage.conf"
+    dest: "/etc/nginx/sites-available/emergencell_homepage"
+  become: yes
 
-    - name: symlink website into sites-enabled
-      file:
-        src: "/etc/nginx/sites-available/emergencell_homepage"
-        dest: "/etc/nginx/sites-enabled/emergencell_homepage"
-        state: link
-      become: yes
+- name: symlink website into sites-enabled
+  file:
+    src: "/etc/nginx/sites-available/emergencell_homepage"
+    dest: "/etc/nginx/sites-enabled/emergencell_homepage"
+    state: link
+  become: yes
 
-    - name: restart nginx
-      service: name=nginx state=reloaded
-      become: yes
+- name: restart nginx
+  service: name=nginx state=reloaded
+  become: yes

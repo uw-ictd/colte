@@ -1,0 +1,51 @@
+name: Run JS unit tests
+
+on:
+  # Triggers the workflow on push or pull request events for the master branch
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgresql:
+        image: postgres:latest
+        ports:
+          - 5432
+        env:
+          POSTGRES_PASSWORD: haulage_db
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup nodejs
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Install npm 7
+        run: |
+          npm install -g npm@7
+          npm --version
+
+      - name: Run tests
+        env:
+          DB_HOST: "127.0.0.1"
+          DB_PORT: ${{ job.services.postgresql.ports[5432] }}
+          DB_USER: "postgres"
+          DB_PASSWORD: "haulage_db"
+          DB_NAME: "postgres"
+          TRANSACTION_LOG: "transaction_log.txt"
+        run: |
+          touch webgui/transaction_log.txt
+          make test

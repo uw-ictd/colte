@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "CoLTE-Python"
+version = "0.0.1"
+description = "The python language support scripts for the CoLTE project"
+authors = ["The CoLTE Project <colte@cs.washington.edu>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+mysqlclient = "^2.0.3"
+pyyaml = "*"
+psycopg2 = "^2.9"
+"ruamel.yaml" = "*"
+netaddr = "*"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+pylint = "*"
+rope = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

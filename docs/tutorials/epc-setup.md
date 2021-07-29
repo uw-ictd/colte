@@ -1,5 +1,5 @@
 ---
-title: "EPC \"Network in a Box\" Setup"
+title: 'EPC "Network in a Box" Setup'
 parent: Tutorials
 layout: page
 ---
@@ -19,7 +19,6 @@ to version conflicts.
 
 ![Diagram of LTE architecture including 4 main sections: User equipment (UE), eNodeB base station, Evolved Packet Core (EPC), Upstream IP networks/Internet](https://i.imgur.com/dMZQVDl.png)
 
-
 CoLTE simplifies implementation and configuration of the Evolved Packet Core
 (EPC) elements of an LTE network using the Open5GS package.
 
@@ -29,6 +28,7 @@ internet. It connects to the radio base station, known as the eNodeB, which in
 turn will associate with User Equipment (UE).
 
 ## II. CoLTE Installation
+
 Ensure all Ubuntu packages are up-to-date:
 
 ```bash
@@ -51,6 +51,7 @@ sudo apt install colte
 ## III. Network Interface Configuration
 
 ### A. Recommendation Configuration
+
 This requires an EPC machine with 2 or more ethernet ports (here named enp1s0
 and enp4s0). The upstream interface receives an IP address via DHCP as usual
 from the upstream router, which passes its traffic to and from the Internet. The
@@ -97,6 +98,7 @@ the first configuration is recommended for deployments for security reasons.
 **The alternative should be used for testing only**.
 
 ### B. NOT Recommended for deployment
+
 If you don’t yet have a machine with 2 ethernet ports or a USB to ethernet
 adapter dongle, you can temporarily use a machine with a single ethernet port
 along with a simple switch or router. If using a simple switch, you can follow
@@ -127,6 +129,7 @@ network daemon to apply the configuration changes:
 $ sudo netplan try
 $ sudo netplan apply
 ```
+
 If the eNB will be plugged into its own dedicated EPC ethernet port, as in the
 recommended configuration above, you may need to connect that EPC ethernet port
 to something (e.g. the eNB, a switch, another machine) via an ethernet cable to
@@ -138,6 +141,7 @@ the MME will continually throw errors if you try to run it.
 ## IV. CoLTE Configuration
 
 ### A. Using `colteconf`
+
 CoLTE simplifies LTE network configuration by consolidating relevant
 configuration files into the directory `/etc/colte`. The primary configuration
 file is `/etc/colte/config.yml`. Update this file as below:
@@ -178,6 +182,7 @@ $ sudo colteconf update
 This will update the configuration and reload services.
 
 ### B. Monitoring CoLTE
+
 Ubuntu’s built-in logging and monitoring services can be used to monitor the
 core network services:
 
@@ -191,7 +196,7 @@ OR
 $ sudo systemctl status open5gs-mmed.service
 ```
 
-*Tab complete may be able to fill in the service name for systemctl at least*
+_Tab complete may be able to fill in the service name for systemctl at least_
 
 ## V. 'Persist' CoLTE Configuration
 
@@ -219,6 +224,7 @@ $ sudo iptables-restore < /etc/iptables/rules.v4
 ## VI. User Administration and Management
 
 ### A. Command line using `coltedb`
+
 CoLTE comes with the command `coltedb` which can be used to modify the user
 database via the command line. Run `coltedb` without any arguments to see a
 summary of the available commands.
@@ -229,27 +235,27 @@ spreadsheet or text file by the SIM card manufacturer when you buy them.
 **PLEASE KEEP THIS INFO SECRET!!!** This is essential for the privacy and
 security of your network.
 
-* IMSI
-    * unique identifier for SIM card
-    * manufacturer provides
-* MSISDN
-    * an arbitrary number representing the user’s “phone number”
-    * could be the last 5 or more digits of the IMSI- make this up if not
-      provided to you
-* IP Address
-    * this value sets a private static IP for each SIM card
-    * you’re also free to set this
-* Key
-    * user’s private key used in LTE encryption
-    * manufacturer provides
-* OPC
-    * “carrier” private key used in LTE encryption
-    * manufacturer provides
-* APN (*optional)*
-    * access point name
-    * for some CBRS LTE phone models such as the LG G8 ThinQ, the APN sent by
-      the phone is hard-coded to be the string “ims”, so the only solution we’ve
-      found is to set the APN on the EPC to match.
+- IMSI
+  - unique identifier for SIM card
+  - manufacturer provides
+- MSISDN
+  - an arbitrary number representing the user’s “phone number”
+  - could be the last 5 or more digits of the IMSI- make this up if not
+    provided to you
+- IP Address
+  - this value sets a private static IP for each SIM card
+  - you’re also free to set this
+- Key
+  - user’s private key used in LTE encryption
+  - manufacturer provides
+- OPC
+  - “carrier” private key used in LTE encryption
+  - manufacturer provides
+- APN (_optional)_
+  - access point name
+  - for some CBRS LTE phone models such as the LG G8 ThinQ, the APN sent by
+    the phone is hard-coded to be the string “ims”, so the only solution we’ve
+    found is to set the APN on the EPC to match.
 
 To add a single new user in the command line, use the following command format:
 
@@ -264,6 +270,7 @@ $ sudo coltedb add 460660003400030 30 192.168.151.30 0x00112233445566778899AABBC
 ```
 
 ### B. Bulk add using a script
+
 The shell script “bulk_add.sh” is provided for your convenience in the
 [conf/](https://github.com/uw-ictd/colte/tree/main/conf) folder of the github
 repo. It takes a single argument, the filename (full path if not in the same
@@ -278,6 +285,7 @@ info, and the APN set for each user):
 460660003400033 33 192.168.151.33 0x00112233445566778899AABBCCDDEEFF 0x000102030405060708090A0B0C0D0E0F ims
 460660003400034 34 192.168.151.34 0x00112233445566778899AABBCCDDEEFF 0x000102030405060708090A0B0C0D0E0F ims
 ```
+
 Then, to add them all at once to the database, you would run:
 
 ```bash

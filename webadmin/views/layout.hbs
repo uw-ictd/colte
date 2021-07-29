@@ -1,12 +1,11 @@
-<!doctype html>
 <html lang="en">
   <head>
     <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
     <!-- Bootstrap CSS -->
-    <link rel='stylesheet' href='/bootstrap-4.5.3/css/bootstrap.min.css' />
+    <link rel="stylesheet" href="/bootstrap-4.5.3/css/bootstrap.min.css" />
     <script src="/javascripts/jquery-3.3.1.min.js"></script>
 
     <title>{{title}}</title>
@@ -14,23 +13,33 @@
   <body>
     <nav class="navbar navbar-expand navbar-dark mb-4" style="background-color: #4b2e83">
       <a class="navbar-brand" href="#" style="font-family: impact; font-size: 200%;">ungu Admin</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
     </nav>
     <ul class="nav nav-tabs">
-      <li class="nav-item"><a style="font-size:12px" class="nav-link" href="/home">{{translate "Home"}}</a></li>
-      <li class="nav-item"><a style="font-size:12px" class="nav-link" href="/users">{{translate "Users"}}</a></li>
+      <li class="nav-item"><a style="font-size:12px" class="nav-link" href="/home">{{translate
+            "Home"
+          }}</a></li>
+      <li class="nav-item"><a style="font-size:12px" class="nav-link" href="/users">{{translate
+            "Users"
+          }}</a></li>
     </ul>
     {{{body}}}
   </body>
 
-<!-- SMS: this jQuery changes the active element of the tab -->
-<script>
-$(document).ready(function() {
-  // get current URL path and assign 'active' class
-  var pathname = "/" + window.location.pathname.split("/")[1];
-  $('.nav > li > a[href="' + pathname + '"]').addClass('active');
-})
-</script>
+  <!-- SMS: this jQuery changes the active element of the tab -->
+  <script>
+    $(document).ready(function() { // get current URL path and assign 'active' class var pathname =
+    "/" + window.location.pathname.split("/")[1]; $('.nav > li > a[href="' + pathname +
+    '"]').addClass('active'); })
+  </script>
 </html>

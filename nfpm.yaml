@@ -54,14 +54,15 @@ depends:
   - "open5gs-pcrf (>= 2.2.0)"
   - "open5gs-smf (>= 2.2.0)"
   - "open5gs-upf (>= 2.2.0)"
-  - "haulage"
+  - "haulage (>= 0.2.2)"
   - "python3"
   - "nodejs (>= 8.0.0)"
-  - "default-mysql-client"
-  - "default-mysql-server"
+  - "postgresql"
   - "python3-netaddr"
   - "python3-ruamel.yaml"
   - "python3-mysqldb"
+  - "python3-psycopg2"
+  - "python3-yaml"
 
 # Recommended packages. (overridable)
 recommends:
@@ -88,12 +89,6 @@ contents:
   - src: "./package/colte-nat.service"
     dst: "/etc/systemd/system/colte-nat.service"
 
-  - src: "./conf/colteconf.py"
-    dst: "/usr/bin/colteconf"
-
-  - src: "./conf/coltedb.py"
-    dst: "/usr/bin/coltedb"
-
   - src: "./conf/open5gs_dbconf.sh"
     dst: "/etc/colte/colte_open5gsdb"
 
@@ -102,6 +97,21 @@ contents:
 
   - src: "./package/colte-webgui.service"
     dst: "/etc/systemd/system/colte-webgui.service"
+
+  - src: "./python/colteconf.py"
+    dst: "/usr/bin/colteconf"
+    file_info:
+      mode: 0755
+
+  - src: "./python/coltedb.py"
+    dst: "/usr/bin/coltedb"
+    file_info:
+      mode: 0755
+
+  - src: "./python/migrate_mysql_to_pg.py"
+    dst: "/usr/bin/colte-pg-migrate"
+    file_info:
+      mode: 0755
 
   - src: "./webadmin/*"
     dst: "/usr/bin/colte-webadmin"
@@ -138,17 +148,16 @@ contents:
     dst: "/usr/bin/colte-webadmin/node_modules/colte-common-models"
     type: "symlink"
 
-
   # Config files
   - src: ./conf/config.yml
     dst: /etc/colte/config.yml
     type: config
 
-  - src: "./webgui/.env"
+  - src: "./webgui/production.env"
     dst: "/usr/bin/colte-webgui/.env"
     type: "config"
 
-  - src: "./webadmin/.env"
+  - src: "./webadmin/production.env"
     dst: "/usr/bin/colte-webadmin/.env"
     type: "config"
 
@@ -167,7 +176,6 @@ contents:
   #     mtime: 2008-01-02T15:04:05Z
   #     owner: notRoot
   #     group: notRoot
-
 
 # Empty folders your package may need created. (overridable)
 empty_folders:

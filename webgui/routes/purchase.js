@@ -1,55 +1,56 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-var colte_models = require('colte-common-models');
+var colte_models = require("colte-common-models");
 var customer = colte_models.buildCustomer();
-var app = require('../app');
-const { body, validationResult } = require('express-validator');
+var app = require("../app");
+const {body, validationResult} = require("express-validator");
 
-router.get('/', function(req, res, next) {
-
+router.get("/", function (req, res, next) {
   var ip = app.generateIP(req.ip);
-  console.log("Web Request From: " + ip)
-  customer.find_by_ip(ip).then((data) => {
-    if (data.length == 0) {
-      return res.sendStatus(403);
-    } else if (data.length > 1) {
-      throw new Error(`Multiple database entries for ${ip}`);
-    }
-    var data_balance_str = app.convertBytes(data[0].data_balance);
+  console.log("Web Request From: " + ip);
+  customer
+    .find_by_ip(ip)
+    .then((data) => {
+      if (data.length == 0) {
+        return res.sendStatus(403);
+      } else if (data.length > 1) {
+        throw new Error(`Multiple database entries for ${ip}`);
+      }
+      var data_balance_str = app.convertBytes(data[0].data_balance);
 
-    res.render('purchase', {
-      translate: app.translate,
-      title: app.translate('Purchase'),
-      data_balance_str: data_balance_str,
-      balance: data[0].balance,
-      admin: data[0].admin,
-      pack: app.pricing.packages,
-      services: app.services,
+      res.render("purchase", {
+        translate: app.translate,
+        title: app.translate("Purchase"),
+        data_balance_str: data_balance_str,
+        balance: data[0].balance,
+        admin: data[0].admin,
+        pack: app.pricing.packages,
+        services: app.services,
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      return res.sendStatus(500);
     });
-  }).catch((error) => {
-    console.error(error);
-    return res.sendStatus(500);
-  });
 });
 
 // Root fallback for all other unsupported verbs.
-router.all('/', (req, res) => {
+router.all("/", (req, res) => {
   return res.sendStatus(405);
 });
 
-router.post(
-  '/purchase',
-  body("package").isNumeric(),
-  (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()){
-        return res.status(400).json(errors);
-    }
+router.post("/purchase", body("package").isNumeric(), (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json(errors);
+  }
 
-    var ip = app.generateIP(req.ip);
-    var bytes = req.body.package;
-    var cost = 0;
-    customer.find_by_ip(ip).then((data) => {
+  var ip = app.generateIP(req.ip);
+  var bytes = req.body.package;
+  var cost = 0;
+  customer
+    .find_by_ip(ip)
+    .then((data) => {
       if (data.length == 0) {
         return res.sendStatus(403);
       } else if (data.length > 1) {
@@ -68,21 +69,23 @@ router.post(
         return res.sendStatus(400);
       }
 
-      customer.purchase_package(data[0].imsi, cost, bytes).catch((error) => {
-        console.log("Purchase error: " + error);
-      })
-      .then(function() {
-        res.redirect('/purchase');
-      });
-    }).catch((error) => {
+      customer
+        .purchase_package(data[0].imsi, cost, bytes)
+        .catch((error) => {
+          console.log("Purchase error: " + error);
+        })
+        .then(function () {
+          res.redirect("/purchase");
+        });
+    })
+    .catch((error) => {
       console.error(error);
       return res.sendStatus(500);
     });
-  }
-);
+});
 
 // Purchase fallback for all other unsupported verbs.
-router.all('/purchase', (req, res) => {
+router.all("/purchase", (req, res) => {
   return res.sendStatus(405);
 });
 
