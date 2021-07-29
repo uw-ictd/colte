@@ -57,11 +57,12 @@ depends:
   - "haulage"
   - "python3"
   - "nodejs (>= 8.0.0)"
-  - "default-mysql-client"
-  - "default-mysql-server"
+  - "postgresql"
   - "python3-netaddr"
   - "python3-ruamel.yaml"
   - "python3-mysqldb"
+  - "python3-psycopg2"
+  - "python3-yaml"
 
 # Recommended packages. (overridable)
 recommends:
