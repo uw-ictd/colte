@@ -237,7 +237,9 @@ if __name__ == "__main__":
     )
     logging.info("Connected to mysql/mariadb at db=%s, user=%s", mysql_name, mysql_user)
 
-    pg_connection = psycopg2.connect(dbname=pg_name, user=pg_user, password=pg_pass)
+    pg_connection = psycopg2.connect(
+        dbname=pg_name, user=pg_user, password=pg_pass, host="127.0.0.1"
+    )
     logging.info("Connected to postgres at db=%s, user=%s", pg_name, pg_user)
 
     logging.info("Beginning migration!")
