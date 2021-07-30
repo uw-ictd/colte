@@ -120,8 +120,11 @@ def migrate_customers(mysql_conn, pg_conn, currency_id):
     for row in mysql_cursor:
         enabled = bool(row[3] == 1)
         admin = bool(row[4] == 1)
+        username = row[1]
+        if username is None:
+            username = ""
 
-        new_sub_row = [row[0], row[1], row[2], currency_id, enabled, admin, row[5]]
+        new_sub_row = [row[0], username, row[2], currency_id, enabled, admin, row[5]]
 
         try:
             pg_cursor.execute("BEGIN TRANSACTION")
