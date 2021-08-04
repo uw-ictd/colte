@@ -72,7 +72,7 @@ if command == "add":
         ki = sys.argv[5]
         opc = sys.argv[6]
         apn = sys.argv[7]
-        currency = "IDR"
+        currency = "XXX"
         open5gs_entry = imsi + " " + ip + " " + ki + " " + opc + " " + apn
     else:
         imsi = sys.argv[2]
@@ -80,7 +80,7 @@ if command == "add":
         ip = sys.argv[4]
         ki = sys.argv[5]
         opc = sys.argv[6]
-        currency = "IDR"
+        currency = "XXX"
         open5gs_entry = imsi + " " + ip + " " + ki + " " + opc
 
     # TODO: error-handling? Check if imsi/msisdn/ip already in system?
