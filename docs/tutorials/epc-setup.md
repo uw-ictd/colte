@@ -19,13 +19,11 @@ to version conflicts.
 
 ![Diagram of LTE architecture including 4 main sections: User equipment (UE), eNodeB base station, Evolved Packet Core (EPC), Upstream IP networks/Internet](https://i.imgur.com/dMZQVDl.png)
 
-CoLTE simplifies implementation and configuration of the Evolved Packet Core
-(EPC) elements of an LTE network using the Open5GS package.
+CoLTE simplifies implementation and configuration of the Evolved Packet Core (EPC) elements of an LTE network using the Open5GS package.
 
-The EPC provides Control plane functions, such as subscriber and mobile
-management, and User plane functions, such as routing user traffic to the
-internet. It connects to the radio base station, known as the eNodeB, which in
-turn will associate with User Equipment (UE).
+The EPC provides core software functions such as subscriber management and routing user traffic to the Internet. It connects to the radio "base station", called the eNodeB (eNB), which then talks to the User Equipment (UE)- i.e., your cell phone or access device. For starters, the most important component to know about in the EPC is the "MME,"  which manages the process of the eNB and any end-user devices attaching themselves to the network (you can think of this as "signing on") so they can start sending data. In the case of users, the MME has to ask the HSS software component (essentially a user database) for credentials (shared secret keys unique to each user) to verify that a given SIM card is allowed to join the network. The MME is the software component whose output logs you should check on first for error messages if something is going wrong with the network.
+
+(You can find more detailed documentation and diagrams of the Open5GS software architecture at the Open5GS [Quickstart](https://open5gs.org/open5gs/docs/guide/01-quickstart/) page. Their software supports both 4G and 5G, and you only need to run a subset of the software components for 4G. For your reference, as of Aug 2021 these software components are: ```open5gs-mmed, open5gs-sgwcd, open5gs-sgwud, open5gs-hssd, open5gs-pcrfd, open5gs-smfd, open5gs-upfd```, and on Ubuntu they run as [systemd](http://manpages.ubuntu.com/manpages/bionic/man1/systemd.1.html) services.)
 
 ## II. CoLTE Installation
 
