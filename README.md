@@ -10,6 +10,8 @@ CoLTE is the Community LTE Project. It is designed to be an all-in-one turnkey s
 
 # Installation
 
+Here is a [tutorial] (https://docs.colte.network/tutorials/epc-setup.html) for novice users that attempts a step-by-step walkthrough of a full CoLTE EPC installation, produced in collaboration with the [Seattle Community Network](https://seattlecommunitynetwork.org/).
+
 ### Basic System Requirements:
 
 We now support Ubuntu 18.04 (bionic), Ubuntu 20.04 (focal), and Debian 10
