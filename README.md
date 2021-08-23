@@ -2,7 +2,7 @@
 
 CoLTE is the Community LTE Project. It is designed to be an all-in-one turnkey solution that sets up a small-scale locally-run LTE network. CoLTE consists of several main elements working together:
 
-1. An all-in-one software EPC, powered by [open5gs] (https://github.com/open5gs/open5gs).
+1. An all-in-one software EPC, powered by [open5gs](https://github.com/open5gs/open5gs).
 2. Network monitoring software, powered by [haulage](https://github.com/uw-ictd/haulage), to keep track of how many bytes each user uses and bill appropriately.
 3. A Web GUI that lets network users check the status of their account, top up, transfer/resell credit, and buy data packages.
 4. A Web-based admin tool that lets administrators manage all the information above.
@@ -10,7 +10,7 @@ CoLTE is the Community LTE Project. It is designed to be an all-in-one turnkey s
 
 # Installation
 
-Here is a [tutorial] (https://docs.colte.network/tutorials/epc-setup.html) for novice users that attempts a step-by-step walkthrough of a full CoLTE EPC installation, produced in collaboration with the [Seattle Community Network](https://seattlecommunitynetwork.org/).
+Here is a [tutorial](https://docs.colte.network/tutorials/epc-setup.html) for novice users that attempts a step-by-step walkthrough of a full CoLTE EPC installation, produced in collaboration with the [Seattle Community Network](https://seattlecommunitynetwork.org/).
 
 ### Basic System Requirements:
 
