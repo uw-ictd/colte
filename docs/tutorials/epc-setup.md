@@ -169,7 +169,7 @@ mysql_password: haulage_db
 mysql_db: haulage_db
 
 # use these vars to turn services ON (also starts at boot) or OFF
-metered: false
+metered: true
 nat: true
 epc: true
 ```
@@ -182,7 +182,7 @@ epc: true
 ```# PLMN``` refers to the [Public Land Mobile Network](https://en.wikipedia.org/wiki/Public_land_mobile_network), in which our network has to have a unique carrier ID defined by the "mobile country code (MCC)" and "mobile network code (MNC)". We have used arbitrary unallocated numbers for now.
 ```dns``` refers to the IP address of the [Domain Name System](https://developers.google.com/speed/public-dns) server the EPC will use, with the default value set to Google's public server at 8.8.8.8.
 ```# database connection settings``` are internal parameters used to access the user info databases- these will break if you change them.
-```metered: false``` means the system will by default _not track_ the number of bits used by each user.
+```metered: true``` means the system will by default track the number of bits used by each user, as well as run a user management dashboard that assumes "prepaid" usage. You can change this to "false" if you don't need this functionality, but if you're running CoLTE for the first time or upgrading from a previous version of CoLTE, you should run ```colteconf update``` (the next step) for the first time with ```metered: true``` so all the databases will get initialized correctly. Then you can change to ```metered: false``` and re-run ```colteconf update```. We are currently working on removing this dependency.
 
 Once the file has been edited to your liking, run:
 
