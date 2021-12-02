@@ -1,4 +1,4 @@
-name: "colte"
+name: "colte-essential"
 arch: "${HOST_ARCHITECTURE}"
 platform: "linux"
 
@@ -26,7 +26,7 @@ release: ${DISTRO_RELEASE_VERSION}
 section: "net"
 priority: "optional"
 maintainer: "Matthew Johnson <matt9j@cs.washington.edu>"
-description: "The Community LTE Project"
+description: "Shared components essential for operation of the CoLTE system"
 vendor: "UW-ICTD <colte@cs.washington.edu>"
 homepage: "https://github.com/uw-ictd/colte"
 license: "MIT"
@@ -35,7 +35,7 @@ license: "MIT"
 #changelog: "changelog.yaml"
 
 # Disables globbing for files, config_files, etc.
-disable_globbing: false
+disable_globbing: true
 
 # Packages it replaces. (overridable)
 replaces:
@@ -43,25 +43,12 @@ replaces:
 
 # Packages it provides. (overridable)
 provides:
-  # - bar
+  # - foobar
 
 # Dependencies. (overridable)
 depends:
-  - "open5gs-hss (>= 2.2.0)"
-  - "open5gs-sgwu (>= 2.2.0)"
-  - "open5gs-sgwc (>= 2.2.0)"
-  - "open5gs-mme (>= 2.2.0)"
-  - "open5gs-pcrf (>= 2.2.0)"
-  - "open5gs-smf (>= 2.2.0)"
-  - "open5gs-upf (>= 2.2.0)"
-  - "haulage (>= 0.2.2)"
   - "python3"
-  - "nodejs (>= 8.0.0)"
-  - "postgresql"
-  - "python3-netaddr"
   - "python3-ruamel.yaml"
-  - "python3-mysqldb"
-  - "python3-psycopg2"
   - "python3-yaml"
 
 # Recommended packages. (overridable)
@@ -79,114 +66,27 @@ conflicts:
 # Contents to add to the package
 # This can be binaries or any other files.
 contents:
-  # Basic files that applies to all packagers
-  - src: "./package/sample_db.sql"
-    dst: "/etc/colte/sample_db.sql"
-
-  - src: "./conf/coltenat.sh"
-    dst: "/usr/bin/coltenat"
-
-  - src: "./package/colte-nat.service"
-    dst: "/etc/systemd/system/colte-nat.service"
-
-  - src: "./conf/open5gs_dbconf.sh"
-    dst: "/etc/colte/colte_open5gsdb"
-
-  - src: "./package/colte-webadmin.service"
-    dst: "/etc/systemd/system/colte-webadmin.service"
-
-  - src: "./package/colte-webgui.service"
-    dst: "/etc/systemd/system/colte-webgui.service"
-
   - src: "./python/colteconf.py"
     dst: "/usr/bin/colteconf"
     file_info:
-      mode: 0755
+      mode: 0o755
 
   - src: "./python/coltedb.py"
     dst: "/usr/bin/coltedb"
     file_info:
-      mode: 0755
-
-  - src: "./python/migrate_mysql_to_pg.py"
-    dst: "/usr/bin/colte-pg-migrate"
-    file_info:
-      mode: 0755
-
-  - src: "./webadmin/*"
-    dst: "/usr/bin/colte-webadmin"
-
-  - src: "./webgui/*"
-    dst: "/usr/bin/colte-webgui"
-
-  - src: "./colte-common-models/*"
-    dst: "/usr/bin/colte-common-models"
-
-  # Installed symlinks
-  # Will result in `ln -s ${src} ${dst}`.
-  - src: /etc/haulage/config.yml
-    dst: /etc/colte/haulage.yml
-    type: "symlink"
-
-  - src: "/usr/bin/colte-webgui/pricing.json"
-    dst: "/etc/colte/pricing.json"
-    type: "symlink"
-
-  - src: "/usr/bin/colte-webadmin/.env"
-    dst: "/etc/colte/webadmin.env"
-    type: "symlink"
-
-  - src: "/usr/bin/colte-webgui/.env"
-    dst: "/etc/colte/webgui.env"
-    type: "symlink"
-
-  # Explicit symlinks for relative NPM packages
-  - src: "/usr/bin/colte-common-models"
-    dst: "/usr/bin/colte-webgui/node_modules/colte-common-models"
-    type: "symlink"
-  - src: "/usr/bin/colte-common-models"
-    dst: "/usr/bin/colte-webadmin/node_modules/colte-common-models"
-    type: "symlink"
+      mode: 0o755
 
   # Config files
   - src: ./conf/config.yml
     dst: /etc/colte/config.yml
     type: config
 
-  - src: "./webgui/production.env"
-    dst: "/usr/bin/colte-webgui/.env"
-    type: "config"
-
-  - src: "./webadmin/production.env"
-    dst: "/usr/bin/colte-webadmin/.env"
-    type: "config"
-
-  # Mark the transaction log as config for now to avoid overwriting existing logs.
-  # TODO(matt9j) Move the transaction log to the database.
-  - src: ./package/transaction_log.txt
-    dst: /var/log/colte/transaction_log.txt
-    type: "config"
-
-  # Sometimes it is important to be able to set the mtime, mode, owner, or group for a file
-  # that differs from what is on the local build system at build time.
-  # - src: path/to/foo
-  #   dst: /usr/local/foo
-  #   file_info:
-  #     mode: 0644
-  #     mtime: 2008-01-02T15:04:05Z
-  #     owner: notRoot
-  #     group: notRoot
-
-# Empty folders your package may need created. (overridable)
-empty_folders:
-  - /var/log/colte
-
 # Scripts to run at specific stages. (overridable)
 scripts:
   # preinstall: ./scripts/preinstall.sh
-  postinstall: ./package/postinst
+  # postinstall: ./package/postinst
   # preremove: ./scripts/preremove.sh
-  postremove: ./package/postrm
+  # postremove: ./package/postrm
 
 # Custom configuration applied only to the Deb packager.
 deb:

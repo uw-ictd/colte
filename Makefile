@@ -56,8 +56,17 @@ package_x86_64: build_x86_64 get_nfpm
 package_arm64 package_x86_64: export VERSION := $(GIT_VERSION)
 package_arm64 package_x86_64:
 	mkdir -p $(TARGET_DIR)
-	cat nfpm.yaml | \
-	envsubst '$${HOST_ARCHITECTURE}' | \
+	cat nfpm-colte.yaml | \
+	envsubst '$${HOST_ARCHITECTURE} $${VERSION}' | \
+	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
+	cat nfpm-colte-cn-4g.yaml | \
+	envsubst '$${HOST_ARCHITECTURE} $${VERSION}' | \
+	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
+	cat nfpm-colte-prepaid.yaml | \
+	envsubst '$${HOST_ARCHITECTURE} $${VERSION}' | \
+	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
+	cat nfpm-colte-essential.yaml | \
+	envsubst '$${HOST_ARCHITECTURE} $${VERSION}' | \
 	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
 
 test: test_webgui
