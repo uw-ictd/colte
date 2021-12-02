@@ -1,4 +1,4 @@
-GIT_VERSION=$(shell git describe --tags | sed s/-g/+g/g)
+GIT_VERSION=$(shell git describe --tags | sed s/-g/+g/g | sed s/-/~/g)
 TARGET_DIR=./BUILD
 NFPM_VERSION = 2.5.1
 # This uses the somewhat confusing but standardized GNU architecture naming
