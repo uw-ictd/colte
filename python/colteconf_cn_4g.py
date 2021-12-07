@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 import ruamel.yaml
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 import fileinput
@@ -19,6 +20,9 @@ sgwc = "/etc/open5gs/sgwc.yaml"
 sgwu = "/etc/open5gs/sgwu.yaml"
 smf = "/etc/open5gs/smf.yaml"
 upf = "/etc/open5gs/upf.yaml"
+
+# Setup logging
+log = logging.getLogger(__name__)
 
 
 def update_all_components(colte_data):
@@ -324,8 +328,8 @@ def _create_field_if_not_exist(dictionary, field_path, value):
             try:
                 current_entry = current_entry[field]
             except KeyError as e:
-                print("Failed to create key at path", field_path)
-                print("Current configuration state is:", dictionary)
+                log.error("Failed to create key at path %s", str(field_path))
+                log.error("Current configuration state is: %s", str(dictionary))
                 raise KeyError(
                     "Failed to create key at path {}, with base error {}".format(
                         field_path, e
@@ -345,13 +349,9 @@ def _control_epc_services(action):
     )
 
 if __name__ == "__main__":
-
-    RED = "\033[0;31m"
-    NC = "\033[0m"
-
     if os.geteuid() != 0:
-        print("colteconf: ${RED}error:${NC} Must run as root! \n")
-        exit(1)
+        log.error("Must run as root!")
+        raise PermissionError("The current implementation must run as root")
 
     # Read old vars and update yaml
     with open("/etc/colte/config.yml", "r") as file:

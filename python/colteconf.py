@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 import ruamel.yaml
 import os
 
@@ -13,13 +14,12 @@ yaml.indent(sequence=4, mapping=2, offset=2)
 # Input
 colte_vars = "/etc/colte/config.yml"
 
-if __name__ == "__main__":
-    RED = "\033[0;31m"
-    NC = "\033[0m"
+log = logging.getLogger(__name__)
 
+if __name__ == "__main__":
     if os.geteuid() != 0:
-        print("colteconf: ${RED}error:${NC} Must run as root! \n")
-        exit(1)
+        log.error("Must run as root!")
+        raise PermissionError("The current implementation must run as root")
 
     # Read old vars and update yaml
     with open(colte_vars, "r") as file:

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 import ruamel.yaml
 from ruamel.yaml.comments import CommentedMap
 import os
@@ -12,6 +13,7 @@ yaml.indent(sequence=4, mapping=2, offset=2)
 # Input
 colte_config_file = "/etc/colte/config.yml"
 
+log = logging.getLogger(__name__)
 
 def update_all_components(colte_data):
     """Update configurations of all billing components to match the colte config
@@ -100,8 +102,8 @@ def _create_field_if_not_exist(dictionary, field_path, value):
             try:
                 current_entry = current_entry[field]
             except KeyError as e:
-                print("Failed to create key at path", field_path)
-                print("Current configuration state is:", dictionary)
+                log.error("Failed to create key at path %s", str(field_path))
+                log.error("Current configuration state is: %s", str(dictionary))
                 raise KeyError (
                     "Failed to create key at path {}, with base error {}".format(
                         field_path, e
@@ -115,8 +117,8 @@ def _control_metering_services(action):
 
 if __name__ == "__main__":
     if os.geteuid() != 0:
-        print("colteconf: ${RED}error:${NC} Must run as root! \n")
-        exit(1)
+        log.error("Must run as root!")
+        raise PermissionError("The current implementation must run as root")
 
     # Read old vars and update yaml
     with open(colte_config_file, "r") as file:
