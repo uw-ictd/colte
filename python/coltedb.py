@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-import logging
-import ruamel.yaml
-import sys
-import os
-import psycopg2
 import decimal
+import logging
+import os
 import subprocess
+import sys
+
+import psycopg2
+import ruamel.yaml
 
 log = logging.getLogger(__name__)
 
@@ -114,8 +115,8 @@ if __name__ == "__main__":
         except psycopg2.IntegrityError as e:
             log.warning("Failed to add user due to error %s", str(e))
 
-        os.system("/etc/colte/colte_open5gsdb add " + open5gs_entry)
-        os.system("haulagedb add " + imsi + " " + ip)
+        subprocess.run(["/etc/colte/colte_open5gsdb", "add" + open5gs_entry], check=True)
+        subprocess.run(["haulagedb", "add", str(imsi), str(ip)], check=True)
 
     elif command == "remove":
         if len(sys.argv) != 3:
@@ -137,8 +138,8 @@ if __name__ == "__main__":
         except Exception as e:
             log.exception("Failed to remove due to error: %s", str(e), exc_info=True)
 
-        os.system("/etc/colte/colte_open5gsdb remove " + imsi)
-        os.system("haulagedb remove " + imsi)
+        subprocess.run(["/etc/colte/colte_open5gsdb", "remove", str(imsi)], check=True)
+        subprocess.run(["haulagedb", "remove", str(imsi)], check=True)
 
     elif command == "topup":
         if len(sys.argv) != 4:
@@ -202,7 +203,7 @@ if __name__ == "__main__":
         imsi = sys.argv[2]
         data = sys.argv[3]
 
-        os.system("haulagedb topup " + imsi + " " + data)
+        subprocess.run(["haulagedb", "topup", str(imsi), str(data)], check=True)
 
     elif command == "admin":
         if len(sys.argv) != 3:
