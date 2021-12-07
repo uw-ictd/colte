@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
+import logging
 import ruamel.yaml
 import sys
 import os
 import psycopg2
 import decimal
 import subprocess
+
+log = logging.getLogger(__name__)
 
 # input
 colte_vars = "/etc/colte/config.yml"
@@ -22,6 +25,7 @@ def display_help():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     print("coltedb: CoLTE Database Configuration Tool")
 
     if len(sys.argv) <= 1:
@@ -35,7 +39,7 @@ if __name__ == "__main__":
         exit(0)
 
     if os.geteuid() != 0:
-        print("coltedb: Must run as root!")
+        log.error("coltedb: Must run as root!")
         exit(1)
 
     # load database connection information
@@ -52,9 +56,7 @@ if __name__ == "__main__":
 
     if command == "add":
         if (len(sys.argv) > 9) or (len(sys.argv) < 7):
-            print(
-                'coltedb: incorrect number of args, format is "coltedb add imsi msisdn ip key opc [apn] [currency]". static IP and msisdn currently requred.'
-            )
+            log.error('coltedb: incorrect number of args, format is "coltedb add imsi msisdn ip key opc [apn] [currency]". static IP and msisdn currently requred.')
             open5gs_entry = "NULL"
         elif len(sys.argv) == 9:
             imsi = sys.argv[2]
@@ -84,7 +86,7 @@ if __name__ == "__main__":
             open5gs_entry = imsi + " " + ip + " " + ki + " " + opc
 
         # TODO: error-handling? Check if imsi/msisdn/ip already in system?
-        print("coltedb: adding user " + str(imsi))
+        log.info("coltedb: adding user %s", str(imsi))
         try:
             cursor.execute("BEGIN TRANSACTION")
 
@@ -110,14 +112,14 @@ if __name__ == "__main__":
             )
             cursor.execute("COMMIT")
         except psycopg2.IntegrityError as e:
-            print("Failed to add user due to error {}".format(e))
+            log.warning("Failed to add user due to error %s", str(e))
 
         os.system("/etc/colte/colte_open5gsdb add " + open5gs_entry)
         os.system("haulagedb add " + imsi + " " + ip)
 
     elif command == "remove":
         if len(sys.argv) != 3:
-            print('coltedb: incorrect number of args, format is "coltedb remove imsi"')
+            log.error('coltedb: incorrect number of args, format is "coltedb remove imsi"')
 
         imsi = sys.argv[2]
 
@@ -133,14 +135,14 @@ if __name__ == "__main__":
 
             cursor.execute("COMMIT")
         except Exception as e:
-            print("Failed to remove due to error: {}".format(e))
+            log.exception("Failed to remove due to error: %s", str(e), exc_info=True)
 
         os.system("/etc/colte/colte_open5gsdb remove " + imsi)
         os.system("haulagedb remove " + imsi)
 
     elif command == "topup":
         if len(sys.argv) != 4:
-            print('coltedb: incorrect number of args, format is "coltedb topup imsi money"')
+            log.error('coltedb: incorrect number of args, format is "coltedb topup imsi money"')
 
         imsi = sys.argv[2]
         amount = sys.argv[3]
@@ -151,7 +153,7 @@ if __name__ == "__main__":
         commit_str = "SELECT balance FROM customers WHERE imsi = '" + imsi + "' FOR UPDATE"
         numrows = cursor.execute(commit_str)
         if numrows == 0:
-            print("coltedb error: imsi " + str(imsi) + " does not exist!")
+            log.error("coltedb error: imsi %s does not exist!",  str(imsi))
             exit(1)
 
         for row in cursor:
@@ -173,11 +175,10 @@ if __name__ == "__main__":
         while True:
             answer = input(promptstr)
             if answer == "y" or answer == "Y" or answer == "":
-                print(
-                    "coltedb: updating user "
-                    + str(imsi)
-                    + " setting new balance to "
-                    + str(new_balance)
+                log.info(
+                    "coltedb: updating user %s setting new balance to %d",
+                    str(imsi),
+                    new_balance,
                 )
                 commit_str = (
                     "UPDATE customers SET balance = "
@@ -189,12 +190,12 @@ if __name__ == "__main__":
                 cursor.execute(commit_str)
                 break
             if answer == "n" or answer == "N":
-                print("coltedb: cancelling topup\n")
+                log.info("coltedb: cancelling topup\n")
                 break
 
     elif command == "topup_data":
         if len(sys.argv) != 4:
-            print(
+            log.error(
                 'coltedb: incorrect number of args, format is "coltedb topup_data imsi data"'
             )
 
@@ -205,21 +206,21 @@ if __name__ == "__main__":
 
     elif command == "admin":
         if len(sys.argv) != 3:
-            print('coltedb: incorrect number of args, format is "coltedb admin imsi"')
+            log.error('coltedb: incorrect number of args, format is "coltedb admin imsi"')
 
         imsi = sys.argv[2]
 
-        print("coltedb: giving admin privileges to user " + str(imsi))
+        log.info("coltedb: giving admin privileges to user %s", str(imsi))
         commit_str = "UPDATE customers SET admin = true WHERE imsi = '" + imsi + "'"
         cursor.execute(commit_str)
 
     elif command == "noadmin":
         if len(sys.argv) != 3:
-            print('coltedb: incorrect number of args, format is "coltedb noadmin imsi"')
+            log.error('coltedb: incorrect number of args, format is "coltedb noadmin imsi"')
 
         imsi = sys.argv[2]
 
-        print("coltedb: removing admin privileges from user " + str(imsi))
+        log.info("coltedb: removing admin privileges from user %s", str(imsi))
         commit_str = "UPDATE customers SET admin = false WHERE imsi = '" + imsi + "'"
         cursor.execute(commit_str)
 
