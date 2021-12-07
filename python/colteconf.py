@@ -14,6 +14,7 @@ yaml.indent(sequence=4, mapping=2, offset=2)
 colte_vars = "/etc/colte/config.yml"
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     if os.geteuid() != 0:
         log.error("Must run as root!")
         raise PermissionError("The current implementation must run as root")

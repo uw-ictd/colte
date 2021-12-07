@@ -349,6 +349,7 @@ def _control_epc_services(action):
     )
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     if os.geteuid() != 0:
         log.error("Must run as root!")
         raise PermissionError("The current implementation must run as root")
