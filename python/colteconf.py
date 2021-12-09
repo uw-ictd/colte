@@ -45,6 +45,7 @@ if __name__ == "__main__":
 
         config_modules.append(colte_cn)
     except ModuleNotFoundError as e:
+        colte_cn = None
         log.info("colte-cn-4g configuration not installed, skipping")
 
     try:
@@ -52,11 +53,18 @@ if __name__ == "__main__":
 
         config_modules.append(colte_prepaid)
     except ModuleNotFoundError as e:
+        colte_prepaid = None
         log.info("colte-prepaid configuration not installed, skipping")
 
     # Read old vars and update yaml
     with open(colte_vars, "r") as file:
         colte_data = yaml.load(file.read())
+
+        # Checks for configuration consistency
+        if colte_prepaid is None and colte_data["metered"] == True:
+            log.warning(
+                "Metering is configured, but no metering and accounting package is installed!"
+            )
 
         for module in config_modules:
             module.update_all_components(colte_data)
