@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 
 import logging
-import ruamel.yaml
 import os
+
+import ruamel.yaml
 
 log = logging.getLogger(__name__)
 
 # This version saves comments/edits in YAML files
 yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=4, mapping=2, offset=2)
-
-# Input
-colte_vars = "/etc/colte/config.yml"
 
 if __name__ == "__main__":
     try:
@@ -26,7 +24,7 @@ if __name__ == "__main__":
         log = colorlog.getLogger(__name__)
         log.setLevel(logging.INFO)
         log.addHandler(handler)
-    except Exception as e:
+    except ModuleNotFoundError as e:
         logging.basicConfig(level=logging.INFO)
         log = logging.getLogger(__name__)
         log.info(
@@ -57,11 +55,11 @@ if __name__ == "__main__":
         log.info("colte-prepaid configuration not installed, skipping")
 
     # Read old vars and update yaml
-    with open(colte_vars, "r") as file:
+    with open("/etc/colte/config.yml", "r", encoding="utf8") as file:
         colte_data = yaml.load(file.read())
 
         # Checks for configuration consistency
-        if colte_prepaid is None and colte_data["metered"] == True:
+        if colte_prepaid is None and colte_data["metered"] is True:
             log.warning(
                 "Metering is configured, but no metering and accounting package is installed!"
             )
