@@ -26,8 +26,7 @@ log = logging.getLogger(__name__)
 
 
 def update_all_components(colte_data):
-    """Update all core network component configs to match the colte config
-    """
+    """Update all core network component configs to match the colte config"""
     # Update yaml files
     _update_hss(colte_data)
     _update_mme(colte_data)
@@ -49,9 +48,9 @@ def stop_all_services():
     _control_epc_services("stop")
     _control_nat_services("stop")
 
+
 def sync_service_state(colte_data):
-    """Start enabled services and update enabled/disabled state
-    """
+    """Start enabled services and update enabled/disabled state"""
     if colte_data["epc"] == True:
         _control_epc_services("start")
         _control_epc_services("enable")
@@ -84,7 +83,12 @@ def _update_colte_nat_script(colte_data):
 def _update_network_vars(colte_data):
     net = IPNetwork(colte_data["lte_subnet"])
     netstr = str(net[1]) + "/" + str(net.prefixlen)
-    _replaceAll("/etc/systemd/network/99-open5gs.network", "Address=", "Address=" + netstr + "\n", True)
+    _replaceAll(
+        "/etc/systemd/network/99-open5gs.network",
+        "Address=",
+        "Address=" + netstr + "\n",
+        True,
+    )
 
 
 def _replaceAll(file, searchExp, replaceExp, replace_once):
@@ -347,6 +351,7 @@ def _control_epc_services(action):
             action
         )
     )
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

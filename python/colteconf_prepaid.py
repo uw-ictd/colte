@@ -15,9 +15,9 @@ colte_config_file = "/etc/colte/config.yml"
 
 log = logging.getLogger(__name__)
 
+
 def update_all_components(colte_data):
-    """Update configurations of all billing components to match the colte config
-    """
+    """Update configurations of all billing components to match the colte config"""
     # Update yaml files
     _update_haulage(colte_data)
 
@@ -27,13 +27,12 @@ def update_all_components(colte_data):
 
 
 def stop_all_services():
-    """Ensure all billing services are stopped
-    """
+    """Ensure all billing services are stopped"""
     _control_metering_services("stop")
 
+
 def sync_service_state(colte_data):
-    """Start enabled services and update enabled/disabled state
-    """
+    """Start enabled services and update enabled/disabled state"""
     if colte_data["metered"] == True:
         _control_metering_services("start")
         _control_metering_services("enable")
@@ -104,7 +103,7 @@ def _create_field_if_not_exist(dictionary, field_path, value):
             except KeyError as e:
                 log.error("Failed to create key at path %s", str(field_path))
                 log.error("Current configuration state is: %s", str(dictionary))
-                raise KeyError (
+                raise KeyError(
                     "Failed to create key at path {}, with base error {}".format(
                         field_path, e
                     )
@@ -130,4 +129,3 @@ if __name__ == "__main__":
     # Restart everything to pick up new configurations.
     stop_all_services()
     sync_service_state(colte_config_data)
-

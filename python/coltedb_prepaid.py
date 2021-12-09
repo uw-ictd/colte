@@ -6,6 +6,7 @@ import psycopg2
 
 log = logging.getLogger(__name__)
 
+
 def add_user(cursor, imsi, msisdn, ip, currency):
     # TODO: error-handling? Check if imsi/msisdn/ip already in system?
     log.info("coltedb: adding user %s", str(imsi))
@@ -64,7 +65,7 @@ def topup(cursor, imsi, amount):
     commit_str = "SELECT balance FROM customers WHERE imsi = '" + imsi + "' FOR UPDATE"
     numrows = cursor.execute(commit_str)
     if numrows == 0:
-        log.error("coltedb error: imsi %s does not exist!",  str(imsi))
+        log.error("coltedb error: imsi %s does not exist!", str(imsi))
         exit(1)
 
     for row in cursor:
@@ -125,4 +126,4 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     raise NotImplementedError(
         "The coltedb_prepaid module must be run as part of coltedb, and does not support standalone execution"
-        )
+    )

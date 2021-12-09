@@ -16,15 +16,22 @@ colte_vars = "/etc/colte/config.yml"
 if __name__ == "__main__":
     try:
         import colorlog
+
         handler = colorlog.StreamHandler()
-        handler.setFormatter(colorlog.ColoredFormatter("%(log_color)s%(levelname)s(%(name)s): %(message)s"))
+        handler.setFormatter(
+            colorlog.ColoredFormatter(
+                "%(log_color)s%(levelname)s(%(name)s): %(message)s"
+            )
+        )
         log = colorlog.getLogger(__name__)
         log.setLevel(logging.INFO)
         log.addHandler(handler)
     except Exception as e:
         logging.basicConfig(level=logging.INFO)
         log = logging.getLogger(__name__)
-        log.info("System does not support colored logging due to exception:", exc_info=True)
+        log.info(
+            "System does not support colored logging due to exception:", exc_info=True
+        )
         log.info("Continuing operation with standard logging")
 
     if os.geteuid() != 0:
@@ -35,12 +42,14 @@ if __name__ == "__main__":
     config_modules = []
     try:
         import colteconf_cn_4g as colte_cn
+
         config_modules.append(colte_cn)
     except ModuleNotFoundError as e:
         log.info("colte-cn-4g configuration not installed, skipping")
 
     try:
         import colteconf_prepaid as colte_prepaid
+
         config_modules.append(colte_prepaid)
     except ModuleNotFoundError as e:
         log.info("colte-prepaid configuration not installed, skipping")
