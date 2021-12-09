@@ -91,6 +91,9 @@ contents:
     file_info:
       mode: 0o755
 
+  - src: "./python/colteconf_prepaid.py"
+    dst: "/usr/lib/python3/dist-packages/colteconf_prepaid.py"
+
   - src: "./webadmin/*"
     dst: "/usr/bin/colte-webadmin"
 
