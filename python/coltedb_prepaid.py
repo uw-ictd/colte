@@ -6,7 +6,7 @@ import psycopg2
 
 log = logging.getLogger(__name__)
 
-def add_user(cursor, imsi, msisdn, ip, ki, opc, apn, currency):
+def add_user(cursor, imsi, msisdn, ip, currency):
     # TODO: error-handling? Check if imsi/msisdn/ip already in system?
     log.info("coltedb: adding user %s", str(imsi))
     try:

@@ -73,7 +73,7 @@ if __name__ == "__main__":
             if accounting is not None:
                 accounting.add_user(
                     cursor=cursor,
-                    imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], ki = sys.argv[5], opc = sys.argv[6], apn = sys.argv[7], currency = sys.argv[8]
+                    imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], currency = sys.argv[8]
                 )
             if core_network is not None:
                 core_network.add_user(imsi=sys.argv[2], ip=sys.argv[4] , ki=sys.argv[5], opc=sys.argv[6], apn=sys.argv[7])
@@ -81,7 +81,7 @@ if __name__ == "__main__":
             if accounting is not None:
                 accounting.add_user(
                     cursor=cursor,
-                    imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], ki = sys.argv[5], opc = sys.argv[6], apn = sys.argv[7], currency = "XXX"
+                    imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], currency = "XXX"
                 )
             if core_network is not None:
                 core_network.add_user(imsi=sys.argv[2], ip=sys.argv[4] , ki=sys.argv[5], opc=sys.argv[6], apn=sys.argv[7])
@@ -89,7 +89,7 @@ if __name__ == "__main__":
             if accounting is not None:
                 accounting.add_user(
                     cursor=cursor,
-                    imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], ki = sys.argv[5], opc = sys.argv[6], apn = sys.argv[7], currency = "XXX"
+                    imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], currency = "XXX"
                 )
             if core_network is not None:
                 core_network.add_user(imsi=sys.argv[2], ip=sys.argv[4] , ki=sys.argv[5], opc=sys.argv[6], apn=None)
