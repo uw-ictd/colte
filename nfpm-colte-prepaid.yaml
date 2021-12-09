@@ -94,6 +94,9 @@ contents:
   - src: "./python/colteconf_prepaid.py"
     dst: "/usr/lib/python3/dist-packages/colteconf_prepaid.py"
 
+  - src: "./python/coltedb_prepaid.py"
+    dst: "/usr/lib/python3/dist-packages/coltedb_prepaid.py"
+
   - src: "./webadmin/*"
     dst: "/usr/bin/colte-webadmin"
 
