@@ -7,9 +7,6 @@ import sys
 import psycopg2
 import ruamel.yaml
 
-import coltedb_prepaid as accounting
-import coltedb_cn_4g as core_network
-
 log = logging.getLogger(__name__)
 
 # input
@@ -29,6 +26,18 @@ def display_help():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     print("coltedb: CoLTE Database Configuration Tool")
+
+    try:
+        import coltedb_prepaid as accounting
+    except ModuleNotFoundError as e:
+        log.info("colte-prepaid db management not installed, skipping")
+        accounting = None
+
+    try:
+        import coltedb_cn_4g as core_network
+    except ModuleNotFoundError as e:
+        log.info("colte-cn-4g db management not installed, skipping")
+        core_network = None
 
     if len(sys.argv) <= 1:
         display_help()
@@ -61,48 +70,68 @@ if __name__ == "__main__":
             log.error('coltedb: incorrect number of args, format is "coltedb add imsi msisdn ip key opc [apn] [currency]". static IP and msisdn currently requred.')
             open5gs_entry = "NULL"
         elif len(sys.argv) == 9:
-            accounting.add_user(
-                cursor=cursor,
-                imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], ki = sys.argv[5], opc = sys.argv[6], apn = sys.argv[7], currency = sys.argv[8]
-            )
-            core_network.add_user(imsi=sys.argv[2], ip=sys.argv[4] , ki=sys.argv[5], opc=sys.argv[6], apn=sys.argv[7])
+            if accounting is not None:
+                accounting.add_user(
+                    cursor=cursor,
+                    imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], ki = sys.argv[5], opc = sys.argv[6], apn = sys.argv[7], currency = sys.argv[8]
+                )
+            if core_network is not None:
+                core_network.add_user(imsi=sys.argv[2], ip=sys.argv[4] , ki=sys.argv[5], opc=sys.argv[6], apn=sys.argv[7])
         elif len(sys.argv) == 8:
-            accounting.add_user(
-                cursor=cursor,
-                imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], ki = sys.argv[5], opc = sys.argv[6], apn = sys.argv[7], currency = "XXX"
-            )
-            core_network.add_user(imsi=sys.argv[2], ip=sys.argv[4] , ki=sys.argv[5], opc=sys.argv[6], apn=sys.argv[7])
+            if accounting is not None:
+                accounting.add_user(
+                    cursor=cursor,
+                    imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], ki = sys.argv[5], opc = sys.argv[6], apn = sys.argv[7], currency = "XXX"
+                )
+            if core_network is not None:
+                core_network.add_user(imsi=sys.argv[2], ip=sys.argv[4] , ki=sys.argv[5], opc=sys.argv[6], apn=sys.argv[7])
         else:
-            accounting.add_user(
-                cursor=cursor,
-                imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], ki = sys.argv[5], opc = sys.argv[6], apn = sys.argv[7], currency = "XXX"
-            )
-            core_network.add_user(imsi=sys.argv[2], ip=sys.argv[4] , ki=sys.argv[5], opc=sys.argv[6], apn=None)
+            if accounting is not None:
+                accounting.add_user(
+                    cursor=cursor,
+                    imsi = sys.argv[2], msisdn = sys.argv[3], ip = sys.argv[4], ki = sys.argv[5], opc = sys.argv[6], apn = sys.argv[7], currency = "XXX"
+                )
+            if core_network is not None:
+                core_network.add_user(imsi=sys.argv[2], ip=sys.argv[4] , ki=sys.argv[5], opc=sys.argv[6], apn=None)
+
     elif command == "remove":
         if len(sys.argv) != 3:
             log.error('coltedb: incorrect number of args, format is "coltedb remove imsi"')
+        if accounting is not None:
+            accounting.remove_user(cursor=cursor, imsi=sys.argv[2])
+        if core_network is not None:
+            core_network.remove_user(imsi=sys.argv[2])
 
-        accounting.remove_user(cursor=cursor, imsi=sys.argv[2])
-        core_network.remove_user(imsi=sys.argv[2])
     elif command == "topup":
         if len(sys.argv) != 4:
             log.error('coltedb: incorrect number of args, format is "coltedb topup imsi money"')
-
+        if accounting is None:
+            raise NotImplementedError("topup has no effect with no installed accounting module")
         accounting.topup(cursor=cursor, imsi=sys.argv[2], amount=sys.argv[3])
+
     elif command == "topup_data":
         if len(sys.argv) != 4:
             log.error(
                 'coltedb: incorrect number of args, format is "coltedb topup_data imsi data"'
             )
+        if accounting is None:
+            raise NotImplementedError("topup_data has no effect with no installed accounting module")
         accounting.topup_data(imsi=sys.argv[2], amount=sys.argv[3])
+
     elif command == "admin":
         if len(sys.argv) != 3:
             log.error('coltedb: incorrect number of args, format is "coltedb admin imsi"')
+        if accounting is None:
+            raise NotImplementedError("admin has no effect with no installed accounting module")
         accounting.set_admin(cursor=cursor, imsi=sys.argv[2])
+
     elif command == "noadmin":
         if len(sys.argv) != 3:
             log.error('coltedb: incorrect number of args, format is "coltedb noadmin imsi"')
+        if accounting is None:
+            raise NotImplementedError("noadmin has no effect with no installed accounting module")
         accounting.unset_admin(cursor=cursor, imsi=sys.argv[2])
+
     else:
         display_help()
 
