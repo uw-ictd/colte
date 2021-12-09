@@ -24,7 +24,19 @@ def display_help():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    try:
+        import colorlog
+        handler = colorlog.StreamHandler()
+        handler.setFormatter(colorlog.ColoredFormatter("%(log_color)s%(levelname)s(%(name)s): %(message)s"))
+        log = colorlog.getLogger(__name__)
+        log.setLevel(logging.INFO)
+        log.addHandler(handler)
+    except Exception as e:
+        logging.basicConfig(level=logging.INFO)
+        log = logging.getLogger(__name__)
+        log.info("System does not support colored logging due to exception:", exc_info=True)
+        log.info("Continuing operation with standard logging")
+
     print("coltedb: CoLTE Database Configuration Tool")
 
     try:

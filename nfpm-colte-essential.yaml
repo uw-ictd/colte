@@ -53,7 +53,7 @@ depends:
 
 # Recommended packages. (overridable)
 recommends:
-#  - fooa
+  - "python3-colorlog"
 
 # Suggested packages. (overridable)
 suggests:
