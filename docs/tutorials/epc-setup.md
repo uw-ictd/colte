@@ -33,9 +33,9 @@ Ensure all Ubuntu packages are up-to-date:
 sudo apt update && sudo apt full-upgrade
 ```
 
-CoLTE can be installed from our repository, or built from source. For this
-tutorial we are going to install from the repository to make sure we're getting
-a released version of the software and access to updates via apt.
+The CoLTE epc can be installed from our repository, or built from source. For
+this tutorial we are going to install from the repository to make sure we're
+getting a released version of the software and access to updates via apt.
 
 ```bash
 echo "deb [signed-by=/usr/share/keyrings/colte-archive-keyring.gpg] http://colte.cs.washington.edu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/colte.list
@@ -43,7 +43,7 @@ sudo wget -O /usr/share/keyrings/colte-archive-keyring.gpg http://colte.cs.washi
 sudo apt install software-properties-common
 sudo add-apt-repository ppa:open5gs/latest
 sudo apt update
-sudo apt install colte
+sudo apt install colte-cn-4g
 ```
 
 ## III. Network Interface Configuration
@@ -183,7 +183,7 @@ epc: true
 `# PLMN` refers to the [Public Land Mobile Network](https://en.wikipedia.org/wiki/Public_land_mobile_network), in which our network has to have a unique carrier ID defined by the "mobile country code (MCC)" and "mobile network code (MNC)". We have used arbitrary unallocated numbers for now.
 `dns` refers to the IP address of the [Domain Name System](https://developers.google.com/speed/public-dns) server the EPC will use, with the default value set to Google's public server at 8.8.8.8.
 `# database connection settings` are internal parameters used to access the user info databases- these will break if you change them.
-`metered: true` means the system will by default track the number of bits used by each user, as well as run a user management dashboard that assumes "prepaid" usage. You can change this to "false" if you don't need this functionality, but if you're running CoLTE for the first time or upgrading from a previous version of CoLTE, you should run `colteconf update` (the next step) for the first time with `metered: true` so all the databases will get initialized correctly. Then you can change to `metered: false` and re-run `colteconf update`. We are currently working on removing this dependency.
+`metered: true` means the system will by default track the number of bits used by each user, as well as run a user management dashboard that assumes "prepaid" usage, if it is installed with the `colte-prepaid` package.
 
 Once the file has been edited to your liking, run:
 
