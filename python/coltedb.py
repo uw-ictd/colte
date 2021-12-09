@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
-import decimal
 import logging
 import os
-import subprocess
 import sys
 
 import psycopg2
