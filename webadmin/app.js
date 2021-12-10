@@ -84,6 +84,17 @@ fs.appendFile(transaction_log, "", function (err) {
   }
 });
 
+// ratelimit requests from each endpoint to prevent trivial ddos
+// set up rate limiter: maximum of five requests per user per second
+var RateLimit = require('express-rate-limit');
+var limiter = new RateLimit({
+  windowMs: 1000, // 1 second
+  max: 5
+});
+
+// apply rate limiter to all requests
+app.use(limiter);
+
 // password-protect the site because it is used for admin.
 // this approach is not the securest in the world, and
 // IS NOT ENCRYPTED. You must also restrict which users can
