@@ -75,7 +75,6 @@ suggests:
 
 # Packages it conflicts with. (overridable)
 conflicts:
-  - colte (<< 0.16.0)
 #  - fooc
 
 # Contents to add to the package
@@ -172,6 +171,9 @@ scripts:
 
 # Custom configuration applied only to the Deb packager.
 deb:
+  breaks:
+    - colte (<< 0.16.0)
+
   # # Custom deb special files.
   # scripts:
   #   # Deb rules script.
