@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, "public")));
 var RateLimit = require("express-rate-limit");
 var limiter = new RateLimit({
   windowMs: 1000, // 1 second
-  max: 5,
+  max: process.env.NODE_ENV === "test" ? 1000 : 5, // Set a much higher rate limit when integration testing.
 });
 
 // apply rate limiter to all requests
