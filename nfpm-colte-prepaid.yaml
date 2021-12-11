@@ -44,6 +44,7 @@ disable_globbing: false
 
 # Packages it replaces. (overridable)
 replaces:
+  - colte (<< 0.16.0)
   # - foobar
 
 # Packages it provides. (overridable)
@@ -74,6 +75,7 @@ suggests:
 
 # Packages it conflicts with. (overridable)
 conflicts:
+  - colte (<< 0.16.0)
 #  - fooc
 
 # Contents to add to the package
