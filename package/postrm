@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# Stop and uninstall web-services
-systemctl stop colte-webgui
-systemctl stop colte-webadmin
-systemctl daemon-reload
-
-echo "Uninstalled CoLTE"
