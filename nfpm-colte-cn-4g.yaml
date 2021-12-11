@@ -4,7 +4,7 @@ platform: "linux"
 
 # Upstream Version. (required)
 # This will expand any env var you set in the field, eg version: v${SEMVER}
-version: ${VERSION}
+version: ${VERSION}+${DISTRO_RELEASE_VERSION}
 
 # Version Epoch.
 # Default is extracted from `version` if it is semver compatible.
@@ -21,7 +21,7 @@ version: ${VERSION}
 
 # Package Release Revision (Usually 1).
 # This will expand any env var you set in the field, eg release: ${VERSION_RELEASE}
-release: ${DISTRO_RELEASE_VERSION}
+release:
 
 section: "net"
 priority: "optional"
@@ -43,11 +43,11 @@ replaces:
 
 # Packages it provides. (overridable)
 provides:
-  - "colte-cn (= ${VERSION})"
+  - "colte-cn (= ${VERSION}+${DISTRO_RELEASE_VERSION})"
 
 # Dependencies. (overridable)
 depends:
-  - "colte-essential (= ${VERSION})"
+  - "colte-essential (= ${VERSION}+${DISTRO_RELEASE_VERSION})"
   - "open5gs-hss (>= 2.3.0)"
   - "open5gs-sgwu (>= 2.3.0)"
   - "open5gs-sgwc (>= 2.3.0)"
