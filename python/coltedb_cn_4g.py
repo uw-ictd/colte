@@ -6,11 +6,11 @@ log = logging.getLogger(__name__)
 
 def add_user(imsi, ip, ki, opc, apn):
     if apn is not None:
-        open5gs_entry = imsi + " " + ip + " " + ki + " " + opc + " " + apn
+        open5gs_entry = [str(imsi), str(ip), str(ki), str(opc), str(apn)]
     else:
-        open5gs_entry = imsi + " " + ip + " " + ki + " " + opc
+        open5gs_entry = [str(imsi), str(ip), str(ki), str(opc)]
 
-    subprocess.run(["/etc/colte/colte_open5gsdb", "add" + open5gs_entry], check=True)
+    subprocess.run(["/etc/colte/colte_open5gsdb", "add"] + open5gs_entry, check=True)
 
 
 def remove_user(imsi):
