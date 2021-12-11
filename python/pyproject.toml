@@ -6,6 +6,7 @@ authors = ["The CoLTE Project <colte@cs.washington.edu>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
+colorlog = "^4.0.1"
 python = "^3.6"
 mysqlclient = "^2.0.3"
 pyyaml = "*"

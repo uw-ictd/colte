@@ -1,0 +1,200 @@
+name: "colte-prepaid"
+arch: "${HOST_ARCHITECTURE}"
+platform: "linux"
+
+# Upstream Version. (required)
+# This will expand any env var you set in the field, eg version: v${SEMVER}
+version: ${VERSION}
+
+# Version Epoch.
+# Default is extracted from `version` if it is semver compatible.
+# epoch: 1
+
+# Version Prerelease.
+# Default is extracted from `version` if it is semver compatible.
+# prerelease: beta1
+
+# Version Metadata (previously deb.metadata).
+# Default is extracted from `version` if it is semver compatible.
+# Setting metadata might interfere with version comparisons depending on the packager.
+# version_metadata: "git"
+
+# Package Release Revision (Usually 1).
+# This will expand any env var you set in the field, eg release: ${VERSION_RELEASE}
+release: ${DISTRO_RELEASE_VERSION}
+
+section: "net"
+priority: "optional"
+maintainer: "Matthew Johnson <matt9j@cs.washington.edu>"
+description: >
+  The Community LTE Project Prepaid Billing & Admin Suite
+
+  Contains web interface and CLI tools for managing a prepaid cellular network.
+  Integrated with haulage for traffic detection, aggregation, and usage
+  reporting.
+vendor: "UW-ICTD <colte@cs.washington.edu>"
+homepage: "https://github.com/uw-ictd/colte"
+license: "MIT"
+
+# Changelog YAML file, see: https://github.com/goreleaser/chglog
+#changelog: "changelog.yaml"
+
+# Disables globbing for files, config_files, etc.
+disable_globbing: false
+
+# Packages it replaces. (overridable)
+replaces:
+  # - foobar
+
+# Packages it provides. (overridable)
+provides:
+  # - bar
+
+# Dependencies. (overridable)
+depends:
+  - "colte-essential (=${VERSION})"
+  - "colte-cn (=${VERSION})"
+  - "haulage (>= 0.2.2)"
+  - "python3"
+  - "nodejs (>= 8.0.0)"
+  - "postgresql"
+  - "python3-netaddr"
+  - "python3-ruamel.yaml"
+  - "python3-mysqldb"
+  - "python3-psycopg2"
+  - "python3-yaml"
+
+# Recommended packages. (overridable)
+recommends:
+#  - fooa
+
+# Suggested packages. (overridable)
+suggests:
+#  - foob
+
+# Packages it conflicts with. (overridable)
+conflicts:
+#  - fooc
+
+# Contents to add to the package
+# This can be binaries or any other files.
+contents:
+  # Basic files that applies to all packagers
+  - src: "./package/colte-webadmin.service"
+    dst: "/etc/systemd/system/colte-webadmin.service"
+
+  - src: "./package/colte-webgui.service"
+    dst: "/etc/systemd/system/colte-webgui.service"
+
+  - src: "./python/migrate_mysql_to_pg.py"
+    dst: "/usr/bin/colte-pg-migrate"
+    file_info:
+      mode: 0o755
+
+  - src: "./python/colteconf_prepaid.py"
+    dst: "/usr/lib/python3/dist-packages/colteconf_prepaid.py"
+
+  - src: "./python/coltedb_prepaid.py"
+    dst: "/usr/lib/python3/dist-packages/coltedb_prepaid.py"
+
+  - src: "./webadmin/*"
+    dst: "/usr/bin/colte-webadmin"
+
+  - src: "./webgui/*"
+    dst: "/usr/bin/colte-webgui"
+
+  - src: "./colte-common-models/*"
+    dst: "/usr/bin/colte-common-models"
+
+  # Installed symlinks
+  # Will result in `ln -s ${src} ${dst}`.
+  - src: /etc/haulage/config.yml
+    dst: /etc/colte/haulage.yml
+    type: "symlink"
+
+  - src: "/usr/bin/colte-webgui/pricing.json"
+    dst: "/etc/colte/pricing.json"
+    type: "symlink"
+
+  - src: "/usr/bin/colte-webadmin/.env"
+    dst: "/etc/colte/webadmin.env"
+    type: "symlink"
+
+  - src: "/usr/bin/colte-webgui/.env"
+    dst: "/etc/colte/webgui.env"
+    type: "symlink"
+
+  # Explicit symlinks for relative NPM packages
+  - src: "/usr/bin/colte-common-models"
+    dst: "/usr/bin/colte-webgui/node_modules/colte-common-models"
+    type: "symlink"
+  - src: "/usr/bin/colte-common-models"
+    dst: "/usr/bin/colte-webadmin/node_modules/colte-common-models"
+    type: "symlink"
+
+  # Config files
+  - src: "./webgui/production.env"
+    dst: "/usr/bin/colte-webgui/.env"
+    type: "config"
+
+  - src: "./webadmin/production.env"
+    dst: "/usr/bin/colte-webadmin/.env"
+    type: "config"
+
+  # Mark the transaction log as config for now to avoid overwriting existing logs.
+  # TODO(matt9j) Move the transaction log to the database.
+  - src: ./package/transaction_log.txt
+    dst: /var/log/colte/transaction_log.txt
+    type: "config"
+
+  # Sometimes it is important to be able to set the mtime, mode, owner, or group for a file
+  # that differs from what is on the local build system at build time.
+  # - src: path/to/foo
+  #   dst: /usr/local/foo
+  #   file_info:
+  #     mode: 0644
+  #     mtime: 2008-01-02T15:04:05Z
+  #     owner: notRoot
+  #     group: notRoot
+
+# Empty folders your package may need created. (overridable)
+empty_folders:
+  - /var/log/colte
+
+# Scripts to run at specific stages. (overridable)
+scripts:
+  # preinstall: ./scripts/preinstall.sh
+  postinstall: ./package/postinst
+  # preremove: ./scripts/preremove.sh
+  postremove: ./package/postrm
+
+# Custom configuration applied only to the Deb packager.
+deb:
+  # # Custom deb special files.
+  # scripts:
+  #   # Deb rules script.
+  #   rules: foo.sh
+  #   # Deb templates file, when using debconf.
+  #   templates: templates
+
+  # # Custom deb triggers
+  # triggers:
+  #   # register interrest on a trigger activated by another package
+  #   # (also available: interest_await, interest_noawait)
+  #   interest:
+  #     - some-trigger-name
+  #   # activate a trigger for another package
+  #   # (also available: activate_await, activate_noawait)
+  #   activate:
+  #     - another-trigger-name
+
+  # # The package is signed if a key_file is set
+  # signature:
+  #   # PGP secret key (can also be ASCII-armored). The passphrase is taken
+  #   # from the environment variable $NFPM_DEB_PASSPHRASE with a fallback
+  #   # to #NFPM_PASSPHRASE.
+  #   # This will expand any env var you set in the field, eg key_file: ${SIGNING_KEY_FILE}
+  #   key_file: key.gpg
+  #   # The type describes the signers role, possible values are "origin",
+  #   # "maint" and "archive". If unset, the type defaults to "origin".
+  #   type: origin

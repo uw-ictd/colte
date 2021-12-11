@@ -1,6 +1,6 @@
-GIT_VERSION=$(shell git describe --tags | sed s/-g/+g/g)
+GIT_VERSION=$(shell git describe --tags | sed s/-g/+g/g | sed s/-/~/g)
 TARGET_DIR=./BUILD
-NFPM_VERSION = 2.5.1
+NFPM_VERSION = 2.10.0
 # This uses the somewhat confusing but standardized GNU architecture naming
 # scheme to be consistent with Debian (which can handle the complex case of
 # building compilers for different architectures). Build refers to the
@@ -56,8 +56,17 @@ package_x86_64: build_x86_64 get_nfpm
 package_arm64 package_x86_64: export VERSION := $(GIT_VERSION)
 package_arm64 package_x86_64:
 	mkdir -p $(TARGET_DIR)
-	cat nfpm.yaml | \
-	envsubst '$${HOST_ARCHITECTURE}' | \
+	cat nfpm-colte.yaml | \
+	envsubst '$${HOST_ARCHITECTURE} $${VERSION}' | \
+	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
+	cat nfpm-colte-cn-4g.yaml | \
+	envsubst '$${HOST_ARCHITECTURE} $${VERSION}' | \
+	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
+	cat nfpm-colte-prepaid.yaml | \
+	envsubst '$${HOST_ARCHITECTURE} $${VERSION}' | \
+	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
+	cat nfpm-colte-essential.yaml | \
+	envsubst '$${HOST_ARCHITECTURE} $${VERSION}' | \
 	$(TARGET_DIR)/nfpm/nfpm pkg --packager deb --config /dev/stdin --target $(TARGET_DIR)
 
 test: test_webgui
