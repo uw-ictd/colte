@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 
-import psycopg2
 import ruamel.yaml
 
 log = logging.getLogger(__name__)
@@ -82,10 +81,6 @@ if __name__ == "__main__":
     dbname = colte_data["mysql_db"]
     db_user = colte_data["mysql_user"]
     db_pass = colte_data["mysql_password"]
-    db = psycopg2.connect(
-        host="localhost", user=db_user, password=db_pass, dbname=dbname
-    )
-    cursor = db.cursor()
 
     if command == "add":
         if (len(sys.argv) > 9) or (len(sys.argv) < 7):
@@ -96,7 +91,9 @@ if __name__ == "__main__":
         elif len(sys.argv) == 9:
             if accounting is not None:
                 accounting.add_user(
-                    cursor=cursor,
+                    db_name=dbname,
+                    db_user=db_user,
+                    db_pass=db_pass,
                     imsi=sys.argv[2],
                     msisdn=sys.argv[3],
                     ip=sys.argv[4],
@@ -113,7 +110,9 @@ if __name__ == "__main__":
         elif len(sys.argv) == 8:
             if accounting is not None:
                 accounting.add_user(
-                    cursor=cursor,
+                    db_name=dbname,
+                    db_user=db_user,
+                    db_pass=db_pass,
                     imsi=sys.argv[2],
                     msisdn=sys.argv[3],
                     ip=sys.argv[4],
@@ -130,7 +129,9 @@ if __name__ == "__main__":
         else:
             if accounting is not None:
                 accounting.add_user(
-                    cursor=cursor,
+                    db_name=dbname,
+                    db_user=db_user,
+                    db_pass=db_pass,
                     imsi=sys.argv[2],
                     msisdn=sys.argv[3],
                     ip=sys.argv[4],
@@ -151,7 +152,9 @@ if __name__ == "__main__":
                 'coltedb: incorrect number of args, format is "coltedb remove imsi"'
             )
         if accounting is not None:
-            accounting.remove_user(cursor=cursor, imsi=sys.argv[2])
+            accounting.remove_user(
+                db_name=dbname, db_user=db_user, db_pass=db_pass, imsi=sys.argv[2]
+            )
         if core_network is not None:
             core_network.remove_user(imsi=sys.argv[2])
 
@@ -164,7 +167,13 @@ if __name__ == "__main__":
             raise NotImplementedError(
                 "topup has no effect with no installed accounting module"
             )
-        accounting.topup(cursor=cursor, imsi=sys.argv[2], amount=sys.argv[3])
+        accounting.topup(
+            db_name=dbname,
+            db_user=db_user,
+            db_pass=db_pass,
+            imsi=sys.argv[2],
+            amount=sys.argv[3],
+        )
 
     elif command == "topup_data":
         if len(sys.argv) != 4:
@@ -186,7 +195,9 @@ if __name__ == "__main__":
             raise NotImplementedError(
                 "admin has no effect with no installed accounting module"
             )
-        accounting.set_admin(cursor=cursor, imsi=sys.argv[2])
+        accounting.set_admin(
+            db_name=dbname, db_user=db_user, db_pass=db_pass, imsi=sys.argv[2]
+        )
 
     elif command == "noadmin":
         if len(sys.argv) != 3:
@@ -197,11 +208,9 @@ if __name__ == "__main__":
             raise NotImplementedError(
                 "noadmin has no effect with no installed accounting module"
             )
-        accounting.unset_admin(cursor=cursor, imsi=sys.argv[2])
+        accounting.unset_admin(
+            db_name=dbname, db_user=db_user, db_pass=db_pass, imsi=sys.argv[2]
+        )
 
     else:
         display_help()
-
-    db.commit()
-    cursor.close()
-    db.close()

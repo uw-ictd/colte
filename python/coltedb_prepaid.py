@@ -7,7 +7,12 @@ import psycopg2
 log = logging.getLogger(__name__)
 
 
-def add_user(cursor, imsi, msisdn, ip, currency):
+def add_user(db_name, db_user, db_pass, imsi, msisdn, ip, currency):
+    db = psycopg2.connect(
+        host="localhost", user=db_user, password=db_pass, dbname=db_name
+    )
+    cursor = db.cursor()
+
     # TODO: error-handling? Check if imsi/msisdn/ip already in system?
     log.info("coltedb: adding user %s", str(imsi))
     try:
@@ -39,8 +44,17 @@ def add_user(cursor, imsi, msisdn, ip, currency):
 
     subprocess.run(["haulagedb", "add", str(imsi), str(ip)], check=True)
 
+    db.commit()
+    cursor.close()
+    db.close()
 
-def remove_user(cursor, imsi):
+
+def remove_user(db_name, db_user, db_pass, imsi):
+    db = psycopg2.connect(
+        host="localhost", user=db_user, password=db_pass, dbname=db_name
+    )
+    cursor = db.cursor()
+
     try:
         cursor.execute("BEGIN TRANSACTION")
 
@@ -57,8 +71,17 @@ def remove_user(cursor, imsi):
 
     subprocess.run(["haulagedb", "remove", str(imsi)], check=True)
 
+    db.commit()
+    cursor.close()
+    db.close()
 
-def topup(cursor, imsi, amount):
+
+def topup(db_name, db_user, db_pass, imsi, amount):
+    db = psycopg2.connect(
+        host="localhost", user=db_user, password=db_pass, dbname=db_name
+    )
+    cursor = db.cursor()
+
     old_balance = 0
     new_balance = 0
 
@@ -104,22 +127,41 @@ def topup(cursor, imsi, amount):
         if answer == "n" or answer == "N":
             log.info("coltedb: cancelling topup\n")
             break
+    db.commit()
+    cursor.close()
+    db.close()
 
 
 def topup_data(imsi, amount):
     subprocess.run(["haulagedb", "topup", str(imsi), str(amount)], check=True)
 
 
-def set_admin(cursor, imsi):
+def set_admin(db_name, db_user, db_pass, imsi):
+    db = psycopg2.connect(
+        host="localhost", user=db_user, password=db_pass, dbname=db_name
+    )
+    cursor = db.cursor()
+
     log.info("coltedb: giving admin privileges to user %s", str(imsi))
     commit_str = "UPDATE customers SET admin = true WHERE imsi = '" + imsi + "'"
     cursor.execute(commit_str)
+    db.commit()
+    cursor.close()
+    db.close()
 
 
-def unset_admin(cursor, imsi):
+def unset_admin(db_name, db_user, db_pass, imsi):
+    db = psycopg2.connect(
+        host="localhost", user=db_user, password=db_pass, dbname=db_name
+    )
+    cursor = db.cursor()
+
     log.info("coltedb: removing admin privileges from user %s", str(imsi))
     commit_str = "UPDATE customers SET admin = false WHERE imsi = '" + imsi + "'"
     cursor.execute(commit_str)
+    db.commit()
+    cursor.close()
+    db.close()
 
 
 if __name__ == "__main__":
