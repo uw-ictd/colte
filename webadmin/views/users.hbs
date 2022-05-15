@@ -31,26 +31,6 @@
         </thead>
         <tbody>
           {{#each customers_list}}
-          {{!-- <tr>
-            <td>
-                <label for='no-balance-policy'>Zero Balance</label>
-                <select name='no-balance-policy' id='no-balance-policy-select'>
-                  {{#each @root.policies_list}}
-                    <option value='{{id}}' {{#ifequal ../this.current_policy_id id}}selected{{else}}{{/ifequal}}>{{ name }}</option>
-                  {{/each}}
-                </select>
-                <label for='positive-balance-policy'>Positive Balance</label>
-                <select name='positive-balance-policy' id='positive-balance-policy-select'>
-                {{#each @root.policies_list}}
-                <option>{{ name }}</option>
-                {{/each}}
-                </select>
-                <button class='btn btn-danger row-submit' type='submit' onclick='policyEditSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>
-
-
-
-              </td>
-              </tr> --}}
             <tr>
               <form method="post" action="/users/update/{{this.imsi}}">
                 <td>{{this.imsi}}</td>
@@ -111,7 +91,7 @@
                   id="{{this.imsi}}-internet-access"
                   data-toggle="popover"
                   title="Edit Access Policies"
-                  data-content="<label for='no-balance-policy'>Zero Balance</label> <select name='zero-balance-policy' id='{{this.imsi}}-zero-balance-policy-select'> {{#each @root.policies_list}} <option value='{{id}}' {{#ifequal ../this.zero_policy_id id}}selected{{else}}{{/ifequal}}>{{ name }}</option> {{/each}} </select> <label for='positive-balance-policy'>Positive Balance</label> <select name='positive-balance-policy' id='{{this.imsi}}-positive-balance-policy-select'> {{#each @root.policies_list}} <option value='{{id}}' {{#ifequal ../this.positive_policy_id id}}selected{{else}}{{/ifequal}}>{{ name }}</option> {{/each}} </select> <button class='btn btn-danger row-submit' type='submit' onclick='policyEditSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>"
+                  data-content="<label for='no-balance-policy'>Zero Balance</label> <select name='zero-balance-policy' id='{{this.imsi}}-zero-balance-policy-select'> {{#each @root.policies_list}} <option value='{{id}}' {{#ifequal ../this.zero_policy_id id}}selected{{/ifequal}}>{{ name }}</option> {{/each}} </select> <label for='positive-balance-policy'>Positive Balance</label> <select name='positive-balance-policy' id='{{this.imsi}}-positive-balance-policy-select'> {{#each @root.policies_list}} <option value='{{id}}' {{#ifequal ../this.positive_policy_id id}}selected{{/ifequal}}>{{ name }}</option> {{/each}} </select> <button class='btn btn-danger row-submit' type='submit' onclick='policyEditSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>"
                   data-html="true"
                 >
                   {{ this.current_policy_name }}

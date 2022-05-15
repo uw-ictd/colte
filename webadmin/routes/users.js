@@ -111,9 +111,19 @@ router.post("/update/:user_id", function (req, res) {
       enabled
   );
 
-  customer.update(imsi, enabled, balance, data_balance, zero_balance_policy_id, positive_balance_policy_id, username).then((data) => {
-    res.redirect("/users");
-  });
+  customer
+    .update(
+      imsi,
+      enabled,
+      balance,
+      data_balance,
+      zero_balance_policy_id,
+      positive_balance_policy_id,
+      username
+    )
+    .then((data) => {
+      res.redirect("/users");
+    });
 });
 
 router.post("/details", function (req, res, next) {
@@ -140,12 +150,12 @@ function augmentDataWithPolicyName(data, policies) {
   for (let policy of policies) {
     policy_map.set(policy.id, policy.name);
   }
-  data.data.forEach(element => {
+  data.data.forEach((element) => {
     const found_name = policy_map.get(element.current_policy_id);
     if (found_name) {
       element.current_policy_name = found_name;
     } else {
-      element.current_policy_name = "Unknown Policy Name"
+      element.current_policy_name = "Unknown Policy Name";
     }
   });
   console.log(data.data);

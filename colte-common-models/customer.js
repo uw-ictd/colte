@@ -113,7 +113,7 @@ var customer = {
         "subscribers.data_balance as data_balance",
         "subscribers.current_policy as current_policy_id",
         "subscribers.zero_balance_policy as zero_policy_id",
-        "subscribers.positive_balance_policy as positive_policy_id",
+        "subscribers.positive_balance_policy as positive_policy_id"
       )
       .from("customers")
       .leftJoin("subscribers", "customers.imsi", "=", "subscribers.imsi")
@@ -151,7 +151,15 @@ var customer = {
       .leftJoin("subscribers", "customers.imsi", "=", "subscribers.imsi");
   },
 
-  update(imsi, enabled, balance, data_balance, zero_balance_policy_id, positive_balance_policy_id, username) {
+  update(
+    imsi,
+    enabled,
+    balance,
+    data_balance,
+    zero_balance_policy_id,
+    positive_balance_policy_id,
+    username
+  ) {
     return knex.transaction((trx) => {
       return trx
         .update({
@@ -329,16 +337,12 @@ var customer = {
 
   access_policies() {
     return knex
-      .select(
-        "name",
-        "id"
-      )
+      .select("name", "id")
       .from("access_policies")
       .catch(function (error) {
         throw new Error(error.sqlMessage);
-      })
-  }
-
+      });
+  },
 };
 
 module.exports = customer;
