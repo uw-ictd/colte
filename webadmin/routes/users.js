@@ -83,12 +83,10 @@ router.get("/:page", function (req, res, next) {
 router.post("/update/:user_id", function (req, res) {
   var balance = req.body.balance;
   var data_balance = req.body.data_balance;
-  var bridged = 0;
   var username = req.body.username;
+  var zero_balance_policy_id = req.body.zero_balance_policy;
+  var positive_balance_policy_id = req.body.positive_balance_policy;
 
-  if (req.body.bridged == "on") {
-    bridged = 1;
-  }
   var enabled = 0;
   if (req.body.enabled == "on") {
     enabled = 1;
@@ -105,13 +103,15 @@ router.post("/update/:user_id", function (req, res) {
       balance +
       " data_balance=" +
       data_balance +
-      " bridged=" +
-      bridged +
+      " zero_balance_policy_id=" +
+      zero_balance_policy_id +
+      " positive_balance_policy_id=" +
+      positive_balance_policy_id +
       " enabled=" +
       enabled
   );
 
-  customer.update(imsi, bridged, enabled, balance, data_balance, username).then((data) => {
+  customer.update(imsi, enabled, balance, data_balance, zero_balance_policy_id, positive_balance_policy_id, username).then((data) => {
     res.redirect("/users");
   });
 });
