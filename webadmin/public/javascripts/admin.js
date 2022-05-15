@@ -134,3 +134,7 @@ var checkboxSubmit = function (imsi) {
   var dataBalance = document.getElementById(imsi + "-data-balance-input").value.trim();
   submitHelper(imsi, username, dataBalance, balance);
 };
+
+var policyEditSubmit = function (imsi) {
+  console.log("Submitting policy edit" + imsi)
+}

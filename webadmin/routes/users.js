@@ -10,66 +10,72 @@ router.get("/", function (req, res, next) {
 
 router.get("/:page", function (req, res, next) {
   var page = req.params.page;
+
   customer.all(page).then((data) => {
     const last_page = data.pagination.lastPage;
 
-    var has_previous = 0;
-    var has_next = 0;
+    customer.access_policies().then((policies) => {
+      var has_previous = 0;
+      var has_next = 0;
 
-    // ALL OF THE FOLLOWING LOGIC IS TO CREATE A SANE "PAGE LIST" IN ALL CORNER-CASES
-    var page_list = [];
-    if (last_page == 1) {
-      page_list = [];
-      has_previous = 0;
-      has_next = 0;
-    } else if (last_page == 2) {
-      page_list = [1, 2];
-      has_previous = 0;
-      has_next = 0;
-    } else if (last_page == 3) {
-      page_list = [1, 2, 3];
-      has_previous = 0;
-      has_next = 0;
-    } else if (last_page == 4) {
-      if (page < 3) {
+      augmentDataWithPolicyName(data, policies);
+
+      // ALL OF THE FOLLOWING LOGIC IS TO CREATE A SANE "PAGE LIST" IN ALL CORNER-CASES
+      var page_list = [];
+      if (last_page == 1) {
+        page_list = [];
+        has_previous = 0;
+        has_next = 0;
+      } else if (last_page == 2) {
+        page_list = [1, 2];
+        has_previous = 0;
+        has_next = 0;
+      } else if (last_page == 3) {
         page_list = [1, 2, 3];
         has_previous = 0;
-        has_next = 1;
-      } else {
-        page_list = [2, 3, 4];
-        has_previous = 1;
         has_next = 0;
-      }
-    } else {
-      // page_list is at least 5, so this is the generic up-to-N case. check two edges and then do generic case
-      if (page < 3) {
-        page_list = [1, 2, 3];
-        has_previous = 0;
-        has_next = 1;
-      } else if (page > last_page - 2) {
-        page_list = [last_page - 2, last_page - 1, last_page];
-        has_previous = 1;
-        has_next = 0;
+      } else if (last_page == 4) {
+        if (page < 3) {
+          page_list = [1, 2, 3];
+          has_previous = 0;
+          has_next = 1;
+        } else {
+          page_list = [2, 3, 4];
+          has_previous = 1;
+          has_next = 0;
+        }
       } else {
-        page_list = [page - 1, page, +page + 1];
-        has_previous = 1;
-        has_next = 1;
+        // page_list is at least 5, so this is the generic up-to-N case. check two edges and then do generic case
+        if (page < 3) {
+          page_list = [1, 2, 3];
+          has_previous = 0;
+          has_next = 1;
+        } else if (page > last_page - 2) {
+          page_list = [last_page - 2, last_page - 1, last_page];
+          has_previous = 1;
+          has_next = 0;
+        } else {
+          page_list = [page - 1, page, +page + 1];
+          has_previous = 1;
+          has_next = 1;
+        }
       }
-    }
 
-    res.render("users", {
-      translate: app.translate,
-      title: app.translate("Home"),
-      customers_list: data.data,
-      layout: "layout",
+      res.render("users", {
+        translate: app.translate,
+        title: app.translate("Home"),
+        customers_list: data.data,
+        policies_list: policies,
+        layout: "layout",
 
-      current_page: page,
-      last_page: last_page,
-      has_next: has_next,
-      has_previous: has_previous,
-      one_next: 5,
-      one_prev: 3,
-      page_list: page_list,
+        current_page: page,
+        last_page: last_page,
+        has_next: has_next,
+        has_previous: has_previous,
+        one_next: 5,
+        one_prev: 3,
+        page_list: page_list,
+      });
     });
   });
 });
@@ -128,5 +134,21 @@ router.get("/details/:user_id", function (req, res, next) {
     });
   });
 });
+
+function augmentDataWithPolicyName(data, policies) {
+  let policy_map = new Map();
+  for (let policy of policies) {
+    policy_map.set(policy.id, policy.name);
+  }
+  data.data.forEach(element => {
+    const found_name = policy_map.get(element.current_policy_id);
+    if (found_name) {
+      element.current_policy_name = found_name;
+    } else {
+      element.current_policy_name = "Unknown Policy Name"
+    }
+  });
+  console.log(data.data);
+}
 
 module.exports = router;

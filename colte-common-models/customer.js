@@ -111,7 +111,10 @@ var customer = {
         "customers.admin as admin",
         "customers.username as username",
         "subscribers.data_balance as data_balance",
-        "subscribers.bridged as bridged"
+        "subscribers.bridged as bridged",
+        "subscribers.current_policy as current_policy_id",
+        "subscribers.zero_balance_policy as zero_policy_id",
+        "subscribers.positive_balance_policy as positive_policy_id",
       )
       .from("customers")
       .leftJoin("subscribers", "customers.imsi", "=", "subscribers.imsi")
@@ -324,6 +327,19 @@ var customer = {
 
     return knex.transaction(purchase_func);
   },
+
+  access_policies() {
+    return knex
+      .select(
+        "name",
+        "id"
+      )
+      .from("access_policies")
+      .catch(function (error) {
+        throw new Error(error.sqlMessage);
+      })
+  }
+
 };
 
 module.exports = customer;

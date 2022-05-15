@@ -31,6 +31,26 @@
         </thead>
         <tbody>
           {{#each customers_list}}
+          {{!-- <tr>
+            <td>
+                <label for='no-balance-policy'>Zero Balance</label>
+                <select name='no-balance-policy' id='no-balance-policy-select'>
+                  {{#each @root.policies_list}}
+                    <option value='{{id}}' {{#ifequal ../this.current_policy_id id}}selected{{else}}{{/ifequal}}>{{ name }}</option>
+                  {{/each}}
+                </select>
+                <label for='positive-balance-policy'>Positive Balance</label>
+                <select name='positive-balance-policy' id='positive-balance-policy-select'>
+                {{#each @root.policies_list}}
+                <option>{{ name }}</option>
+                {{/each}}
+                </select>
+                <button class='btn btn-danger row-submit' type='submit' onclick='policyEditSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>
+
+
+
+              </td>
+              </tr> --}}
             <tr>
               <form method="post" action="/users/update/{{this.imsi}}">
                 <td>{{this.imsi}}</td>
@@ -85,23 +105,17 @@
                     id="{{this.imsi}}-balance-input"
                   />
                 </td>
-                <td class="center">
-                  {{#if this.bridged}}
-                    <input
-                      name="bridged"
-                      id="{{this.imsi}}-bridged-input"
-                      type="checkbox"
-                      checked
-                      onchange="checkboxSubmit(&quot;{{this.imsi}}&quot;)"
-                    />
-                  {{else}}
-                    <input
-                      name="bridged"
-                      id="{{this.imsi}}-bridged-input"
-                      type="checkbox"
-                      onchange="checkboxSubmit(&quot;{{this.imsi}}&quot;)"
-                    />
-                  {{/if}}
+
+                <td
+                  class="editable"
+                  id="{{this.imsi}}-internet-access"
+                  data-toggle="popover"
+                  title="Edit Access Policies"
+                  data-content="<label for='no-balance-policy'>Zero Balance</label> <select name='no-balance-policy' id='no-balance-policy-select'> {{#each @root.policies_list}} <option value='{{id}}' {{#ifequal ../this.zero_policy_id id}}selected{{else}}{{/ifequal}}>{{ name }}</option> {{/each}} </select> <label for='positive-balance-policy'>Positive Balance</label> <select name='positive-balance-policy' id='positive-balance-policy-select'> {{#each @root.policies_list}} <option {{#ifequal ../this.positive_policy_id id}}selected{{else}}{{/ifequal}}>{{ name }}</option> {{/each}} </select> <button class='btn btn-danger row-submit' type='submit' onclick='policyEditSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>"
+                  data-html="true"
+                >
+                  {{ this.current_policy_name }}
+
                 </td>
                 <td class="center">
                   {{#if this.enabled}}
