@@ -16,3 +16,8 @@
   width: 1px;
   height: 1px;
 }
+
+.minorcurrency {
+  vertical-align: -25%;
+  font-size: 0.5em;
+}

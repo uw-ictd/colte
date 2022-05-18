@@ -99,7 +99,7 @@ describe("transfer API", function () {
     expect(res.statusCode).toEqual(302);
 
     const status = await test_request(app).get("/transfer").set("X-Forwarded-For", "192.168.151.2");
-    expect(status.text).toEqual(expect.stringContaining("Current Balance: $2500"));
+    expect(status.text).toEqual(expect.stringContaining("Current Balance: $2,500"));
   });
   it("Post transfer api, missing dest address", async () => {
     const res = await test_request(app)
@@ -139,7 +139,7 @@ describe("transfer API", function () {
     expect(res.statusCode).toEqual(302);
 
     const status = await test_request(app).get("/transfer").set("X-Forwarded-For", "192.168.151.2");
-    expect(status.text).toEqual(expect.stringContaining("Current Balance: $2500"));
+    expect(status.text).toEqual(expect.stringContaining("Current Balance: $2,500"));
   });
   it("Post transfer api, valid transfer", async () => {
     const res = await test_request(app)
@@ -154,7 +154,7 @@ describe("transfer API", function () {
     const status1 = await test_request(app)
       .get("/transfer")
       .set("X-Forwarded-For", "192.168.151.2");
-    expect(status1.text).toEqual(expect.stringContaining("Current Balance: $2490"));
+    expect(status1.text).toEqual(expect.stringContaining("Current Balance: $2,490"));
 
     const status2 = await test_request(app)
       .get("/transfer")
@@ -191,7 +191,7 @@ describe("transfer API", function () {
     const status2 = await test_request(app)
       .get("/transfer")
       .set("X-Forwarded-For", "192.168.151.3");
-    expect(status2.text).toEqual(expect.stringContaining("Current Balance: $2500"));
+    expect(status2.text).toEqual(expect.stringContaining("Current Balance: $2,500"));
   });
   it("Post transfer api, two way transfer stress consistency test", async () => {
     // Generate many concurrent requests, and ensure the results match expected.
@@ -230,7 +230,7 @@ describe("transfer API", function () {
     const user2_rexp_result = status2.text.match(
       /<p>Current Balance: \$(?<balance>[0-9,\.,\,]*)<\/p>/
     );
-    const user2balance = Number(user2_rexp_result.groups.balance);
+    const user2balance = Number(user2_rexp_result.groups.balance.replace(",", ""));
 
     const status3 = await test_request(app)
       .get("/transfer")
@@ -239,7 +239,7 @@ describe("transfer API", function () {
     const user3_rexp_result = status3.text.match(
       /<p>Current Balance: \$(?<balance>[0-9,\.,\,]*)<\/p>/
     );
-    const user3balance = Number(user3_rexp_result.groups.balance);
+    const user3balance = Number(user3_rexp_result.groups.balance.replace(",", ""));
 
     expect(user2balance + user3balance).toEqual(2500);
   });

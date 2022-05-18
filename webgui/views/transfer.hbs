@@ -4,7 +4,7 @@
       {{translate "Transfer"}}
     </div>
     <div class="card-body">
-      <p>{{translate "Current Balance: $"}}{{balance}}</p>
+      <p>{{translate "Current Balance: $"}}{{{renderCurrency balance}}}</p>
       <form method="post" action="/transfer/transfer">
         <div class="form-group">
           <label for="recipient">{{translate "Recipient Phone Number"}}</label>

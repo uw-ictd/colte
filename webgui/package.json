@@ -22,6 +22,7 @@
     "@babel/preset-env": "^7.0.0",
     "body-parser": "^1.19.0",
     "colte-common-models": "file:../colte-common-models",
+    "comma-number": "^2.1.0",
     "cookie-parser": "^1.4.4",
     "debug": "^4.1.1",
     "dotenv": "^16.0.0",

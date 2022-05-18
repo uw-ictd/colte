@@ -59,7 +59,7 @@ describe("purchase API", function () {
   it("Get main page valid address", async () => {
     const res = await test_request(app).get("/purchase").set("X-Forwarded-For", "192.168.151.2");
     expect(res.statusCode).toEqual(200);
-    expect(res.text).toEqual(expect.stringContaining("Current Balance: $2500"));
+    expect(res.text).toEqual(expect.stringContaining("Current Balance: $2,500"));
   });
   it("Get main page invalid address", async () => {
     const res = await test_request(app).get("/purchase").set("X-Forwarded-For", "255.255.255.255");
@@ -127,7 +127,7 @@ describe("purchase API", function () {
     // Validate Balance
     const status = await test_request(app).get("/purchase").set("X-Forwarded-For", "192.168.151.5");
     expect(status.statusCode).toEqual(200);
-    expect(status.text).toEqual(expect.stringContaining("Current Balance: $24750000"));
+    expect(status.text).toEqual(expect.stringContaining("Current Balance: $24,750,000"));
     expect(status.text).toEqual(expect.stringContaining("Data Balance: 1.1 GB"));
   });
 });
