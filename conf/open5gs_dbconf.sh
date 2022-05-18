@@ -75,7 +75,7 @@ if [ "$1" = "add" ]; then
 					}
 				},
 				\"subscribed_rau_tau_timer\" : NumberInt(12),
-				\"network_access_mode\" : NumberInt(2),
+				\"network_access_mode\" : NumberInt(0),
 				\"subscriber_status\" : NumberInt(0),
 				\"access_restriction_data\" : NumberInt(32),
 				\"security\" : {
@@ -141,7 +141,7 @@ if [ "$1" = "add" ]; then
 					}
 				},
 				\"subscribed_rau_tau_timer\" : NumberInt(12),
-				\"network_access_mode\" : NumberInt(2),
+				\"network_access_mode\" : NumberInt(0),
 				\"subscriber_status\" : NumberInt(0),
 				\"access_restriction_data\" : NumberInt(32),
 				\"security\" : {
@@ -208,7 +208,7 @@ if [ "$1" = "add" ]; then
 					}
 				},
 				\"subscribed_rau_tau_timer\" : NumberInt(12),
-				\"network_access_mode\" : NumberInt(2),
+				\"network_access_mode\" : NumberInt(0),
 				\"subscriber_status\" : NumberInt(0),
 				\"access_restriction_data\" : NumberInt(32),
 				\"security\" : {
