@@ -76,7 +76,7 @@
                   data-content="<input type='text' value='{{this.balance}}' id='{{this.imsi}}-new-balance'> </input> <button class='btn btn-danger row-submit' type='submit' onclick='balanceSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>"
                   data-html="true"
                 >
-                  {{printNumber this.balance}}
+                  {{{renderCurrency this.balance}}}
                   <input
                     aria-hidden="true"
                     value="{{this.balance}}"
