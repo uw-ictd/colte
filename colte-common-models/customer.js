@@ -111,7 +111,9 @@ var customer = {
         "customers.admin as admin",
         "customers.username as username",
         "subscribers.data_balance as data_balance",
-        "subscribers.bridged as bridged"
+        "subscribers.current_policy as current_policy_id",
+        "subscribers.zero_balance_policy as zero_policy_id",
+        "subscribers.positive_balance_policy as positive_policy_id"
       )
       .from("customers")
       .leftJoin("subscribers", "customers.imsi", "=", "subscribers.imsi")
@@ -142,7 +144,6 @@ var customer = {
         "customers.balance as balance",
         "subscribers.data_balance as data_balance",
         "customers.msisdn as msisdn",
-        "subscribers.bridged as bridged",
         "customers.enabled as enabled"
       )
       .where("customers.imsi", imsi)
@@ -150,7 +151,15 @@ var customer = {
       .leftJoin("subscribers", "customers.imsi", "=", "subscribers.imsi");
   },
 
-  update(imsi, bridged, enabled, balance, data_balance, username) {
+  update(
+    imsi,
+    enabled,
+    balance,
+    data_balance,
+    zero_balance_policy_id,
+    positive_balance_policy_id,
+    username
+  ) {
     return knex.transaction((trx) => {
       return trx
         .update({
@@ -164,7 +173,8 @@ var customer = {
           return trx
             .update({
               data_balance: data_balance,
-              bridged: bridged,
+              zero_balance_policy: zero_balance_policy_id,
+              positive_balance_policy: positive_balance_policy_id,
             })
             .where("imsi", imsi)
             .from("subscribers");
@@ -323,6 +333,15 @@ var customer = {
     }
 
     return knex.transaction(purchase_func);
+  },
+
+  access_policies() {
+    return knex
+      .select("name", "id")
+      .from("access_policies")
+      .catch(function (error) {
+        throw new Error(error.sqlMessage);
+      });
   },
 };
 

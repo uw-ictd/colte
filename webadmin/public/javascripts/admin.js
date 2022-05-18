@@ -134,3 +134,15 @@ var checkboxSubmit = function (imsi) {
   var dataBalance = document.getElementById(imsi + "-data-balance-input").value.trim();
   submitHelper(imsi, username, dataBalance, balance);
 };
+
+var policyEditSubmit = function (imsi) {
+  var newPositivePolicy = document
+    .getElementById(imsi + "-positive-balance-policy-select")
+    .value.trim();
+  var newZeroPolicy = document.getElementById(imsi + "-zero-balance-policy-select").value.trim();
+
+  document.getElementById(imsi + "-positive-balance-policy-input").value = newPositivePolicy;
+  document.getElementById(imsi + "-zero-balance-policy-input").value = newZeroPolicy;
+  document.getElementById(imsi + "-submit").click();
+  console.log("Submitting policy edit" + imsi);
+};

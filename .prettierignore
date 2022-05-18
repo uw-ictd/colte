@@ -15,3 +15,6 @@ docs/.jekyll-metadata
 
 # Ignore python files, that will be formatted via black
 python/**/*.py
+
+# Ignore handlebars templates
+*.hbs

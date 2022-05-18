@@ -24,8 +24,8 @@
   "dependencies": {
     "date-time": "^3.1.0",
     "fs": "0.0.1-security",
-    "knex": "^0.95.6",
-    "knex-paginate": "^2.1.0",
+    "knex": "^2.0.0",
+    "knex-paginate": "^3.0.1",
     "pg": "^8.7.0"
   }
 }
