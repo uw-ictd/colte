@@ -73,6 +73,7 @@ def _update_haulage(colte_data):
         # Create fields in the data if they do not yet exist
         _create_field_if_not_exist(haulage_data, ["custom"], CommentedMap())
 
+        haulage_data["upstreamInterface"] = colte_data["wan_iface"]
         haulage_data["userSubnet"] = colte_data["lte_subnet"]
         haulage_data["ignoredUserAddresses"] = [
             str(IPNetwork(colte_data["lte_subnet"])[1])
@@ -83,7 +84,7 @@ def _update_haulage(colte_data):
         haulage_data["custom"]["dbPass"] = colte_data["mysql_password"]
 
         # Hard-coded values
-        haulage_data["interface"] = "ogstun"
+        haulage_data["subscriberInterface"] = "ogstun"
 
     with open(haulage_config_file, "w") as f:
         # Save the results
