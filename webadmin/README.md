@@ -1,41 +1,83 @@
 # WebAdmin
 
-The WebAdmin is a tool for network administrators to manage customer accounts, enable/disable specific SIM cards, cofigure CoLTE, etc. It is intended to be your one-stop web interface for managing the network. We are currently building out this tool and adding various features, so please submit any and all requests.
+The WebAdmin is a tool for network administrators to manage customer accounts,
+enable/disable specific SIM cards, cofigure CoLTE, etc. It is intended to be
+your one-stop web interface for managing the network. We are currently building
+out this tool and adding various features, so please submit any and all
+requests.
 
-**_WARNING: The WebAdmin tool is secured via a basic username/password combo, and can completely manage a CoLTE network. It should be considered a security risk if your network supports untrusted users (i.e. customers) You are responsible for restricting access to WebAdmin based on IP addresses, or taking other steps to secure it, if you are using the WebAdmin tool in a production context._**
+> **WARNING:** The WebAdmin tool is secured via a basic username/password combo,
+> and can completely manage a CoLTE network. It should be considered a security
+> risk if your network supports untrusted users (i.e. customers) You are
+> responsible for restricting access to WebAdmin based on IP addresses, or
+> taking other steps to secure it, if you are using the WebAdmin tool in a
+> production context.
 
-### Initial Setup
+## Installation
 
-To play around with this code on your local machine, you must first install MySQL. This process will vary wildly depending on your exact platform/context: in Ubuntu/Debian you can just `apt-get install mysql-server mysql-client`, in OSX the process is more complicated for some reason. Once installed, issue the following commands as a MySQL user with admin privileges:
+### Package
+The webadmin tool and all needed dependencies installed and configured by
+default as part of the colte-prepaid package. See the [overall CoLTE project
+readme](../README.md) for details on how to install via package manager.
 
-```
-CREATE DATABASE colte_db;
-CREATE USER colte_db@localhost IDENTIFIED BY 'colte_db';
-GRANT ALL PRIVILEGES ON colte_db.* TO colte_db@localhost;
-FLUSH PRIVILEGES;
-```
+### Manual Installation & Setup
 
-Then, in a terminal, run the following command to import the sample database:
+To play around with this code on your local machine, with a manual installation,
+you must follow several steps to get the required dependencies.
 
-```
-mysql -u colte_db -pcolte_db colte_db < sample_db.sql
-```
+1.First install and configure postgres. This process will vary wildly depending on your
+  exact platform/context: in Ubuntu/Debian you can just `apt-get install
+  postgresql`, in OSX the process is more complicated for some reason. Once
+  installed, issue the following commands as a postgres user with admin
+  privileges:
+  ```sql
+  CREATE DATABASE haulage_db;
+  CREATE ROLE haulage_db WITH LOGIN ENCRYPTED PASSWORD 'haulage_db';
+  GRANT ALL PRIVILEGES ON DATABASE haulage_db TO haulage_db;
+  ```
 
-You must also install `npm`. Again, this varies wildly depending on your platform; Google is helpful.
+2. Some webadmin features require the installation of
+  [haulage](https://github.com/uw-ictd/haulage/). See the haulage documentation
+  for details on how to install it. You can operate without haulage, but will
+  need to manually create fake haulage database tables if so, or see some
+  commands fail to execute.
 
-### Installation/Configuration and Running
+3. You must also install `npm` and `node`. Again, this varies wildly depending
+  on your platform. You can find more information for your distribution via
+  [nodesource here](https://github.com/nodesource/distributions). We recommend
+  using the latest stable nodejs and npm versions from nodesource instead of the
+  version shipped in your particular distribution's repository.
 
-- Use `npm install` to install the dependencies
-- Create a .env file for environment variables. If you're just following the standard install scripts, the best way to do this is to just copy "production.env" to ".env" and look it over to make sure the DB\_ variables are correct.
-- The WebAdmin username will always be "admin" and you can change the password in the .env file.
-- `npm start` will run the app. It should be running on [localhost:7998](http://localhost:7998/) unless you've changed the PORT number in .env.
+4. Use npm to install all required javascript dependencies.
 
-### Debian Stretch And NodeJS
+  ```shell
+  cd webadmin
+  npm ci
+  ```
 
-Currently, the stable branch of Debian 9 (Stretch) supports `nodejs-v4.8.x`, but the WebAdmin tool requires `nodejs-8.x.x`. This version is currently available as a stretch backport, and can be downloaded/installed with the following commands:
+## Configuration and Running
 
-```
-echo "deb http://ftp.debian.org/debian stretch-backports main" | sudo tee -a /etc/apt/sources.list.d/backport.list
-sudo apt-get update
-sudo apt-get -t stretch-backports install nodejs
+- Create a .env file for environment variables. If you're just following the
+  standard install scripts, the best way to do this is to just copy
+  "production.env" to ".env" and look it over to make sure the DB_ variables
+  are correct.
+
+- The WebAdmin username will always be "admin" and you can change the password
+  in the .env file.
+
+- `npm start` will run the app. It should be running on
+  [localhost:7998](http://localhost:7998/) unless you've changed the PORT number
+  in .env.
+
+## Development
+
+If you want to run the webadmin tool without haulage, you can seed the database
+with fake data and run the emulate_haulage migrations. See
+[colte-common-models/knexfile.js](../colte-common-models/knexfile.js). Running
+the seed files and migrations looks like this:
+
+```shell
+cd colte-common-models
+DB_USER=haulage_db DB_PASSWORD=haulage_db DB_NAME=haulage_db DB_HOST=localhost npx -- knex migrate:latest
+DB_USER=haulage_db DB_PASSWORD=haulage_db DB_NAME=haulage_db DB_HOST=localhost npx -- knex seed:run
 ```
