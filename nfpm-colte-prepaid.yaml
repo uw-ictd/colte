@@ -55,7 +55,7 @@ provides:
 depends:
   - "colte-essential (=${VERSION}+${DISTRO_RELEASE_VERSION})"
   - "colte-cn (=${VERSION}+${DISTRO_RELEASE_VERSION})"
-  - "haulage (>= 0.2.2)"
+  - "haulage (>= 0.3.0)"
   - "python3"
   - "nodejs (>= 8.0.0)"
   - "postgresql"
