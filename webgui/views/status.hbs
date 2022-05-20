@@ -6,7 +6,7 @@
     </div>
     <div class="card-body">
       <p>{{translate "Phone Number"}}: {{msisdn}}</p>
-      <p>{{translate "Current Balance: $"}}{{balance}}</p>
+      <p>{{translate "Current Balance: $"}}{{{renderCurrency balance}}}</p>
       <p>{{translate "Data Balance: "}}{{data_balance_str}}</p>
       <p>{{translate "Total Downloaded: "}}{{raw_down_str}}</p>
       <p>{{translate "Total Uploaded: "}}{{raw_up_str}}</p>

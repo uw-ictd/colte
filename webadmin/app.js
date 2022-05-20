@@ -38,6 +38,60 @@ module.exports.translate = function (x) {
   return str;
 };
 
+// global helper function renderCurrency:
+//
+// takes a currency amount string, and prints it with varying behavior based on
+// the current locale.
+module.exports.renderCurrency = function (x_raw) {
+  // Drop decimal places if all zeros
+  let x = String(x_raw);
+  let x_split = x.split(".");
+  if (x_split.length > 2) {
+    console.log("Unusual currency format encountered, rendering directly");
+    return x;
+  }
+
+  const x_whole_part = parseInt(x_split[0], 10);
+  if (isNaN(x_whole_part)) {
+    console.log("Unusual currency format encountered, rendering directly");
+    return x;
+  }
+
+  let x_decimal_part = undefined;
+  if (x_split.length == 2) {
+    x_decimal_part = parseInt(x_split[1], 10);
+    if (isNaN(x_decimal_part)) {
+      console.log("Unusual currency format encountered, rendering directly");
+      return x;
+    }
+  }
+
+  if (locale === "id") {
+    console.log("Rendering idr");
+    if (x_decimal_part === undefined || x_decimal_part === 0) {
+      x =
+        commaNumber(Math.floor(x_whole_part / 1000), ".", ",") +
+        '<span class="minorcurrency">.' +
+        String(x_whole_part % 1000).padStart(3, "0") +
+        "</span";
+      return x;
+    }
+
+    // The number has decimal precision, render with full precision
+    x = commaNumber(x, ".", ",");
+    return x;
+  } else if (locale === "en") {
+    console.log("Rendering USD");
+    if (x_decimal_part === undefined || x_decimal_part === 0) {
+      return commaNumber(x_whole_part);
+    }
+    return commaNumber(x);
+  } else {
+    console.log("Rendering directly");
+    return x;
+  }
+};
+
 // global helper function convertBytes:
 // takes int value like "1500" and outputs string "1.0KB"
 function convertBytes(size) {
@@ -75,6 +129,8 @@ hbs.registerHelper("printNumber", function (x) {
   var str = commaNumber(x);
   return str;
 });
+// Render currencies for specific locales.
+hbs.registerHelper("renderCurrency", module.exports.renderCurrency);
 
 // ensure that we can create/read/open the transaction log file
 fs.appendFile(transaction_log, "", function (err) {

@@ -4,7 +4,7 @@
       {{translate "Account"}}
     </div>
     <div class="card-body">
-      <p>{{translate "Current Balance: $"}}{{balance}}</p>
+      <p>{{translate "Current Balance: $"}}{{{renderCurrency balance}}}</p>
       <p>{{translate "Data Balance: "}}{{data_balance_str}}</p>
     </div>
   </div>
@@ -28,7 +28,8 @@
                 "' for '"
               }} + '{{this.print_bytes}}' + '?');"
             >{{this.print_bytes}}</button>
-            {{this.print_cost}}</p>
+            {{this.currency_symbol}}
+            {{{renderCurrency this.print_cost}}}</p>
         {{/each}}
       </form>
       <p>
