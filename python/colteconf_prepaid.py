@@ -86,6 +86,10 @@ def _update_haulage(colte_data):
         # Hard-coded values
         haulage_data["subscriberInterface"] = "ogstun"
 
+        # Remove the legacy interface key if it remains
+        if "interface" in haulage_data:
+            del haulage_data["interface"]
+
     with open(haulage_config_file, "w") as f:
         # Save the results
         yaml.dump(haulage_data, f)
