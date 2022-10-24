@@ -103,6 +103,8 @@ npm install
 npm start
 ```
 
+If you want to use a translated template, at the directory views/ from each web interface, you need to change the .hbs-es files to .hbs
+
 # Configuration
 
 After installation, pointers to all the various config files can be found in `/etc/colte/`. The main config file is `config.yml`. After you edit this file, run `colteconf` to reconfigure all components and restart them as necessary. Note that you **must** run colteconf at least once after installing CoLTE, because there is no way for us to know some of the options (e.g. upstream and downstream interfaces).
