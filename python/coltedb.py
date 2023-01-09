@@ -20,6 +20,8 @@ def display_help():
     print("   topup_data {imsi} {data}: adds bytes to a user's account")
     print("   admin {imsi}: gives a user administrative privileges")
     print("   noadmin {imsi}: removes a user's administrative privileges")
+    print("   speed {imsi dl_value dl_unit ul_value ul_unit}: Change bandwith per UE unit values 0=bps 1=Kbps 2=Mbps 3=Gbps 4=Tbps")
+    print("   default values are as follows: APN \"internet\", dl_bw/ul_bw 1 Gbps, PGW address is 127.0.0.3, IPv4 only ")
     print("   help: displays this message and exits")
 
 
@@ -211,6 +213,22 @@ if __name__ == "__main__":
         accounting.unset_admin(
             db_name=dbname, db_user=db_user, db_pass=db_pass, imsi=sys.argv[2]
         )
+
+    elif command == "speed":
+        if len(sys.argv) != 7 :
+            log.error(
+                'coltedb: incorrect number of args, format is "coltedb speed imsi dl_value dl_unit ul_value dl_unit units values are 0=bps 1=Kbps 2=Mbps 3=Gbps 4=Gbps"'
+            )
+        else:
+            if core_network is not None:
+                core_network.speed_user(
+                    imsi=sys.argv[2],
+                    dl_value=sys.argv[3],
+                    dl_unit=sys.argv[4],
+                    ul_value=sys.argv[5],
+                    ul_unit=sys.argv[6],
+                )
+
 
     else:
         display_help()
