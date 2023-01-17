@@ -43,6 +43,8 @@ core networks.
   colte packages. This should be installed automatically as a dependency via apt
   if any of the other component packages are installed.
 
+
+
 ## Apt Packages
 
 To ease deployment, we host pre-compiled apt packages on our server for x86_64
@@ -50,6 +52,16 @@ and arm64 for all supported distributions. You will need to add our apt
 repository to get colte and haulage, and you will also need to add the open5gs
 repository separately. To do this, use the following commands according to your
 distribution:
+
+## Nodejs version recommendations
+A Ubuntu/Debian basic installation use nodejs at version 10, open5gs and CoLTE need 
+nodejs version 14 or 16, so we need to install it following next steps: 
+```shell 
+sudo apt update
+sudo apt install curl
+curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+sudo apt install nodejs
+```
 
 ### Debian 10 (buster) (**Recommended**)
 
@@ -90,6 +102,8 @@ corresponding directory and then do the following:
 npm install
 npm start
 ```
+
+If you want to use a translated template, at the directory views/ from each web interface, you need to change the .hbs-es files to .hbs
 
 # Configuration
 

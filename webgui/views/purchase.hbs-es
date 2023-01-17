@@ -1,0 +1,40 @@
+<main role="main" class="container">
+  <div class="card mb-3">
+    <div class="card-header">
+      {{translate "Account"}}
+    </div>
+    <div class="card-body">
+      <p>{{translate "Saldo actual: $"}}{{{renderCurrency balance}}}</p>
+      <p>{{translate "Datos Disponibles: "}}{{data_balance_str}}</p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      {{translate "Comprar"}}
+    </div>
+    <div class="card-body">
+      <form action="/purchase/purchase" method="post">
+        {{#each pack}}
+          <p><button
+              name="package"
+              value="{{this.bytes}}"
+              type="submit"
+              class="btn btn-primary btn-sm"
+              style="width: 80px"
+              onclick="return confirm({{@root.translate
+                "'Estas seguro(a) de que quieres usar '"
+              }} + '{{this.print_cost}}' + {{@root.translate
+                "' por '"
+              }} + '{{this.print_bytes}}' + '?');"
+            >{{this.print_bytes}}</button>
+            {{this.currency_symbol}}
+            {{{renderCurrency this.print_cost}}}</p>
+        {{/each}}
+      </form>
+      <p>
+
+      </p>
+    </div>
+  </div>
+</main>

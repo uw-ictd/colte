@@ -16,6 +16,9 @@ def add_user(imsi, ip, ki, opc, apn):
 def remove_user(imsi):
     subprocess.run(["/etc/colte/colte_open5gsdb", "remove", str(imsi)], check=True)
 
+def speed_user(imsi, dl_value, dl_unit, ul_value, ul_unit):
+    open5gs_entry = [str(imsi), str(dl_value), str(dl_unit), str(ul_value), str(ul_unit)]
+    subprocess.run(["/etc/colte/colte_open5gsdb", "speed"] + open5gs_entry, check=True)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

@@ -1,0 +1,71 @@
+<main role="main" class="container">
+
+  <div class="card mb-3">
+    <div class="card-header">
+      {{translate "Recargar Saldo Usuario"}}
+    </div>
+    <div class="card-body">
+      <form method="post" action="/home/topup">
+        <div class="form-group">
+          <label for="recipient">IMSI</label>
+          <input
+            type="tel"
+            id="formnumber"
+            class="form-control"
+            placeholder="{{translate 'IMSI'}}"
+            name="imsi"
+          />
+        </div>
+        <div class="form-group">
+          <label for="amount">{{translate "Cantidad a Recargar"}}</label>
+          <input type="text" id="formamount" class="form-control" name="amount" />
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          onclick="return confirm('Esta seguro de que desea recargar  ' + document.getElementById('formamount').value + ' pesos a la persona usuaria ' + document.getElementById('formnumber').value + '?');"
+        >{{translate "Recargar"}}</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      {{translate "Transferencia entre Usuarixs"}}
+    </div>
+    <div class="card-body">
+      <form method="post" action="/home/transfer">
+        <div class="form-group">
+          <label for="recipient">{{translate "IMSI que Envia"}}</label>
+          <input
+            type="tel"
+            id="formsend"
+            class="form-control"
+            placeholder="{{translate 'Numero Telefonico'}}"
+            name="source"
+          />
+          <label for="recipient">{{translate "IMSI que Recibe"}}</label>
+          <input
+            type="tel"
+            id="formreceive"
+            class="form-control"
+            placeholder="{{translate 'Numero Telefonico'}}"
+            name="dest"
+          />
+        </div>
+        <div class="form-group">
+          <label for="amount">{{translate "Cantidad a transferir"}}</label>
+          <input type="text" id="formtransferamount" class="form-control" name="amount" />
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          onclick="return confirm({{translate
+            "'Estas seguro que quieres transferir ' + document.getElementById('formtransferamount').value + ' pesos del usuario ' + document.getElementById('formsend').value + ' al usuario ' + document.getElementById('formreceive').value + '?'"
+          }});"
+        >{{translate "Transferir"}}</button>
+      </form>
+    </div>
+  </div>
+</main>
+

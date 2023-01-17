@@ -1,0 +1,13 @@
+<main role="main" class="container">
+  <div class="card mb-3">
+    <div class="card-header">
+      {{! TODO: Add translation of this term! }}
+      {{translate "Servicios Web Gratuitos"}}
+    </div>
+    <div class="card-body">
+      {{#each services}}
+        <p><a href={{this.url}} class="btn btn-primary btn-sm">{{this.serviceName}}</a></p>
+      {{/each}}
+    </div>
+  </div>
+</main>

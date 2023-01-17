@@ -1,0 +1,39 @@
+<main role="main" class="container">
+  <div class="card mb-3">
+    <div class="card-header">
+      {{translate "Transfer"}}
+    </div>
+    <div class="card-body">
+      <p>{{translate "Saldo actual: $"}}{{{renderCurrency balance}}}</p>
+      <form method="post" action="/transfer/transfer">
+        <div class="form-group">
+          <label for="recipient">{{translate "Numero Telefonico de la persona receptora"}}</label>
+          <input
+            type="tel"
+            id="formnumber"
+            class="form-control"
+            placeholder="{{translate 'Numero Telefonico'}}"
+            name="msisdn"
+          />
+        </div>
+        <div class="form-group">
+          <label for="amount">{{translate "Cantidad a enviar"}}</label>
+          <input
+            type="text"
+            id="formamount"
+            class="form-control"
+            placeholder="{{translate '$'}}"
+            name="amount"
+          />
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          onclick="return confirm({{translate
+            "'Estas seguro(a) que quieres enviar ' + document.getElementById('formamount').value + ' pesos a la persona usuaria ' + document.getElementById('formnumber').value + '?'"
+          }});"
+        >{{translate "Enviar"}}</button>
+      </form>
+    </div>
+  </div>
+</main>

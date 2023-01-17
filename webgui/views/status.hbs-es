@@ -1,0 +1,29 @@
+<main role="main" class="container">
+
+  <div class="card mb-3">
+    <div class="card-header">
+      {{translate "Información de la Cuenta"}}
+    </div>
+    <div class="card-body">
+      <p>{{translate "Número de Teléfono"}}: {{msisdn}}</p>
+      <p>{{translate "Saldo Actual: $"}}{{{renderCurrency balance}}}</p>
+      <p>{{translate "Datos Disponibles: "}}{{data_balance_str}}</p>
+      <p>{{translate "Total Descarga: "}}{{raw_down_str}}</p>
+      <p>{{translate "Total Enviado: "}}{{raw_up_str}}</p>
+    </div>
+  </div>
+
+  <!--        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <p>Data</p>
+
+    <div class="card mb-3">
+      <div class="card-header">
+        Más Información
+      </div>
+      <div class="card-body">
+      </div>
+    </div> -->
+
+</main>
