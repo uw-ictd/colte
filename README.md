@@ -95,6 +95,22 @@ npm start
 
 After installation, pointers to all the various config files can be found in `/etc/colte/`. The main config file is `config.yml`. After you edit this file, run `colteconf` to reconfigure all components and restart them as necessary. Note that you **must** run colteconf at least once after installing CoLTE, because there is no way for us to know some of the options (e.g. upstream and downstream interfaces).
 
+*Note: In the current state of this repo, running colteconf will give you apython type error. We are working on a fix, but for now, delete the spaces and hyphens in `/etc/open5gs/mme.yaml` so the `gummei` and `tai` sections look as they do below:*
+
+```
+  gummei:
+    plmn_id:
+      mcc: 910
+      mnc: 54
+    mme_gid: 2
+    mme_code: 1
+  tai:
+    plmn_id:
+      mcc: 910
+      mnc: 54
+    tac: 1
+```
+
 ## Basic Configs:
 
 Conceptually, your machine will need two network connections: one to the Internet (the upstream WAN) and another to the eNodeB (the downstream LAN) - these can actually be the same interface, it doesn't matter.

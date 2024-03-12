@@ -40,10 +40,10 @@ build_common_models:
 	cd colte-common-models; npm ci
 
 build_webgui: build_common_models
-	cd webgui; npm ci
+	cd webgui; rm -rf node_modules; rm package-lock.json; npm i; npm ci
 
 build_webadmin: build_common_models
-	cd webadmin; npm ci
+	cd webadmin; rm -rf node_modules; rm package-lock.json; npm i; npm ci
 
 build_arm64 build_x86_64: build_webgui build_webadmin
 
