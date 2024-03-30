@@ -63,17 +63,30 @@ curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash -
 sudo apt install nodejs
 ```
 
-### Debian 10 (buster) (**Recommended**)
+MongoDB v6 is the latest version that open5gs uses. 
+
+### Debian 10 (buster) (**Recommended**) 
 
 ```shell
 echo "deb [signed-by=/usr/share/keyrings/colte-archive-keyring.gpg] http://colte.cs.washington.edu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/colte.list
 sudo wget -O /usr/share/keyrings/colte-archive-keyring.gpg http://colte.cs.washington.edu/colte-archive-keyring.gpg
-wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
-echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org.list
+curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg] https://repo.mongodb.org/apt/debian bullseye/mongodb-org/6.0 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y mongodb-org
+sudo systemctl start mongod
+sudo systemctl enable mongod
 wget -qO - https://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_10/Release.key | sudo apt-key add -
 sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_10/ ./' > /etc/apt/sources.list.d/open5gs.list"
 sudo apt update
 sudo apt install colte-cn-4g colte-prepaid
+```
+
+You can install under Debian 11 
+```shell
+wget -qO - https://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_10/Release.key | sudo apt-key add -
+sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_11/ ./' > /etc/apt/sources.list.d/open5gs.list"
 ```
 
 ### Ubuntu 18.04 or 20.04 (bionic or focal)
