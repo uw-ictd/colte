@@ -55,11 +55,11 @@ distribution:
 
 ## Nodejs version recommendations
 A Ubuntu/Debian basic installation use nodejs at version 10, open5gs and CoLTE need 
-nodejs version 14 or 16, so we need to install it following next steps: 
+nodejs version 14 or latest (this solve npm takes long time to install), so we need to install it following next steps: 
 ```shell 
 sudo apt update
 sudo apt install curl
-curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash -
 sudo apt install nodejs
 ```
 
