@@ -12,6 +12,7 @@ display_help() {
     echo "   static_ip6 {imsi ip6}: adds a static IPv6 assignment to an already-existing user"
     echo "   type {imsi type}: changes the PDN-Type of the first PDN: 0 = IPv4, 1 = IPv6, 2 = IPv4v6, 3 = v4 OR v6"
     echo "   help: displays this message and exits"
+    echo "   speed {imsi dl_value dl_unit ul_value ul_unit}: dl_unit 0=bps 1=Kbps 2=Mbps 3=Gbps 4=Tbps  "
     echo "   default values are as follows: APN \"internet\", dl_bw/ul_bw 1 Gbps, PGW address is 127.0.0.3, IPv4 only"
 }
 
@@ -282,5 +283,20 @@ if [ "$1" = "type" ]; then
 	mongo --eval "db.subscribers.update({\"imsi\": \"$IMSI\"},{\$set: { \"pdn.0.type\": NumberInt($TYPE) }});" open5gs
 	exit 0
 fi
+
+if [ "$1" = "speed" ]; then
+	if [ "$#" -ne 6 ]; then
+		echo "dbconf.sh: incorrect number of args, format is \"open5gs_dbconf.sh speed imsi dl_value dl_unit_value ul_value ul_unit_value \""
+		exit 1
+	fi
+	IMSI=$2
+	DL_VALUE=$3
+	DL_UNIT=$4
+	UL_VALUE=$5
+	UL_UNIT=$6
+	mongo --eval "db.subscribers.update({\"imsi\": \"$IMSI\"},{\$set : { \"ambr\": {\"downlink\": {\"value\": NumberInt($DL_VALUE), \"unit\": NumberInt($DL_UNIT)}, \"uplink\": {\"value\": NumberInt($UL_VALUE),\"unit\": ($UL_UNIT) } } }});" open5gs
+	exit 0
+fi
+
 
 display_help

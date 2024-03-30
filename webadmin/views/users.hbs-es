@@ -1,0 +1,170 @@
+<link rel="stylesheet" href="/stylesheets/admin.css" />
+<main role="main" class="container">
+
+  <div class="card mb-3">
+    <div class="card-header">
+      {{translate "Busqueda de Usuarixs por IMSI"}}
+    </div>
+    <div class="card-body">
+      <form method="post" action="/users/details">
+        <div class="form-group">
+          <input id="imsi" name="imsi" />
+          <button type="submit" class="btn btn-primary">{{translate "Buscar"}}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>IMSI</th>
+            <th>Nombre</th>
+            <th>Numero telefonico</th>
+            <th>Saldo de Datos</th>
+            <th>Saldo en pesos</th>
+            <th>Acceso a Internet</th>
+            <th> Acceso Local -CoLTE</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each customers_list}}
+            <tr>
+              <form method="post" action="/users/update/{{this.imsi}}">
+                <td>{{this.imsi}}</td>
+                <td
+                  class="editable"
+                  id="{{this.imsi}}-username"
+                  data-toggle="popover"
+                  title="Edit username"
+                  data-content="<input type='text' id='{{this.imsi}}-new-username' value='{{this.username}}'> </input> <button class='btn btn-danger row-submit' type='submit' onclick='usernameSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>"
+                  data-html="true"
+                >
+                  {{username}}
+                  <input
+                    aria-hidden="true"
+                    class="invisible"
+                    name="username"
+                    id="{{this.imsi}}-username-input"
+                  />
+                </td>
+                <td>{{this.msisdn}}</td>
+                <td
+                  class="editable"
+                  id="{{this.imsi}}-data-balance"
+                  data-toggle="popover"
+                  title="Editar saldo en Datos"
+                  data-content="<input type='text' value='{{this.data_balance}}' id='{{this.imsi}}-new-data-balance'> </input> <button class='btn btn-danger row-submit' type='submit' onclick='dataBalanceSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>"
+                  data-html="true"
+                >
+                  {{convertBytes this.data_balance}}
+                  <input
+                    aria-hidden="true"
+                    value="{{this.data_balance}}"
+                    class="invisible"
+                    name="data_balance"
+                    id="{{this.imsi}}-data-balance-input"
+                  />
+                </td>
+                <td
+                  class="editable"
+                  id="{{this.imsi}}-balance"
+                  data-toggle="popover"
+                  title="Editar Saldo"
+                  data-content="<input type='text' value='{{this.balance}}' id='{{this.imsi}}-new-balance'> </input> <button class='btn btn-danger row-submit' type='submit' onclick='balanceSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>"
+                  data-html="true"
+                >
+                  {{{renderCurrency this.balance}}}
+                  <input
+                    aria-hidden="true"
+                    value="{{this.balance}}"
+                    class="invisible"
+                    name="balance"
+                    id="{{this.imsi}}-balance-input"
+                  />
+                </td>
+
+                <td
+                  class="editable"
+                  id="{{this.imsi}}-internet-access"
+                  data-toggle="popover"
+                  title="Editar Politicas de Acceso"
+                  data-content="<label for='no-balance-policy'>Sin Saldo</label> <select name='zero-balance-policy' id='{{this.imsi}}-zero-balance-policy-select'> {{#each @root.policies_list}} <option value='{{id}}' {{#ifequal ../this.zero_policy_id id}}selected{{/ifequal}}>{{ name }}</option> {{/each}} </select> <label for='positive-balance-policy'>Saldo Positivo</label> <select name='positive-balance-policy' id='{{this.imsi}}-positive-balance-policy-select'> {{#each @root.policies_list}} <option value='{{id}}' {{#ifequal ../this.positive_policy_id id}}selected{{/ifequal}}>{{ name }}</option> {{/each}} </select> <button class='btn btn-danger row-submit' type='submit' onclick='policyEditSubmit(&quot;{{this.imsi}}&quot;)'> OK </button>"
+                  data-html="true"
+                >
+                  {{ this.current_policy_name }}
+                  <input
+                    aria-hidden="true"
+                    value="{{this.zero_policy_id}}"
+                    class="invisible"
+                    name="zero_balance_policy"
+                    id="{{this.imsi}}-zero-balance-policy-input"
+                  />
+                  <input
+                    aria-hidden="true"
+                    value="{{this.positive_policy_id}}"
+                    class="invisible"
+                    name="positive_balance_policy"
+                    id="{{this.imsi}}-positive-balance-policy-input"
+                  />
+
+                </td>
+                <td class="center">
+                  {{#if this.enabled}}
+                    <input
+                      name="enabled"
+                      id="{{this.imsi}}-enabled-input"
+                      type="checkbox"
+                      checked
+                      onchange="checkboxSubmit(&quot;{{this.imsi}}&quot;)"
+                    />
+                  {{else}}
+                    <input
+                      name="enabled"
+                      id="{{this.imsi}}-enabled-input"
+                      type="checkbox"
+                      onchange="checkboxSubmit(&quot;{{this.imsi}}&quot;)"
+                    />
+                  {{/if}}
+                </td>
+                <td aria-hidden="true" class="invisible"><button
+                    aria-hidden="true"
+                    class="btn btn-primary invisible"
+                    type="submit"
+                    id="{{this.imsi}}-submit"
+                  ></button></td>
+              </form>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        {{#if has_previous}}
+          <li class="page-item"><a class="page-link" href="1">1</a></li>...
+        {{/if}}
+
+        {{#each page_list}}
+          {{#ifequal @root.current_page this}}
+            <li class="page-item active"><p class="page-link">{{this}}<span
+                  class="sr-only"
+                >(current)</span></p></li>
+          {{else}}
+            <li class="page-item"><a class="page-link" href="{{this}}">{{this}}</a></li>
+          {{/ifequal}}
+        {{/each}}
+
+        {{#if has_next}}
+          ...<li class="page-item"><a class="page-link" href="{{last_page}}">{{last_page}}</a></li>
+        {{/if}}
+      </ul>
+    </nav>
+  </div>
+</main>
+<script src="/javascripts/jquery-3.3.1.min.js"></script>
+<script src="/bootstrap-4.5.3/js/bootstrap.bundle.min.js"></script>
+<script src="/javascripts/admin.js"></script>
+
