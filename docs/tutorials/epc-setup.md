@@ -142,7 +142,26 @@ the MME will continually throw errors if you try to run it.
 
 ## IV. CoLTE Configuration
 
-### A. Using `colteconf`
+### A0. [Temp] Bug Fix
+
+Documented in the CoLTE README under [Configuration](https://github.com/uw-ictd/colte):
+*In the current state of this repo, running colteconf will give you a python type error. We are working on a fix, but for now, delete the spaces and hyphens in `/etc/open5gs/mme.yaml` so the `gummei` and `tai` sections look as they do below:*
+
+```
+  gummei:
+    plmn_id:
+      mcc: XXX
+      mnc: YY
+    mme_gid: 2
+    mme_code: 1
+  tai:
+    plmn_id:
+      mcc: XXX
+      mnc: YY
+    tac: 1
+```
+
+### A1. Using `colteconf`
 
 CoLTE simplifies LTE network configuration by consolidating relevant
 configuration files into the directory `/etc/colte`. The primary configuration
